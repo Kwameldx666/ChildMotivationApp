@@ -3,112 +3,261 @@
     x:Class="ChildMotivationApp.Pages.RoleSelectionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Background="{StaticResource PageBackgroundGradient}"
     Title="Choose Your Role">
+    
+    <!-- Динамический градиентный фон -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0" />
+            <GradientStop Color="#764ba2" Offset="0.5" />
+            <GradientStop Color="#f093fb" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <ScrollView>
-        <Grid Padding="24" HorizontalOptions="Fill" VerticalOptions="Center">
-            <!-- Main card with professional styling -->
-            <Frame x:Name="MainCard" Style="{StaticResource WelcomeCardFrame}"
-                   MaximumWidthRequest="680"
-                   HorizontalOptions="Center">
-                <VerticalStackLayout Spacing="24">
+        <VerticalStackLayout Padding="{OnIdiom Phone='20,40', Tablet='40,60', Desktop='60,80'}" 
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Center">
+            
+            <!-- Glassmorphism Main Container -->
+            <Border BackgroundColor="#25FFFFFF"
+                    StrokeThickness="1"
+                    Stroke="#40FFFFFF"
+                    Padding="{OnIdiom Phone=20, Tablet=32, Desktop=40}"
+                    HorizontalOptions="Center"
+                    WidthRequest="{OnIdiom Phone=-1, Tablet=700, Desktop=850}"
+                    x:Name="MainContainer">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=32, Desktop=36}" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Radius="40" Offset="0,20" />
+                </Border.Shadow>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#30FFFFFF" Offset="0" />
+                        <GradientStop Color="#20FFFFFF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <VerticalStackLayout Spacing="{OnIdiom Phone=28, Tablet=32, Desktop=36}">
                     
-                    <!-- Header Section -->
-                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                    <!-- Header Section с анимированными элементами -->
+                    <VerticalStackLayout x:Name="HeaderSection" 
+                                        Spacing="{OnIdiom Phone=14, Tablet=16, Desktop=18}" 
+                                        HorizontalOptions="Center">
+                        
+                        <!-- Декоративная иконка сверху -->
+                        <Label Text="👥" 
+                               FontSize="{OnIdiom Phone=50, Tablet=60, Desktop=70}"
+                               HorizontalOptions="Center"
+                               x:Name="HeaderIcon" />
+                        
                         <!-- Title -->
-                        <Label x:Name="PageTitleLabel" 
-                               Text="Who Are You?"
-                               Style="{StaticResource WelcomeTitle}"
-                               FontSize="28" />
+                        <Label Text="Who Are You?"
+                               FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="#40000000" Radius="10" Offset="0,4" />
+                            </Label.Shadow>
+                        </Label>
                         
                         <!-- Subtitle -->
-                        <Label Text="Choose your role in the family"
-                               Style="{StaticResource WelcomeSubtitle}"
-                               FontSize="16"
+                        <Label Text="Choose your role to get started"
+                               FontSize="{OnIdiom Phone=15, Tablet=17, Desktop=19}"
+                               TextColor="White"
+                               Opacity="0.9"
                                HorizontalOptions="Center" />
                         
-                        <!-- Decorative line -->
-                        <BoxView HeightRequest="2.5" 
-                                 WidthRequest="90" 
+                        <!-- Декоративная волнистая линия -->
+                        <BoxView HeightRequest="3" 
+                                 WidthRequest="{OnIdiom Phone=80, Tablet=100, Desktop=120}" 
                                  HorizontalOptions="Center"
-                                 CornerRadius="1.25">
+                                 CornerRadius="1.5"
+                                 Opacity="0.7">
                             <BoxView.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#6366F1" Offset="0" />
-                                    <GradientStop Color="#8B5CF6" Offset="0.5" />
-                                    <GradientStop Color="#EC4899" Offset="1" />
+                                    <GradientStop Color="#FFFFFF" Offset="0" />
+                                    <GradientStop Color="#f093fb" Offset="0.5" />
+                                    <GradientStop Color="#FFFFFF" Offset="1" />
                                 </LinearGradientBrush>
                             </BoxView.Background>
                         </BoxView>
                     </VerticalStackLayout>
 
-                    <!-- Role Selection Grid -->
-                    <FlexLayout x:Name="RolesGrid"
-                                Direction="Row"
-                                Wrap="Wrap"
-                                JustifyContent="Center"
-                                AlignItems="Start"
-                                Margin="0,16,0,16">
+                    <!-- Role Cards - вертикально на телефоне -->
+                    <VerticalStackLayout Spacing="20" x:Name="RolesContainer">
 
-                        <!-- Parent Role Tile -->
-                        <Border x:Name="ParentRole" Style="{StaticResource RoleSelectionCard}">
-                            <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
-                                <!-- Parent Icon -->
-                                <Border Style="{StaticResource RoleIconContainer}">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#FFF4E6" Offset="0" />
-                                            <GradientStop Color="#FFE4CC" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.Stroke>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#FF8A56" Offset="0" />
-                                            <GradientStop Color="#FF6B35" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Border.Stroke>
-                                    <Image Source="parents.png" Style="{StaticResource RoleIconImage}" />
+                        <!-- Parent Role Card - Premium Design -->
+                        <Border BackgroundColor="#20FFFFFF"
+                                StrokeThickness="2"
+                                Stroke="#40FFD700"
+                                Padding="{OnIdiom Phone=20, Tablet=24, Desktop=28}"
+                                x:Name="ParentRole"
+                                HeightRequest="{OnIdiom Phone=160, Tablet=180, Desktop=200}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnParentRoleSelected" />
+                            </Border.GestureRecognizers>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="24" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#40FFD700" Radius="25" Offset="0,10" />
+                            </Border.Shadow>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#30FFE4B5" Offset="0" />
+                                    <GradientStop Color="#20FFD700" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            
+                            <Grid ColumnDefinitions="Auto,*" 
+                                  ColumnSpacing="20">
+                                
+                                <!-- Icon Container с неоморфизмом -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="{OnIdiom Phone=90, Tablet=110, Desktop=130}"
+                                        HeightRequest="{OnIdiom Phone=90, Tablet=110, Desktop=130}"
+                                        BackgroundColor="#40FFE4B5"
+                                        StrokeThickness="3"
+                                        Stroke="#60FFD700"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="22" />
+                                    </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#40FFD700" Radius="20" Offset="0,8" />
+                                    </Border.Shadow>
+                                    
+                                    <Label Text="👨‍👩"
+                                           FontSize="{OnIdiom Phone=42, Tablet=52, Desktop=62}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
                                 
-                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                                    <Label Text="Parent" Style="{StaticResource RoleSelectionTitle}" />
-                                    <Label Text="Organize tasks and rewards" Style="{StaticResource RoleSelectionDescription}" />
+                                <!-- Content -->
+                                <VerticalStackLayout Grid.Column="1" 
+                                                    VerticalOptions="Center" 
+                                                    Spacing="8">
+                                    <Label Text="Parent"
+                                           FontSize="{OnIdiom Phone=22, Tablet=26, Desktop=30}"
+                                           FontAttributes="Bold"
+                                           TextColor="White">
+                                        <Label.Shadow>
+                                            <Shadow Brush="#40000000" Radius="5" Offset="0,2" />
+                                        </Label.Shadow>
+                                    </Label>
+                                    <Label Text="Manage family tasks and rewards"
+                                           FontSize="{OnIdiom Phone=14, Tablet=16, Desktop=18}"
+                                           TextColor="White"
+                                           Opacity="0.9"
+                                           LineBreakMode="WordWrap" />
+                                    
+                                    <!-- Badge -->
+                                    <Border BackgroundColor="#60FFD700"
+                                            Padding="10,4"
+                                            HorizontalOptions="Start"
+                                            Margin="0,8,0,0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12" />
+                                        </Border.StrokeShape>
+                                        <Label Text="🏆 Recommended"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
                                 </VerticalStackLayout>
-                            </VerticalStackLayout>
+                            </Grid>
                         </Border>
 
-                        <!-- Child Role Tile -->
-                        <Border x:Name="ChildRole" Style="{StaticResource RoleSelectionCard}">
-                            <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
-                                <!-- Child Icon -->
-                                <Border Style="{StaticResource RoleIconContainer}">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#F3E8FF" Offset="0" />
-                                            <GradientStop Color="#E9D5FF" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <Border.Stroke>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#8B5CF6" Offset="0" />
-                                            <GradientStop Color="#7C3AED" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Border.Stroke>
-                                    <Image Source="child.png" Style="{StaticResource RoleIconImage}" />
+                        <!-- Child Role Card - Premium Design -->
+                        <Border BackgroundColor="#20FFFFFF"
+                                StrokeThickness="2"
+                                Stroke="#40FF69B4"
+                                Padding="{OnIdiom Phone=20, Tablet=24, Desktop=28}"
+                                x:Name="ChildRole"
+                                HeightRequest="{OnIdiom Phone=160, Tablet=180, Desktop=200}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnChildRoleSelected" />
+                            </Border.GestureRecognizers>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="24" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#40FF69B4" Radius="25" Offset="0,10" />
+                            </Border.Shadow>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#30FFB6C1" Offset="0" />
+                                    <GradientStop Color="#20FF69B4" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            
+                            <Grid ColumnDefinitions="Auto,*" 
+                                  ColumnSpacing="20">
+                                
+                                <!-- Icon Container -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="{OnIdiom Phone=90, Tablet=110, Desktop=130}"
+                                        HeightRequest="{OnIdiom Phone=90, Tablet=110, Desktop=130}"
+                                        BackgroundColor="#40FFB6C1"
+                                        StrokeThickness="3"
+                                        Stroke="#60FF69B4"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="22" />
+                                    </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#40FF69B4" Radius="20" Offset="0,8" />
+                                    </Border.Shadow>
+                                    
+                                    <Label Text="👧"
+                                           FontSize="{OnIdiom Phone=42, Tablet=52, Desktop=62}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
                                 
-                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                                    <Label Text="Child" Style="{StaticResource RoleSelectionTitle}" />
-                                    <Label Text="Complete tasks and earn rewards" Style="{StaticResource RoleSelectionDescription}" />
+                                <!-- Content -->
+                                <VerticalStackLayout Grid.Column="1" 
+                                                    VerticalOptions="Center" 
+                                                    Spacing="8">
+                                    <Label Text="Child"
+                                           FontSize="{OnIdiom Phone=22, Tablet=26, Desktop=30}"
+                                           FontAttributes="Bold"
+                                           TextColor="White">
+                                        <Label.Shadow>
+                                            <Shadow Brush="#40000000" Radius="5" Offset="0,2" />
+                                        </Label.Shadow>
+                                    </Label>
+                                    <Label Text="Complete tasks, earn cool rewards"
+                                           FontSize="{OnIdiom Phone=14, Tablet=16, Desktop=18}"
+                                           TextColor="White"
+                                           Opacity="0.9"
+                                           LineBreakMode="WordWrap" />
+                                    
+                                    <!-- Badge -->
+                                    <Border BackgroundColor="#60FF69B4"
+                                            Padding="10,4"
+                                            HorizontalOptions="Start"
+                                            Margin="0,8,0,0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="12" />
+                                        </Border.StrokeShape>
+                                        <Label Text="🎮 Fun Mode"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="White" />
+                                    </Border>
                                 </VerticalStackLayout>
-                            </VerticalStackLayout>
+                            </Grid>
                         </Border>
                         
-                    </FlexLayout>
+                    </VerticalStackLayout>
                             
                 </VerticalStackLayout>
-            </Frame>
-        </Grid>
+            </Border>
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

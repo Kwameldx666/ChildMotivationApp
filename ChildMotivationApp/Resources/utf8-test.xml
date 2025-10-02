@@ -1,0 +1,7 @@
+<!-- UTF-8 encoding test file -->
+<!-- This file ensures proper UTF-8 support -->
+<Grid>
+    <!-- Test Russian characters: ??????? ????? -->
+    <!-- Test emojis: ?? ?? ?? ? -->
+    <!-- Test special characters: ? ? § -->
+</Grid>

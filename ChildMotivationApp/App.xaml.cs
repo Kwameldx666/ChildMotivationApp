@@ -9,7 +9,15 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var shell = new AppShell();
+            
+            // Устанавливаем стартовую страницу
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await shell.GoToAsync("//welcome");
+            });
+            
+            return new Window(shell);
         }
     }
 }

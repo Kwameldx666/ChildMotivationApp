@@ -4,16 +4,131 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ChildMotivationApp.Pages"
-    Title="ChildMotivationApp">
+    Title="ChildMotivationApp"
+    FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
+    <!-- Красивый Flyout Header для десктопа -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{StaticResource Primary}" HeightRequest="200">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource PrimaryPurple}" Offset="0" />
+                    <GradientStop Color="{StaticResource PrimaryPink}" Offset="1" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                <Label Text="👨‍👩‍👧‍👦" FontSize="40" HorizontalOptions="Center" />
+                <Label Text="Family Tasks" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
+                <Label Text="Organize • Complete • Reward" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
+            </StackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Стартовые страницы (без навигации) -->
     <ShellContent
         Title="Welcome"
         Route="welcome"
-        ContentTemplate="{DataTemplate local:WelcomePage}" />
+        ContentTemplate="{DataTemplate local:WelcomePage}"
+        Shell.NavBarIsVisible="False"
+        Shell.TabBarIsVisible="False" />
 
     <ShellContent
         Title="Role Selection"
         Route="roleselection"
-        ContentTemplate="{DataTemplate local:RoleSelectionPage}" />
+        ContentTemplate="{DataTemplate local:RoleSelectionPage}"
+        Shell.NavBarIsVisible="False"
+        Shell.TabBarIsVisible="False" />
+
+    <ShellContent
+        Title="Profile Setup"
+        Route="profilesetup"
+        ContentTemplate="{DataTemplate local:ProfileSetupPage}"
+        Shell.NavBarIsVisible="False"
+        Shell.TabBarIsVisible="False" />
+
+    <ShellContent
+        Title="Create Family"
+        Route="createfamily"
+        ContentTemplate="{DataTemplate local:CreateFamilyPage}"
+        Shell.NavBarIsVisible="False"
+        Shell.TabBarIsVisible="False" />
+
+    <!-- Основная навигация приложения - TabBar для мобильных -->
+    <TabBar x:Name="MainTabBar" Route="main">
+        
+        <!-- Домашняя страница -->
+        <Tab Title="Home">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="🏠" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
+            </Tab.Icon>
+            <ShellContent Route="dashboard" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+
+        <!-- Задачи -->
+        <Tab Title="Tasks">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="✅" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
+            </Tab.Icon>
+            <ShellContent Route="tasks" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+
+        <!-- Награды -->
+        <Tab Title="Rewards">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="🏆" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
+            </Tab.Icon>
+            <ShellContent Route="rewards" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+
+        <!-- Профиль -->
+        <Tab Title="Profile">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="👤" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
+            </Tab.Icon>
+            <ShellContent Route="profile" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+        
+    </TabBar>
+
+    <!-- Flyout Menu для десктопа/планшета -->
+    <FlyoutItem Title="Dashboard" Icon="home.png" Route="flyout_dashboard" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Tasks" Icon="tasks.png" Route="flyout_tasks" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Rewards" Icon="rewards.png" Route="flyout_rewards" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Family Members" Icon="family.png" Route="flyout_family" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Profile" Icon="profile.png" Route="flyout_profile" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Settings" Icon="settings.png" Route="flyout_settings" IsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate local:DashboardPage}" />
+    </FlyoutItem>
 
 </Shell>

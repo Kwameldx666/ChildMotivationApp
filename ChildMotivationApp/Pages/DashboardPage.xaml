@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<base:ResponsiveContentPage
+    x:Class="ChildMotivationApp.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:base="clr-namespace:ChildMotivationApp.Pages.Base"
+    xmlns:controls="clr-namespace:ChildMotivationApp.Controls"
+    Background="{StaticResource PageBackgroundGradient}"
+    Title="Dashboard"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- Main Content -->
+        <ScrollView>
+            <!-- Красивый адаптивный контейнер -->
+            <VerticalStackLayout x:Name="MainContentContainer" 
+                                Padding="20,40,20,120" 
+                                Spacing="24">
+
+                <!-- Красивый заголовок с эмодзи -->
+                <VerticalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,12,0,0">
+                    <!-- Красивый аватар с градиентом -->
+                    <Border x:Name="MainAvatar"
+                            WidthRequest="100" 
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            StrokeThickness="4"
+                            Stroke="White">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="50" />
+                        </Border.StrokeShape>
+                        <Border.Background>
+                            <RadialGradientBrush>
+                                <GradientStop Color="{StaticResource PrimaryPurple}" Offset="0" />
+                                <GradientStop Color="{StaticResource PrimaryPink}" Offset="1" />
+                            </RadialGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#406366F1" Radius="20" Offset="0,10" />
+                        </Border.Shadow>
+                        
+                        <Label x:Name="UserAvatarLabel"
+                               Text="A"
+                               FontSize="40"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Красивое приветствие -->
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <Label x:Name="WelcomeLabel" 
+                               Text="Welcome back! 👋"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Track progress and manage family tasks"
+                               FontSize="17"
+                               TextColor="{StaticResource TextSecondary}"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Красивые карточки статистики с градиентами и тенями -->
+                <Grid x:Name="StatsGrid" 
+                      ColumnDefinitions="*,*" 
+                      ColumnSpacing="16" 
+                      RowDefinitions="Auto,Auto"
+                      RowSpacing="16">
+                    
+                    <!-- Total Tasks - Красивая синяя карточка -->
+                    <Frame Grid.Column="0" Grid.Row="0"
+                           BackgroundColor="White"
+                           BorderColor="Transparent"
+                           CornerRadius="24"
+                           Padding="20"
+                           HasShadow="True"
+                           x:Name="TotalTasksCard">
+                        <Frame.Shadow>
+                            <Shadow Brush="#1A6366F1" Radius="20" Offset="0,8" />
+                        </Frame.Shadow>
+                        <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                            <!-- Иконка с градиентным фоном -->
+                            <Border WidthRequest="56" 
+                                    HeightRequest="56"
+                                    StrokeShape="RoundRectangle 28"
+                                    HorizontalOptions="Center">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#6366F1" Offset="0" />
+                                        <GradientStop Color="#8B5CF6" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Shadow>
+                                    <Shadow Brush="#406366F1" Radius="12" Offset="0,4" />
+                                </Border.Shadow>
+                                <Label Text="🎯"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label x:Name="TotalTasksLabel" 
+                                       Text="12" 
+                                       FontSize="32" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Total Tasks" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="created this month"
+                                       FontSize="11" 
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Pending Tasks - Красивая оранжевая карточка -->
+                    <Frame Grid.Column="1" Grid.Row="0"
+                           BackgroundColor="White"
+                           BorderColor="Transparent"
+                           CornerRadius="24"
+                           Padding="20"
+                           HasShadow="True"
+                           x:Name="PendingTasksCard">
+                        <Frame.Shadow>
+                            <Shadow Brush="#1AF59E0B" Radius="20" Offset="0,8" />
+                        </Frame.Shadow>
+                        <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                            <Border WidthRequest="56" 
+                                    HeightRequest="56"
+                                    StrokeShape="RoundRectangle 28"
+                                    HorizontalOptions="Center">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F59E0B" Offset="0" />
+                                        <GradientStop Color="#FBBF24" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Shadow>
+                                    <Shadow Brush="#40F59E0B" Radius="12" Offset="0,4" />
+                                </Border.Shadow>
+                                <Label Text="⏳"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label x:Name="PendingTasksLabel" 
+                                       Text="3" 
+                                       FontSize="32" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Pending" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="waiting approval"
+                                       FontSize="11" 
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Overdue Tasks - Красивая красная карточка -->
+                    <Frame Grid.Column="0" Grid.Row="1"
+                           BackgroundColor="White"
+                           BorderColor="Transparent"
+                           CornerRadius="24"
+                           Padding="20"
+                           HasShadow="True"
+                           x:Name="OverdueTasksCard">
+                        <Frame.Shadow>
+                            <Shadow Brush="#1AEF4444" Radius="20" Offset="0,8" />
+                        </Frame.Shadow>
+                        <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                            <Border WidthRequest="56" 
+                                    HeightRequest="56"
+                                    StrokeShape="RoundRectangle 28"
+                                    HorizontalOptions="Center">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#EF4444" Offset="0" />
+                                        <GradientStop Color="#F87171" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Shadow>
+                                    <Shadow Brush="#40EF4444" Radius="12" Offset="0,4" />
+                                </Border.Shadow>
+                                <Label Text="🚨"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label x:Name="OverdueTasksLabel" 
+                                       Text="1" 
+                                       FontSize="32" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Overdue" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="need attention"
+                                       FontSize="11" 
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Success Rate - Красивая зеленая карточка -->
+                    <Frame Grid.Column="1" Grid.Row="1"
+                           BackgroundColor="White"
+                           BorderColor="Transparent"
+                           CornerRadius="24"
+                           Padding="20"
+                           HasShadow="True"
+                           x:Name="SuccessRateCard">
+                        <Frame.Shadow>
+                            <Shadow Brush="#1A10B981" Radius="20" Offset="0,8" />
+                        </Frame.Shadow>
+                        <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                            <Border WidthRequest="56" 
+                                    HeightRequest="56"
+                                    StrokeShape="RoundRectangle 28"
+                                    HorizontalOptions="Center">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#10B981" Offset="0" />
+                                        <GradientStop Color="#34D399" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Shadow>
+                                    <Shadow Brush="#4010B981" Radius="12" Offset="0,4" />
+                                </Border.Shadow>
+                                <Label Text="📈"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label x:Name="SuccessRateLabel" 
+                                       Text="85%" 
+                                       FontSize="32" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource TextPrimary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Success Rate" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="family average"
+                                       FontSize="11" 
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Красивая секция Quick Actions -->
+                <Frame BackgroundColor="White"
+                       BorderColor="Transparent"
+                       CornerRadius="28"
+                       Padding="28"
+                       HasShadow="True">
+                    <Frame.Shadow>
+                        <Shadow Brush="#15000000" Radius="25" Offset="0,12" />
+                    </Frame.Shadow>
+                    <VerticalStackLayout Spacing="20">
+                        <HorizontalStackLayout Spacing="16" VerticalOptions="Center">
+                            <Border WidthRequest="48" 
+                                    HeightRequest="48"
+                                    StrokeShape="RoundRectangle 24">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#8B5CF6" Offset="0" />
+                                        <GradientStop Color="#EC4899" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Label Text="⚡" FontSize="24" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout>
+                                <Label Text="Quick Actions" 
+                                       FontSize="20" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{StaticResource TextPrimary}" />
+                                <Label Text="Manage your family tasks" 
+                                       FontSize="14" 
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        
+                        <Button Text="🎯 Create New Task"
+                                FontSize="18"
+                                HeightRequest="56"
+                                CornerRadius="28"
+                                FontAttributes="Bold"
+                                TextColor="White"
+                                Clicked="OnCreateTaskClicked">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#6366F1" Offset="0" />
+                                    <GradientStop Color="#8B5CF6" Offset="1" />
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button Grid.Column="0"
+                                    Text="📋 All Tasks"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource PrimaryPurple}"
+                                    BorderColor="{StaticResource PrimaryPurple}"
+                                    BorderWidth="2"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    HeightRequest="48"
+                                    CornerRadius="24" />
+                            
+                            <Button Grid.Column="1"
+                                    Text="🏆 Rewards"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource PrimaryPink}"
+                                    BorderColor="{StaticResource PrimaryPink}"
+                                    BorderWidth="2"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    HeightRequest="48"
+                                    CornerRadius="24" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Красивая карточка Family Info -->
+                <Frame BackgroundColor="White"
+                       BorderColor="Transparent"
+                       CornerRadius="28"
+                       Padding="28"
+                       HasShadow="True">
+                    <Frame.Shadow>
+                        <Shadow Brush="#15000000" Radius="25" Offset="0,12" />
+                    </Frame.Shadow>
+                    <VerticalStackLayout Spacing="20">
+                        <HorizontalStackLayout Spacing="12">
+                            <Label Text="👨‍👩‍👧‍👦" FontSize="24" VerticalOptions="Center" />
+                            <Label Text="Family" 
+                                   FontSize="20" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{StaticResource TextPrimary}"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        
+                        <!-- Красивый градиентный блок -->
+                        <Border StrokeShape="RoundRectangle 20" 
+                                Padding="24">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#8B5CF6" Offset="0" />
+                                    <GradientStop Color="#6366F1" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="#408B5CF6" Radius="16" Offset="0,6" />
+                            </Border.Shadow>
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label x:Name="FamilyInfoLabel"
+                                       Text="The Amazing Family"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center" />
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                    <Label Text="✨" FontSize="14" TextColor="#E9D5FF" />
+                                    <Label x:Name="MembersCountLabel"
+                                           Text="1 active member"
+                                           FontSize="16"
+                                           TextColor="#E9D5FF" />
+                                    <Label Text="✨" FontSize="14" TextColor="#E9D5FF" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Красивая кнопка Invite -->
+                        <Button Text="🎊 Invite Family Members"
+                                FontSize="16"
+                                HeightRequest="50"
+                                CornerRadius="25"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource PrimaryPurple}"
+                                BorderColor="{StaticResource PrimaryPurple}"
+                                BorderWidth="2"
+                                FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Modal Overlay для создания задач -->
+        <controls:CreateTaskModal x:Name="CreateTaskModal" 
+                                  TaskCreated="OnTaskCreated"
+                                  ModalClosed="OnModalClosed" />
+    </Grid>
+
+</base:ResponsiveContentPage>

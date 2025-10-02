@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ========================================= -->
+    <!-- Adaptive Content Container Styles -->
+    <!-- ========================================= -->
+    
+    <!-- Mobile Content Container -->
+    <Style x:Key="MobileContentContainer" TargetType="StackLayout">
+        <Setter Property="Padding" Value="16,20,16,120" />
+        <Setter Property="Spacing" Value="20" />
+    </Style>
+
+    <!-- Tablet Content Container -->
+    <Style x:Key="TabletContentContainer" TargetType="StackLayout">
+        <Setter Property="Padding" Value="24,32,24,80" />
+        <Setter Property="Spacing" Value="24" />
+    </Style>
+
+    <!-- Desktop Content Container -->
+    <Style x:Key="DesktopContentContainer" TargetType="StackLayout">
+        <Setter Property="Padding" Value="32,40,32,40" />
+        <Setter Property="Spacing" Value="28" />
+    </Style>
+
+    <!-- ========================================= -->
+    <!-- Adaptive Card Styles -->
+    <!-- ========================================= -->
+    
+    <!-- Mobile Cards -->
+    <Style x:Key="MobileCard" TargetType="Frame">
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Margin" Value="0,8" />
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="HasShadow" Value="True" />
+    </Style>
+
+    <!-- Tablet Cards -->
+    <Style x:Key="TabletCard" TargetType="Frame">
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="Margin" Value="0,10" />
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="HasShadow" Value="True" />
+    </Style>
+
+    <!-- Desktop Cards -->
+    <Style x:Key="DesktopCard" TargetType="Frame">
+        <Setter Property="CornerRadius" Value="28" />
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="Margin" Value="0,12" />
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="HasShadow" Value="True" />
+    </Style>
+
+    <!-- ========================================= -->
+    <!-- Navigation Button Styles -->
+    <!-- ========================================= -->
+    
+    <Style x:Key="NavButton" TargetType="Button">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,4" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <Style x:Key="NavButtonPrimary" TargetType="Button" BasedOn="{StaticResource NavButton}">
+        <Setter Property="BackgroundColor" Value="#8B5CF6" />
+    </Style>
+
+    <Style x:Key="NavButtonSecondary" TargetType="Button" BasedOn="{StaticResource NavButton}">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="#8B5CF6" />
+        <Setter Property="BorderColor" Value="#8B5CF6" />
+        <Setter Property="BorderWidth" Value="2" />
+    </Style>
+
+</ResourceDictionary>

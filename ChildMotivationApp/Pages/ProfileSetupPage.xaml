@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.ProfileSetupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Profile Setup">
+    
+    <!-- Красивый градиентный фон -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0" />
+            <GradientStop Color="#764ba2" Offset="0.5" />
+            <GradientStop Color="#f093fb" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="{OnIdiom Phone='20,30', Tablet='40,50', Desktop='60,70'}" 
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Center">
+            
+            <!-- Glassmorphism Main Card -->
+            <Border BackgroundColor="#25FFFFFF"
+                    StrokeThickness="1"
+                    Stroke="#40FFFFFF"
+                    Padding="{OnIdiom Phone=20, Tablet=28, Desktop=36}"
+                    HorizontalOptions="Center"
+                    WidthRequest="{OnIdiom Phone=-1, Tablet=600, Desktop=720}"
+                    x:Name="MainCard">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=32, Desktop=36}" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Radius="40" Offset="0,20" />
+                </Border.Shadow>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#30FFFFFF" Offset="0" />
+                        <GradientStop Color="#20FFFFFF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <VerticalStackLayout Spacing="{OnIdiom Phone=22, Tablet=26, Desktop=30}">
+                    
+                    <!-- Header Section -->
+                    <VerticalStackLayout Spacing="{OnIdiom Phone=14, Tablet=16, Desktop=18}" 
+                                        HorizontalOptions="Center"
+                                        x:Name="HeaderSection">
+                        
+                        <!-- Title -->
+                        <Label x:Name="PageTitleLabel" 
+                               Text="About You"
+                               FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="#40000000" Radius="10" Offset="0,4" />
+                            </Label.Shadow>
+                        </Label>
+                        
+                        <!-- Subtitle -->
+                        <Label x:Name="PageSubtitleLabel"
+                               Text="Create your profile"
+                               FontSize="{OnIdiom Phone=15, Tablet=17, Desktop=19}"
+                               TextColor="White"
+                               Opacity="0.9"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Decorative line -->
+                        <BoxView HeightRequest="3" 
+                                 WidthRequest="{OnIdiom Phone=80, Tablet=100, Desktop=120}" 
+                                 HorizontalOptions="Center"
+                                 CornerRadius="1.5"
+                                 Opacity="0.7">
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFFFFF" Offset="0" />
+                                    <GradientStop Color="#f093fb" Offset="0.5" />
+                                    <GradientStop Color="#FFFFFF" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
+                    </VerticalStackLayout>
+
+                    <!-- Avatar Section с неоморфизмом -->
+                    <VerticalStackLayout Spacing="14" 
+                                        HorizontalOptions="Center"
+                                        x:Name="AvatarSection">
+                        
+                        <!-- Avatar Container с glow эффектом -->
+                        <Grid WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                              HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}">
+                            
+                            <!-- Outer glow -->
+                            <Ellipse Fill="#40667eea" 
+                                     WidthRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}" 
+                                     HeightRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}"
+                                     Opacity="0.6"
+                                     x:Name="AvatarGlow" />
+                            
+                            <!-- Main Avatar Circle -->
+                            <Border x:Name="AvatarBorder"
+                                    WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                                    HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}"
+                                    StrokeThickness="3"
+                                    Stroke="#60FFFFFF"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape>
+                                    <Ellipse />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#60667eea" Radius="30" Offset="0,15" />
+                                </Border.Shadow>
+                                
+                                <Label x:Name="AvatarIcon"
+                                       Text="👤"
+                                       FontSize="{OnIdiom Phone=52, Tablet=62, Desktop=72}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Role Badge -->
+                        <Border x:Name="RoleBadge"
+                                Padding="{OnIdiom Phone='12,6', Tablet='14,7', Desktop='16,8'}"
+                                BackgroundColor="#40FFFFFF"
+                                StrokeThickness="1"
+                                Stroke="#60FFFFFF"
+                                HorizontalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#30000000" Radius="15" Offset="0,6" />
+                            </Border.Shadow>
+                            
+                            <Label x:Name="RoleLabel"
+                                   Text="Parent"
+                                   FontSize="{OnIdiom Phone=15, Tablet=16, Desktop=17}"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Form Section с современным дизайном -->
+                    <VerticalStackLayout Spacing="{OnIdiom Phone=18, Tablet=20, Desktop=22}" 
+                                        HorizontalOptions="Fill"
+                                        x:Name="FormSection">
+                        
+                        <!-- Name Input -->
+                        <VerticalStackLayout x:Name="NameInputSection" Spacing="8">
+                            <Label x:Name="NameLabel"
+                                   Text="✨ Your Name"
+                                   FontSize="{OnIdiom Phone=15, Tablet=16, Desktop=17}"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   Opacity="0.95" />
+                            
+                            <Border BackgroundColor="#30FFFFFF"
+                                    StrokeThickness="2"
+                                    Stroke="#40FFFFFF"
+                                    Padding="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#20000000" Radius="10" Offset="0,4" />
+                                </Border.Shadow>
+                                
+                                <Entry x:Name="NameEntry"
+                                       Placeholder="Enter your awesome name"
+                                       FontSize="{OnIdiom Phone=16, Tablet=17, Desktop=18}"
+                                       TextColor="White"
+                                       PlaceholderColor="#80FFFFFF"
+                                       BackgroundColor="Transparent"
+                                       HeightRequest="{OnIdiom Phone=52, Tablet=56, Desktop=60}"
+                                       Margin="16,0" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Age Input (only for children) -->
+                        <VerticalStackLayout x:Name="AgeSection" 
+                                           Spacing="8"
+                                           IsVisible="False">
+                            <Label x:Name="AgeLabel"
+                                   Text="🎂 Your Age"
+                                   FontSize="{OnIdiom Phone=15, Tablet=16, Desktop=17}"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   Opacity="0.95" />
+                            
+                            <Border BackgroundColor="#30FFFFFF"
+                                    StrokeThickness="2"
+                                    Stroke="#40FFFFFF"
+                                    Padding="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#20000000" Radius="10" Offset="0,4" />
+                                </Border.Shadow>
+                                
+                                <Grid ColumnDefinitions="60,*,60" HeightRequest="{OnIdiom Phone=52, Tablet=56, Desktop=60}">
+                                    
+                                    <!-- Decrease Button -->
+                                    <Button x:Name="DecreaseAgeButton"
+                                            Grid.Column="0"
+                                            Text="−"
+                                            FontSize="28"
+                                            FontAttributes="Bold"
+                                            TextColor="White"
+                                            BackgroundColor="Transparent"
+                                            Clicked="OnDecreaseAgeClicked" />
+                                    
+                                    <!-- Age Entry -->
+                                    <Entry x:Name="AgeEntry"
+                                           Grid.Column="1"
+                                           Text="8"
+                                           Keyboard="Numeric"
+                                           FontSize="{OnIdiom Phone=20, Tablet=22, Desktop=24}"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           BackgroundColor="Transparent"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center"
+                                           TextChanged="OnAgeTextChanged" />
+                                    
+                                    <!-- Increase Button -->
+                                    <Button x:Name="IncreaseAgeButton"
+                                            Grid.Column="2"
+                                            Text="+"
+                                            FontSize="24"
+                                            FontAttributes="Bold"
+                                            TextColor="White"
+                                            BackgroundColor="Transparent"
+                                            Clicked="OnIncreaseAgeClicked" />
+                                </Grid>
+                            </Border>
+                            
+                            <!-- Age hint -->
+                            <Label Text="Choose age between 3 and 18"
+                                   FontSize="{OnIdiom Phone=12, Tablet=13, Desktop=14}"
+                                   TextColor="White"
+                                   Opacity="0.7"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+
+                    <!-- Premium Action Button -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="0"
+                            Margin="0,16,0,0"
+                            x:Name="ContinueButtonBorder">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=30, Desktop=32}" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#60667eea" Radius="25" Offset="0,12" />
+                        </Border.Shadow>
+                        
+                        <Button x:Name="ContinueButton"
+                                Text="Continue →"
+                                FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                FontAttributes="Bold"
+                                TextColor="#667eea"
+                                BackgroundColor="Transparent"
+                                HeightRequest="{OnIdiom Phone=56, Tablet=60, Desktop=64}"
+                                Clicked="OnContinueClicked" />
+                    </Border>
+                            
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

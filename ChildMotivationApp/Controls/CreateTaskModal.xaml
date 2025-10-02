@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="ChildMotivationApp.Controls.CreateTaskModal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="ModalRoot"
+    IsVisible="False">
+
+    <!-- Overlay Background -->
+    <Grid BackgroundColor="#80000000">
+        
+        <!-- Modal Container -->
+        <Frame x:Name="ModalFrame"
+               BackgroundColor="White"
+               CornerRadius="24"
+               Padding="0"
+               HasShadow="True"
+               MaximumWidthRequest="420"
+               MaximumHeightRequest="650"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               Margin="20">
+            <Frame.Shadow>
+                <Shadow Brush="#40000000" Radius="30" Offset="0,15" />
+            </Frame.Shadow>
+
+            <ScrollView>
+                <VerticalStackLayout Spacing="0">
+                    
+                    <!-- Header -->
+                    <Grid ColumnDefinitions="*,Auto" 
+                          BackgroundColor="#6366F1" 
+                          Padding="20,16,16,16">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6366F1" Offset="0" />
+                                <GradientStop Color="#8B5CF6" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        
+                        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+                            <Border WidthRequest="28" 
+                                    HeightRequest="28"
+                                    BackgroundColor="White"
+                                    StrokeShape="RoundRectangle 14">
+                                <Label Text="?" 
+                                       FontSize="14" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Create New Task"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                        </HorizontalStackLayout>
+                        
+                        <Button Grid.Column="1"
+                                x:Name="CloseButton"
+                                Text="?"
+                                FontSize="16"
+                                TextColor="White"
+                                BackgroundColor="Transparent"
+                                BorderWidth="0"
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                CornerRadius="16"
+                                Clicked="OnCloseClicked" />
+                    </Grid>
+
+                    <!-- Form Content -->
+                    <VerticalStackLayout Padding="20" Spacing="16">
+                        
+                        <!-- Task Title -->
+                        <VerticalStackLayout Spacing="6">
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="Task Name"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827" />
+                                <Label Text="*"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#EF4444" />
+                            </HorizontalStackLayout>
+                            <Border StrokeShape="RoundRectangle 8"
+                                    Stroke="#E5E7EB"
+                                    StrokeThickness="1"
+                                    BackgroundColor="White">
+                                <Entry x:Name="TaskTitleEntry"
+                                       Placeholder="Example: Wash dishes"
+                                       FontSize="14"
+                                       TextColor="#111827"
+                                       PlaceholderColor="#9CA3AF"
+                                       BackgroundColor="Transparent"
+                                       HeightRequest="40"
+                                       Margin="12,0" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Description -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Description"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#111827" />
+                            <Border StrokeShape="RoundRectangle 8"
+                                    Stroke="#E5E7EB"
+                                    StrokeThickness="1"
+                                    BackgroundColor="White"
+                                    HeightRequest="60">
+                                <Editor x:Name="DescriptionEditor"
+                                        Placeholder="Detailed description of what needs to be done..."
+                                        FontSize="13"
+                                        TextColor="#111827"
+                                        PlaceholderColor="#9CA3AF"
+                                        BackgroundColor="Transparent"
+                                        Margin="12,6" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Category and Priority -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            
+                            <!-- Category -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="Category"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827" />
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White">
+                                    <Picker x:Name="CategoryPicker"
+                                            FontSize="13"
+                                            TextColor="#111827"
+                                            BackgroundColor="Transparent"
+                                            HeightRequest="40"
+                                            Margin="12,0">
+                                        <Picker.Items>
+                                            <x:String>?? Cleaning</x:String>
+                                            <x:String>?? Homework</x:String>
+                                            <x:String>????? Sports</x:String>
+                                            <x:String>?? Creative</x:String>
+                                            <x:String>??? Cooking</x:String>
+                                            <x:String>?? Chores</x:String>
+                                            <x:String>?? Technology</x:String>
+                                            <x:String>?? Music</x:String>
+                                            <x:String>?? Reading</x:String>
+                                            <x:String>?? Other</x:String>
+                                        </Picker.Items>
+                                    </Picker>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Priority -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Priority"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827" />
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White">
+                                    <Picker x:Name="PriorityPicker"
+                                            FontSize="13"
+                                            TextColor="#111827"
+                                            BackgroundColor="Transparent"
+                                            HeightRequest="40"
+                                            Margin="12,0">
+                                        <Picker.Items>
+                                            <x:String>?? High</x:String>
+                                            <x:String>? Medium</x:String>
+                                            <x:String>?? Low</x:String>
+                                        </Picker.Items>
+                                    </Picker>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Points, Difficulty, Time -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            
+                            <!-- Points -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="Points"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827"
+                                       HorizontalOptions="Center" />
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White">
+                                    <Entry x:Name="PointsEntry"
+                                           Text="11"
+                                           Keyboard="Numeric"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#111827"
+                                           BackgroundColor="Transparent"
+                                           HeightRequest="36"
+                                           HorizontalTextAlignment="Center"
+                                           Margin="6,0" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Difficulty -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Difficulty (1-5)"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827"
+                                       HorizontalOptions="Center" />
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White">
+                                    <Entry x:Name="DifficultyEntry"
+                                           Text="4584984"
+                                           Keyboard="Numeric"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#111827"
+                                           BackgroundColor="Transparent"
+                                           HeightRequest="36"
+                                           HorizontalTextAlignment="Center"
+                                           Margin="6,0" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Time -->
+                            <VerticalStackLayout Grid.Column="2" Spacing="6">
+                                <Label Text="Time (min)"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827"
+                                       HorizontalOptions="Center" />
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White">
+                                    <Entry x:Name="TimeEntry"
+                                           Text="30"
+                                           Keyboard="Numeric"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#111827"
+                                           BackgroundColor="Transparent"
+                                           HeightRequest="36"
+                                           HorizontalTextAlignment="Center"
+                                           Margin="6,0" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Due Date -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Due Date"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#111827" />
+                            <Border StrokeShape="RoundRectangle 8"
+                                    Stroke="#E5E7EB"
+                                    StrokeThickness="1"
+                                    BackgroundColor="White">
+                                <DatePicker x:Name="DueDatePicker"
+                                            FontSize="14"
+                                            TextColor="#111827"
+                                            BackgroundColor="Transparent"
+                                            HeightRequest="40"
+                                            Margin="12,0" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Assign To -->
+                        <VerticalStackLayout Spacing="6">
+                            <HorizontalStackLayout Spacing="4">
+                                <Label Text="Assign to"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#111827" />
+                                <Label Text="*"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#EF4444" />
+                            </HorizontalStackLayout>
+                            <Border StrokeShape="RoundRectangle 8"
+                                    Stroke="#E5E7EB"
+                                    StrokeThickness="1"
+                                    BackgroundColor="White">
+                                <Picker x:Name="AssignToPicker"
+                                        FontSize="14"
+                                        TextColor="#111827"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="40"
+                                        Margin="12,0">
+                                    <Picker.Items>
+                                        <x:String>?? Select at least one child</x:String>
+                                        <x:String>?? Emma (8 years)</x:String>
+                                        <x:String>?? Alex (10 years)</x:String>
+                                        <x:String>??????????? All children</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                            <Label Text="Select at least one child"
+                                   FontSize="12"
+                                   TextColor="#EF4444"
+                                   Margin="0,2,0,0" />
+                        </VerticalStackLayout>
+
+                        <!-- Verification Method -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Verification Method"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#111827" />
+                            <VerticalStackLayout Spacing="12">
+                                
+                                <!-- Photo Verification -->
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White"
+                                        Padding="16"
+                                        x:Name="PhotoVerificationBorder">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPhotoVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                                        <!-- Radio Button Style Indicator -->
+                                        <Border WidthRequest="20" 
+                                                HeightRequest="20"
+                                                BackgroundColor="White"
+                                                StrokeShape="Ellipse"
+                                                Stroke="#E5E7EB"
+                                                StrokeThickness="2">
+                                        </Border>
+                                        <Border WidthRequest="24" 
+                                                HeightRequest="24"
+                                                BackgroundColor="#F3F4F6"
+                                                StrokeShape="RoundRectangle 4">
+                                            <Label Text="??" 
+                                                   FontSize="14" 
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                            <Label Text="Photo verification"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#111827" />
+                                            <Label Text="Child takes a photo"
+                                                   FontSize="12"
+                                                   TextColor="#6B7280" />
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!-- Video Verification -->
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White"
+                                        Padding="16"
+                                        x:Name="VideoVerificationBorder">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnVideoVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                                        <!-- Radio Button Style Indicator -->
+                                        <Border WidthRequest="20" 
+                                                HeightRequest="20"
+                                                BackgroundColor="White"
+                                                StrokeShape="Ellipse"
+                                                Stroke="#E5E7EB"
+                                                StrokeThickness="2">
+                                        </Border>
+                                        <Border WidthRequest="24" 
+                                                HeightRequest="24"
+                                                BackgroundColor="#F3F4F6"
+                                                StrokeShape="RoundRectangle 4">
+                                            <Label Text="??" 
+                                                   FontSize="14" 
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                            <Label Text="Video verification"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#111827" />
+                                            <Label Text="Child records video"
+                                                   FontSize="12"
+                                                   TextColor="#6B7280" />
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!-- Checklist Verification -->
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#E5E7EB"
+                                        StrokeThickness="1"
+                                        BackgroundColor="White"
+                                        Padding="16"
+                                        x:Name="ChecklistVerificationBorder">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnChecklistVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                                        <!-- Radio Button Style Indicator -->
+                                        <Border WidthRequest="20" 
+                                                HeightRequest="20"
+                                                BackgroundColor="White"
+                                                StrokeShape="Ellipse"
+                                                Stroke="#E5E7EB"
+                                                StrokeThickness="2">
+                                        </Border>
+                                        <Border WidthRequest="24" 
+                                                HeightRequest="24"
+                                                BackgroundColor="#F3F4F6"
+                                                StrokeShape="RoundRectangle 4">
+                                            <Label Text="??" 
+                                                   FontSize="14" 
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                            <Label Text="Checklist"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#111827" />
+                                            <Label Text="List of actions to complete"
+                                                   FontSize="12"
+                                                   TextColor="#6B7280" />
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <!-- Manual Verification - Selected by Default -->
+                                <Border StrokeShape="RoundRectangle 8"
+                                        Stroke="#8B5CF6"
+                                        StrokeThickness="2"
+                                        BackgroundColor="#F3E8FF"
+                                        Padding="16"
+                                        x:Name="ManualVerificationBorder">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnManualVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                                        <!-- Radio Button Style Indicator -->
+                                        <Border WidthRequest="20" 
+                                                HeightRequest="20"
+                                                BackgroundColor="#8B5CF6"
+                                                StrokeShape="Ellipse"
+                                                Stroke="#8B5CF6"
+                                                StrokeThickness="2">
+                                            <Border WidthRequest="8" 
+                                                    HeightRequest="8"
+                                                    BackgroundColor="White"
+                                                    StrokeShape="Ellipse"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                            <Label Text="Manual check"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#111827" />
+                                            <Label Text="Check manually yourself"
+                                                   FontSize="12"
+                                                   TextColor="#6B7280" />
+                                        </VerticalStackLayout>
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Action Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    TextColor="#6B7280"
+                                    BackgroundColor="Transparent"
+                                    BorderColor="#E5E7EB"
+                                    BorderWidth="1"
+                                    HeightRequest="44"
+                                    CornerRadius="22"
+                                    Clicked="OnCancelClicked" />
+                            
+                            <Button Grid.Column="1"
+                                    x:Name="CreateTaskButton"
+                                    Text="Create Task"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    HeightRequest="44"
+                                    CornerRadius="22"
+                                    Clicked="OnCreateTaskClicked">
+                                <Button.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#8B5CF6" Offset="0" />
+                                        <GradientStop Color="#A855F7" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                            </Button>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Frame>
+    </Grid>
+</ContentView>

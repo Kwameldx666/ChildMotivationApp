@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Mobile Styles -->
+    <Style x:Key="MobileContainerStyle" TargetType="Grid">
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="ColumnSpacing" Value="8" />
+        <Setter Property="RowSpacing" Value="8" />
+    </Style>
+    
+    <Style x:Key="MobileHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+    
+    <Style x:Key="MobileSubHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    
+    <Style x:Key="MobileBodyStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+    
+    <Style x:Key="MobileCardStyle" TargetType="Frame">
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+    <!-- Tablet Styles -->
+    <Style x:Key="TabletContainerStyle" TargetType="Grid">
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="ColumnSpacing" Value="16" />
+        <Setter Property="RowSpacing" Value="16" />
+    </Style>
+    
+    <Style x:Key="TabletHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+    
+    <Style x:Key="TabletSubHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    
+    <Style x:Key="TabletBodyStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+    
+    <Style x:Key="TabletCardStyle" TargetType="Frame">
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+    <!-- Desktop Styles -->
+    <Style x:Key="DesktopContainerStyle" TargetType="Grid">
+        <Setter Property="Padding" Value="32" />
+        <Setter Property="ColumnSpacing" Value="24" />
+        <Setter Property="RowSpacing" Value="24" />
+    </Style>
+    
+    <Style x:Key="DesktopHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="40" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+    
+    <Style x:Key="DesktopSubHeaderStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+    </Style>
+    
+    <Style x:Key="DesktopBodyStyle" TargetType="Label">
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+    
+    <Style x:Key="DesktopCardStyle" TargetType="Frame">
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+    <!-- Responsive Button Styles -->
+    <Style x:Key="ResponsivePrimaryButton" TargetType="Button">
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="48" />
+    </Style>
+
+</ResourceDictionary>

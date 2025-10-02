@@ -2,205 +2,328 @@
 <ContentPage
     x:Class="ChildMotivationApp.Pages.WelcomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Background="{StaticResource PageBackgroundGradient}">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Красивый анимированный градиентный фон -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0" />
+            <GradientStop Color="#764ba2" Offset="0.5" />
+            <GradientStop Color="#f093fb" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <ScrollView>
-        <Grid Padding="24" HorizontalOptions="Fill" VerticalOptions="Center">
-            <!-- Main card with professional styling -->
-            <Frame x:Name="MainCard" Style="{StaticResource WelcomeCardFrame}"
-                   MaximumWidthRequest="720"
-                   HorizontalOptions="Center">
-                <VerticalStackLayout Spacing="28">
+        <VerticalStackLayout Padding="{OnIdiom Phone='20,30', Tablet='40,50', Desktop='60,70'}" 
+                            Spacing="0"
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Center">
+            
+            <!-- Декоративные плавающие круги на фоне -->
+            <Grid>
+                <Ellipse Fill="#20FFFFFF" 
+                         WidthRequest="300" 
+                         HeightRequest="300" 
+                         HorizontalOptions="Start"
+                         VerticalOptions="Start"
+                         Margin="-150,-150,0,0"
+                         Opacity="0.3" />
+                <Ellipse Fill="#20FFFFFF" 
+                         WidthRequest="200" 
+                         HeightRequest="200" 
+                         HorizontalOptions="End"
+                         VerticalOptions="End"
+                         Margin="0,0,-100,-100"
+                         Opacity="0.2" />
+            </Grid>
+
+            <!-- Main Glassmorphism Card -->
+            <Border BackgroundColor="#25FFFFFF"
+                    StrokeThickness="1"
+                    Stroke="#40FFFFFF"
+                    Padding="{OnIdiom Phone=20, Tablet=32, Desktop=40}"
+                    HorizontalOptions="Center"
+                    WidthRequest="{OnIdiom Phone=-1, Tablet=650, Desktop=750}"
+                    x:Name="MainCard">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=32, Desktop=36}" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Radius="40" Offset="0,20" />
+                </Border.Shadow>
+                
+                <!-- Backdrop blur effect simulation -->
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#30FFFFFF" Offset="0" />
+                        <GradientStop Color="#20FFFFFF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <VerticalStackLayout Spacing="{OnIdiom Phone=24, Tablet=28, Desktop=32}">
                     
-                    <!-- Hero Icon Section - Centered -->
-                    <Grid x:Name="HeroIconContainer" 
-                          WidthRequest="110" 
-                          HeightRequest="110" 
+                    <!-- Hero Icon с неоморфизмом -->
+                    <Grid WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                          HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}"
                           HorizontalOptions="Center"
-                          Margin="0,10,0,0">
-                    
-                        <!-- Decorative background -->
-                        <Ellipse Fill="#10ff3cac" 
-                                 WidthRequest="130" 
-                                 HeightRequest="130" 
-                                 HorizontalOptions="Center" 
-                                 VerticalOptions="Center" 
-                                 Opacity="0.3" />
-                    
-                        <!-- Gradient background for icon -->
-                        <Border x:Name="IconBackground"
-                                WidthRequest="110" 
-                                HeightRequest="110" 
-                                HorizontalOptions="Center" 
-                                VerticalOptions="Center">
+                          x:Name="HeroIcon">
+                        
+                        <!-- Внешний glow -->
+                        <Ellipse Fill="#40667eea" 
+                                 WidthRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}" 
+                                 HeightRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}"
+                                 Opacity="0.6" />
+                        
+                        <!-- Основной круг с градиентом -->
+                        <Border WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                                HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}"
+                                StrokeThickness="3"
+                                Stroke="#60FFFFFF"
+                                HorizontalOptions="Center">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="55" />
+                                <Ellipse />
                             </Border.StrokeShape>
                             <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#a63de3" Offset="0" />
-                                    <GradientStop Color="#ff3cac" Offset="1" />
-                                </LinearGradientBrush>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="#667eea" Offset="0" />
+                                    <GradientStop Color="#764ba2" Offset="0.7" />
+                                    <GradientStop Color="#f093fb" Offset="1" />
+                                </RadialGradientBrush>
                             </Border.Background>
                             <Border.Shadow>
-                                <Shadow Brush="#40a63de3" Radius="22" Offset="0,10" />
+                                <Shadow Brush="#60667eea" Radius="30" Offset="0,15" />
                             </Border.Shadow>
+                            
+                            <Label Text="✨" 
+                                   FontSize="{OnIdiom Phone=50, Tablet=60, Desktop=70}" 
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
                         </Border>
-                    
-                        <!-- Heart icon -->
-                        <Image x:Name="HeroImage" 
-                               Source="heart_white.png"
-                               WidthRequest="55" 
-                               HeightRequest="65" 
-                               HorizontalOptions="Center" 
-                               VerticalOptions="Center"
-                               Aspect="AspectFit" />
-                    
                     </Grid>
 
-                    <!-- Title Section - Perfectly Centered -->
-                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <!-- Title Section с анимированными элементами -->
+                    <VerticalStackLayout Spacing="{OnIdiom Phone=12, Tablet=14, Desktop=16}" 
+                                        HorizontalOptions="Center"
+                                        x:Name="TitleSection">
+                        
                         <!-- Welcome text -->
-                        <Label x:Name="WelcomeTitleLabel" 
-                               Text="Welcome to" 
-                               FontSize="28"
+                        <Label Text="Welcome to" 
+                               FontSize="{OnIdiom Phone=22, Tablet=26, Desktop=30}"
                                FontAttributes="Bold"
-                               TextColor="#111827"
+                               TextColor="White"
                                HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center" />
+                               Opacity="0.95" />
 
-                        <!-- App Name with symmetrical decorations -->
-                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                            <!-- Decorative line above -->
-                            <BoxView HeightRequest="3" 
-                                     WidthRequest="80" 
-                                     HorizontalOptions="Center"
-                                     CornerRadius="1.5">
-                                <BoxView.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#6366F1" Offset="0" />
-                                        <GradientStop Color="#EC4899" Offset="1" />
-                                    </LinearGradientBrush>
-                                </BoxView.Background>
-                            </BoxView>
-                            
-                            <!-- App Name -->
-                            <Label x:Name="AppNameLabel"
-                                   Text="FamilyQuest"
-                                   FontSize="36"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="#6366F1">
-                                <Label.Shadow>
-                                    <Shadow Brush="#40000000" Radius="8" Offset="2,2" />
-                                </Label.Shadow>
-                            </Label>
-                            
-                            <!-- Decorative line below -->
-                            <BoxView HeightRequest="3" 
-                                     WidthRequest="100" 
-                                     HorizontalOptions="Center"
-                                     CornerRadius="1.5">
-                                <BoxView.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#8B5CF6" Offset="0" />
-                                        <GradientStop Color="#EC4899" Offset="1" />
-                                    </LinearGradientBrush>
-                                </BoxView.Background>
-                            </BoxView>
-                        </VerticalStackLayout>
+                        <!-- Декоративная линия с градиентом -->
+                        <BoxView HeightRequest="3" 
+                                 WidthRequest="{OnIdiom Phone=70, Tablet=90, Desktop=110}" 
+                                 HorizontalOptions="Center"
+                                 CornerRadius="1.5"
+                                 Opacity="0.7">
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFFFFF" Offset="0" />
+                                    <GradientStop Color="#f093fb" Offset="0.5" />
+                                    <GradientStop Color="#FFFFFF" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
+                        
+                        <!-- App Name -->
+                        <Label Text="Family Tasks"
+                               FontSize="{OnIdiom Phone=32, Tablet=40, Desktop=48}"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               LineHeight="1.2">
+                            <Label.Shadow>
+                                <Shadow Brush="#40000000" Radius="10" Offset="0,4" />
+                            </Label.Shadow>
+                        </Label>
+                        
+                        <!-- Декоративная линия снизу -->
+                        <BoxView HeightRequest="3" 
+                                 WidthRequest="{OnIdiom Phone=90, Tablet=110, Desktop=130}" 
+                                 HorizontalOptions="Center"
+                                 CornerRadius="1.5"
+                                 Opacity="0.7">
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFFFFF" Offset="0" />
+                                    <GradientStop Color="#667eea" Offset="0.5" />
+                                    <GradientStop Color="#FFFFFF" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
                     </VerticalStackLayout>
 
-                    <!-- Subtitle Section - Centered -->
-                    <HorizontalStackLayout HorizontalOptions="Center" 
-                                          Spacing="8"
+                    <!-- Subtitle с иконкой -->
+                    <HorizontalStackLayout Spacing="8" 
+                                          HorizontalOptions="Center" 
                                           Margin="0,8,0,0">
-                        <Label Style="{StaticResource WelcomeSubtitle}"
-                               Text="Transform household chores into an exciting game!"
-                               FontSize="18"
+                        <Label Text="Transform chores into fun!"
+                               FontSize="{OnIdiom Phone=15, Tablet=17, Desktop=19}"
+                               TextColor="White"
                                HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center"
+                               Opacity="0.9" />
+                        <Label Text="🎮" 
+                               FontSize="{OnIdiom Phone=18, Tablet=20, Desktop=22}" 
                                VerticalOptions="Center" />
-                        <Label Text="🎮" FontSize="20" VerticalOptions="Center" />
                     </HorizontalStackLayout>
 
-                    <!-- Feature tiles - Symmetrical Grid -->
-                    <Grid x:Name="FeaturesGrid"
-                          ColumnDefinitions="*,*,*" 
-                          ColumnSpacing="16" 
-                          Margin="0,24,0,0"
-                          HorizontalOptions="Center">
+                    <!-- Feature Cards с современным дизайном -->
+                    <VerticalStackLayout Spacing="14" 
+                                        Margin="0,20,0,0"
+                                        x:Name="FeaturesSection">
                     
-                        <!-- Earn Points -->
-                        <Frame x:Name="PointsTile" Grid.Column="0" Style="{StaticResource WelcomeFeatureTile}">
-                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                                <Image Source="star.png"
-                                       WidthRequest="54" 
-                                       HeightRequest="54"
-                                       Aspect="AspectFit"
-                                       HorizontalOptions="Center" 
-                                       VerticalOptions="Center" />
-                                <Label Text="Earn Points" 
-                                       Style="{StaticResource WelcomeFeatureTitle}"
-                                       FontSize="16" />
-                                <Label Text="For every task" 
-                                       Style="{StaticResource WelcomeFeatureText}"
-                                       FontSize="13" />
-                            </VerticalStackLayout>
-                        </Frame>
+                        <!-- Earn Points Card -->
+                        <Border BackgroundColor="#20FFFFFF"
+                                StrokeThickness="1"
+                                Stroke="#30FFFFFF"
+                                Padding="18">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="18" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#20000000" Radius="15" Offset="0,8" />
+                            </Border.Shadow>
+                            
+                            <HorizontalStackLayout Spacing="16">
+                                <!-- Icon Container -->
+                                <Border WidthRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        HeightRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        BackgroundColor="#30FFD700"
+                                        StrokeThickness="2"
+                                        Stroke="#60FFD700">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16" />
+                                    </Border.StrokeShape>
+                                    <Label Text="⭐" 
+                                           FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}" 
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                    <Label Text="Earn Points" 
+                                           FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="Complete tasks, collect rewards" 
+                                           FontSize="{OnIdiom Phone=13, Tablet=14, Desktop=15}"
+                                           TextColor="White"
+                                           Opacity="0.8" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </Border>
 
-                        <!-- Buy Rewards -->
-                        <Frame x:Name="RewardsTile" Grid.Column="1" Style="{StaticResource WelcomeFeatureTile}">
-                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                                <Image Source="present.png"
-                                       WidthRequest="54" 
-                                       HeightRequest="54"
-                                       Aspect="AspectFit"
-                                       HorizontalOptions="Center" 
-                                       VerticalOptions="Center" />
-                                <Label Text="Buy Rewards" 
-                                       Style="{StaticResource WelcomeFeatureTitle}"
-                                       FontSize="16" />
-                                <Label Text="Spend points on prizes" 
-                                       Style="{StaticResource WelcomeFeatureText}"
-                                       FontSize="13" />
-                            </VerticalStackLayout>
-                        </Frame>
+                        <!-- Buy Rewards Card -->
+                        <Border BackgroundColor="#20FFFFFF"
+                                StrokeThickness="1"
+                                Stroke="#30FFFFFF"
+                                Padding="18">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="18" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#20000000" Radius="15" Offset="0,8" />
+                            </Border.Shadow>
+                            
+                            <HorizontalStackLayout Spacing="16">
+                                <Border WidthRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        HeightRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        BackgroundColor="#30FF69B4"
+                                        StrokeThickness="2"
+                                        Stroke="#60FF69B4">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16" />
+                                    </Border.StrokeShape>
+                                    <Label Text="🎁" 
+                                           FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}" 
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                    <Label Text="Amazing Rewards" 
+                                           FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="Spend points on cool prizes" 
+                                           FontSize="{OnIdiom Phone=13, Tablet=14, Desktop=15}"
+                                           TextColor="White"
+                                           Opacity="0.8" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </Border>
 
-                        <!-- Work Together -->
-                        <Frame x:Name="TeamworkTile" Grid.Column="2" Style="{StaticResource WelcomeFeatureTile}">
-                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                                <Image Source="team_work.png"
-                                       WidthRequest="54" 
-                                       HeightRequest="54"
-                                       Aspect="AspectFit"
-                                       HorizontalOptions="Center" 
-                                       VerticalOptions="Center" />
-                                <Label Text="Work Together" 
-                                       Style="{StaticResource WelcomeFeatureTitle}"
-                                       FontSize="16" />
-                                <Label Text="Help your family" 
-                                       Style="{StaticResource WelcomeFeatureText}"
-                                       FontSize="13" />
-                            </VerticalStackLayout>
-                        </Frame>
+                        <!-- Work Together Card -->
+                        <Border BackgroundColor="#20FFFFFF"
+                                StrokeThickness="1"
+                                Stroke="#30FFFFFF"
+                                Padding="18">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="18" />
+                            </Border.StrokeShape>
+                            <Border.Shadow>
+                                <Shadow Brush="#20000000" Radius="15" Offset="0,8" />
+                            </Border.Shadow>
+                            
+                            <HorizontalStackLayout Spacing="16">
+                                <Border WidthRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        HeightRequest="{OnIdiom Phone=52, Tablet=60, Desktop=68}"
+                                        BackgroundColor="#3000CED1"
+                                        StrokeThickness="2"
+                                        Stroke="#6000CED1">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16" />
+                                    </Border.StrokeShape>
+                                    <Label Text="👨‍👩‍👧‍👦" 
+                                           FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}" 
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                    <Label Text="Family Together" 
+                                           FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="Achieve goals as a team" 
+                                           FontSize="{OnIdiom Phone=13, Tablet=14, Desktop=15}"
+                                           TextColor="White"
+                                           Opacity="0.8" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </Border>
                         
-                    </Grid>
+                    </VerticalStackLayout>
 
-                    <!-- Action button - Centered and Symmetrical -->
-                    <Button x:Name="ActionButton"
-                            Text="Start Adventure! 🚀"
-                            Style="{StaticResource WelcomeActionButton}"
-                            FontSize="18"
-                            HeightRequest="58"
-                            Margin="24,28,24,0"
-                            HorizontalOptions="Fill"
-                            Clicked="OnStartClicked"/>
+                    <!-- Premium Action Button -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="0"
+                            Margin="0,24,0,8"
+                            x:Name="ActionButtonBorder">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=30, Desktop=32}" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#60667eea" Radius="25" Offset="0,12" />
+                        </Border.Shadow>
+                        
+                        <Button Text="Start Your Journey 🚀"
+                                FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                FontAttributes="Bold"
+                                TextColor="#667eea"
+                                BackgroundColor="Transparent"
+                                HeightRequest="{OnIdiom Phone=56, Tablet=60, Desktop=64}"
+                                Clicked="OnStartClicked" />
+                    </Border>
                             
                 </VerticalStackLayout>
-            </Frame>
-        </Grid>
+            </Border>
+
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

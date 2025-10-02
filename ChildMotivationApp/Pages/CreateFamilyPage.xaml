@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.CreateFamilyPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Create Family">
+    
+    <!-- Красивый градиентный фон -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0" />
+            <GradientStop Color="#764ba2" Offset="0.5" />
+            <GradientStop Color="#f093fb" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="{OnIdiom Phone='20,30', Tablet='40,50', Desktop='60,70'}" 
+                            HorizontalOptions="Fill" 
+                            VerticalOptions="Center">
+            
+            <!-- Glassmorphism Main Card -->
+            <Border BackgroundColor="#25FFFFFF"
+                    StrokeThickness="1"
+                    Stroke="#40FFFFFF"
+                    Padding="{OnIdiom Phone=20, Tablet=28, Desktop=36}"
+                    HorizontalOptions="Center"
+                    WidthRequest="{OnIdiom Phone=-1, Tablet=600, Desktop=720}"
+                    x:Name="MainCard">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=32, Desktop=36}" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Radius="40" Offset="0,20" />
+                </Border.Shadow>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#30FFFFFF" Offset="0" />
+                        <GradientStop Color="#20FFFFFF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <VerticalStackLayout Spacing="{OnIdiom Phone=24, Tablet=28, Desktop=32}">
+                    
+                    <!-- House Icon с неоморфизмом и glow -->
+                    <Grid WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                          HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}"
+                          HorizontalOptions="Center"
+                          x:Name="HouseIcon">
+                        
+                        <!-- Outer glow -->
+                        <Ellipse Fill="#40FFA500" 
+                                 WidthRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}" 
+                                 HeightRequest="{OnIdiom Phone=130, Tablet=150, Desktop=170}"
+                                 Opacity="0.6" />
+                        
+                        <!-- Main Circle -->
+                        <Border WidthRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}" 
+                                HeightRequest="{OnIdiom Phone=110, Tablet=130, Desktop=150}"
+                                StrokeThickness="3"
+                                Stroke="#60FFFFFF">
+                            <Border.StrokeShape>
+                                <Ellipse />
+                            </Border.StrokeShape>
+                            <Border.Background>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="#FFD700" Offset="0" />
+                                    <GradientStop Color="#FFA500" Offset="1" />
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="#60FFA500" Radius="30" Offset="0,15" />
+                            </Border.Shadow>
+                            
+                            <Label Text="🏠"
+                                   FontSize="{OnIdiom Phone=50, Tablet=60, Desktop=70}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Header Section -->
+                    <VerticalStackLayout x:Name="HeaderSection" 
+                                        Spacing="{OnIdiom Phone=14, Tablet=16, Desktop=18}" 
+                                        HorizontalOptions="Center">
+                        
+                        <!-- Title -->
+                        <Label Text="Create Your Family"
+                               FontSize="{OnIdiom Phone=28, Tablet=34, Desktop=40}"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="#40000000" Radius="10" Offset="0,4" />
+                            </Label.Shadow>
+                        </Label>
+                        
+                        <!-- Subtitle -->
+                        <Label Text="Choose a name for your family"
+                               FontSize="{OnIdiom Phone=15, Tablet=17, Desktop=19}"
+                               TextColor="White"
+                               Opacity="0.9"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Decorative line -->
+                        <BoxView HeightRequest="3" 
+                                 WidthRequest="{OnIdiom Phone=80, Tablet=100, Desktop=120}" 
+                                 HorizontalOptions="Center"
+                                 CornerRadius="1.5"
+                                 Opacity="0.7">
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFFFFF" Offset="0" />
+                                    <GradientStop Color="#FFD700" Offset="0.5" />
+                                    <GradientStop Color="#FFFFFF" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
+                    </VerticalStackLayout>
+
+                    <!-- Form Section -->
+                    <VerticalStackLayout x:Name="FormSection"
+                                        Spacing="{OnIdiom Phone=18, Tablet=20, Desktop=22}" 
+                                        HorizontalOptions="Fill">
+                        
+                        <!-- Family Name Input -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="🏡 Family Name"
+                                   FontSize="{OnIdiom Phone=15, Tablet=16, Desktop=17}"
+                                   FontAttributes="Bold"
+                                   TextColor="White"
+                                   Opacity="0.95" />
+                            
+                            <Border BackgroundColor="#30FFFFFF"
+                                    StrokeThickness="2"
+                                    Stroke="#40FFFFFF"
+                                    Padding="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#20000000" Radius="10" Offset="0,4" />
+                                </Border.Shadow>
+                                
+                                <Entry x:Name="FamilyNameEntry"
+                                       Placeholder="The Awesome Family"
+                                       FontSize="{OnIdiom Phone=16, Tablet=17, Desktop=18}"
+                                       TextColor="White"
+                                       PlaceholderColor="#80FFFFFF"
+                                       BackgroundColor="Transparent"
+                                       HeightRequest="{OnIdiom Phone=52, Tablet=56, Desktop=60}"
+                                       Margin="16,0" />
+                            </Border>
+                            
+                            <!-- Hint -->
+                            <Label Text="This will be your family's display name 👨‍👩‍👧‍👦"
+                                   FontSize="{OnIdiom Phone=12, Tablet=13, Desktop=14}"
+                                   TextColor="White"
+                                   Opacity="0.7"
+                                   HorizontalOptions="Center"
+                                   Margin="0,4,0,0" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+
+                    <!-- Premium Action Button -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="0"
+                            Margin="0,16,0,0"
+                            x:Name="CreateButtonBorder">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{OnIdiom Phone=28, Tablet=30, Desktop=32}" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#60FFD700" Radius="25" Offset="0,12" />
+                        </Border.Shadow>
+                        
+                        <Button x:Name="CreateFamilyButton"
+                                Text="Create Family 🎉"
+                                FontSize="{OnIdiom Phone=17, Tablet=19, Desktop=21}"
+                                FontAttributes="Bold"
+                                TextColor="#FFA500"
+                                BackgroundColor="Transparent"
+                                HeightRequest="{OnIdiom Phone=56, Tablet=60, Desktop=64}"
+                                Clicked="OnCreateFamilyClicked" />
+                    </Border>
+                            
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
