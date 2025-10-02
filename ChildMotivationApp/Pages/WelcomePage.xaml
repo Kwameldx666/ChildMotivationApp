@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.WelcomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource PageBackgroundGradient}">
+
+    <ScrollView>
+        <Grid Padding="24" HorizontalOptions="Fill" VerticalOptions="Center">
+            <!-- Main card with professional styling -->
+            <Frame x:Name="MainCard" Style="{StaticResource WelcomeCardFrame}"
+                   MaximumWidthRequest="720"
+                   HorizontalOptions="Center">
+                <VerticalStackLayout Spacing="28">
+                    
+                    <!-- Hero Icon Section - Centered -->
+                    <Grid x:Name="HeroIconContainer" 
+                          WidthRequest="110" 
+                          HeightRequest="110" 
+                          HorizontalOptions="Center"
+                          Margin="0,10,0,0">
+                    
+                        <!-- Decorative background -->
+                        <Ellipse Fill="#10ff3cac" 
+                                 WidthRequest="130" 
+                                 HeightRequest="130" 
+                                 HorizontalOptions="Center" 
+                                 VerticalOptions="Center" 
+                                 Opacity="0.3" />
+                    
+                        <!-- Gradient background for icon -->
+                        <Border x:Name="IconBackground"
+                                WidthRequest="110" 
+                                HeightRequest="110" 
+                                HorizontalOptions="Center" 
+                                VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="55" />
+                            </Border.StrokeShape>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#a63de3" Offset="0" />
+                                    <GradientStop Color="#ff3cac" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="#40a63de3" Radius="22" Offset="0,10" />
+                            </Border.Shadow>
+                        </Border>
+                    
+                        <!-- Heart icon -->
+                        <Image x:Name="HeroImage" 
+                               Source="heart_white.png"
+                               WidthRequest="55" 
+                               HeightRequest="65" 
+                               HorizontalOptions="Center" 
+                               VerticalOptions="Center"
+                               Aspect="AspectFit" />
+                    
+                    </Grid>
+
+                    <!-- Title Section - Perfectly Centered -->
+                    <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                        <!-- Welcome text -->
+                        <Label x:Name="WelcomeTitleLabel" 
+                               Text="Welcome to" 
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="#111827"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
+
+                        <!-- App Name with symmetrical decorations -->
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <!-- Decorative line above -->
+                            <BoxView HeightRequest="3" 
+                                     WidthRequest="80" 
+                                     HorizontalOptions="Center"
+                                     CornerRadius="1.5">
+                                <BoxView.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6366F1" Offset="0" />
+                                        <GradientStop Color="#EC4899" Offset="1" />
+                                    </LinearGradientBrush>
+                                </BoxView.Background>
+                            </BoxView>
+                            
+                            <!-- App Name -->
+                            <Label x:Name="AppNameLabel"
+                                   Text="FamilyQuest"
+                                   FontSize="36"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="#6366F1">
+                                <Label.Shadow>
+                                    <Shadow Brush="#40000000" Radius="8" Offset="2,2" />
+                                </Label.Shadow>
+                            </Label>
+                            
+                            <!-- Decorative line below -->
+                            <BoxView HeightRequest="3" 
+                                     WidthRequest="100" 
+                                     HorizontalOptions="Center"
+                                     CornerRadius="1.5">
+                                <BoxView.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#8B5CF6" Offset="0" />
+                                        <GradientStop Color="#EC4899" Offset="1" />
+                                    </LinearGradientBrush>
+                                </BoxView.Background>
+                            </BoxView>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Subtitle Section - Centered -->
+                    <HorizontalStackLayout HorizontalOptions="Center" 
+                                          Spacing="8"
+                                          Margin="0,8,0,0">
+                        <Label Style="{StaticResource WelcomeSubtitle}"
+                               Text="Transform household chores into an exciting game!"
+                               FontSize="18"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               VerticalOptions="Center" />
+                        <Label Text="🎮" FontSize="20" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <!-- Feature tiles - Symmetrical Grid -->
+                    <Grid x:Name="FeaturesGrid"
+                          ColumnDefinitions="*,*,*" 
+                          ColumnSpacing="16" 
+                          Margin="0,24,0,0"
+                          HorizontalOptions="Center">
+                    
+                        <!-- Earn Points -->
+                        <Frame x:Name="PointsTile" Grid.Column="0" Style="{StaticResource WelcomeFeatureTile}">
+                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                                <Image Source="star.png"
+                                       WidthRequest="54" 
+                                       HeightRequest="54"
+                                       Aspect="AspectFit"
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center" />
+                                <Label Text="Earn Points" 
+                                       Style="{StaticResource WelcomeFeatureTitle}"
+                                       FontSize="16" />
+                                <Label Text="For every task" 
+                                       Style="{StaticResource WelcomeFeatureText}"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Buy Rewards -->
+                        <Frame x:Name="RewardsTile" Grid.Column="1" Style="{StaticResource WelcomeFeatureTile}">
+                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                                <Image Source="present.png"
+                                       WidthRequest="54" 
+                                       HeightRequest="54"
+                                       Aspect="AspectFit"
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center" />
+                                <Label Text="Buy Rewards" 
+                                       Style="{StaticResource WelcomeFeatureTitle}"
+                                       FontSize="16" />
+                                <Label Text="Spend points on prizes" 
+                                       Style="{StaticResource WelcomeFeatureText}"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <!-- Work Together -->
+                        <Frame x:Name="TeamworkTile" Grid.Column="2" Style="{StaticResource WelcomeFeatureTile}">
+                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                                <Image Source="team_work.png"
+                                       WidthRequest="54" 
+                                       HeightRequest="54"
+                                       Aspect="AspectFit"
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center" />
+                                <Label Text="Work Together" 
+                                       Style="{StaticResource WelcomeFeatureTitle}"
+                                       FontSize="16" />
+                                <Label Text="Help your family" 
+                                       Style="{StaticResource WelcomeFeatureText}"
+                                       FontSize="13" />
+                            </VerticalStackLayout>
+                        </Frame>
+                        
+                    </Grid>
+
+                    <!-- Action button - Centered and Symmetrical -->
+                    <Button x:Name="ActionButton"
+                            Text="Start Adventure! 🚀"
+                            Style="{StaticResource WelcomeActionButton}"
+                            FontSize="18"
+                            HeightRequest="58"
+                            Margin="24,28,24,0"
+                            HorizontalOptions="Fill"
+                            Clicked="OnStartClicked"/>
+                            
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+    </ScrollView>
+</ContentPage>

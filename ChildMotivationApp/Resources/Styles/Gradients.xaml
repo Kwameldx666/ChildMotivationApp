@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary   
+   xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Основные градиенты -->
+    <LinearGradientBrush x:Key="BrandGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#a63de3" Offset="0" />
+        <GradientStop Color="#ff3cac" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PageBackgroundGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource PageBgTop}" Offset="0" />
+        <GradientStop Color="{StaticResource PageBgBottom}" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- НОВЫЕ КРАСИВЫЕ ГРАДИЕНТЫ -->
+    
+    <!-- 1. Закат (Sunset) - оранжевый к розовому -->
+    <RadialGradientBrush x:Key="SunsetGradient">
+        <GradientStop Color="{StaticResource SunriseOrange}" Offset="0" />
+        <GradientStop Color="{StaticResource SunsetPink}" Offset="0.6" />
+        <GradientStop Color="{StaticResource TwilightPurple}" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- 2. Мистический (Mystic) - фиолетовый к синему -->
+    <RadialGradientBrush x:Key="MysticGradient">
+        <GradientStop Color="{StaticResource DeepPurple}" Offset="0" />
+        <GradientStop Color="{StaticResource TwilightPurple}" Offset="0.5" />
+        <GradientStop Color="{StaticResource MysticBlue}" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- 3. Океан (Ocean) - голубой к фиолетовому -->
+    <RadialGradientBrush x:Key="OceanGradient">
+        <GradientStop Color="{StaticResource SkyBlue}" Offset="0" />
+        <GradientStop Color="{StaticResource LavenderPurple}" Offset="0.7" />
+        <GradientStop Color="{StaticResource DeepPurple}" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- 4. Коралловый (Coral) - мягкий розовый -->
+    <RadialGradientBrush x:Key="CoralGradient">
+        <GradientStop Color="{StaticResource CoralPink}" Offset="0" />
+        <GradientStop Color="{StaticResource SunsetPink}" Offset="0.5" />
+        <GradientStop Color="{StaticResource LavenderPurple}" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- 5. Радуга (Rainbow) - многоцветный -->
+    <RadialGradientBrush x:Key="RainbowGradient">
+        <GradientStop Color="{StaticResource SunriseOrange}" Offset="0" />
+        <GradientStop Color="{StaticResource SunsetPink}" Offset="0.25" />
+        <GradientStop Color="{StaticResource TwilightPurple}" Offset="0.5" />
+        <GradientStop Color="{StaticResource DeepPurple}" Offset="0.75" />
+        <GradientStop Color="{StaticResource MysticBlue}" Offset="1" />
+    </RadialGradientBrush>
+
+    <!-- Дополнительные градиенты для Welcome Page -->
+    <RadialGradientBrush x:Key="HeroIconGradient">
+        <GradientStop Color="{StaticResource SunsetPink}" Offset="0" />
+        <GradientStop Color="{StaticResource TwilightPurple}" Offset="0.6" />
+        <GradientStop Color="{StaticResource DeepPurple}" Offset="1" />
+    </RadialGradientBrush>
+
+    <LinearGradientBrush x:Key="ButtonShadowGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#30FF5CC3" Offset="0" />
+        <GradientStop Color="#008A56F7" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardShadowGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#10000000" Offset="0" />
+        <GradientStop Color="#40000000" Offset="1" />
+    </LinearGradientBrush>
+
+</ResourceDictionary>

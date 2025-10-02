@@ -4,6 +4,44 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+    <!-- типографика -->
+    <Style TargetType="Label" x:Key="TitleHero">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SubTitleHero">
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="TileTitle">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="TileText">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <!-- основная кнопка -->
+    <Style TargetType="Button" x:Key="PrimaryButton">
+        <Setter Property="Background" Value="{StaticResource BrandGradient}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Padding" Value="18,14" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+    </Style>
+
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
     </Style>
@@ -440,5 +478,185 @@
         <Setter Property="UnselectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
+
+    <!-- Welcome Page Styles -->
+    <Style TargetType="Frame" x:Key="WelcomeCardFrame">
+        <Setter Property="BackgroundColor" Value="#FFFFFF" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#30000000" Radius="50" Offset="0,25" />
+        </Setter>
+    </Style>
+
+    <Style TargetType="Frame" x:Key="WelcomeHeroIcon">
+        <Setter Property="WidthRequest" Value="100" />
+        <Setter Property="HeightRequest" Value="100" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="CornerRadius" Value="50" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="Background">
+            <RadialGradientBrush>
+                <GradientStop Color="{StaticResource PrimaryPink}" Offset="0" />
+                <GradientStop Color="{StaticResource PrimaryPurple}" Offset="1" />
+            </RadialGradientBrush>
+        </Setter>
+        <Setter Property="Shadow">
+            <Shadow Brush="#40a63de3" Radius="20" Offset="0,8" />
+        </Setter>
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeTitle">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeSubtitle">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="Margin" Value="16,0" />
+    </Style>
+
+    <Style TargetType="Frame" x:Key="WelcomeFeatureTile">
+        <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+        <Setter Property="BorderColor" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#18000000" Radius="20" Offset="0,8" />
+        </Setter>
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="MinimumHeightRequest" Value="140" />
+        <Setter Property="WidthRequest" Value="180" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeFeatureTitle">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeFeatureText">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+    </Style>
+
+    <Style TargetType="Button" x:Key="WelcomeActionButton">
+        <Setter Property="Background" Value="{StaticResource BrandGradient}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="CornerRadius" Value="27" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="HeightRequest" Value="58" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="Margin" Value="8,0" />
+        <!-- No Shadow to avoid odd corner glow on some platforms -->
+    </Style>
+
+    <!-- Адаптивные стили для больших экранов -->
+    <Style TargetType="Frame" x:Key="WelcomeCardFrameTablet">
+        <Setter Property="CornerRadius" Value="32" />
+        <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="Padding" Value="48" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="WidthRequest" Value="600" />
+        <Setter Property="MaximumWidthRequest" Value="800" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#30000000" Radius="32" Offset="0,12" />
+        </Setter>
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeTitleTablet">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="WelcomeSubtitleTablet">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="MaxLines" Value="2" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+    </Style>
+
+    <!-- Role Selection Page Styles -->
+    <Style TargetType="Border" x:Key="RoleSelectionCard">
+        <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+        <Setter Property="Stroke" Value="#E5E7EB" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeShape">
+            <RoundRectangle CornerRadius="22" />
+        </Setter>
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="Shadow">
+            <Shadow Brush="#1A000000" Radius="20" Offset="0,10" />
+        </Setter>
+        <Setter Property="Margin" Value="8" />
+        <Setter Property="WidthRequest" Value="240" />
+        <Setter Property="MinimumHeightRequest" Value="200" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="RoleIconContainer">
+        <Setter Property="WidthRequest" Value="80" />
+        <Setter Property="HeightRequest" Value="80" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeShape">
+            <RoundRectangle CornerRadius="40" />
+        </Setter>
+        <Setter Property="Shadow">
+            <Shadow Brush="#30000000" Radius="15" Offset="0,6" />
+        </Setter>
+    </Style>
+
+    <Style TargetType="Image" x:Key="RoleIconImage">
+        <Setter Property="WidthRequest" Value="48" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Aspect" Value="AspectFit" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="RoleSelectionTitle">
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,0,2" />
+        <Setter Property="FontFamily" Value="OpenSansBold" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="RoleSelectionDescription">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="MaxLines" Value="2" />
+        <Setter Property="FontFamily" Value="OpenSansRegular" />
+        <Setter Property="LineHeight" Value="1.25" />
+        <Setter Property="Margin" Value="6,0" />
+    </Style>
+
 
 </ResourceDictionary>

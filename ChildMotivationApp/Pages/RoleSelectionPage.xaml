@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.RoleSelectionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Background="{StaticResource PageBackgroundGradient}"
+    Title="Choose Your Role">
+
+    <ScrollView>
+        <Grid Padding="24" HorizontalOptions="Fill" VerticalOptions="Center">
+            <!-- Main card with professional styling -->
+            <Frame x:Name="MainCard" Style="{StaticResource WelcomeCardFrame}"
+                   MaximumWidthRequest="680"
+                   HorizontalOptions="Center">
+                <VerticalStackLayout Spacing="24">
+                    
+                    <!-- Header Section -->
+                    <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                        <!-- Title -->
+                        <Label x:Name="PageTitleLabel" 
+                               Text="Who Are You?"
+                               Style="{StaticResource WelcomeTitle}"
+                               FontSize="28" />
+                        
+                        <!-- Subtitle -->
+                        <Label Text="Choose your role in the family"
+                               Style="{StaticResource WelcomeSubtitle}"
+                               FontSize="16"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Decorative line -->
+                        <BoxView HeightRequest="2.5" 
+                                 WidthRequest="90" 
+                                 HorizontalOptions="Center"
+                                 CornerRadius="1.25">
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#6366F1" Offset="0" />
+                                    <GradientStop Color="#8B5CF6" Offset="0.5" />
+                                    <GradientStop Color="#EC4899" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
+                    </VerticalStackLayout>
+
+                    <!-- Role Selection Grid -->
+                    <FlexLayout x:Name="RolesGrid"
+                                Direction="Row"
+                                Wrap="Wrap"
+                                JustifyContent="Center"
+                                AlignItems="Start"
+                                Margin="0,16,0,16">
+
+                        <!-- Parent Role Tile -->
+                        <Border x:Name="ParentRole" Style="{StaticResource RoleSelectionCard}">
+                            <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                                <!-- Parent Icon -->
+                                <Border Style="{StaticResource RoleIconContainer}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#FFF4E6" Offset="0" />
+                                            <GradientStop Color="#FFE4CC" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Stroke>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#FF8A56" Offset="0" />
+                                            <GradientStop Color="#FF6B35" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Stroke>
+                                    <Image Source="parents.png" Style="{StaticResource RoleIconImage}" />
+                                </Border>
+                                
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="Parent" Style="{StaticResource RoleSelectionTitle}" />
+                                    <Label Text="Organize tasks and rewards" Style="{StaticResource RoleSelectionDescription}" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Child Role Tile -->
+                        <Border x:Name="ChildRole" Style="{StaticResource RoleSelectionCard}">
+                            <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                                <!-- Child Icon -->
+                                <Border Style="{StaticResource RoleIconContainer}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#F3E8FF" Offset="0" />
+                                            <GradientStop Color="#E9D5FF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.Stroke>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#8B5CF6" Offset="0" />
+                                            <GradientStop Color="#7C3AED" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Stroke>
+                                    <Image Source="child.png" Style="{StaticResource RoleIconImage}" />
+                                </Border>
+                                
+                                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="Child" Style="{StaticResource RoleSelectionTitle}" />
+                                    <Label Text="Complete tasks and earn rewards" Style="{StaticResource RoleSelectionDescription}" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                        
+                    </FlexLayout>
+                            
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+    </ScrollView>
+</ContentPage>

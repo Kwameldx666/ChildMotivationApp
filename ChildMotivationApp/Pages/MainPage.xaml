@@ -1,0 +1,123 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChildMotivationApp.Pages.MainPage"
+             BackgroundColor="#F7F6FB"
+             Title="Кто ты в семье?">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Заголовок -->
+            <Label Text="Кто ты в семье?"
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"
+                   TextColor="Black"/>
+            <Label Text="Выбери свою роль"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="Gray"/>
+
+            <!-- Сетка карточек -->
+            <Grid ColumnSpacing="15" RowSpacing="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Родитель -->
+                <Frame Grid.Row="0" Grid.Column="0"
+                       CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BackgroundColor="White">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="👨‍👩‍👧"
+                               FontSize="32"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Родитель"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Создавай задачи и следи за прогрессом"
+                               FontSize="14"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Ребёнок -->
+                <Frame Grid.Row="0" Grid.Column="1"
+                       CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BackgroundColor="White">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="👶"
+                               FontSize="32"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Ребёнок"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Выполняй задачи и получай награды"
+                               FontSize="14"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Опекун -->
+                <Frame Grid.Row="1" Grid.Column="0"
+                       CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BackgroundColor="White">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="🧑‍🦱"
+                               FontSize="32"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Опекун"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Помогай семье с домашними делами"
+                               FontSize="14"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Гость -->
+                <Frame Grid.Row="1" Grid.Column="1"
+                       CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BackgroundColor="White">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="👀"
+                               FontSize="32"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Гость"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Просматривай прогресс семьи"
+                               FontSize="14"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

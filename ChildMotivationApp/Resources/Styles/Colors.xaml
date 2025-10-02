@@ -19,6 +19,30 @@
     <Color x:Key="MidnightBlue">#190649</Color>
     <Color x:Key="OffBlack">#1f1f1f</Color>
 
+    <!-- brand - обновленные и новые цвета -->
+    <Color x:Key="PrimaryPink">#FF6B9D</Color>
+    <Color x:Key="PrimaryPurple">#C44CAE</Color>
+    <Color x:Key="SecondaryPurple">#8A56F7</Color>
+    
+    <!-- Новые красивые цвета для градиентов -->
+    <Color x:Key="SunriseOrange">#FF8A56</Color>
+    <Color x:Key="SunsetPink">#FF6B9D</Color>
+    <Color x:Key="TwilightPurple">#C44CAE</Color>
+    <Color x:Key="DeepPurple">#8A56F7</Color>
+    <Color x:Key="MysticBlue">#4F46E5</Color>
+    
+    <!-- Альтернативные варианты -->
+    <Color x:Key="CoralPink">#FF7B7B</Color>
+    <Color x:Key="LavenderPurple">#B794F6</Color>
+    <Color x:Key="SkyBlue">#63B3ED</Color>
+
+    <!-- neutrals -->
+    <Color x:Key="CardBackground">#FFFFFF</Color>
+    <Color x:Key="TextPrimary">#111111</Color>
+    <Color x:Key="TextSecondary">#6B7280</Color>
+    <Color x:Key="PageBgTop">#F5F6FF</Color>
+    <Color x:Key="PageBgBottom">#F8F4FF</Color>
+
     <Color x:Key="Gray100">#E1E1E1</Color>
     <Color x:Key="Gray200">#C8C8C8</Color>
     <Color x:Key="Gray300">#ACACAC</Color>
