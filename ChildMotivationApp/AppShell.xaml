@@ -7,6 +7,22 @@
     Title="ChildMotivationApp"
     FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
+    <!-- Красивые стили навигации -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <!-- Gradient Navigation Bar Color -->
+            <LinearGradientBrush x:Key="NavigationBarGradient" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Color="#8B5CF6" Offset="0.0" />
+                <GradientStop Color="#A78BFA" Offset="1.0" />
+            </LinearGradientBrush>
+            
+            <!-- Navigation Bar Style -->
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarTextColor" Value="White" />
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
     <!-- Красивый Flyout Header для десктопа -->
     <Shell.FlyoutHeader>
         <Grid BackgroundColor="{StaticResource Primary}" HeightRequest="200">
@@ -24,7 +40,48 @@
         </Grid>
     </Shell.FlyoutHeader>
 
-    <!-- Стартовые страницы (без навигации) -->
+    <!-- Основная навигация приложения - TabBar (скрыта по умолчанию) -->
+    <TabBar x:Name="MainTabBar" IsVisible="False">
+        
+        <!-- Главная -->
+        <Tab Title="Главная" Route="home">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="🏠" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light=#8B5CF6, Dark=#A78BFA}" />
+            </Tab.Icon>
+            <ShellContent Route="dashboard" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+
+        <!-- Награды магазин -->
+        <Tab Title="Награды" Route="rewards">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="🏆" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+            </Tab.Icon>
+            <ShellContent Route="rewards_shop" ContentTemplate="{DataTemplate local:RewardsShopPage}" />
+        </Tab>
+
+        <!-- Профиль -->
+        <Tab Title="Профиль" Route="profile">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="👤" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+            </Tab.Icon>
+            <ShellContent Route="profilepage" ContentTemplate="{DataTemplate local:DashboardPage}" />
+        </Tab>
+        
+    </TabBar>
+
+    <!-- Стартовые страницы -->
     <ShellContent
         Title="Welcome"
         Route="welcome"
@@ -52,59 +109,6 @@
         ContentTemplate="{DataTemplate local:CreateFamilyPage}"
         Shell.NavBarIsVisible="False"
         Shell.TabBarIsVisible="False" />
-
-    <!-- Основная навигация приложения - TabBar для мобильных -->
-    <TabBar x:Name="MainTabBar" Route="main">
-        
-        <!-- Домашняя страница -->
-        <Tab Title="Home">
-            <Tab.Icon>
-                <FontImageSource 
-                    Glyph="🏠" 
-                    FontFamily="Default" 
-                    Size="24" 
-                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
-            </Tab.Icon>
-            <ShellContent Route="dashboard" ContentTemplate="{DataTemplate local:DashboardPage}" />
-        </Tab>
-
-        <!-- Задачи -->
-        <Tab Title="Tasks">
-            <Tab.Icon>
-                <FontImageSource 
-                    Glyph="✅" 
-                    FontFamily="Default" 
-                    Size="24" 
-                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
-            </Tab.Icon>
-            <ShellContent Route="tasks" ContentTemplate="{DataTemplate local:DashboardPage}" />
-        </Tab>
-
-        <!-- Награды -->
-        <Tab Title="Rewards">
-            <Tab.Icon>
-                <FontImageSource 
-                    Glyph="🏆" 
-                    FontFamily="Default" 
-                    Size="24" 
-                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
-            </Tab.Icon>
-            <ShellContent Route="rewards" ContentTemplate="{DataTemplate local:DashboardPage}" />
-        </Tab>
-
-        <!-- Профиль -->
-        <Tab Title="Profile">
-            <Tab.Icon>
-                <FontImageSource 
-                    Glyph="👤" 
-                    FontFamily="Default" 
-                    Size="24" 
-                    Color="{AppThemeBinding Light={StaticResource PrimaryPurple}, Dark={StaticResource PrimaryPink}}" />
-            </Tab.Icon>
-            <ShellContent Route="profile" ContentTemplate="{DataTemplate local:DashboardPage}" />
-        </Tab>
-        
-    </TabBar>
 
     <!-- Flyout Menu для десктопа/планшета -->
     <FlyoutItem Title="Dashboard" Icon="home.png" Route="flyout_dashboard" IsVisible="False">

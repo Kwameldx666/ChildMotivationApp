@@ -1,4 +1,5 @@
 ﻿using ChildMotivationApp.Helpers;
+using ChildMotivationApp.Pages;
 
 namespace ChildMotivationApp
 {
@@ -9,6 +10,11 @@ namespace ChildMotivationApp
         public AppShell()
         {
             InitializeComponent();
+
+            // Глобальные маршруты для прямой навигации
+            Routing.RegisterRoute("dashboard", typeof(DashboardPage));
+            Routing.RegisterRoute("rewards_shop", typeof(RewardsShopPage));
+
             _currentDeviceType = DeviceHelper.GetDeviceType();
             SetupResponsiveNavigation();
         }

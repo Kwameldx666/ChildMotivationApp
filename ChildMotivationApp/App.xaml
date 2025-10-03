@@ -12,6 +12,13 @@
                 <ResourceDictionary Source="Resources/Styles/ResponsiveStyles.xaml" />
                 <ResourceDictionary Source="Resources/Styles/NavigationStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Глобальный шрифт для поддержки кириллицы на Windows -->
+            <OnPlatform x:Key="DefaultFontFamily" x:TypeArguments="x:String">
+                <On Platform="iOS" Value="San Francisco" />
+                <On Platform="Android" Value="sans-serif" />
+                <On Platform="WinUI" Value="Segoe UI" />
+            </OnPlatform>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

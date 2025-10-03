@@ -4,6 +4,47 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- ========================================= -->
+    <!-- Shell Navigation Styles -->
+    <!-- ========================================= -->
+    
+    <!-- Beautiful Navigation Bar Style -->
+    <Style TargetType="Shell">
+        <Setter Property="Shell.NavBarIsVisible" Value="True" />
+        <Setter Property="Shell.NavBarHasShadow" Value="True" />
+        
+        <!-- Navigation Bar Colors with Gradient Effect -->
+        <Setter Property="Shell.ForegroundColor" Value="White" />
+        <Setter Property="Shell.TitleColor" Value="White" />
+        
+        <!-- Tab Bar Styling -->
+        <Setter Property="Shell.TabBarBackgroundColor" Value="White" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="#6B7280" />
+        <Setter Property="Shell.TabBarTitleColor" Value="#6B7280" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="#9CA3AF" />
+        
+        <!-- Flyout Styling -->
+        <Setter Property="Shell.FlyoutBackgroundColor" Value="White" />
+    </Style>
+
+    <!-- Navigation Page Title Style -->
+    <Style x:Key="NavigationPageTitle" TargetType="Label">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <!-- Navigation Back Button Style -->
+    <Style x:Key="NavigationBackButton" TargetType="Button">
+        <Setter Property="Text" Value="?" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="44" />
+    </Style>
+
+    <!-- ========================================= -->
     <!-- Adaptive Content Container Styles -->
     <!-- ========================================= -->
     
@@ -81,6 +122,35 @@
         <Setter Property="TextColor" Value="#8B5CF6" />
         <Setter Property="BorderColor" Value="#8B5CF6" />
         <Setter Property="BorderWidth" Value="2" />
+    </Style>
+
+    <!-- ========================================= -->
+    <!-- Custom Navigation Bar Component -->
+    <!-- ========================================= -->
+    
+    <!-- Beautiful Navigation Bar Container -->
+    <Style x:Key="CustomNavigationBar" TargetType="Grid">
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="HeightRequest" Value="60" />
+    </Style>
+
+    <!-- Navigation Bar with Gradient Background -->
+    <Style x:Key="GradientNavigationBar" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="HeightRequest" Value="60" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#8B5CF6" Offset="0.0" />
+                    <GradientStop Color="#A78BFA" Offset="1.0" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#40000000" Radius="15" Offset="0,5" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

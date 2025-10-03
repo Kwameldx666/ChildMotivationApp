@@ -11,8 +11,10 @@ namespace ChildMotivationApp
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    // Используем системные шрифты, которые поддерживают кириллицу
+                    // OpenSans не поддерживает кириллицу должным образом
+                    // fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    // fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
 #if DEBUG

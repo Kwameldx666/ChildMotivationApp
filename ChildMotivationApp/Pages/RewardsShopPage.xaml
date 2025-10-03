@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.RewardsShopPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="??????? ??????"
+    Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Chip style -->
+            <Style TargetType="Border" x:Key="Chip">
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="#E5E7EB"/>
+                <Setter Property="BackgroundColor" Value="#F9FAFB"/>
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="18" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Margin" Value="4,0"/>
+            </Style>
+
+            <!-- Card style -->
+            <Style TargetType="Border" x:Key="RewardCard">
+                <Setter Property="Padding" Value="16"/>
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="#E5E7EB"/>
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Radius="20" Brush="#18000000" Offset="0,8" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Margin" Value="0,8"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="20">
+                <!-- Header -->
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Border WidthRequest="48" HeightRequest="48" BackgroundColor="#F5F3FF" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="24"/>
+                        </Border.StrokeShape>
+                        <Label Text="??" FontSize="26"  HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="??????? ??????" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <Label Text="??????? ???????????? ???? ?? ???????? ???????! ??" FontSize="13" HorizontalOptions="Center" TextColor="#6B7280"/>
+                </VerticalStackLayout>
+
+                <!-- Filter chips -->
+                <HorizontalStackLayout x:Name="Chips" Spacing="8" HorizontalOptions="Center"/>
+
+                <!-- Rewards list -->
+                <CollectionView x:Name="RewardsCollection" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="1"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource RewardCard}">
+                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <!-- Icon -->
+                                    <Frame Grid.RowSpan="2" WidthRequest="36" HeightRequest="36" Padding="0" BackgroundColor="#EEF2FF" HasShadow="False" CornerRadius="18" BorderColor="Transparent" VerticalOptions="Start">
+                                        <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Frame>
+
+                                    <!-- Title & badge -->
+                                    <Grid Grid.Column="1" ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16"/>
+                                        <Border Grid.Column="1" Style="{StaticResource Chip}" BackgroundColor="#F0F9FF" Stroke="#BAE6FD">
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="{Binding BadgeIcon}"/>
+                                                <Label Text="{Binding Badge}" FontSize="12" TextColor="#0EA5E9"/>
+                                            </HorizontalStackLayout>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Description -->
+                                    <Label Grid.Row="1" Grid.Column="1" TextColor="#6B7280" FontSize="12" TextType="Text" Text="{Binding Description}"/>
+
+                                    <!-- Points -->
+                                    <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,8,0,0" VerticalOptions="Center">
+                                        <Label Text="?"/>
+                                        <Label Text="{Binding Points}" FontAttributes="Bold"/>
+                                        <Label Text="?????" TextColor="#6B7280"/>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

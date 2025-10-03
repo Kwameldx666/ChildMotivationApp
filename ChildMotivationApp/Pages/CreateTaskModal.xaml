@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentPage 
+    x:Class="ChildMotivationApp.Pages.CreateTaskModal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    BackgroundColor="#80000000"
+    Shell.PresentationMode="ModalAnimated">
+
+    <Grid VerticalOptions="Center" HorizontalOptions="Center" Padding="20">
+        <Border BackgroundColor="White" StrokeThickness="0" MaximumWidthRequest="500" MinimumWidthRequest="400">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#60000000" Radius="40" Offset="0,10" />
+            </Border.Shadow>
+
+            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0">
+
+                <!-- Header -->
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="24,20" BackgroundColor="#F9FAFB">
+                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#F5F3FF" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10" />
+                        </Border.StrokeShape>
+                        <Label Text="🎯" FontSize="18" FontFamily="Arial" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+
+                    <Label Grid.Column="1" Text="Создать новую задачу" FontSize="20" FontFamily="Arial" FontAttributes="Bold" TextColor="#1F2937" VerticalOptions="Center" Margin="12,0,0,0" />
+
+                    <Border Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" StrokeThickness="0" x:Name="CloseButton">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="8" />
+                        </Border.StrokeShape>
+                        <Label Text="X" FontSize="20" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCloseTapped" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- Content -->
+                <ScrollView Grid.Row="1">
+                    <VerticalStackLayout Padding="24" Spacing="20">
+
+                        <!-- Название задачи -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Название задачи" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                            <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Entry x:Name="TaskNameEntry" Placeholder="Например: Помыть посуду" PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Описание -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Описание" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                            <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" HeightRequest="100">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Editor x:Name="DescriptionEditor" Placeholder="Подробное описание того, что нужно сделать..." PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" AutoSize="TextChanges" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Категория и Приоритет -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="8">
+                                <Label Text="Категория" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                                <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Picker x:Name="CategoryPicker" Title="Выберите" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
+                                        <Picker.Items>
+                                            <x:String>🧹 Уборка</x:String>
+                                            <x:String>📚 Учёба</x:String>
+                                            <x:String>🏃 Спорт</x:String>
+                                            <x:String>🎨 Творчество</x:String>
+                                            <x:String>🍽️ Помощь по дому</x:String>
+                                        </Picker.Items>
+                                    </Picker>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                <Label Text="Приоритет" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                                <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Picker x:Name="PriorityPicker" Title="Выберите" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
+                                        <Picker.Items>
+                                            <x:String>🔴 Высокий</x:String>
+                                            <x:String>⚡ Средний</x:String>
+                                            <x:String>🟢 Низкий</x:String>
+                                        </Picker.Items>
+                                    </Picker>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Очки, Сложность, Время -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="8">
+                                <Label Text="Очки" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                                <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Entry x:Name="PointsEntry" Text="10" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="8">
+                                <Label Text="Сложность (1-5)" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                                <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Entry x:Name="DifficultyEntry" Text="3" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2" Spacing="8">
+                                <Label Text="Время (мин)" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                                <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Entry x:Name="DurationEntry" Text="30" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Срок выполнения -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Срок выполнения" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                            <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <DatePicker x:Name="DueDatePicker" Format="d" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" Date="{x:Static sys:DateTime.Today}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Назначить ребенку -->
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Назначить *" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+                            <Label Text="Выберите хотя бы одного ребёнка" FontSize="12" FontFamily="Arial" TextColor="#EF4444" x:Name="ChildSelectionError" IsVisible="False" />
+                            <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="10" />
+                                </Border.StrokeShape>
+                                <Picker x:Name="ChildPicker" Title="Выберите ребёнка" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
+                                    <Picker.Items>
+                                        <x:String>👧 Маша (8 лет)</x:String>
+                                        <x:String>👦 Петя (10 лет)</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Способ подтверждения -->
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Способ подтверждения" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" RowSpacing="12">
+                                <Border Grid.Column="0" Grid.Row="0" BackgroundColor="#F5F3FF" StrokeThickness="2" Stroke="#8B5CF6" Padding="16" x:Name="PhotoVerificationBorder">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnPhotoVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="📷" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
+                                        <Label Text="Фото подтверждение" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#8B5CF6" HorizontalOptions="Center" />
+                                        <Label Text="Ребёнок сделает фото" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1" Grid.Row="0" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="VideoVerificationBorder">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnVideoVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="🎥" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
+                                        <Label Text="Видео подтверждение" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Ребёнок запишет видео" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="0" Grid.Row="1" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="ChecklistVerificationBorder">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnChecklistVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="☑️" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
+                                        <Label Text="Чек-лист" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Список действий для выполнения" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <Border Grid.Column="1" Grid.Row="1" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="ManualVerificationBorder">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnManualVerificationTapped" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label Text="✋" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
+                                        <Label Text="Ручная проверка" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Проверите самостоятельно" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Footer -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="24,16" BackgroundColor="White" ColumnSpacing="12">
+                    <Button Grid.Column="0" Text="Отмена" FontSize="15" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" BackgroundColor="#F3F4F6" CornerRadius="12" HeightRequest="50" BorderWidth="0" Clicked="OnCancelClicked" />
+
+                    <Button Grid.Column="1" Text="🎯 Создать задачу" FontSize="15" FontFamily="Arial" FontAttributes="Bold" TextColor="White" CornerRadius="12" HeightRequest="50" MinimumWidthRequest="180" BorderWidth="0" x:Name="CreateButton" Clicked="OnCreateTaskClicked">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#8B5CF6" Offset="0.0" />
+                                <GradientStop Color="#A78BFA" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

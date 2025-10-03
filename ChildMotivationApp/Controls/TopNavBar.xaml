@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChildMotivationApp.Controls.TopNavBar"
+             x:Name="This">
+    <Grid Padding="16,10" RowDefinitions="Auto">
+        <Border BackgroundColor="#FFFFFFFF" StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="14"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#20000000" Radius="18" Offset="0,2"/>
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="*,*,Auto,*,*" Padding="8,6">
+                <!-- Главная -->
+                <VerticalStackLayout Grid.Column="0" Spacing="4" HorizontalOptions="Center">
+                    <Border BackgroundColor="{Binding Source={x:Reference This}, Path=HomeBg}" WidthRequest="36" HeightRequest="36" StrokeThickness="0">
+                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                        <Label Text="🏠" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="Главная" FontSize="12" TextColor="{Binding Source={x:Reference This}, Path=HomeText}" HorizontalOptions="Center"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHomeTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+
+                <!-- Награды -->
+                <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                    <Border BackgroundColor="{Binding Source={x:Reference This}, Path=RewardsBg}" WidthRequest="36" HeightRequest="36" StrokeThickness="0">
+                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                        <Label Text="🏆" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="Награды" FontSize="12" TextColor="{Binding Source={x:Reference This}, Path=RewardsText}" HorizontalOptions="Center"/>
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRewardsTapped"/>
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+
+                <!-- Центральная кнопка + -->
+                <Grid Grid.Column="2" WidthRequest="56" HeightRequest="56">
+                    <Border StrokeThickness="0">
+                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#8B5CF6" Offset="0"/>
+                                <GradientStop Color="#A78BFA" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Radius="20" Brush="#408B5CF6" Offset="0,6"/>
+                        </Border.Shadow>
+                        <Label Text="+" FontSize="22" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddTapped"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- Статистика -->
+                <VerticalStackLayout Grid.Column="3" Spacing="4" HorizontalOptions="Center">
+                    <Border BackgroundColor="{Binding Source={x:Reference This}, Path=StatsBg}" WidthRequest="36" HeightRequest="36" StrokeThickness="0">
+                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                        <Label Text="📊" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="Статистика" FontSize="12" TextColor="{Binding Source={x:Reference This}, Path=StatsText}" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+
+                <!-- Профиль -->
+                <VerticalStackLayout Grid.Column="4" Spacing="4" HorizontalOptions="Center">
+                    <Border BackgroundColor="{Binding Source={x:Reference This}, Path=ProfileBg}" WidthRequest="36" HeightRequest="36" StrokeThickness="0">
+                        <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                        <Label Text="👤" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="Профиль" FontSize="12" TextColor="{Binding Source={x:Reference This}, Path=ProfileText}" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>
