@@ -47,7 +47,6 @@ public partial class TopNavBar : ContentView
     private async void OnHomeTapped(object? sender, EventArgs e)
     {
         UpdateStates("home");
-        // ???? TabBar ??????? — ?????????? ???? ????? Tab. ???? ????? — ?????????? ???????.
         var ok = await TryGoToAsync("//home/dashboard");
         if (!ok)
             await Shell.Current.GoToAsync("dashboard");
@@ -59,6 +58,22 @@ public partial class TopNavBar : ContentView
         var ok = await TryGoToAsync("//rewards/rewards_shop");
         if (!ok)
             await Shell.Current.GoToAsync("rewards_shop");
+    }
+
+    private async void OnStatsTapped(object? sender, EventArgs e)
+    {
+        UpdateStates("stats");
+        var ok = await TryGoToAsync("//stats/parent_stats");
+        if (!ok)
+            await Shell.Current.GoToAsync("parent_stats");
+    }
+
+    private async void OnProfileTapped(object? sender, EventArgs e)
+    {
+        UpdateStates("profile");
+        var ok = await TryGoToAsync("//profile/parent_profile");
+        if (!ok)
+            await Shell.Current.GoToAsync("parent_profile");
     }
 
     private async Task<bool> TryGoToAsync(string route)

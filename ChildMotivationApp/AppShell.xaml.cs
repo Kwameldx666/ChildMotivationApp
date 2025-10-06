@@ -14,6 +14,8 @@ namespace ChildMotivationApp
             // Глобальные маршруты для прямой навигации
             Routing.RegisterRoute("dashboard", typeof(DashboardPage));
             Routing.RegisterRoute("rewards_shop", typeof(RewardsShopPage));
+            Routing.RegisterRoute("parent_stats", typeof(ParentStatsPage));
+            Routing.RegisterRoute("parent_profile", typeof(ParentProfilePage));
 
             _currentDeviceType = DeviceHelper.GetDeviceType();
             SetupResponsiveNavigation();

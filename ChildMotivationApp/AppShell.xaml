@@ -33,9 +33,8 @@
                 </LinearGradientBrush>
             </Grid.Background>
             <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-                <Label Text="👨‍👩‍👧‍👦" FontSize="40" HorizontalOptions="Center" />
                 <Label Text="Family Tasks" FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
-                <Label Text="Organize • Complete • Reward" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
+                <Label Text="Organize - Complete - Reward" FontSize="12" TextColor="White" Opacity="0.8" HorizontalOptions="Center" />
             </StackLayout>
         </Grid>
     </Shell.FlyoutHeader>
@@ -67,6 +66,18 @@
             <ShellContent Route="rewards_shop" ContentTemplate="{DataTemplate local:RewardsShopPage}" />
         </Tab>
 
+        <!-- Статистика -->
+        <Tab Title="Статистика" Route="stats">
+            <Tab.Icon>
+                <FontImageSource 
+                    Glyph="📊" 
+                    FontFamily="Default" 
+                    Size="24" 
+                    Color="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+            </Tab.Icon>
+            <ShellContent Route="parent_stats" ContentTemplate="{DataTemplate local:ParentStatsPage}" />
+        </Tab>
+
         <!-- Профиль -->
         <Tab Title="Профиль" Route="profile">
             <Tab.Icon>
@@ -76,7 +87,7 @@
                     Size="24" 
                     Color="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
             </Tab.Icon>
-            <ShellContent Route="profilepage" ContentTemplate="{DataTemplate local:DashboardPage}" />
+            <ShellContent Route="parent_profile" ContentTemplate="{DataTemplate local:ParentProfilePage}" />
         </Tab>
         
     </TabBar>

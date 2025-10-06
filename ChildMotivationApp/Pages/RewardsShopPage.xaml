@@ -3,104 +3,569 @@
     x:Class="ChildMotivationApp.Pages.RewardsShopPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="??????? ??????"
-    Shell.NavBarIsVisible="False">
+    Title="Магазин наград"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F9FAFB">
 
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <!-- Chip style -->
-            <Style TargetType="Border" x:Key="Chip">
-                <Setter Property="Padding" Value="12,8"/>
-                <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Stroke" Value="#E5E7EB"/>
-                <Setter Property="BackgroundColor" Value="#F9FAFB"/>
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
-                        <RoundRectangle CornerRadius="18" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Margin" Value="4,0"/>
-            </Style>
+    <Grid Padding="16,16,16,24" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="16">
 
-            <!-- Card style -->
-            <Style TargetType="Border" x:Key="RewardCard">
-                <Setter Property="Padding" Value="16"/>
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Stroke" Value="#E5E7EB"/>
-                <Setter Property="Shadow">
-                    <Setter.Value>
-                        <Shadow Radius="20" Brush="#18000000" Offset="0,8" />
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
+        <!-- Gradient Header -->
+        <Border Grid.Row="0" HeightRequest="104" StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="32"/>
+            </Border.StrokeShape>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#8B5CF6" Offset="0.0"/>
+                    <GradientStop Color="#A78BFA" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid ColumnDefinitions="Auto,*,Auto" Padding="24,0">
+                <HorizontalStackLayout Grid.Column="0" Spacing="16" VerticalOptions="Center">
+                    <Image Source="https://img.icons8.com/color/96/gift.png" WidthRequest="40" HeightRequest="40"/>
+                    <Label Text="Магазин наград" FontSize="30" FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <Border Grid.Column="2" BackgroundColor="#FFFFFF66" StrokeThickness="0" Padding="12,8" WidthRequest="140" HeightRequest="56">
+                    <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16"/>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Margin" Value="0,8"/>
-            </Style>
-        </ResourceDictionary>
-    </ContentPage.Resources>
+                    </Border.StrokeShape>
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Image Source="https://img.icons8.com/fluency/48/plus-math.png" WidthRequest="24" HeightRequest="24"/>
+                        <Label Text="Добавить" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+        </Border>
 
-    <Grid>
-        <ScrollView>
-            <VerticalStackLayout Padding="24" Spacing="20">
-                <!-- Header -->
-                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Border WidthRequest="48" HeightRequest="48" BackgroundColor="#F5F3FF" StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="24"/>
-                        </Border.StrokeShape>
-                        <Label Text="??" FontSize="26"  HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
-                    <Label Text="??????? ??????" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <Label Text="??????? ???????????? ???? ?? ???????? ???????! ??" FontSize="13" HorizontalOptions="Center" TextColor="#6B7280"/>
-                </VerticalStackLayout>
-
-                <!-- Filter chips -->
-                <HorizontalStackLayout x:Name="Chips" Spacing="8" HorizontalOptions="Center"/>
-
-                <!-- Rewards list -->
-                <CollectionView x:Name="RewardsCollection" SelectionMode="None">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="1"/>
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource RewardCard}">
-                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                    <!-- Icon -->
-                                    <Frame Grid.RowSpan="2" WidthRequest="36" HeightRequest="36" Padding="0" BackgroundColor="#EEF2FF" HasShadow="False" CornerRadius="18" BorderColor="Transparent" VerticalOptions="Start">
-                                        <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
-                                    </Frame>
-
-                                    <!-- Title & badge -->
-                                    <Grid Grid.Column="1" ColumnDefinitions="*,Auto">
-                                        <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="16"/>
-                                        <Border Grid.Column="1" Style="{StaticResource Chip}" BackgroundColor="#F0F9FF" Stroke="#BAE6FD">
-                                            <HorizontalStackLayout Spacing="6">
-                                                <Label Text="{Binding BadgeIcon}"/>
-                                                <Label Text="{Binding Badge}" FontSize="12" TextColor="#0EA5E9"/>
-                                            </HorizontalStackLayout>
-                                        </Border>
-                                    </Grid>
-
-                                    <!-- Description -->
-                                    <Label Grid.Row="1" Grid.Column="1" TextColor="#6B7280" FontSize="12" TextType="Text" Text="{Binding Description}"/>
-
-                                    <!-- Points -->
-                                    <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Spacing="8" Margin="0,8,0,0" VerticalOptions="Center">
-                                        <Label Text="?"/>
-                                        <Label Text="{Binding Points}" FontAttributes="Bold"/>
-                                        <Label Text="?????" TextColor="#6B7280"/>
-                                    </HorizontalStackLayout>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
+        <!-- Filter Chips (in one row) -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+            <HorizontalStackLayout Spacing="8">
+                <Border BackgroundColor="#FFF5F3FF" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Education" TextColor="#8B5CF6" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+                <Border BackgroundColor="#FFE0F7FA" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Household" TextColor="#00B9C2" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+                <Border BackgroundColor="#FFFEE4EF" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Fun" TextColor="#F06292" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+                <Border BackgroundColor="#FFE8F5E9" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Long Term" TextColor="#388E3C" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+                <Border BackgroundColor="#FFFFF3E0" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Food" TextColor="#FFB300" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+                <Border BackgroundColor="#FFF4F6F8" StrokeThickness="0" Padding="16,6">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label Text="Other" TextColor="#7B809A" FontAttributes="Bold" FontSize="14"/>
+                </Border>
+            </HorizontalStackLayout>
         </ScrollView>
+
+        <!-- Controls Row -->
+        <HorizontalStackLayout Grid.Row="2" Spacing="16">
+            <Picker WidthRequest="200" HeightRequest="32" Title="Сортировать" FontSize="14">
+                <Picker.Items>
+                    <x:String>Сортировать по очкам</x:String>
+                    <x:String>Сортировать по названию</x:String>
+                </Picker.Items>
+            </Picker>
+            <Border BackgroundColor="#F4F4F4" StrokeThickness="0" Padding="12,6" WidthRequest="184" HeightRequest="32">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="https://img.icons8.com/fluency-systems-regular/24/settings.png" WidthRequest="18" HeightRequest="18"/>
+                    <Label Text="Режим управления" FontSize="15" FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+            </Border>
+        </HorizontalStackLayout>
+
+        <!-- Reward Cards Block -->
+        <ScrollView Grid.Row="3">
+            <FlexLayout Wrap="Wrap" Direction="Row" JustifyContent="Start" AlignItems="Start">
+
+                <!-- Card 1: Movie night choice (Fun) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FAC1E7" Offset="0.0"/>
+                                        <GradientStop Color="#A78BFA" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/popcorn.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Movie night choice" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Fun" FontSize="14" TextColor="#F06292"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Провести вечер за просмотром фильма всей семьёй." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="120 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="0,0,100,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 2: Ice Cream (Food) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FCE5EC" Offset="0.0"/>
+                                        <GradientStop Color="#F06292" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/ice-cream.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Ice Cream" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Food" FontSize="14" TextColor="#FFB300"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Мороженое на выходных!" FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="90 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 3: Extra study time (Education) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#E0E7FF" Offset="0.0"/>
+                                        <GradientStop Color="#8B5CF6" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/book.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Extra study time" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Education" FontSize="14" TextColor="#8B5CF6"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Дополнительное время для чтения любимой книги." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="50 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 4: Video games (Fun) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FEE4EF" Offset="0.0"/>
+                                        <GradientStop Color="#F472B6" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/controller.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Video games" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Fun" FontSize="14" TextColor="#F06292"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="30 минут игры в любимую видеоигру." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="80 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 5: Clean room (Household) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#E0F7FA" Offset="0.0"/>
+                                        <GradientStop Color="#00BCD4" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/broom.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Skip room cleaning" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Household" FontSize="14" TextColor="#00B9C2"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Пропустить уборку комнаты в эти выходные." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="60 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#F06292" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 6: New toy (Long Term) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#E8F5E9" Offset="0.0"/>
+                                        <GradientStop Color="#66BB6A" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/toy-car.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="New toy" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Long Term" FontSize="14" TextColor="#388E3C"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Купить новую игрушку на выбор." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="500 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 7: Pizza night (Food) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FFF3E0" Offset="0.0"/>
+                                        <GradientStop Color="#FFB300" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/pizza.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Pizza night" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Food" FontSize="14" TextColor="#FFB300"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Заказать пиццу на ужин всей семьёй!" FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="150 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#68C288" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Card 8: Park visit (Other) -->
+                <Border WidthRequest="320" HeightRequest="200" Margin="0,0,24,24" BackgroundColor="White" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#18000000" Radius="12" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Grid RowDefinitions="Auto,*">
+                        <HorizontalStackLayout Grid.Row="0" Spacing="16" Margin="24,16,24,0">
+                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <Ellipse/>
+                                </Border.StrokeShape>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F4F6F8" Offset="0.0"/>
+                                        <GradientStop Color="#9E9E9E" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Image Source="https://img.icons8.com/color/96/park.png" WidthRequest="36" HeightRequest="36" HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Border>
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Park visit" FontSize="20" FontAttributes="Bold"/>
+                                <Label Text="Category: Other" FontSize="14" TextColor="#7B809A"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                        <VerticalStackLayout Grid.Row="1" Margin="24,0,24,16" Spacing="16" VerticalOptions="End">
+                            <Label Text="Поход в парк развлечений на выходных." FontSize="16" TextColor="#374151" LineBreakMode="WordWrap"/>
+                            <HorizontalStackLayout Spacing="8">
+                                <Image Source="https://img.icons8.com/color/32/coins.png" WidthRequest="24" HeightRequest="24"/>
+                                <Label Text="200 очков" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="8" HorizontalOptions="End" Margin="16,0,0,0">
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#E0E7FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/edit--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#FDE0E0" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Image Source="https://img.icons8.com/material/24/delete-forever--v1.png" WidthRequest="16" HeightRequest="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Border WidthRequest="32" HeightRequest="32" BackgroundColor="#F06292" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <Ellipse/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+            </FlexLayout>
+        </ScrollView>
+
+        <!-- Hidden placeholders -->
+        <ContentView IsVisible="False" HeightRequest="0" WidthRequest="0">
+            <VerticalStackLayout>
+                <Entry x:Name="NewRewardNameTextBox" />
+                <Editor x:Name="NewRewardDescriptionTextBox" />
+                <Entry x:Name="NewRewardPointsTextBox" />
+                <Picker x:Name="NewRewardCategoryComboBox" />
+                <Entry x:Name="NewRewardImageUrlTextBox" />
+                <CollectionView x:Name="RewardsDataGrid" />
+                <Label x:Name="ChildCurrentPointsTextBlock" />
+                <Entry x:Name="PointsChangeTextBox" />
+                <SearchBar x:Name="SearchBar"/>
+            </VerticalStackLayout>
+        </ContentView>
     </Grid>
 </ContentPage>

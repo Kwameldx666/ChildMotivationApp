@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.ParentStatsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ChildMotivationApp.Controls"
+    BackgroundColor="#F8FAFC"
+    Shell.NavBarIsVisible="False"
+    Title="Statistics">
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="0">
+        <!-- Верхняя навигация -->
+        <controls:TopNavBar Grid.Row="0" />
+
+        <!-- Основной контент -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,16,20,100" Spacing="20">
+
+                <!-- Заголовок страницы -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📊 Аналитика семьи"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#1F2937" />
+                    <Label Text="Отслеживайте прогресс и достижения всей семьи 📈"
+                           FontSize="14"
+                           TextColor="#6B7280" />
+                </VerticalStackLayout>
+
+                <!-- Карточки статистики (4 колонки) -->
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                    <!-- Всего задач -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Border WidthRequest="48"
+                                    HeightRequest="48"
+                                    BackgroundColor="#DBEAFE"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Label Text="📋"
+                                       FontSize="24"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="0"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label Text="Всего задач"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                                <Label Text="сегодня"
+                                       FontSize="11"
+                                       TextColor="#9CA3AF" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Выполнено успешно -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Border WidthRequest="48"
+                                    HeightRequest="48"
+                                    BackgroundColor="#D1FAE5"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Label Text="✅"
+                                       FontSize="24"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="0%"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label Text="Выполнено"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                                <Label Text="успешность"
+                                       FontSize="11"
+                                       TextColor="#9CA3AF" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Очков заработано -->
+                    <Border Grid.Column="2"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Border WidthRequest="48"
+                                    HeightRequest="48"
+                                    BackgroundColor="#FEF3C7"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Label Text="💡"
+                                       FontSize="24"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="0"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label Text="Очков заработано"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                                <Label Text="всего"
+                                       FontSize="11"
+                                       TextColor="#9CA3AF" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Активных детей -->
+                    <Border Grid.Column="3"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="16">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Border WidthRequest="48"
+                                    HeightRequest="48"
+                                    BackgroundColor="#FCE7F3"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <Label Text="👥"
+                                       FontSize="24"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="0"
+                                       FontSize="24"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label Text="Активных детей"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                                <Label Text="участвуют"
+                                       FontSize="11"
+                                       TextColor="#9CA3AF" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- Вкладки: Неделя, Месяц, Год -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Grid.Column="0"
+                            BackgroundColor="#8B5CF6"
+                            StrokeThickness="0"
+                            Padding="12,10">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Label Text="Неделя"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            BackgroundColor="#F3F4F6"
+                            StrokeThickness="0"
+                            Padding="12,10">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Label Text="Месяц"
+                               FontSize="14"
+                               TextColor="#6B7280"
+                               HorizontalOptions="Center" />
+                    </Border>
+                    <Border Grid.Column="2"
+                            BackgroundColor="#F3F4F6"
+                            StrokeThickness="0"
+                            Padding="12,10">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Label Text="Год"
+                               FontSize="14"
+                               TextColor="#6B7280"
+                               HorizontalOptions="Center" />
+                    </Border>
+                </Grid>
+
+                <!-- График активности по дням -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="24">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="20">
+                        <!-- Заголовок графика -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="⚡ Активность по дням"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Label Text="Количество выполненных задач за неделю"
+                                       FontSize="13"
+                                       TextColor="#6B7280" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- График с областью заполнения (Area Chart имитация) -->
+                        <Grid HeightRequest="280" ColumnDefinitions="*,*,*,*,*,*,*" ColumnSpacing="8" Padding="0,20,0,0">
+                            <!-- Вертикальная ось Y (фон) -->
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Понедельник -->
+                            <VerticalStackLayout Grid.Column="0" Grid.RowSpan="1">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#BFDBFE"
+                                             HeightRequest="120"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Пн"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="15"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Вторник -->
+                            <VerticalStackLayout Grid.Column="1">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#BFDBFE"
+                                             HeightRequest="100"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Вт"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="16"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Среда -->
+                            <VerticalStackLayout Grid.Column="2">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#BFDBFE"
+                                             HeightRequest="180"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Ср"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="17"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Четверг -->
+                            <VerticalStackLayout Grid.Column="3">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#BFDBFE"
+                                             HeightRequest="150"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Чт"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="18"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Пятница -->
+                            <VerticalStackLayout Grid.Column="4">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#BFDBFE"
+                                             HeightRequest="170"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Пт"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="19"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Суббота -->
+                            <VerticalStackLayout Grid.Column="5">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#DDD6FE"
+                                             HeightRequest="190"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Сб"
+                                       FontSize="12"
+                                       TextColor="#8B5CF6"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="20"
+                                       FontSize="10"
+                                       TextColor="#8B5CF6"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <!-- Воскресенье -->
+                            <VerticalStackLayout Grid.Column="6">
+                                <Grid VerticalOptions="End" HeightRequest="200">
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="200"
+                                             CornerRadius="8"
+                                             Opacity="0.3"
+                                             VerticalOptions="End" />
+                                    <BoxView BackgroundColor="#E5E7EB"
+                                             HeightRequest="60"
+                                             CornerRadius="8,8,0,0"
+                                             VerticalOptions="End" />
+                                </Grid>
+                                <Label Text="Вс"
+                                       FontSize="12"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,12,0,0" />
+                                <Label Text="21"
+                                       FontSize="10"
+                                       TextColor="#9CA3AF"
+                                       HorizontalOptions="Center"
+                                       Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Задачи по категориям -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="24">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="20">
+                        <Label Text="🎯 Задачи по категориям"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1F2937" />
+
+                        <!-- Пустое состояние -->
+                        <VerticalStackLayout Spacing="16" Padding="40" HorizontalOptions="Center">
+                            <Border WidthRequest="80"
+                                    HeightRequest="80"
+                                    BackgroundColor="#F3F4F6"
+                                    StrokeThickness="0"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape>
+                                    <Ellipse />
+                                </Border.StrokeShape>
+                                <Label Text="🎯"
+                                       FontSize="40"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Пока нет выполненных задач"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#6B7280"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Создайте задачи для детей, чтобы увидеть статистику"
+                                   FontSize="14"
+                                   TextColor="#9CA3AF"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Условия детей -->
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        Padding="24">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="20">
+                        <Label Text="👦 Условия детей"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#1F2937" />
+
+                        <!-- Пустое состояние -->
+                        <VerticalStackLayout Spacing="16" Padding="40" HorizontalOptions="Center">
+                            <Border WidthRequest="80"
+                                    HeightRequest="80"
+                                    BackgroundColor="#F3F4F6"
+                                    StrokeThickness="0"
+                                    HorizontalOptions="Center">
+                                <Border.StrokeShape>
+                                    <Ellipse />
+                                </Border.StrokeShape>
+                                <Label Text="👨‍👩‍👧"
+                                       FontSize="40"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Label Text="Пока нет детей в семье"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#6B7280"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Пригласите детей, чтобы начать отслеживать их прогресс"
+                                   FontSize="14"
+                                   TextColor="#9CA3AF"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.ParentProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ChildMotivationApp.Controls"
+    BackgroundColor="#F8FAFC"
+    Shell.NavBarIsVisible="False"
+    Title="Profile">
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="0">
+        <!-- Top Navigation -->
+        <controls:TopNavBar Grid.Row="0" />
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <Grid ColumnDefinitions="2*,*" ColumnSpacing="20" Padding="20,16,20,100" RowSpacing="20">
+                
+                <!-- LEFT COLUMN - Profile & Info -->
+                <VerticalStackLayout Grid.Column="0" Spacing="20">
+                    
+                    <!-- Profile Hero Card (Indigo/Purple gradient like Dashboard) -->
+                    <Border StrokeThickness="0" Padding="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20" />
+                        </Border.StrokeShape>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6D28D9" Offset="0.0" />
+                                <GradientStop Color="#C7D2FE" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#406D28D9" Radius="28" Offset="0,10" />
+                        </Border.Shadow>
+                        
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="0">
+                            <!-- Top Section with Avatar and Name -->
+                            <VerticalStackLayout Padding="28,24,28,20" Spacing="14">
+                                <!-- Avatar -->
+                                <Border WidthRequest="90"
+                                        HeightRequest="90"
+                                        StrokeThickness="4"
+                                        Stroke="#FFFFFF"
+                                        HorizontalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <Ellipse />
+                                    </Border.StrokeShape>
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#EEF2FF" Offset="0.0" />
+                                            <GradientStop Color="#E0E7FF" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Label Text="P"
+                                           FontSize="42"
+                                           FontAttributes="Bold"
+                                           TextColor="#4338CA"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Name -->
+                                <Label x:Name="NameLabel"
+                                       Text="panpo"
+                                       FontSize="26"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center" />
+
+                                <!-- Role Badge -->
+                                <Border BackgroundColor="#30FFFFFF"
+                                        StrokeThickness="0"
+                                        Padding="16,8"
+                                        HorizontalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="18" />
+                                    </Border.StrokeShape>
+                                    <Label Text="Parent Account"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Stats Row -->
+                            <Grid Grid.Row="1"
+                                  ColumnDefinitions="*,*,*"
+                                  BackgroundColor="#10FFFFFF"
+                                  Padding="0,16">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="0"
+                                           FontSize="24"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Tasks"
+                                           FontSize="11"
+                                           TextColor="White"
+                                           Opacity="0.9"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.Column="1"
+                                         WidthRequest="1"
+                                         BackgroundColor="White"
+                                         Opacity="0.2"
+                                         HorizontalOptions="Start" />
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="1"
+                                           FontSize="24"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Members"
+                                           FontSize="11"
+                                           TextColor="White"
+                                           Opacity="0.9"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.Column="2"
+                                         WidthRequest="1"
+                                         BackgroundColor="White"
+                                         Opacity="0.2"
+                                         HorizontalOptions="Start" />
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                    <Label Text="1"
+                                           FontSize="24"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Days"
+                                           FontSize="11"
+                                           TextColor="White"
+                                           Opacity="0.9"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Personal Information Card -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="24">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="16">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Personal Information"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937" />
+                                <Button Grid.Column="1"
+                                        Text="Edit"
+                                        FontSize="13"
+                                        TextColor="#6D28D9"
+                                        BackgroundColor="#F3E8FF"
+                                        CornerRadius="10"
+                                        HeightRequest="32"
+                                        WidthRequest="60"
+                                        BorderWidth="0"
+                                        Clicked="OnEditProfileClicked" />
+                            </Grid>
+
+                            <!-- Info Grid -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto,Auto" RowSpacing="16">
+                                <!-- Name -->
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Full Name"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                    <Label x:Name="UserNameLabel"
+                                           Text="panpo"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                </VerticalStackLayout>
+
+                                <!-- Role -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                    <Label Text="Role"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                    <Border BackgroundColor="#EEF2FF"
+                                            StrokeThickness="0"
+                                            Padding="10,6"
+                                            HorizontalOptions="Start">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8" />
+                                        </Border.StrokeShape>
+                                        <Label Text="Parent"
+                                               FontSize="13"
+                                               FontAttributes="Bold"
+                                               TextColor="#4338CA" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <!-- Family -->
+                                <VerticalStackLayout Grid.Row="1" Spacing="6">
+                                    <Label Text="Family Name"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                    <Label x:Name="FamilyNameLabel"
+                                           Text="panpo"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                </VerticalStackLayout>
+
+                                <!-- Join Date -->
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
+                                    <Label Text="Member Since"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                    <Label Text="Oct 6, 2025"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Invite Code Card - white with indigo accent -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="20">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Invitation Code"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#1F2937" />
+                            
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Border BackgroundColor="#F9FAFB"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E7EB"
+                                        Padding="12,10"
+                                        HorizontalOptions="FillAndExpand">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="10" />
+                                    </Border.StrokeShape>
+                                    <Label Text="TA8EYT"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                </Border>
+                                <Button Grid.Column="1"
+                                        Text="Copy"
+                                        FontSize="14"
+                                        TextColor="White"
+                                        CornerRadius="10"
+                                        HeightRequest="44"
+                                        BorderWidth="0"
+                                        Clicked="OnCopyCodeClicked">
+                                    <Button.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#6D28D9" Offset="0.0" />
+                                            <GradientStop Color="#C7D2FE" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Button.Background>
+                                </Button>
+                            </Grid>
+                            <Label Text="Share this code to invite family members"
+                                   FontSize="12"
+                                   TextColor="#6B7280" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <!-- RIGHT COLUMN - Settings & Actions -->
+                <VerticalStackLayout Grid.Column="1" Spacing="20">
+                    
+                    <!-- Quick Actions -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="20">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Quick Actions"
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                   TextColor="#1F2937" />
+
+                            <Button Text="View Statistics"
+                                    TextColor="White"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    CornerRadius="12"
+                                    HeightRequest="48"
+                                    BorderWidth="0">
+                                <Button.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6D28D9" Offset="0.0" />
+                                        <GradientStop Color="#C7D2FE" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Button.Background>
+                            </Button>
+
+                            <Button Text="Manage Family"
+                                    TextColor="#6D28D9"
+                                    BackgroundColor="#F3E8FF"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    CornerRadius="12"
+                                    HeightRequest="48"
+                                    BorderWidth="0" />
+
+                            <Button Text="Rewards Shop"
+                                    TextColor="#6D28D9"
+                                    BackgroundColor="#F3E8FF"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    CornerRadius="12"
+                                    HeightRequest="48"
+                                    BorderWidth="0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Settings -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="20">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="Settings"
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                   TextColor="#1F2937" />
+
+                            <!-- Push Notifications -->
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Notifications"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                    <Label Text="Get app notifications"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1"
+                                        x:Name="PushNotificationsSwitch"
+                                        IsToggled="True"
+                                        OnColor="#6D28D9"
+                                        VerticalOptions="Center" />
+                            </Grid>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#E5E7EB" />
+
+                            <!-- Email Notifications -->
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="Email Updates"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="#1F2937" />
+                                    <Label Text="Weekly summaries"
+                                           FontSize="12"
+                                           TextColor="#6B7280" />
+                                </VerticalStackLayout>
+                                <Switch Grid.Column="1"
+                                        x:Name="EmailNotificationsSwitch"
+                                        IsToggled="False"
+                                        OnColor="#6D28D9"
+                                        VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Account Actions -->
+                    <Border BackgroundColor="White"
+                            StrokeThickness="0"
+                            Padding="20">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="16" />
+                        </Border.StrokeShape>
+                        <Border.Shadow>
+                            <Shadow Brush="#15000000" Radius="20" Offset="0,6" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Account"
+                                   FontSize="17"
+                                   FontAttributes="Bold"
+                                   TextColor="#1F2937" />
+
+                            <Button Text="Change Password"
+                                    TextColor="#6B7280"
+                                    BackgroundColor="#F9FAFB"
+                                    FontSize="13"
+                                    CornerRadius="10"
+                                    HeightRequest="44"
+                                    BorderWidth="0" />
+
+                            <Button Text="Privacy Settings"
+                                    TextColor="#6B7280"
+                                    BackgroundColor="#F9FAFB"
+                                    FontSize="13"
+                                    CornerRadius="10"
+                                    HeightRequest="44"
+                                    BorderWidth="0" />
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="#E5E7EB"
+                                     Margin="0,8" />
+
+                            <Button Text="Logout"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    TextColor="White"
+                                    BackgroundColor="#EF4444"
+                                    CornerRadius="10"
+                                    HeightRequest="48"
+                                    BorderWidth="0"
+                                    Clicked="OnLogoutClicked" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Grid>
+</ContentPage>
