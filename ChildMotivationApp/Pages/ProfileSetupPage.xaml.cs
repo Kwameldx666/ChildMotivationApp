@@ -167,14 +167,8 @@ public partial class ProfileSetupPage : ContentPage
         {
             if (Application.Current?.MainPage is AppShell shell)
             {
-                shell.ShowMainNavigation();
+                shell.ShowMainNavigation(true);
                 await Task.Delay(100);
-            }
-            
-            // Переход через Shell.Current.CurrentItem
-            if (Shell.Current.Items.Count > 0)
-            {
-                Shell.Current.CurrentItem = Shell.Current.Items[0];
             }
         }
         else

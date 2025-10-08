@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.Child.ChildDashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#FDF6FF"
+    Shell.NavBarIsVisible="False"
+    Title="Мой день">
+
+    <Grid RowDefinitions="Auto,*" BackgroundColor="#FDF6FF">
+        <!-- Header -->
+        <Border Margin="20,24,20,12" Padding="20"
+                BackgroundColor="#FFFFFF"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#15000000" Radius="20" Offset="0,8" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Привет, звездочка!"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#5B21B6" />
+                    <Label x:Name="DailyMessage"
+                           Text="Ты уже собрала 120 очков, осталось чуть-чуть!"
+                           FontSize="14"
+                           TextColor="#7C3AED" />
+                </VerticalStackLayout>
+
+                <Border Grid.Column="1"
+                        BackgroundColor="#F3E8FF"
+                        StrokeThickness="0"
+                        Padding="16,12"
+                        VerticalOptions="Center">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                        <Label Text="⭐"
+                               FontSize="28"
+                               HorizontalOptions="Center" />
+                        <Label x:Name="TotalPointsLabel"
+                               Text="320 очков"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#5B21B6"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="24" Padding="20,0,20,120">
+
+                <!-- Progress section -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#15000000" Radius="16" Offset="0,6" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout>
+                                <Label Text="Сегодняшние задания"
+                                       FontSize="20"
+                                       FontAttributes="Bold"
+                                       TextColor="#5B21B6" />
+                                <Label Text="Поставь галочку, когда выполнишь"
+                                       FontSize="13"
+                                       TextColor="#7C3AED" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1" BackgroundColor="#F3E8FF" StrokeThickness="0" Padding="12,6">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14" />
+                                </Border.StrokeShape>
+                                <Label x:Name="CompletedCounter"
+                                       Text="0 из 3 выполнено"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#5B21B6" />
+                            </Border>
+                        </Grid>
+
+                        <ProgressBar x:Name="TasksProgressBar"
+                                     Progress="0"
+                                     HeightRequest="10"
+                                     BackgroundColor="#EDE9FE"
+                                     ProgressColor="#A855F7" />
+
+                        <CollectionView ItemsSource="{Binding TodayTasks}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,12" Padding="14" BackgroundColor="#F9F5FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18" />
+                                        </Border.StrokeShape>
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                            <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0" BackgroundColor="#EDE9FE">
+                                                <Border.StrokeShape>
+                                                    <Ellipse />
+                                                </Border.StrokeShape>
+                                                <Label Text="🎯" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="#4C1D95" />
+                                                <Label Text="{Binding PointsText}" FontSize="13" TextColor="#7C3AED" />
+                                            </VerticalStackLayout>
+
+                                            <CheckBox Grid.Column="2"
+                                                      Color="#A855F7"
+                                                      IsChecked="{Binding IsCompleted}"
+                                                      CheckedChanged="OnTaskCompletionChanged" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Motivation card -->
+                <Border BackgroundColor="#FDF2F8" StrokeThickness="0" Padding="24">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Совет дня"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#BE185D" />
+                            <Label Text="Сделай перерыв после каждого задания и потянись как супергерой!"
+                                   FontSize="15"
+                                   TextColor="#9D174D" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="🦸‍♀️" FontSize="32" />
+                    </Grid>
+                </Border>
+
+                <!-- Upcoming rewards -->
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#15000000" Radius="16" Offset="0,6" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <Label Text="Награды рядом!"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="#5B21B6" />
+
+                        <CollectionView ItemsSource="{Binding RewardHighlights}" SelectionMode="None"
+                                        ItemsLayout="HorizontalList">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border WidthRequest="160" Margin="0,0,12,0" Padding="16" BackgroundColor="#F5F3FF" StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18" />
+                                        </Border.StrokeShape>
+                                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                            <Label Text="{Binding Emoji}" FontSize="28" HorizontalOptions="Center" />
+                                            <Label Text="{Binding Title}" FontSize="15" FontAttributes="Bold" TextColor="#4C1D95" HorizontalTextAlignment="Center" />
+                                            <Label Text="{Binding PointsText}" FontSize="13" TextColor="#7C3AED" HorizontalTextAlignment="Center" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

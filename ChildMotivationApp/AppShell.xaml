@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ChildMotivationApp.Pages"
+    xmlns:childpages="clr-namespace:ChildMotivationApp.Pages.Child"
     Title="ChildMotivationApp"
     FlyoutBackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
 
@@ -40,7 +41,7 @@
     </Shell.FlyoutHeader>
 
     <!-- Основная навигация приложения - TabBar (скрыта по умолчанию) -->
-    <TabBar x:Name="MainTabBar" IsVisible="False">
+    <TabBar x:Name="ParentTabBar" IsVisible="False">
         
         <!-- Главная -->
         <Tab Title="Главная" Route="home">
@@ -90,6 +91,55 @@
             <ShellContent Route="parent_profile" ContentTemplate="{DataTemplate local:ParentProfilePage}" />
         </Tab>
         
+    </TabBar>
+
+    <!-- Детская навигация -->
+    <TabBar x:Name="ChildTabBar" IsVisible="False">
+
+        <Tab Title="Мои задания" Route="child_home">
+            <Tab.Icon>
+                <FontImageSource
+                    Glyph="🎯"
+                    FontFamily="Default"
+                    Size="24"
+                    Color="{AppThemeBinding Light=#D946EF, Dark=#F472B6}" />
+            </Tab.Icon>
+            <ShellContent Route="child_dashboard" ContentTemplate="{DataTemplate childpages:ChildDashboardPage}" />
+        </Tab>
+
+        <Tab Title="Награды" Route="child_rewards">
+            <Tab.Icon>
+                <FontImageSource
+                    Glyph="🎁"
+                    FontFamily="Default"
+                    Size="24"
+                    Color="{AppThemeBinding Light=#F59E0B, Dark=#FBBF24}" />
+            </Tab.Icon>
+            <ShellContent Route="child_rewards_shop" ContentTemplate="{DataTemplate childpages:ChildRewardsPage}" />
+        </Tab>
+
+        <Tab Title="Прогресс" Route="child_progress">
+            <Tab.Icon>
+                <FontImageSource
+                    Glyph="🚀"
+                    FontFamily="Default"
+                    Size="24"
+                    Color="{AppThemeBinding Light=#0EA5E9, Dark=#38BDF8}" />
+            </Tab.Icon>
+            <ShellContent Route="child_progress_page" ContentTemplate="{DataTemplate childpages:ChildProgressPage}" />
+        </Tab>
+
+        <Tab Title="Профиль" Route="child_profile">
+            <Tab.Icon>
+                <FontImageSource
+                    Glyph="🦄"
+                    FontFamily="Default"
+                    Size="24"
+                    Color="{AppThemeBinding Light=#A855F7, Dark=#C084FC}" />
+            </Tab.Icon>
+            <ShellContent Route="child_profile_page" ContentTemplate="{DataTemplate childpages:ChildProfilePage}" />
+        </Tab>
+
     </TabBar>
 
     <!-- Стартовые страницы -->

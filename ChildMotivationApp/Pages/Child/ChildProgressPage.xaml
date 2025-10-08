@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ChildMotivationApp.Pages.Child.ChildProgressPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#ECFEFF"
+    Title="Мой прогресс">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="24" Padding="20,32,20,120">
+            <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#16000000" Radius="20" Offset="0,6" />
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Ты растёшь каждый день!"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="#0369A1" />
+                        <Label Text="Посмотри, сколько всего сделано"
+                               FontSize="14"
+                               TextColor="#0284C7" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1" Text="🚀" FontSize="36" />
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Spacing="18">
+                <Label Text="Неделя достижений"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#0C4A6E" />
+                <CollectionView ItemsSource="{Binding WeeklyProgress}" SelectionMode="None"
+                                ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border WidthRequest="160" Margin="0,0,12,0" Padding="16" BackgroundColor="#FFFFFF" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20" />
+                                </Border.StrokeShape>
+                                <Border.Shadow>
+                                    <Shadow Brush="#10000000" Radius="12" Offset="0,4" />
+                                </Border.Shadow>
+
+                                <VerticalStackLayout Spacing="10">
+                                    <Label Text="{Binding Day}" FontSize="14" FontAttributes="Bold" TextColor="#0369A1" />
+                                    <ProgressBar Progress="{Binding Completion}" HeightRequest="10" BackgroundColor="#E0F2FE" ProgressColor="#0EA5E9" />
+                                    <Label Text="{Binding Summary}" FontSize="13" TextColor="#0284C7" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="18">
+                <Label Text="Навыки, которые ты качаешь"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#0C4A6E" />
+                <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#14000000" Radius="18" Offset="0,5" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="🎯" FontSize="24" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="Ответственность" FontSize="16" FontAttributes="Bold" TextColor="#0369A1" />
+                            <Label Grid.Row="0" Grid.Column="2" Text="80%" FontSize="15" TextColor="#0284C7" />
+                            <ProgressBar Grid.Row="1" Grid.ColumnSpan="3" Progress="0.8" HeightRequest="10" BackgroundColor="#E0F2FE" ProgressColor="#0EA5E9" />
+                            <Label Grid.Row="2" Grid.ColumnSpan="3" Text="Ты отлично выполняешь задания вовремя!" FontSize="13" TextColor="#0EA5E9" />
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="🤝" FontSize="24" Margin="0,12,0,0" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="Помощь семье" FontSize="16" FontAttributes="Bold" TextColor="#0369A1" Margin="0,12,0,0" />
+                            <Label Grid.Row="3" Grid.Column="2" Text="65%" FontSize="15" TextColor="#0284C7" Margin="0,12,0,0" />
+                            <ProgressBar Grid.Row="4" Grid.ColumnSpan="3" Progress="0.65" HeightRequest="10" BackgroundColor="#E0F2FE" ProgressColor="#0EA5E9" />
+                            <Label Grid.Row="5" Grid.ColumnSpan="3" Text="С каждым днём ты помогаешь всё больше." FontSize="13" TextColor="#0EA5E9" />
+
+                            <Label Grid.Row="6" Grid.Column="0" Text="🌱" FontSize="24" Margin="0,12,0,0" />
+                            <Label Grid.Row="6" Grid.Column="1" Text="Самостоятельность" FontSize="16" FontAttributes="Bold" TextColor="#0369A1" Margin="0,12,0,0" />
+                            <Label Grid.Row="6" Grid.Column="2" Text="90%" FontSize="15" TextColor="#0284C7" Margin="0,12,0,0" />
+                            <ProgressBar Grid.Row="7" Grid.ColumnSpan="3" Progress="0.9" HeightRequest="10" BackgroundColor="#E0F2FE" ProgressColor="#0EA5E9" />
+                            <Label Grid.Row="8" Grid.ColumnSpan="3" Text="Ты уже почти полностью сам организуешь своё время!" FontSize="13" TextColor="#0EA5E9" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <Border BackgroundColor="#FFFFFF" StrokeThickness="0" Padding="20">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="#12000000" Radius="14" Offset="0,4" />
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Следующая цель"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#0C4A6E" />
+                        <Label Text="Набери ещё 60 очков и получи время с приставкой"
+                               FontSize="14"
+                               TextColor="#0284C7" />
+                    </VerticalStackLayout>
+                    <Border Grid.Column="1" BackgroundColor="#E0F2FE" StrokeThickness="0" Padding="12,8">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+                        <Label Text="Цель: 380"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#0369A1"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
