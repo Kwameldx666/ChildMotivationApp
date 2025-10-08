@@ -1,3 +1,5 @@
+using ChildMotivationApp.Helpers;
+using ChildMotivationApp.ViewModels;
 using Microsoft.Maui.Controls;
 
 namespace ChildMotivationApp.Pages;
@@ -5,18 +7,13 @@ namespace ChildMotivationApp.Pages;
 public partial class WelcomePage : ContentPage
 {
     public WelcomePage()
+        : this(ServiceHelper.GetRequiredService<WelcomePageViewModel>())
     {
-        InitializeComponent();
     }
 
-    private async void OnStartClicked(object sender, EventArgs e)
+    public WelcomePage(WelcomePageViewModel viewModel)
     {
-        if (sender is Button button)
-        {
-            button.BackgroundColor = Color.FromArgb("#10B981");
-            await Task.Delay(200);
-        }
-
-        await Shell.Current.GoToAsync("//roleselection");
+        InitializeComponent();
+        BindingContext = viewModel;
     }
 }

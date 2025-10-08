@@ -3,6 +3,8 @@
     x:Class="ChildMotivationApp.Pages.RoleSelectionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ChildMotivationApp.ViewModels"
+    x:DataType="vm:RoleSelectionPageViewModel"
     BackgroundColor="#F5F7FA"
     Title="Choose Your Role">
 
@@ -53,11 +55,8 @@
                         <!-- Parent Card -->
                         <Border Grid.Column="0"
                                 BackgroundColor="White"
-                                StrokeThickness="2"
-                                Stroke="#E5E7EB"
                                 Padding="30,40,30,35"
                                 Margin="5"
-                                x:Name="ParentRole"
                                 HorizontalOptions="Fill"
                                 MaximumWidthRequest="340">
                             <Border.StrokeShape>
@@ -67,10 +66,26 @@
                                 <Shadow Brush="#08000000" Radius="15" Offset="0,4" />
                             </Border.Shadow>
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnParentRoleSelected" />
-                                <PointerGestureRecognizer PointerEntered="OnParentRoleHoverEntered" 
-                                                         PointerExited="OnParentRoleHoverExited" />
+                                <TapGestureRecognizer Command="{Binding SelectParentCommand}" />
                             </Border.GestureRecognizers>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="Stroke" Value="#E5E7EB" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Scale" Value="1" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="Stroke" Value="#3B82F6" />
+                                            <Setter Property="StrokeThickness" Value="3" />
+                                            <Setter Property="Scale" Value="1.02" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
                             
                             <VerticalStackLayout Spacing="25" HorizontalOptions="Center">
                                 <!-- Icon -->
@@ -111,11 +126,8 @@
                         <!-- Child Card -->
                         <Border Grid.Column="2"
                                 BackgroundColor="White"
-                                StrokeThickness="2"
-                                Stroke="#E5E7EB"
                                 Padding="30,40,30,35"
                                 Margin="5"
-                                x:Name="ChildRole"
                                 HorizontalOptions="Fill"
                                 MaximumWidthRequest="340">
                             <Border.StrokeShape>
@@ -125,10 +137,26 @@
                                 <Shadow Brush="#08000000" Radius="15" Offset="0,4" />
                             </Border.Shadow>
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnChildRoleSelected" />
-                                <PointerGestureRecognizer PointerEntered="OnChildRoleHoverEntered" 
-                                                         PointerExited="OnChildRoleHoverExited" />
+                                <TapGestureRecognizer Command="{Binding SelectChildCommand}" />
                             </Border.GestureRecognizers>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="Stroke" Value="#E5E7EB" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Scale" Value="1" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="Stroke" Value="#D946EF" />
+                                            <Setter Property="StrokeThickness" Value="3" />
+                                            <Setter Property="Scale" Value="1.02" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
                             
                             <VerticalStackLayout Spacing="25" HorizontalOptions="Center">
                                 <!-- Icon -->

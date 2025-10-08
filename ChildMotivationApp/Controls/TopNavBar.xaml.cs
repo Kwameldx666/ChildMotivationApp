@@ -1,12 +1,22 @@
+using System.Threading.Tasks;
+using ChildMotivationApp.Helpers;
+using ChildMotivationApp.Services;
 using Microsoft.Maui.Controls;
 
 namespace ChildMotivationApp.Controls;
 
 public partial class TopNavBar : ContentView
 {
+    private readonly INavigationService _navigationService;
+    private readonly IModalService _modalService;
+    private readonly IShellHostService _shellHostService;
+
     public TopNavBar()
     {
         InitializeComponent();
+        _navigationService = ServiceHelper.GetRequiredService<INavigationService>();
+        _modalService = ServiceHelper.GetRequiredService<IModalService>();
+        _shellHostService = ServiceHelper.GetRequiredService<IShellHostService>();
         UpdateStates("home");
     }
 
@@ -21,8 +31,42 @@ public partial class TopNavBar : ContentView
     public Color StatsText { get; set; } = Color.FromArgb("#6B7280");
     public Color ProfileText { get; set; } = Color.FromArgb("#6B7280");
 
+    public static readonly BindableProperty ActiveTabProperty = BindableProperty.Create(
+        nameof(ActiveTab),
+        typeof(string),
+        typeof(TopNavBar),
+        "home",
+        propertyChanged: OnActiveTabChanged);
+
+    public string ActiveTab
+    {
+        get => (string)GetValue(ActiveTabProperty);
+        set => SetValue(ActiveTabProperty, value);
+    }
+
+    private static void OnActiveTabChanged(BindableObject bindable, object? oldValue, object? newValue)
+    {
+        if (bindable is TopNavBar navBar)
+        {
+            var active = newValue as string;
+            if (string.IsNullOrWhiteSpace(active))
+            {
+                active = "home";
+            }
+
+            navBar.UpdateStates(active);
+        }
+    }
+
     private void UpdateStates(string active)
     {
+        if (string.IsNullOrWhiteSpace(active))
+        {
+            active = "home";
+        }
+
+        active = active.ToLowerInvariant();
+
         HomeBg = RewardsBg = StatsBg = ProfileBg = Colors.Transparent;
         HomeText = RewardsText = StatsText = ProfileText = Color.FromArgb("#6B7280");
 
@@ -47,40 +91,52 @@ public partial class TopNavBar : ContentView
     private async void OnHomeTapped(object? sender, EventArgs e)
     {
         UpdateStates("home");
-        var ok = await TryGoToAsync("//home/dashboard");
-        if (!ok)
-            await Shell.Current.GoToAsync("dashboard");
+        _shellHostService.ShowMainNavigation();
+        var switched = await _shellHostService.SwitchToTabAsync("home", "dashboard");
+        if (!switched)
+        {
+            await TryGoToAsync("//home/dashboard");
+        }
     }
 
     private async void OnRewardsTapped(object? sender, EventArgs e)
     {
         UpdateStates("rewards");
-        var ok = await TryGoToAsync("//rewards/rewards_shop");
-        if (!ok)
-            await Shell.Current.GoToAsync("rewards_shop");
+        _shellHostService.ShowMainNavigation();
+        var switched = await _shellHostService.SwitchToTabAsync("rewards", "rewards_shop");
+        if (!switched)
+        {
+            await TryGoToAsync("//rewards/rewards_shop");
+        }
     }
 
     private async void OnStatsTapped(object? sender, EventArgs e)
     {
         UpdateStates("stats");
-        var ok = await TryGoToAsync("//stats/parent_stats");
-        if (!ok)
-            await Shell.Current.GoToAsync("parent_stats");
+        _shellHostService.ShowMainNavigation();
+        var switched = await _shellHostService.SwitchToTabAsync("stats", "parent_stats");
+        if (!switched)
+        {
+            await TryGoToAsync("//stats/parent_stats");
+        }
     }
 
     private async void OnProfileTapped(object? sender, EventArgs e)
     {
         UpdateStates("profile");
-        var ok = await TryGoToAsync("//profile/parent_profile");
-        if (!ok)
-            await Shell.Current.GoToAsync("parent_profile");
+        _shellHostService.ShowMainNavigation();
+        var switched = await _shellHostService.SwitchToTabAsync("profile", "parent_profile");
+        if (!switched)
+        {
+            await TryGoToAsync("//profile/parent_profile");
+        }
     }
 
     private async Task<bool> TryGoToAsync(string route)
     {
         try
         {
-            await Shell.Current.GoToAsync(route);
+            await _navigationService.GoToAsync(route);
             return true;
         }
         catch
@@ -93,11 +149,15 @@ public partial class TopNavBar : ContentView
     {
         try
         {
-            await Shell.Current.CurrentPage.Navigation.PushModalAsync(new Pages.CreateTaskModal());
+            await _modalService.ShowCreateTaskModalAsync();
         }
         catch
         {
-            await Shell.Current.GoToAsync("dashboard");
+            var switched = await _shellHostService.SwitchToTabAsync("home", "dashboard");
+            if (!switched)
+            {
+                await TryGoToAsync("//home/dashboard");
+            }
         }
     }
 }

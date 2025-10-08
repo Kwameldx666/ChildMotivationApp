@@ -1,24 +1,27 @@
+using ChildMotivationApp.Helpers;
+using ChildMotivationApp.ViewModels;
 using Microsoft.Maui.Controls;
 
 namespace ChildMotivationApp.Pages;
 
 public partial class ParentStatsPage : ContentPage
 {
+    private readonly ParentStatsPageViewModel _viewModel;
+
     public ParentStatsPage()
+        : this(ServiceHelper.GetRequiredService<ParentStatsPageViewModel>())
+    {
+    }
+
+    public ParentStatsPage(ParentStatsPageViewModel viewModel)
     {
         InitializeComponent();
+        BindingContext = _viewModel = viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        // В будущем здесь можно загружать данные статистики
-        LoadStatistics();
-    }
-
-    private void LoadStatistics()
-    {
-        // TODO: Загрузка данных статистики из БД или API
-        // Пока оставляем пустым, данные будут добавлены позже
+        await _viewModel.OnAppearingAsync();
     }
 }

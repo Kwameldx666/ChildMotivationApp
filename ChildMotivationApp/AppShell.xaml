@@ -40,7 +40,7 @@
     </Shell.FlyoutHeader>
 
     <!-- Основная навигация приложения - TabBar (скрыта по умолчанию) -->
-    <TabBar x:Name="MainTabBar" IsVisible="False">
+    <TabBar x:Name="MainTabBar" Route="main" IsVisible="False">
         
         <!-- Главная -->
         <Tab Title="Главная" Route="home">

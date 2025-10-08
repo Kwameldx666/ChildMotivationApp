@@ -1,50 +1,47 @@
+using System.Collections.Generic;
+using ChildMotivationApp.Helpers;
+using ChildMotivationApp.ViewModels;
 using Microsoft.Maui.Controls;
 
 namespace ChildMotivationApp.Pages;
 
-[QueryProperty(nameof(ParentName), "parentName")]
-[QueryProperty(nameof(FamilyName), "familyName")]
-public partial class DashboardPage : ContentPage
+public partial class DashboardPage : ContentPage, IQueryAttributable
 {
-    private string _parentName = string.Empty;
-    private string _familyName = string.Empty;
-
-    public string ParentName
-    {
-        get => _parentName;
-        set
-        {
-            _parentName = value ?? string.Empty;
-            // ? ??????? ???????? ??? ??????????? ????? ??? ???????????
-        }
-    }
-
-    public string FamilyName
-    {
-        get => _familyName;
-        set => _familyName = value ?? string.Empty;
-    }
+    private readonly DashboardPageViewModel _viewModel;
 
     public DashboardPage()
+        : this(ServiceHelper.GetRequiredService<DashboardPageViewModel>())
+    {
+    }
+
+    public DashboardPage(DashboardPageViewModel viewModel)
     {
         InitializeComponent();
+        BindingContext = _viewModel = viewModel;
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("parentName", out var parent) && parent is string parentName)
+        {
+            _viewModel.ParentName = parentName;
+        }
+
+        if (query.TryGetValue("familyName", out var family) && family is string familyName)
+        {
+            _viewModel.FamilyName = familyName;
+        }
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // ??? ????????, ?.?. ??????????? ????????? ???
+        _ = _viewModel.OnAppearingAsync();
     }
 
-    private async void OnCreateTaskClicked(object sender, EventArgs e)
+    protected override void OnDisappearing()
     {
-        if (sender is Button button)
-        {
-            await button.ScaleTo(0.95, 100);
-            await button.ScaleTo(1, 100);
-        }
-
-        var modal = new CreateTaskModal();
-        await Navigation.PushModalAsync(modal);
+        base.OnDisappearing();
+        _ = _viewModel.OnDisappearingAsync();
     }
 }

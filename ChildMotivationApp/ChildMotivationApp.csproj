@@ -64,9 +64,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Controls\CreateTaskModal.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Controls\TopNavBar.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -106,6 +103,11 @@
 	  <MauiXaml Update="Resources\Styles\ResponsiveStyles.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Remove="Controls\CreateTaskModal.xaml" />
+	  <Compile Remove="Controls\CreateTaskModal.xaml.cs" />
 	</ItemGroup>
 
 </Project>

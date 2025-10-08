@@ -3,6 +3,8 @@
     x:Class="ChildMotivationApp.Pages.CreateFamilyPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ChildMotivationApp.ViewModels"
+    x:DataType="vm:CreateFamilyPageViewModel"
     BackgroundColor="#F5F7FA"
     Title="Create Family">
 
@@ -84,8 +86,8 @@
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
                             
-                            <Entry x:Name="FamilyNameEntry"
-                                   Placeholder="Семья Ивановых"
+                            <Entry Text="{Binding FamilyName, Mode=TwoWay}"
+                                   Placeholder="Введите название вашей семьи"
                                    FontSize="15"
                                    TextColor="#1F2937"
                                    PlaceholderColor="#9CA3AF"
@@ -96,15 +98,20 @@
                     </VerticalStackLayout>
 
                     <!-- Кнопка с градиентом -->
-                    <Button x:Name="CreateFamilyButton"
-                            Text="Создать семью"
+                    <Label Text="{Binding ValidationMessage}"
+                           FontSize="12"
+                           TextColor="#DC2626"
+                           Margin="4,4,0,0"
+                           IsVisible="{Binding HasValidationMessage}" />
+
+                    <Button Text="Создать семью"
                             FontSize="16"
                             FontAttributes="Bold"
                             TextColor="White"
                             HeightRequest="50"
                             CornerRadius="10"
                             Margin="0,10,0,0"
-                            Clicked="OnCreateFamilyClicked">
+                            Command="{Binding CreateFamilyCommand}">
                         <Button.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                 <GradientStop Color="#D946EF" Offset="0.0" />
