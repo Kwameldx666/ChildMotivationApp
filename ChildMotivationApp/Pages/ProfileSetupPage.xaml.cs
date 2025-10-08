@@ -167,15 +167,10 @@ public partial class ProfileSetupPage : ContentPage
         {
             if (Application.Current?.MainPage is AppShell shell)
             {
-                shell.ShowMainNavigation();
-                await Task.Delay(100);
+                shell.HideNavigation();
             }
-            
-            // Переход через Shell.Current.CurrentItem
-            if (Shell.Current.Items.Count > 0)
-            {
-                Shell.Current.CurrentItem = Shell.Current.Items[0];
-            }
+
+            await Shell.Current.GoToAsync($"//childjoinfamily?childName={Uri.EscapeDataString(name)}&childAge={_currentAge}");
         }
         else
         {
