@@ -41,7 +41,9 @@
     </Shell.FlyoutHeader>
 
     <!-- Основная навигация приложения - TabBar (скрыта по умолчанию) -->
+
     <TabBar x:Name="ParentTabBar" IsVisible="False">
+
         
         <!-- Главная -->
         <Tab Title="Главная" Route="home">

@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:ChildMotivationApp.Controls"
+    xmlns:vm="clr-namespace:ChildMotivationApp.ViewModels"
+    x:DataType="vm:DashboardPageViewModel"
     BackgroundColor="#F8FAFC"
     Shell.NavBarIsVisible="False"
     Title="Family Dashboard">
@@ -14,7 +16,19 @@
 
         <!-- Основной контент -->
         <ScrollView Grid.Row="1">
-            <Grid ColumnDefinitions="2.5*,*" ColumnSpacing="20" Padding="20,16,20,100" RowSpacing="20">
+            <VerticalStackLayout Spacing="16">
+                <VerticalStackLayout Padding="20,20,20,0" Spacing="4">
+                    <Label Text="{Binding WelcomeMessage}"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#1F2937" />
+                    <Label Text="{Binding FamilyDisplayName}"
+                           FontSize="16"
+                           TextColor="#6B7280"
+                           IsVisible="{Binding HasFamilyName}" />
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="2.5*,*" ColumnSpacing="20" Padding="20,0,20,100" RowSpacing="20">
             
                 <!-- ЛЕВАЯ СТОРОНА - Активность и Задачи -->
                 <VerticalStackLayout Grid.Column="0" Spacing="20">
@@ -432,7 +446,7 @@
                                     CornerRadius="12"
                                     HeightRequest="48"
                                     BorderWidth="0"
-                                    Clicked="OnCreateTaskClicked">
+                                    Command="{Binding CreateTaskCommand}">
                                 <Button.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                         <GradientStop Color="#8B5CF6" Offset="0.0" />
@@ -451,7 +465,8 @@
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
-            </Grid>
+                </Grid>
+            </VerticalStackLayout>
         </ScrollView>
     </Grid>
 </ContentPage>

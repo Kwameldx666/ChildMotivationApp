@@ -3,12 +3,17 @@
     x:Class="ChildMotivationApp.Pages.CreateTaskModal"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:vm="clr-namespace:ChildMotivationApp.ViewModels"
+    x:DataType="vm:CreateTaskModalViewModel"
     BackgroundColor="#80000000"
     Shell.PresentationMode="ModalAnimated">
 
     <Grid VerticalOptions="Center" HorizontalOptions="Center" Padding="20">
-        <Border BackgroundColor="White" StrokeThickness="0" MaximumWidthRequest="500" MinimumWidthRequest="400">
+        <Border x:Name="ModalContainer"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                MaximumWidthRequest="500"
+                MinimumWidthRequest="400">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20" />
             </Border.StrokeShape>
@@ -29,13 +34,13 @@
 
                     <Label Grid.Column="1" Text="Создать новую задачу" FontSize="20" FontFamily="Arial" FontAttributes="Bold" TextColor="#1F2937" VerticalOptions="Center" Margin="12,0,0,0" />
 
-                    <Border Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" StrokeThickness="0" x:Name="CloseButton">
+                    <Border Grid.Column="2" WidthRequest="36" HeightRequest="36" BackgroundColor="Transparent" StrokeThickness="0">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
                         <Label Text="X" FontSize="20" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" VerticalOptions="Center" />
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCloseTapped" />
+                            <TapGestureRecognizer Command="{Binding CancelCommand}" />
                         </Border.GestureRecognizers>
                     </Border>
                 </Grid>
@@ -51,7 +56,7 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10" />
                                 </Border.StrokeShape>
-                                <Entry x:Name="TaskNameEntry" Placeholder="Например: Помыть посуду" PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" />
+                                <Entry Text="{Binding TaskName}" Placeholder="Например: Помыть посуду" PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
 
@@ -62,7 +67,7 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10" />
                                 </Border.StrokeShape>
-                                <Editor x:Name="DescriptionEditor" Placeholder="Подробное описание того, что нужно сделать..." PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" AutoSize="TextChanges" />
+                                <Editor Text="{Binding Description}" Placeholder="Подробное описание того, что нужно сделать..." PlaceholderColor="#9CA3AF" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" AutoSize="TextChanges" />
                             </Border>
                         </VerticalStackLayout>
 
@@ -74,15 +79,13 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
-                                    <Picker x:Name="CategoryPicker" Title="Выберите" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
-                                        <Picker.Items>
-                                            <x:String>🧹 Уборка</x:String>
-                                            <x:String>📚 Учёба</x:String>
-                                            <x:String>🏃 Спорт</x:String>
-                                            <x:String>🎨 Творчество</x:String>
-                                            <x:String>🍽️ Помощь по дому</x:String>
-                                        </Picker.Items>
-                                    </Picker>
+                                    <Picker Title="Выберите"
+                                            ItemsSource="{Binding CategoryOptions}"
+                                            SelectedItem="{Binding SelectedCategory}"
+                                            TextColor="#1F2937"
+                                            FontSize="14"
+                                            FontFamily="Arial"
+                                            BackgroundColor="Transparent" />
                                 </Border>
                             </VerticalStackLayout>
 
@@ -92,13 +95,13 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
-                                    <Picker x:Name="PriorityPicker" Title="Выберите" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
-                                        <Picker.Items>
-                                            <x:String>🔴 Высокий</x:String>
-                                            <x:String>⚡ Средний</x:String>
-                                            <x:String>🟢 Низкий</x:String>
-                                        </Picker.Items>
-                                    </Picker>
+                                    <Picker Title="Выберите"
+                                            ItemsSource="{Binding PriorityOptions}"
+                                            SelectedItem="{Binding SelectedPriority}"
+                                            TextColor="#1F2937"
+                                            FontSize="14"
+                                            FontFamily="Arial"
+                                            BackgroundColor="Transparent" />
                                 </Border>
                             </VerticalStackLayout>
                         </Grid>
@@ -111,7 +114,7 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
-                                    <Entry x:Name="PointsEntry" Text="10" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                    <Entry Text="{Binding PointsText}" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
                                 </Border>
                             </VerticalStackLayout>
 
@@ -121,7 +124,7 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
-                                    <Entry x:Name="DifficultyEntry" Text="3" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                    <Entry Text="{Binding DifficultyText}" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
                                 </Border>
                             </VerticalStackLayout>
 
@@ -131,7 +134,7 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="10" />
                                     </Border.StrokeShape>
-                                    <Entry x:Name="DurationEntry" Text="30" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
+                                    <Entry Text="{Binding DurationText}" Keyboard="Numeric" TextColor="#1F2937" FontSize="14" FontFamily="Arial" HorizontalTextAlignment="Center" BackgroundColor="Transparent" />
                                 </Border>
                             </VerticalStackLayout>
                         </Grid>
@@ -143,24 +146,34 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10" />
                                 </Border.StrokeShape>
-                                <DatePicker x:Name="DueDatePicker" Format="d" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent" Date="{x:Static sys:DateTime.Today}" />
+                                <DatePicker Format="d"
+                                            TextColor="#1F2937"
+                                            FontSize="14"
+                                            FontFamily="Arial"
+                                            BackgroundColor="Transparent"
+                                            Date="{Binding DueDate}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <!-- Назначить ребенку -->
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Назначить *" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
-                            <Label Text="Выберите хотя бы одного ребёнка" FontSize="12" FontFamily="Arial" TextColor="#EF4444" x:Name="ChildSelectionError" IsVisible="False" />
+                            <Label Text="Выберите хотя бы одного ребёнка"
+                                   FontSize="12"
+                                   FontFamily="Arial"
+                                   TextColor="#EF4444"
+                                   IsVisible="{Binding IsChildSelectionErrorVisible}" />
                             <Border BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10" />
                                 </Border.StrokeShape>
-                                <Picker x:Name="ChildPicker" Title="Выберите ребёнка" TextColor="#1F2937" FontSize="14" FontFamily="Arial" BackgroundColor="Transparent">
-                                    <Picker.Items>
-                                        <x:String>👧 Маша (8 лет)</x:String>
-                                        <x:String>👦 Петя (10 лет)</x:String>
-                                    </Picker.Items>
-                                </Picker>
+                                <Picker Title="Выберите ребёнка"
+                                        ItemsSource="{Binding ChildOptions}"
+                                        SelectedItem="{Binding SelectedChild}"
+                                        TextColor="#1F2937"
+                                        FontSize="14"
+                                        FontFamily="Arial"
+                                        BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
 
@@ -169,58 +182,170 @@
                             <Label Text="Способ подтверждения" FontSize="14" FontFamily="Arial" FontAttributes="Bold" TextColor="#374151" />
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" RowSpacing="12">
-                                <Border Grid.Column="0" Grid.Row="0" BackgroundColor="#F5F3FF" StrokeThickness="2" Stroke="#8B5CF6" Padding="16" x:Name="PhotoVerificationBorder">
+                                <Border Grid.Column="0"
+                                        Grid.Row="0"
+                                        BackgroundColor="#F9FAFB"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E7EB"
+                                        Padding="16">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12" />
                                     </Border.StrokeShape>
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnPhotoVerificationTapped" />
+                                        <TapGestureRecognizer Command="{Binding SelectVerificationMethodCommand}"
+                                                              CommandParameter="photo" />
                                     </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding SelectedVerificationMethod}"
+                                                     Value="photo">
+                                            <Setter Property="BackgroundColor" Value="#F5F3FF" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Stroke" Value="#8B5CF6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <VerticalStackLayout Spacing="8">
                                         <Label Text="📷" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
-                                        <Label Text="Фото подтверждение" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#8B5CF6" HorizontalOptions="Center" />
+                                        <Label Text="Фото подтверждение"
+                                               FontSize="13"
+                                               FontFamily="Arial"
+                                               FontAttributes="Bold"
+                                               TextColor="#6B7280"
+                                               HorizontalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                            Binding="{Binding SelectedVerificationMethod}"
+                                                            Value="photo">
+                                                    <Setter Property="TextColor" Value="#8B5CF6" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                         <Label Text="Ребёнок сделает фото" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
                                     </VerticalStackLayout>
-                                </Border>
+                </Border>
 
-                                <Border Grid.Column="1" Grid.Row="0" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="VideoVerificationBorder">
+                <Border Grid.Column="1"
+                    Grid.Row="0"
+                    BackgroundColor="#F9FAFB"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E7EB"
+                                        Padding="16">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12" />
                                     </Border.StrokeShape>
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnVideoVerificationTapped" />
+                                        <TapGestureRecognizer Command="{Binding SelectVerificationMethodCommand}"
+                                                              CommandParameter="video" />
                                     </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding SelectedVerificationMethod}"
+                                                     Value="video">
+                                            <Setter Property="BackgroundColor" Value="#F5F3FF" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Stroke" Value="#8B5CF6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <VerticalStackLayout Spacing="8">
                                         <Label Text="🎥" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
-                                        <Label Text="Видео подтверждение" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Видео подтверждение"
+                                               FontSize="13"
+                                               FontFamily="Arial"
+                                               FontAttributes="Bold"
+                                               TextColor="#6B7280"
+                                               HorizontalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                            Binding="{Binding SelectedVerificationMethod}"
+                                                            Value="video">
+                                                    <Setter Property="TextColor" Value="#8B5CF6" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                         <Label Text="Ребёнок запишет видео" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
                                     </VerticalStackLayout>
-                                </Border>
+                </Border>
 
-                                <Border Grid.Column="0" Grid.Row="1" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="ChecklistVerificationBorder">
+                <Border Grid.Column="0"
+                    Grid.Row="1"
+                    BackgroundColor="#F9FAFB"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E7EB"
+                                        Padding="16">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12" />
                                     </Border.StrokeShape>
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnChecklistVerificationTapped" />
+                                        <TapGestureRecognizer Command="{Binding SelectVerificationMethodCommand}"
+                                                              CommandParameter="checklist" />
                                     </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding SelectedVerificationMethod}"
+                                                     Value="checklist">
+                                            <Setter Property="BackgroundColor" Value="#F5F3FF" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Stroke" Value="#8B5CF6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <VerticalStackLayout Spacing="8">
                                         <Label Text="☑️" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
-                                        <Label Text="Чек-лист" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Чек-лист"
+                                               FontSize="13"
+                                               FontFamily="Arial"
+                                               FontAttributes="Bold"
+                                               TextColor="#6B7280"
+                                               HorizontalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                            Binding="{Binding SelectedVerificationMethod}"
+                                                            Value="checklist">
+                                                    <Setter Property="TextColor" Value="#8B5CF6" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                         <Label Text="Список действий для выполнения" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
                                     </VerticalStackLayout>
-                                </Border>
+                </Border>
 
-                                <Border Grid.Column="1" Grid.Row="1" BackgroundColor="#F9FAFB" StrokeThickness="1" Stroke="#E5E7EB" Padding="16" x:Name="ManualVerificationBorder">
+                <Border Grid.Column="1"
+                    Grid.Row="1"
+                    BackgroundColor="#F9FAFB"
+                                        StrokeThickness="1"
+                                        Stroke="#E5E7EB"
+                                        Padding="16">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12" />
                                     </Border.StrokeShape>
                                     <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Tapped="OnManualVerificationTapped" />
+                                        <TapGestureRecognizer Command="{Binding SelectVerificationMethodCommand}"
+                                                              CommandParameter="manual" />
                                     </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border"
+                                                     Binding="{Binding SelectedVerificationMethod}"
+                                                     Value="manual">
+                                            <Setter Property="BackgroundColor" Value="#F5F3FF" />
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Stroke" Value="#8B5CF6" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
                                     <VerticalStackLayout Spacing="8">
                                         <Label Text="✋" FontSize="28" FontFamily="Arial" HorizontalOptions="Center" />
-                                        <Label Text="Ручная проверка" FontSize="13" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" HorizontalOptions="Center" />
+                                        <Label Text="Ручная проверка"
+                                               FontSize="13"
+                                               FontFamily="Arial"
+                                               FontAttributes="Bold"
+                                               TextColor="#6B7280"
+                                               HorizontalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                            Binding="{Binding SelectedVerificationMethod}"
+                                                            Value="manual">
+                                                    <Setter Property="TextColor" Value="#8B5CF6" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
                                         <Label Text="Проверите самостоятельно" FontSize="11" FontFamily="Arial" TextColor="#6B7280" HorizontalOptions="Center" />
                                     </VerticalStackLayout>
                                 </Border>
@@ -231,9 +356,29 @@
 
                 <!-- Footer -->
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="24,16" BackgroundColor="White" ColumnSpacing="12">
-                    <Button Grid.Column="0" Text="Отмена" FontSize="15" FontFamily="Arial" FontAttributes="Bold" TextColor="#6B7280" BackgroundColor="#F3F4F6" CornerRadius="12" HeightRequest="50" BorderWidth="0" Clicked="OnCancelClicked" />
+                    <Button Grid.Column="0"
+                            Text="Отмена"
+                            FontSize="15"
+                            FontFamily="Arial"
+                            FontAttributes="Bold"
+                            TextColor="#6B7280"
+                            BackgroundColor="#F3F4F6"
+                            CornerRadius="12"
+                            HeightRequest="50"
+                            BorderWidth="0"
+                            Command="{Binding CancelCommand}" />
 
-                    <Button Grid.Column="1" Text="🎯 Создать задачу" FontSize="15" FontFamily="Arial" FontAttributes="Bold" TextColor="White" CornerRadius="12" HeightRequest="50" MinimumWidthRequest="180" BorderWidth="0" x:Name="CreateButton" Clicked="OnCreateTaskClicked">
+                    <Button Grid.Column="1"
+                            Text="🎯 Создать задачу"
+                            FontSize="15"
+                            FontFamily="Arial"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            CornerRadius="12"
+                            HeightRequest="50"
+                            MinimumWidthRequest="180"
+                            BorderWidth="0"
+                            Command="{Binding CreateTaskCommand}">
                         <Button.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                 <GradientStop Color="#8B5CF6" Offset="0.0" />

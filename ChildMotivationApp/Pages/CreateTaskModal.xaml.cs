@@ -1,173 +1,116 @@
-using Microsoft.Maui.Controls;
 using System;
+using System.Threading.Tasks;
+using ChildMotivationApp.Helpers;
+using ChildMotivationApp.ViewModels;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 
 namespace ChildMotivationApp.Pages;
 
 public partial class CreateTaskModal : ContentPage
 {
-    private string _selectedVerificationMethod = "photo";
+    private readonly CreateTaskModalViewModel _viewModel;
+    private bool _isSubscribed;
+    private bool _isClosing;
 
     public CreateTaskModal()
+        : this(ServiceHelper.GetRequiredService<CreateTaskModalViewModel>())
+    {
+    }
+
+    public CreateTaskModal(CreateTaskModalViewModel viewModel)
     {
         InitializeComponent();
-        
-        // ????????????? ???? ?? ????????? (??????)
-        DueDatePicker.Date = DateTime.Now.AddDays(1);
-        
-        // ????????????? ???????? ?? ?????????
-        CategoryPicker.SelectedIndex = 0;
-        PriorityPicker.SelectedIndex = 1;
+
+        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+        BindingContext = _viewModel;
+        SubscribeToViewModel();
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        
-        // ???????? ?????????
-        _ = AnimateModalAppearance();
+
+        _isClosing = false;
+        SubscribeToViewModel();
+        _ = AnimateInAsync();
     }
 
-    private async System.Threading.Tasks.Task AnimateModalAppearance()
+    protected override void OnDisappearing()
     {
-        var content = (Grid)Content;
-        var modal = (Border)content.Children[0];
-        
-        modal.Scale = 0.8;
-        modal.Opacity = 0;
+        UnsubscribeFromViewModel();
 
-        await System.Threading.Tasks.Task.WhenAll(
-            modal.ScaleTo(1, 300, Easing.SpringOut),
-            modal.FadeTo(1, 300)
-        );
+        base.OnDisappearing();
     }
 
-    private async void OnCloseTapped(object sender, TappedEventArgs e)
+    private void OnRequestClose(object? sender, EventArgs e)
     {
-        await AnimateButton(CloseButton);
-        await CloseModal();
+        _ = MainThread.InvokeOnMainThreadAsync(CloseAsync);
     }
 
-    private async void OnCancelClicked(object sender, EventArgs e)
+    private void SubscribeToViewModel()
     {
-        await CloseModal();
-    }
-
-    private async System.Threading.Tasks.Task CloseModal()
-    {
-        var content = (Grid)Content;
-        var modal = (Border)content.Children[0];
-
-        await System.Threading.Tasks.Task.WhenAll(
-            modal.ScaleTo(0.8, 200, Easing.CubicIn),
-            modal.FadeTo(0, 200)
-        );
-
-        await Navigation.PopModalAsync();
-    }
-
-    private async void OnCreateTaskClicked(object sender, EventArgs e)
-    {
-        // ?????????
-        if (string.IsNullOrWhiteSpace(TaskNameEntry.Text))
+        if (_isSubscribed)
         {
-            await DisplayAlert("??????", "??????????, ??????? ???????? ??????", "OK");
             return;
         }
 
-        if (ChildPicker.SelectedIndex < 0)
+        _viewModel.RequestClose += OnRequestClose;
+        _isSubscribed = true;
+    }
+
+    private void UnsubscribeFromViewModel()
+    {
+        if (!_isSubscribed)
         {
-            ChildSelectionError.IsVisible = true;
-            await DisplayAlert("??????", "??????????, ???????? ???????", "OK");
             return;
         }
 
-        // ???????? ??????
-        await CreateButton.ScaleTo(0.95, 100);
-        await CreateButton.ScaleTo(1, 100);
+        _viewModel.RequestClose -= OnRequestClose;
+        _isSubscribed = false;
+    }
 
-        // ??????? ??????
-        var taskData = new
+    private async Task CloseAsync()
+    {
+        if (_isClosing)
         {
-            Name = TaskNameEntry.Text,
-            Description = DescriptionEditor.Text,
-            Category = CategoryPicker.SelectedItem?.ToString(),
-            Priority = PriorityPicker.SelectedItem?.ToString(),
-            Points = int.TryParse(PointsEntry.Text, out int points) ? points : 10,
-            Difficulty = int.TryParse(DifficultyEntry.Text, out int diff) ? diff : 3,
-            Duration = int.TryParse(DurationEntry.Text, out int dur) ? dur : 30,
-            DueDate = DueDatePicker.Date,
-            AssignedChild = ChildPicker.SelectedItem?.ToString(),
-            VerificationMethod = _selectedVerificationMethod
-        };
+            return;
+        }
 
-        await DisplayAlert(
-            "?????? ???????! ??", 
-            $"?????? '{taskData.Name}' ??????? ?????????!\n\n" +
-            $"?????????: {taskData.Category}\n" +
-            $"????: {taskData.Points}\n" +
-            $"????: {taskData.DueDate:dd.MM.yyyy}", 
-            "???????!");
+        _isClosing = true;
 
-        await CloseModal();
+        await AnimateOutAsync();
+
+        if (Navigation?.ModalStack.Contains(this) == true)
+        {
+            await Navigation.PopModalAsync();
+        }
     }
 
-    // Verification Method Selection
-    private async void OnPhotoVerificationTapped(object sender, TappedEventArgs e)
+    private Task AnimateInAsync()
     {
-        _selectedVerificationMethod = "photo";
-        await UpdateVerificationSelection(PhotoVerificationBorder);
+        if (ModalContainer is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        ModalContainer.Scale = 0.9;
+        ModalContainer.Opacity = 0;
+
+        return Task.WhenAll(
+            ModalContainer.ScaleTo(1, 300, Easing.SpringOut),
+            ModalContainer.FadeTo(1, 300));
     }
 
-    private async void OnVideoVerificationTapped(object sender, TappedEventArgs e)
+    private Task AnimateOutAsync()
     {
-        _selectedVerificationMethod = "video";
-        await UpdateVerificationSelection(VideoVerificationBorder);
-    }
+        if (ModalContainer is null)
+        {
+            return Task.CompletedTask;
+        }
 
-    private async void OnChecklistVerificationTapped(object sender, TappedEventArgs e)
-    {
-        _selectedVerificationMethod = "checklist";
-        await UpdateVerificationSelection(ChecklistVerificationBorder);
-    }
-
-    private async void OnManualVerificationTapped(object sender, TappedEventArgs e)
-    {
-        _selectedVerificationMethod = "manual";
-        await UpdateVerificationSelection(ManualVerificationBorder);
-    }
-
-    private async System.Threading.Tasks.Task UpdateVerificationSelection(Border selectedBorder)
-    {
-        // ????????
-        await selectedBorder.ScaleTo(0.95, 100);
-        await selectedBorder.ScaleTo(1, 100, Easing.SpringOut);
-
-        // ????? ???? ??????
-        PhotoVerificationBorder.BackgroundColor = Color.FromArgb("#F9FAFB");
-        PhotoVerificationBorder.Stroke = Color.FromArgb("#E5E7EB");
-        PhotoVerificationBorder.StrokeThickness = 1;
-
-        VideoVerificationBorder.BackgroundColor = Color.FromArgb("#F9FAFB");
-        VideoVerificationBorder.Stroke = Color.FromArgb("#E5E7EB");
-        VideoVerificationBorder.StrokeThickness = 1;
-
-        ChecklistVerificationBorder.BackgroundColor = Color.FromArgb("#F9FAFB");
-        ChecklistVerificationBorder.Stroke = Color.FromArgb("#E5E7EB");
-        ChecklistVerificationBorder.StrokeThickness = 1;
-
-        ManualVerificationBorder.BackgroundColor = Color.FromArgb("#F9FAFB");
-        ManualVerificationBorder.Stroke = Color.FromArgb("#E5E7EB");
-        ManualVerificationBorder.StrokeThickness = 1;
-
-        // ???????? ?????????
-        selectedBorder.BackgroundColor = Color.FromArgb("#F5F3FF");
-        selectedBorder.Stroke = Color.FromArgb("#8B5CF6");
-        selectedBorder.StrokeThickness = 2;
-    }
-
-    private async System.Threading.Tasks.Task AnimateButton(View button)
-    {
-        await button.ScaleTo(0.9, 100);
-        await button.ScaleTo(1, 100, Easing.SpringOut);
+        return Task.WhenAll(
+            ModalContainer.ScaleTo(0.9, 200, Easing.CubicIn),
+            ModalContainer.FadeTo(0, 200));
     }
 }

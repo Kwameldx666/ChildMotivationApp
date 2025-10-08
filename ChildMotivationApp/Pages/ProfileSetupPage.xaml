@@ -3,6 +3,8 @@
     x:Class="ChildMotivationApp.Pages.ProfileSetupPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ChildMotivationApp.ViewModels"
+    x:DataType="vm:ProfileSetupPageViewModel"
     BackgroundColor="#F5F7FA"
     Title="Profile Setup">
 
@@ -27,15 +29,13 @@
                     
                     <!-- Заголовок -->
                     <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                        <Label x:Name="PageTitleLabel"
-                               Text="Расскажи о себе"
+               <Label Text="{Binding PageTitle}"
                                FontSize="24"
                                FontAttributes="Bold"
                                TextColor="#1F2937"
                                HorizontalOptions="Center" />
                         
-                        <Label x:Name="PageSubtitleLabel"
-                               Text="Создай свой профиль"
+               <Label Text="{Binding PageSubtitle}"
                                FontSize="14"
                                TextColor="#6B7280"
                                HorizontalOptions="Center" />
@@ -48,39 +48,38 @@
                         <Border WidthRequest="100" 
                                 HeightRequest="100"
                                 StrokeThickness="0"
-                                HorizontalOptions="Center"
-                                x:Name="AvatarBorder">
+                                HorizontalOptions="Center">
                             <Border.StrokeShape>
                                 <Ellipse />
                             </Border.StrokeShape>
                             <Border.Shadow>
                                 <Shadow Brush="#20000000" Radius="15" Offset="0,5" />
                             </Border.Shadow>
+                            <Border.Background>
+                                <SolidColorBrush Color="{Binding PrimaryColor}" />
+                            </Border.Background>
                             
                             <!-- Динамическое изображение -->
-                            <Image x:Name="AvatarIcon"
-                                   WidthRequest="60"
-                                   HeightRequest="60"
-                                   Aspect="AspectFit"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                <Image Source="{Binding AvatarImage}"
+                    WidthRequest="60"
+                    HeightRequest="60"
+                    Aspect="AspectFit"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
                         </Border>
 
                         <!-- Role Badge -->
                         <Border Padding="16,8"
-                                BackgroundColor="#F3F4F6"
+                                BackgroundColor="{Binding BadgeBackground}"
                                 StrokeThickness="0"
-                                HorizontalOptions="Center"
-                                x:Name="RoleBadge">
+                                HorizontalOptions="Center">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="12" />
                             </Border.StrokeShape>
-                            
-                            <Label x:Name="RoleLabel"
-                                   Text="Родитель"
+                <Label Text="{Binding RoleLabel}"
                                    FontSize="14"
                                    FontAttributes="Bold"
-                                   TextColor="#374151"
+                    TextColor="{Binding RoleTextColor}"
                                    HorizontalOptions="Center" />
                         </Border>
                     </VerticalStackLayout>
@@ -95,15 +94,15 @@
                                    FontAttributes="Bold"
                                    TextColor="#374151" />
                             
-                            <Border BackgroundColor="#F9FAFB"
-                                    StrokeThickness="1"
-                                    Stroke="#E5E7EB">
+                <Border BackgroundColor="#F9FAFB"
+                    StrokeThickness="1"
+                    Stroke="#E5E7EB">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="10" />
                                 </Border.StrokeShape>
                                 
-                                <Entry x:Name="NameEntry"
-                                       Placeholder="Введи своё имя"
+                    <Entry Text="{Binding Name}"
+                        Placeholder="Введи своё имя"
                                        FontSize="15"
                                        TextColor="#1F2937"
                                        PlaceholderColor="#9CA3AF"
@@ -114,9 +113,8 @@
                         </VerticalStackLayout>
 
                         <!-- Age Input (только для детей) -->
-                        <VerticalStackLayout x:Name="AgeSection" 
-                                           Spacing="8"
-                                           IsVisible="False">
+                        <VerticalStackLayout Spacing="8"
+                                           IsVisible="{Binding ShowAgeSection}">
                             <Label Text="Сколько тебе лет?"
                                    FontSize="14"
                                    FontAttributes="Bold"
@@ -131,16 +129,15 @@
                                 
                                 <Grid ColumnDefinitions="50,*,50" HeightRequest="48">
                                     
-                                    <Button Grid.Column="0"
-                                            Text="−"
+                    <Button Grid.Column="0"
+                        Text="−"
                                             FontSize="24"
                                             TextColor="#6B7280"
                                             BackgroundColor="Transparent"
-                                            Clicked="OnDecreaseAgeClicked" />
+                        Command="{Binding DecreaseAgeCommand}" />
                                     
-                                    <Entry x:Name="AgeEntry"
-                                           Grid.Column="1"
-                                           Text="8"
+                     <Entry Grid.Column="1"
+                         Text="{Binding AgeText, Mode=TwoWay}"
                                            Keyboard="Numeric"
                                            FontSize="18"
                                            FontAttributes="Bold"
@@ -148,31 +145,41 @@
                                            BackgroundColor="Transparent"
                                            HorizontalTextAlignment="Center"
                                            VerticalTextAlignment="Center"
-                                           TextChanged="OnAgeTextChanged" />
+                         />
                                     
-                                    <Button Grid.Column="2"
-                                            Text="+"
+                    <Button Grid.Column="2"
+                        Text="+"
                                             FontSize="20"
                                             TextColor="#6B7280"
                                             BackgroundColor="Transparent"
-                                            Clicked="OnIncreaseAgeClicked" />
+                        Command="{Binding IncreaseAgeCommand}" />
                                 </Grid>
                             </Border>
-                        </VerticalStackLayout>
+                <Label Text="{Binding ValidationMessage}"
+                    FontSize="12"
+                    TextColor="#DC2626"
+                    Margin="4,4,0,0"
+                    IsVisible="{Binding HasValidationMessage}" />
+               </VerticalStackLayout>
 
                     </VerticalStackLayout>
 
                     <!-- Простая кнопка -->
-                    <Button x:Name="ContinueButton"
-                            Text="Продолжить"
+                    <Button Text="Продолжить"
                             FontSize="16"
                             FontAttributes="Bold"
                             TextColor="White"
-                            BackgroundColor="#6B7280"
+                            Command="{Binding ContinueCommand}"
                             HeightRequest="50"
                             CornerRadius="10"
-                            Margin="0,10,0,0"
-                            Clicked="OnContinueClicked" />
+                            Margin="0,10,0,0">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="{Binding ContinueGradientStart}" Offset="0" />
+                                <GradientStop Color="{Binding ContinueGradientEnd}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
                             
                 </VerticalStackLayout>
             </Border>
