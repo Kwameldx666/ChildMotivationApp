@@ -169,14 +169,14 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
         {/* Central illustration placeholder */}
         <div className="relative shrink-0 pointer-events-auto">
           <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
-            <Image src="/icons/app_icon.png" alt="FamilyTask" fill priority className="object-contain" />
+            <Image src="/icons/app_icon.png" alt="FamilyQuest" fill priority className="object-contain" />
           </div>
         </div>
 
         {/* Logo and tagline */}
         <div className="text-center pointer-events-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-balance drop-shadow-sm">
-            FamilyTask
+            FamilyQuest
           </h1>
           <p className="mt-2 text-sm sm:text-base md:text-base text-white/70 max-w-xl text-balance leading-snug">
             Превращаем домашние обязанности в увлекательную игру

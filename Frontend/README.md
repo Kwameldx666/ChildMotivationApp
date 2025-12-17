@@ -1,4 +1,4 @@
-# Motivation Up App — Frontend
+# FamilyQuest — Frontend
 
 ## Документация
 - `docs/README.md`
@@ -8,4 +8,3 @@
 2. Установите зависимости и запустите:
    - `npm i`
    - `npm run dev`
-

@@ -50,7 +50,7 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
                 <UserPlus className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-center mb-3">Я новый пользователь</h3>
-              <p className="text-center text-muted-foreground mb-6">Создам новый аккаунт и присоединюсь к FamilyTask</p>
+              <p className="text-center text-muted-foreground mb-6">Создам новый аккаунт и присоединюсь к FamilyQuest</p>
               <div className="space-y-2 text-sm text-muted-foreground mb-6">
                 <p>✓ Выберу роль (родитель или ребёнок)</p>
                 <p>✓ Заполню свой профиль</p>

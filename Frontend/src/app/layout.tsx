@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Motivation Up',
-  description: 'App to motivate your kids through fun tasks and rewards',
+  title: 'FamilyQuest',
+  description: 'FamilyQuest — app to motivate kids through fun tasks and rewards',
   generator: 'Next.js',
   icons: {
     icon: [

@@ -225,7 +225,7 @@ export default function AuthScreen({ onAuth, onBack }: AuthScreenProps) {
             <>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">{mode === "login" ? "Вход" : "Регистрация"}</h2>
-                <p className="text-sm text-muted-foreground">FamilyTask</p>
+                <p className="text-sm text-muted-foreground">FamilyQuest</p>
               </div>
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegisterStart}>
