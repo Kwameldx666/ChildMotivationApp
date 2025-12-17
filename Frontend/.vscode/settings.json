@@ -1,0 +1,21 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, pnpm-lock.yaml, yarn.lock",
+    "tsconfig.json": "tsconfig.*.json, tsconfig.tsbuildinfo",
+    "next.config.mjs": "next-env.d.ts",
+    ".env.example": ".env, .env.*"
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/node_modules_old": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/node_modules_old": true
+  }
+}
+
