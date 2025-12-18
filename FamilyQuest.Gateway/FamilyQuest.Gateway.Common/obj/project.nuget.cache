@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dgSpecHash": "Q0NIPuY+0bU=",
+  "success": false,
+  "projectFilePath": "C:\\Endava\\EndevLocal\\Workspace\\university\\FamilyQuest\\fq_gateway\\FamilyQuest.Gateway\\FamilyQuest.Gateway.Common\\FamilyQuest.Gateway.Common.csproj",
+  "expectedPackageFiles": [],
+  "logs": [
+    {
+      "code": "NU1108",
+      "level": "Error",
+      "message": "Cycle detected. \r\n  FamilyQuest.Gateway.Common -> FamilyQuest.Gateway.Application -> FamilyQuest.Gateway.Common.",
+      "projectPath": "C:\\Endava\\EndevLocal\\Workspace\\university\\FamilyQuest\\fq_gateway\\FamilyQuest.Gateway\\FamilyQuest.Gateway.Common\\FamilyQuest.Gateway.Common.csproj",
+      "filePath": "C:\\Endava\\EndevLocal\\Workspace\\university\\FamilyQuest\\fq_gateway\\FamilyQuest.Gateway\\FamilyQuest.Gateway.Common\\FamilyQuest.Gateway.Common.csproj",
+      "libraryId": "FamilyQuest.Gateway.Common",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
