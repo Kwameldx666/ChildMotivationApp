@@ -14,6 +14,7 @@
     <ItemGroup>
       <ProjectReference Include="..\FamilyQuest.Gateway.Application\FamilyQuest.Gateway.Application.csproj" />
       <ProjectReference Include="..\FamilyQuest.Gateway.Domain\FamilyQuest.Gateway.Domain.csproj" />
+      <ProjectReference Include="..\FamilyQuest.Gateway.Infrastructure\FamilyQuest.Gateway.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
