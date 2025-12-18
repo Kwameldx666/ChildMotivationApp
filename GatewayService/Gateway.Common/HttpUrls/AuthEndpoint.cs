@@ -1,6 +1,6 @@
 ﻿namespace Gateway.Common.HttpUrls;
 
-public class AuthEndpoint
+public class AuthEndpoints
 {
     public string AuthEndpointUrl { get; set; } = string.Empty;
 }

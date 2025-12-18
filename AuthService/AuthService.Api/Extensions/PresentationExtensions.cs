@@ -1,6 +1,11 @@
-namespace AuthService.Api.Extensions;
+namespace AuthService.Extensions;
 
-public class PresentationExtensions
+public static class PresentationExtensions
 {
-    
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    {
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
+        return services.AddSwaggerGen();
+    }
 }

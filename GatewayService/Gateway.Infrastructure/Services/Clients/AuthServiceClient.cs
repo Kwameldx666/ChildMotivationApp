@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace Gateway.Infrastructure.Services.Clients;
 
-public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapshot<AuthEndpoint> endpoint) : IAuthServiceClient
+public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapshot<AuthEndpoints> endpoint) : IAuthServiceClient
 {
     private readonly string _registerRoute = endpoint.Value.AuthEndpointUrl;
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
