@@ -10,7 +10,17 @@ import ChildDashboard from "@/components/child-dashboard"
 import { useAppState } from "@/features/app/hooks/useAppState"
 
 export default function Home() {
-  const { screen, session, isBootstrapping, setScreen, bootstrap, handleAuthSuccess, handleLogout } = useAppState()
+  const {
+    screen,
+    session,
+    isBootstrapping,
+    setScreen,
+    bootstrap,
+    handleAuthSuccess,
+    handleLogout,
+    authMode,
+    startAuthFlow,
+  } = useAppState()
 
   useEffect(() => {
     const dispose = bootstrap()
@@ -29,12 +39,16 @@ export default function Home() {
     setScreen("auth-choice")
   }
 
-  const handleAuthChoice = () => {
-    setScreen("auth")
-  }
-
   const handleBackToWelcome = () => {
     setScreen("welcome")
+  }
+
+  const handleNewUserFlow = () => {
+    startAuthFlow("register")
+  }
+
+  const handleExistingUserFlow = () => {
+    startAuthFlow("login")
   }
 
   if (isBootstrapping || screen === "splash") {
@@ -47,16 +61,12 @@ export default function Home() {
 
   if (screen === "auth-choice") {
     return (
-      <AuthChoice
-        onNewUser={(_isNewUser) => handleAuthChoice()}
-        onExisting={(_isNewUser) => handleAuthChoice()}
-        onBack={handleBackToWelcome}
-      />
+      <AuthChoice onNewUser={handleNewUserFlow} onExisting={handleExistingUserFlow} onBack={handleBackToWelcome} />
     )
   }
 
   if (screen === "auth") {
-    return <AuthScreen onAuth={handleAuthSuccess} onBack={handleBackToWelcome} />
+    return <AuthScreen initialMode={authMode} onAuth={handleAuthSuccess} onBack={handleBackToWelcome} />
   }
 
   if (screen === "parent-dashboard" && session) {

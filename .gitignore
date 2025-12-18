@@ -64,3 +64,4 @@ coverage/
 *.ntvs*
 *.vspscc
 *.orig
+fq_gateway/

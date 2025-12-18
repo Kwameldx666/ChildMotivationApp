@@ -2,7 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { clearSession } from '@/features/auth/store/authSlice'
 import { appStore } from '@/store/appStore'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147/api-gateway'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147'
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

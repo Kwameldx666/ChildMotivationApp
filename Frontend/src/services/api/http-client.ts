@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147/api-gateway'
+const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147'
 
 export const STORAGE_TOKEN_KEY = 'familyapp_token'
 

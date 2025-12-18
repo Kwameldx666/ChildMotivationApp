@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type React from "react"
 import type { AuthSession, OAuthProvider, UserRole } from "@/features/auth/types"
 import { authApi } from "@/features/auth/api/authApi"
@@ -16,6 +16,7 @@ type Step = "credentials" | "role" | "parent" | "child"
 interface AuthScreenProps {
   onAuth: (session: AuthSession) => void
   onBack: () => void
+  initialMode?: "login" | "register"
 }
 
 const AVATARS = ["🙂", "😎", "🤖", "🦊", "🐻", "🐼", "🐯", "🦁", "🐸", "🐵"] as const
@@ -79,8 +80,8 @@ function MicrosoftIcon(props: { className?: string }) {
   )
 }
 
-export default function AuthScreen({ onAuth, onBack }: AuthScreenProps) {
-  const [mode, setMode] = useState<"login" | "register">("login")
+export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
+  const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [step, setStep] = useState<Step>("credentials")
   const [role, setRole] = useState<UserRole>("parent")
 
@@ -98,6 +99,11 @@ export default function AuthScreen({ onAuth, onBack }: AuthScreenProps) {
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMode(initialMode)
+    setStep("credentials")
+  }, [initialMode])
 
   const canGoBack = useMemo(() => step !== "credentials", [step])
 

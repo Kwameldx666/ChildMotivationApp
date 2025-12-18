@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { UserPlus, LogIn, ChevronLeft } from "lucide-react"
 
 interface AuthChoiceProps {
-  onNewUser: (isNewUser: boolean) => void
-  onExisting: (isNewUser: boolean) => void
+  onNewUser: () => void
+  onExisting: () => void
   onBack: () => void
 }
 
@@ -42,7 +42,7 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
         <div className="grid md:grid-cols-2 gap-6">
           {/* New user */}
           <Card
-            onClick={() => onNewUser(true)}
+            onClick={onNewUser}
             className="bg-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white"
           >
             <CardContent className="pt-8">
@@ -65,7 +65,7 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
 
           {/* Existing user */}
           <Card
-            onClick={() => onExisting(false)}
+            onClick={onExisting}
             className="bg-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white"
           >
             <CardContent className="pt-8">

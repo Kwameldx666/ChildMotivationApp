@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Gateway.Domain\Gateway.Domain.csproj" />
       <ProjectReference Include="..\Gateway.Common\Gateway.Common.csproj" />
     </ItemGroup>
 

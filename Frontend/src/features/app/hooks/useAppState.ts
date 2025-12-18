@@ -10,6 +10,7 @@ const SPLASH_DURATION_MS = 2000
 
 export function useAppState() {
   const [screen, setScreen] = useState<Screen>('splash')
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [isBootstrapping, setIsBootstrapping] = useState(true)
   const dispatch = useAppDispatch()
   const session = useAppSelector(selectAuthSession)
@@ -62,6 +63,11 @@ export function useAppState() {
     [dispatch, resolveScreen],
   )
 
+  const startAuthFlow = useCallback((mode: 'login' | 'register') => {
+    setAuthMode(mode)
+    setScreen('auth')
+  }, [])
+
   const handleLogout = useCallback(async () => {
     try {
       await authApi.logout()
@@ -81,5 +87,7 @@ export function useAppState() {
     bootstrap,
     handleAuthSuccess,
     handleLogout,
+    authMode,
+    startAuthFlow,
   }
 }

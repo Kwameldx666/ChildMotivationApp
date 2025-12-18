@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Register;
 using Gateway.Common.HttpUrls;
 using Gateway.Common.ResultPattern;
@@ -9,20 +10,17 @@ using Microsoft.Extensions.Options;
 
 namespace Gateway.Infrastructure.Services.Clients;
 
-public class AuthServiceClient(
-    IOptionsSnapshot<AuthEndpoint> options,
-    IHttpClientFactory clientFactory)
-    : IAuthServiceClient
+public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapshot<AuthEndpoint> endpoint) : IAuthServiceClient
 {
+    private readonly string _registerRoute = endpoint.Value.AuthEndpointUrl;
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.AuthService);
-    private readonly AuthEndpoint _endpoint = options.Value;
 
-    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken) =>
-        await _client.SendHttpRequestAsync<RegisterRequest, object>(
+    public async Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken) =>
+        await _client.SendHttpRequestAsync<RegisterRequest, AuthResponse>(
             HttpMethod.Post,
-            _endpoint.AuthEndpointUrl,
+            _registerRoute,
             request,
             SerializerOptions,
             cancellationToken);

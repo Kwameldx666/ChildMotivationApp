@@ -41,7 +41,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         />
       </div>
 
-      <div className="relative z-10 text-center">
+      <div className="relative z-10 w-full max-w-md px-6 text-center flex flex-col items-center">
         {/* Logo */}
         <div className="mb-10 flex justify-center">
           <div className="relative">
@@ -57,18 +57,18 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-2 drop-shadow-lg">FamilyQuest</h1>
+        <h1 className="text-5xl md:text-6xl font-bold text-white mb-3 drop-shadow-lg">FamilyQuest</h1>
         <p className="text-lg text-white/85 mb-7 drop-shadow">Загружаем приключение</p>
 
         {/* Progress bar */}
-        <div className="w-64 h-2.5 bg-white/25 rounded-full overflow-hidden backdrop-blur-sm shadow-lg shadow-black/10">
+        <div className="w-full max-w-sm h-2.5 bg-white/25 rounded-full overflow-hidden backdrop-blur-sm shadow-lg shadow-black/10 mx-auto">
           <div
             className="h-full bg-gradient-to-r from-yellow-200 via-white to-fuchsia-200 rounded-full transition-all duration-300"
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-10 flex justify-center w-full">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-md ring-1 ring-white/20">
             <Coins className="h-4 w-4 text-yellow-200" />
             <span className="text-sm text-white/80">Готовим задания и награды</span>

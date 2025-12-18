@@ -7,7 +7,7 @@ import type {
   RegisterPayload,
 } from '@/features/auth/types'
 
-const AUTH_BASE_PATH = '/api/auth'
+const AUTH_BASE_PATH = '/api-gateway/auth'
 
 const toSession = (payload: AuthPayload): AuthSession => ({
   token: payload.token ?? null,
