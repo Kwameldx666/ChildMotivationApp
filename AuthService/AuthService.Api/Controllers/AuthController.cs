@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using AuthService.Common.ResultPattern;
 using AuthService.Extensions;
+using RegisterRequest = AuthService.Application.Dto.Auth.RegisterRequest;
 
 namespace AuthService.Controllers;
 
