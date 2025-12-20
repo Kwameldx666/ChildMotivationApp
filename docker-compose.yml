@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: db_net
+      POSTGRES_USER: app_owner_net
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  auth-service:
+    build:
+      context: .
+      dockerfile: AuthService/AuthService.Api/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
+    ports:
+      - "8080:8080"
+  gateway-service:
+    build:
+      context: .
+      dockerfile: GatewayService/Gateway.Api/Dockerfile
+    depends_on:
+      - auth-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Services__AuthService: http://auth-service:8080/
+      ServiceEndpoints__AuthService__AuthEndpointUrl: auth-service/auth/register
+    ports:
+      - "8081:8080"
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8081
+        INTERNAL_API_URL: http://gateway-service:8080
+    depends_on:
+      - gateway-service
+    environment:
+      NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
+      INTERNAL_API_URL: http://gateway-service:8080
+    ports:
+      - "3000:3000"
+volumes:
+  postgres_data:

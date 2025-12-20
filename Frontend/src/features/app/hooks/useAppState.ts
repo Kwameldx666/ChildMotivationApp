@@ -22,7 +22,11 @@ export function useAppState() {
 
   const resolveScreen = useCallback((nextSession: AuthSession | null): Screen => {
     if (!nextSession) return 'welcome'
-    return nextSession.profile.role === 'parent' ? 'parent-dashboard' : 'child-dashboard'
+
+    const role = nextSession.profile?.role
+    if (!role) return 'auth'
+
+    return role === 'parent' ? 'parent-dashboard' : 'child-dashboard'
   }, [])
 
   const bootstrap = useCallback(() => {

@@ -78,13 +78,8 @@ export const authService = {
     return session
   },
 
-  async register(payload: RegisterPayload) {
-    const data = await httpClient.post<AuthPayload>('/api/auth/register', payload, { auth: false })
-    const session = persistSession(data)
-    if (!session) {
-      throw new Error('Не удалось сохранить сессию')
-    }
-    return session
+  async register(payload: RegisterPayload): Promise<void> {
+    await httpClient.post('/api/auth/register', payload, { auth: false })
   },
 
   async oauthSignIn(provider: 'google' | 'apple' | 'microsoft') {

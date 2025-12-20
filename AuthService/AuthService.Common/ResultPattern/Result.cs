@@ -2,7 +2,7 @@ using System.Net;
 
 namespace AuthService.Common.ResultPattern;
 
-public class Result : IResult
+public class Result : IResult, IFailureResult<Result>
 {
     public bool IsSuccess { get; }
     public int StatusCode { get; }
@@ -20,14 +20,17 @@ public class Result : IResult
         }
     }
 
-    public static Result Success(int statusCode = (int)HttpStatusCode.OK) => new(true, statusCode, Error.None);
+    public static Result Success(HttpStatusCode statusCode = HttpStatusCode.OK) =>
+        new(true, (int)statusCode, Error.None);
 
-    public static Result Failure(int statusCode, Error error) => new(false, statusCode, error);
+    public static Result Failure(HttpStatusCode statusCode, Error error) =>
+        new(false, (int)statusCode, error);
 
-    public static Result<T> Failure<T>(int statusCode, Error error) => new(false, statusCode, error, default);
+    public static Result<T> Failure<T>(HttpStatusCode statusCode, Error error) =>
+        new(false, (int)statusCode, error, default);
 }
 
-public class Result<T> : Result, IResult<T>
+public class Result<T> : Result, IResult<T>, IFailureResult<Result<T>>
 {
     public T? Value { get; }
 
@@ -36,7 +39,10 @@ public class Result<T> : Result, IResult<T>
         Value = value;
     }
 
-    public static Result<T> Success(T value, int statusCode = (int)HttpStatusCode.OK) =>
-        new(true, statusCode, Error.None, value);
+    public new static Result<T> Failure(HttpStatusCode statusCode, Error error) =>
+        Result.Failure<T>(statusCode, error);
+
+    public static Result<T> Success(T value, HttpStatusCode statusCode = HttpStatusCode.OK) =>
+        new(true, (int)statusCode, Error.None, value);
 }
 

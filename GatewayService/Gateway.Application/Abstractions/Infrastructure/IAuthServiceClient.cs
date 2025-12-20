@@ -1,10 +1,9 @@
-﻿using Gateway.Application.Dto.Auth;
+﻿using System.Net.Http;
 using Gateway.Application.Dto.Register;
-using Gateway.Common.ResultPattern;
 
 namespace Gateway.Application.Abstractions.Infrastructure;
 
 public interface IAuthServiceClient
 {
-    Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
 }

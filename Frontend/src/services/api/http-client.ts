@@ -1,4 +1,7 @@
-const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147'
+const browserBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147'
+const serverBaseUrl = process.env.INTERNAL_API_URL ?? browserBaseUrl
+
+export const DEFAULT_API_BASE_URL = typeof window === 'undefined' ? serverBaseUrl : browserBaseUrl
 
 export const STORAGE_TOKEN_KEY = 'familyapp_token'
 
@@ -28,7 +31,7 @@ export class HttpClient {
   private readonly getToken?: () => string | null
 
   constructor(config: HttpClientConfig = {}) {
-    this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL
+    this.baseUrl = config.baseUrl ?? DEFAULT_API_BASE_URL
     this.getToken = config.getToken
   }
 
@@ -121,6 +124,6 @@ export class HttpClient {
 }
 
 export const httpClient = new HttpClient({
-  baseUrl: DEFAULT_BASE_URL,
+  baseUrl: DEFAULT_API_BASE_URL,
   getToken: () => (typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_TOKEN_KEY)),
 })

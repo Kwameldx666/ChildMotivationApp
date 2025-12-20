@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
-using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Register;
 using Gateway.Common.HttpUrls;
 using Gateway.Common.ResultPattern;
@@ -17,11 +17,26 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
 
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.AuthService);
 
-    public async Task<Result<AuthResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken) =>
-        await _client.SendHttpRequestAsync<RegisterRequest, AuthResponse>(
-            HttpMethod.Post,
-            _registerRoute,
-            request,
-            SerializerOptions,
-            cancellationToken);
+    public async Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
+    {
+        var payload = new AuthServiceRegisterRequest(
+            request.Email,
+            request.Password,
+            request.Role,
+            request.Profile.Name,
+            request.Profile.LastName,
+            string.IsNullOrWhiteSpace(request.Profile.Avatar) ? null : request.Profile.Avatar,
+            request.Profile.Age,
+            request.Family?.Code,
+            request.Family?.Name,
+            request.Family?.Emblem);
+
+          return   await _client.SendHttpRequestAsync(
+                HttpMethod.Post,
+                _registerRoute,
+                payload,
+                SerializerOptions,
+                cancellationToken);
+      
+    }
 }

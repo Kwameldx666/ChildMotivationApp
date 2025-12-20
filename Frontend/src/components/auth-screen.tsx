@@ -99,16 +99,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
 
   useEffect(() => {
     setMode(initialMode)
     setStep("credentials")
+    setInfo(null)
   }, [initialMode])
 
   const canGoBack = useMemo(() => step !== "credentials", [step])
 
   const handleBack = () => {
     setError(null)
+    setInfo(null)
     if (!canGoBack) {
       onBack()
       return
@@ -120,6 +123,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const submitLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setInfo(null)
 
     if (!email || !password) {
       setError("Введите email и пароль.")
@@ -195,7 +199,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
     setIsLoading(true)
     try {
-      const session = await authApi.register({
+      await authApi.register({
         email,
         password,
         role,
@@ -210,7 +214,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
             ? { name: familyName.trim(), emblem: familyEmblem }
             : { code: familyCode.trim().toUpperCase() },
       })
-      onAuth(session)
+      setInfo("Регистрация прошла успешно! Войдите, используя указанные данные.")
+      setMode("login")
+      setStep("credentials")
+      setError(null)
     } catch (serviceError) {
       setError(mapApiError(serviceError, "Не удалось зарегистрироваться."))
     } finally {
@@ -250,6 +257,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 </div>
 
                 {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
+                {info && !error && <div className="text-sm text-emerald-600 bg-emerald-100 p-3 rounded">{info}</div>}
 
                 <Button
                   type="submit"

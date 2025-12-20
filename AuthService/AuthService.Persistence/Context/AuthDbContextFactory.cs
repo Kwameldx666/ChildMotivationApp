@@ -10,7 +10,7 @@ public class AuthDbContextFactory : IDesignTimeDbContextFactory<AuthDbContext>
         var optionsBuilder = new DbContextOptionsBuilder<AuthDbContext>();
 
         // Строка подключения только для миграций (design-time).
-        const string connectionString = "Host=localhost;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres";
+        const string connectionString = "Host=localhost;Port=5433;Database=db_net;Username=app_owner_net;Password=postgres";
 
         optionsBuilder.UseNpgsql(connectionString);
 

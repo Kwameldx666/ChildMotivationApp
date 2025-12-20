@@ -1,6 +1,6 @@
 namespace AuthService.Common.ResultPattern;
 
-public class Error
+public class Error 
 {
     public int ErrorCode { get; init; }
     public required string ErrorType { get; init; }

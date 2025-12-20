@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+**/bin
+**/obj
+**/node_modules
+**/.pnpm-store
+**/.next
+**/dist
+**/build

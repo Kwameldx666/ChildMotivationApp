@@ -1,7 +1,7 @@
+using AuthService.Application.Features.Authentication.RegisterUser;
 using Microsoft.AspNetCore.Mvc;
-using AuthService.Common.ResultPattern;
 using AuthService.Extensions;
-using RegisterRequest = AuthService.Application.Dto.Auth.RegisterRequest;
+using MediatR;
 
 namespace AuthService.Controllers;
 
@@ -9,11 +9,17 @@ namespace AuthService.Controllers;
 [Route("auth-service/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly IMediator  _mediator;
+    
+    public AuthController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
     [HttpPost("register")]
-    public Task<IActionResult> RegisterUserAsync([FromBody] RegisterRequest request,
+    public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        Result<object> result = Result<object>.Success(request, StatusCodes.Status201Created);
-        return Task.FromResult(result.ToActionResult());
+        var result = await  _mediator.Send(request, cancellationToken);
+        return result.ToActionResult();
     }
 }

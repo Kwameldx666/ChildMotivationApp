@@ -1,4 +1,6 @@
-namespace AuthService.Common.ResultPattern;
+using AuthService.Common.ResultPattern;
+
+namespace AuthService.Common.Constants.Errors;
 
 public static class DefaultErrors
 {
@@ -9,6 +11,7 @@ public static class DefaultErrors
         ErrorDescription = description,
         Impact = "The request contains invalid data.",
         Resolution = "Correct the request data and try again.",
+        Recoverable = true
     };
 
     public static Error NotFound(string description) => new Error
@@ -18,6 +21,7 @@ public static class DefaultErrors
         ErrorDescription = description,
         Impact = "The requested resource was not found.",
         Resolution = "Verify the resource identifier and try again.",
+        Recoverable = true
     };
 
     public static Error InternalServerError(string description) => new Error
@@ -26,7 +30,8 @@ public static class DefaultErrors
         ErrorType = "InternalServerError",
         ErrorDescription = description,
         Impact = "An internal server error occurred.",
-        Resolution = "Try again later or contact support if the issue persists."
+        Resolution = "Try again later or contact support if the issue persists.",
+        Recoverable = true
     };
 
     public static Error Conflict(string description) => new Error
@@ -36,15 +41,7 @@ public static class DefaultErrors
         ErrorDescription = description,
         Impact = "The request could not be completed due to a conflict with the current state of the resource.",
         Resolution = "Verify the current state and adjust your request before retrying.",
-    };
-
-    public static Error Unauthorized(string description) => new Error
-    {
-        ErrorCode = 401,
-        ErrorType = "Unauthorized",
-        ErrorDescription = description,
-        Impact = "The request cannot be processed without valid credentials.",
-        Resolution = "Ensure the request is authenticated.",
+        Recoverable = true
     };
 }
 

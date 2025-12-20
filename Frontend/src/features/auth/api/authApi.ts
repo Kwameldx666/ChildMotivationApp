@@ -5,16 +5,27 @@ import type {
   LoginPayload,
   OAuthProvider,
   RegisterPayload,
+  UserProfile,
 } from '@/features/auth/types'
 
 const AUTH_BASE_PATH = '/api-gateway/auth'
 
-const toSession = (payload: AuthPayload): AuthSession => ({
-  token: payload.token ?? null,
-  user: payload.user,
-  profile: payload.profile,
-  family: payload.family,
-})
+const toSession = (payload: AuthPayload): AuthSession => {
+  const profile: UserProfile = {
+    name: payload.profile?.name ?? payload.user.name,
+    lastName: payload.profile?.lastName ?? payload.user.lastName,
+    avatar: payload.profile?.avatar ?? '',
+    role: payload.profile?.role ?? 'parent',
+    age: payload.profile?.age,
+  }
+
+  return {
+    token: payload.token ?? null,
+    user: payload.user,
+    profile,
+    family: payload.family,
+  }
+}
 
 export const authApi = {
   async login(payload: LoginPayload) {
@@ -22,9 +33,8 @@ export const authApi = {
     return toSession(data)
   },
 
-  async register(payload: RegisterPayload) {
-    const { data } = await apiClient.post<AuthPayload>(`${AUTH_BASE_PATH}/register`, payload)
-    return toSession(data)
+  async register(payload: RegisterPayload): Promise<void> {
+    await apiClient.post(`${AUTH_BASE_PATH}/register`, payload)
   },
 
   async oauthSignIn(provider: OAuthProvider) {

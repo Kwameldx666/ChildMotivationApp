@@ -3,7 +3,7 @@
 public record RegisterProfile(
     string Name,
     string LastName,
-    string Avatar,
+    string? Avatar,
     string? Role,
     int? Age
 );
