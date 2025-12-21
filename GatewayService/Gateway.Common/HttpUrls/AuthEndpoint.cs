@@ -2,5 +2,6 @@
 
 public class AuthEndpoints
 {
-    public string AuthEndpointUrl { get; set; } = string.Empty;
+    public string Register { get; set; } = string.Empty;
+    public string Login { get; set; } = string.Empty;
 }

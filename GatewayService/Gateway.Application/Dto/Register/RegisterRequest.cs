@@ -5,5 +5,5 @@ public record RegisterRequest(
 	string Password,
 	string Role,
 	RegisterProfile Profile,
-	RegisterFamily? Family
+	RegisterFamily Family
 );

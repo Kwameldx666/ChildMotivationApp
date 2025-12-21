@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using AuthService.Common.Constants;
 using AuthService.Common.Constants.Errors;
+using AuthService.Common.Constants.User;
 using AuthService.Common.ResultPattern;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
@@ -40,7 +41,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             UserStatus = UserStatuses.Active,
             Avatar = string.IsNullOrWhiteSpace(request.Avatar) ? null : request.Avatar,
             Age = request.Age,
-            UserType = userType
+            UserType = userType,
+            Name = string.IsNullOrWhiteSpace(request.Name) ? null : request.Name,
+            LastName = string.IsNullOrWhiteSpace(request.LastName) ? null : request.LastName
         };
 
         var createResult = await _userManager.CreateAsync(newUser, request.Password);

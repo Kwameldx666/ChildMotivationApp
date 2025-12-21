@@ -19,6 +19,7 @@ services:
       - postgres
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      JwtBearer__Secret: your_jwt_secret_key_here_change_it_to_a_secure_value_for_production_use_only_!
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
     ports:
       - "8080:8080"
@@ -30,22 +31,24 @@ services:
       - auth-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8081
       Services__AuthService: http://auth-service:8080/
-      ServiceEndpoints__AuthService__AuthEndpointUrl: auth-service/auth/register
+      ServiceEndpoints__AuthService__Register: auth-service/auth/register
+      ServiceEndpoints__AuthService__Login: auth-service/auth/login
     ports:
-      - "8081:8080"
+      - "8081:8081"
   frontend:
     build:
       context: .
       dockerfile: Frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8081
-        INTERNAL_API_URL: http://gateway-service:8080
+        INTERNAL_API_URL: http://gateway-service:8081
     depends_on:
       - gateway-service
     environment:
       NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
-      INTERNAL_API_URL: http://gateway-service:8080
+      INTERNAL_API_URL: http://gateway-service:8081
     ports:
       - "3000:3000"
 volumes:

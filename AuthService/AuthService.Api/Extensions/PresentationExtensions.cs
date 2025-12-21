@@ -1,3 +1,4 @@
+using AuthService.Middlewares;
 using Mapster;
 
 namespace AuthService.Extensions;
@@ -9,6 +10,7 @@ public static class PresentationExtensions
         services.AddMapster();
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         return services.AddSwaggerGen();
     }
 }

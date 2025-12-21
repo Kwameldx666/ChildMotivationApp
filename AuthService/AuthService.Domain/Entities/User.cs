@@ -10,4 +10,6 @@ public class User : IdentityUser<Guid>
     public string? Avatar { get; set; }
     public int? Age { get; set; }
     public UserType UserType { get; set; }
+    public string? Name { get; set; }
+    public string? LastName { get; set; }
 }

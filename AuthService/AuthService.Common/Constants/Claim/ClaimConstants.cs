@@ -1,6 +1,6 @@
 ﻿namespace AuthService.Common.Constants.Claim;
 
-public class ClaimConstants
+public static class ClaimConstants
 {
-    
+    public static string Scope = "Scope";
 }

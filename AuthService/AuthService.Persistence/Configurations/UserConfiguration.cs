@@ -27,5 +27,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion<string>()
             .HasMaxLength(32)
             .IsRequired();
+
+        builder.Property(x => x.Name)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.LastName)
+            .HasMaxLength(128);
     }
 }

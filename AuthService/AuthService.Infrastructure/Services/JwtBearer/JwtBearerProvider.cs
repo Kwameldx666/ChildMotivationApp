@@ -20,8 +20,13 @@ public class JwtBearerProvider : ITokenProvider
 
     public (string, int) GenerateAccessToken(UserArgs args)
     {
+        if (string.IsNullOrWhiteSpace(_optionValues.Secret))
+        {
+            throw new InvalidOperationException("JWT secret is not configured.");
+        }
+
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_optionValues.Secret));
-        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.Sha256);
+        var credentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {

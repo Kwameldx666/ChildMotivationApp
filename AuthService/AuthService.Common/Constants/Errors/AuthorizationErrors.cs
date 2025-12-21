@@ -23,4 +23,14 @@ public static class AuthorizationErrors
         Resolution = "Resolve the conflict and retry the request.",
         Recoverable = true
     };
+
+    public static Error NotFound(string description) => new Error()
+    {
+        ErrorCode = 404,
+        ErrorType = "NotFound",
+        ErrorDescription = description,
+        Impact = "User not found.",
+        Resolution = "Ensure the credentials are correct.",
+        Recoverable = true
+    };
 }
