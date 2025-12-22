@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AuthService.Infrastructure.Services.JwtBearer;
+namespace Gateway.Infrastructure.Services.JwtBearer;
 
 public class JwtBearerOptions
 {
@@ -13,6 +13,5 @@ public class JwtBearerOptions
     [Required]
     public string Secret { get; set; } = string.Empty;
 
-    [Range(1, int.MaxValue)]
-    public int AccessTokenLifetime { get; set; }
+    [Range(1, int.MaxValue)] public int AccessTokenLifetime { get; set; } = 15;
 }

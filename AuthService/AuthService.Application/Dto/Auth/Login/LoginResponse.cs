@@ -1,8 +1,8 @@
-﻿namespace AuthService.Application.Dto;
+﻿namespace AuthService.Application.Dto.Auth.Login;
 
 public record LoginResponse(
-    string Token,
-    int ExpiresIn,
+    string AccessToken,
+    string RefreshToken,
     AuthUserDto User,
     UserProfileDto Profile,
     FamilyDto? Family,
