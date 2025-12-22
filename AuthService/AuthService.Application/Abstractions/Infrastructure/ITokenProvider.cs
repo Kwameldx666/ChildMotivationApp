@@ -1,8 +1,11 @@
 ﻿using AuthService.Application.Dto;
+using AuthService.Application.Dto.Auth.Login;
+using AuthService.Application.Dto.User;
 
 namespace AuthService.Application.Abstractions.Infrastructure;
 
 public interface ITokenProvider
 {
-    (string,int) GenerateAccessToken(UserArgs args);
+    Task<GenerateTokenResponse> GenerateAccessToken(UserArgs args, CancellationToken cancellationToken = default);
+    string GenerateRefreshToken();
 }

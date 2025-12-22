@@ -1,12 +1,12 @@
 ﻿using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Dto;
 using AuthService.Application.Dto.Auth.Login;
-using AuthService.Infrastructure.Services.JwtBearer;
+using AuthService.Application.Dto.User;
+using AuthService.Infrastructure.ServicesDto;
 using AuthService.Persistence.Repositories;
 using Mapster;
 using Microsoft.Extensions.Options;
 
-namespace AuthService.Infrastructure.Services.Login;
+namespace AuthService.Infrastructure.Services.Authentication.RefreshToken;
 
 internal sealed class LoginUserWithRefreshToken(
     RefreshTokenRepository repository,
@@ -20,9 +20,7 @@ internal sealed class LoginUserWithRefreshToken(
         var refreshToken = await repository.GetRefreshTokenByRefreshToken(refreshTokenRequest);
 
         if (refreshToken is null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
-        {
             throw new ApplicationException("The refresh token has expired");
-        }
 
         var tokenResponse = await tokenProvider.GenerateAccessToken(refreshToken.User.Adapt<UserArgs>());
 
@@ -35,4 +33,5 @@ internal sealed class LoginUserWithRefreshToken(
         var loginResponse = new LoginResponse(tokenResponse.AccessToken, tokenResponse.RefreshToken);
         return loginResponse;
     }
+    //TODO: Add the revoke token using quartz and replace this part of code into command, handler 
 }

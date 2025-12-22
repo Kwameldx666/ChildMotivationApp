@@ -1,17 +1,16 @@
-using System;
-using System.Text;
 using AuthService.Application.Abstractions.Infrastructure;
+using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
+using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Identity;
-using AuthService.Infrastructure.Services.JwtBearer;
+using AuthService.Infrastructure.Services.User;
+using AuthService.Infrastructure.ServicesDto;
 using AuthService.Persistence.Context;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.IdentityModel.Tokens;
-using JwtBearerOptions = AuthService.Infrastructure.Services.JwtBearer.JwtBearerOptions;
 
 namespace AuthService.Infrastructure.Extensions;
 
@@ -23,16 +22,19 @@ public static class InfrastructureExtensions
             .AddOptions<JwtBearerOptions>()
             .Bind(configuration.GetSection("JwtBearer"))
             .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "JwtBearer:Secret must be provided.")
-            .Validate(options => options.AccessTokenLifetime > 0, "JwtBearer:AccessTokenLifetime must be greater than zero.")
+            .Validate(options => options.AccessTokenLifetime > 0,
+                "JwtBearer:AccessTokenLifetime must be greater than zero.")
             .ValidateOnStart();
 
-        services.ConfigureIdentity(configuration);
-        services.AddAuthorization();
+        services.ConfigureIdentity();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<GenericRepository<RefreshToken, Guid>>();
+        services.AddScoped<IUserManagement, UserManagementService>();
         return services;
     }
-    
-    private static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
+
+    private static void ConfigureIdentity(this IServiceCollection services)
     {
         services
             .AddIdentityCore<User>(options =>
@@ -45,33 +47,9 @@ public static class InfrastructureExtensions
             })
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<AuthDbContext>()
-            .AddDefaultTokenProviders();
-        
+            .AddDefaultTokenProviders()
+            .AddSignInManager();
+
         services.Replace(ServiceDescriptor.Scoped<IUserValidator<User>, NoOperationUserValidator<User>>());
-        
-        var jwt = configuration.GetSection("JwtBearer").Get<JwtBearerOptions>()
-                  ?? throw new InvalidOperationException("JwtBearer configuration section is missing or invalid.");
-
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new()
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwt.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwt.Audience,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-                options.MapInboundClaims = false;
-            });
-        
-        services.Configure<JwtBearerOptions>(configuration.GetSection("JwtBearer"));
     }
-
-    
 }
-

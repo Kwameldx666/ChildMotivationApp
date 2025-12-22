@@ -2,5 +2,5 @@
 
 public interface IUserManagement
 {
-    
+    Task<bool> LogoutUserAsync();
 }

@@ -3,10 +3,11 @@
 // cspell:disable
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare } from "lucide-react"
+import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard } from "lucide-react"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
@@ -39,6 +40,7 @@ interface ChildDashboardProps {
 }
 
 export default function ChildDashboard({ userProfile, familyCode, onLogout }: ChildDashboardProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
   const [xp, setXp] = useState(2450)
   const [level, setLevel] = useState(8)
@@ -124,6 +126,15 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
                 <DropdownMenuItem onClick={() => setShowAvatarPicker(true)}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Изменить аватар</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={event => {
+                    event.preventDefault()
+                    router.push("/profile")
+                  }}
+                >
+                  <IdCard className="mr-2 h-4 w-4" />
+                  <span>Профиль</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">

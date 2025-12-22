@@ -20,12 +20,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if (!isRunningInContainer)
-{
-    app.UseHttpsRedirection();
-}
+if (!isRunningInContainer) app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseExceptionHandler(_ => { });
 app.MapControllers();
 app.Run();

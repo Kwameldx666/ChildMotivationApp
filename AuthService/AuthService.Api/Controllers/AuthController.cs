@@ -14,14 +14,21 @@ public class AuthController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserCommand request,
         CancellationToken cancellationToken)
     {
-        var result = await  mediator.Send(request, cancellationToken);
+        var result = await mediator.Send(request, cancellationToken);
         return result.ToActionResult();
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> LoginUserAsync([FromBody] LoginUserCommand request, CancellationToken cancellationToken)
+    public async Task<IActionResult> LoginUserAsync([FromBody] LoginUserCommand request,
+        CancellationToken cancellationToken)
     {
         var result = await mediator.Send(request, cancellationToken);
         return result.ToActionResult();
     }
+
+    /*[HttpPost("logout")]
+    public async Task<IActionResult> LogoutUserAsync(CancellationToken cancellationToken)
+    {
+        var result = await
+    }*/
 }

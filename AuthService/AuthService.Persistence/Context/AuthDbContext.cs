@@ -11,10 +11,12 @@ public class AuthDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
     }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(typeof(AuthDbContext).Assembly);
-        
+
         base.OnModelCreating(builder);
     }
 }

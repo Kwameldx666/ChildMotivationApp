@@ -2,26 +2,27 @@
 using System.Security.Cryptography;
 using System.Text;
 using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Dto;
 using AuthService.Application.Dto.Auth.Login;
+using AuthService.Application.Dto.User;
 using AuthService.Common.Constants.Claim;
-using AuthService.Domain.Entities;
+using AuthService.Infrastructure.ServicesDto;
 using AuthService.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthService.Infrastructure.Services.JwtBearer;
+namespace AuthService.Infrastructure.Services.Authentication.Token;
 
 public class JwtBearerProvider(
     IOptions<JwtBearerOptions> options,
-    GenericRepository<RefreshToken, Guid> refreshTokenRepository)
+    GenericRepository<Domain.Entities.RefreshToken, Guid> refreshTokenRepository)
     : ITokenProvider
 {
     private readonly JwtBearerOptions _optionValues = options.Value;
 
 
-    public async Task<GenerateTokenResponse> GenerateAccessToken(UserArgs args, CancellationToken cancellationToken = default)
+    public async Task<GenerateTokenResponse> GenerateAccessToken(UserArgs args,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_optionValues.Secret))
             throw new InvalidOperationException("JWT secret is not configured.");
@@ -48,7 +49,7 @@ public class JwtBearerProvider(
             SigningCredentials = credentials
         };
 
-        var refreshToken = new RefreshToken
+        var refreshToken = new Domain.Entities.RefreshToken
         {
             Id = Guid.CreateVersion7(),
             ExpiresOnUtc = DateTime.UtcNow.AddDays(_optionValues.AccessTokenLifetime),
@@ -63,12 +64,12 @@ public class JwtBearerProvider(
         var handler = new JsonWebTokenHandler();
         var accessToken = handler.CreateToken(descriptor);
 
-        var response = new GenerateTokenResponse()
+        var response = new GenerateTokenResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken.Token,
+            RefreshToken = refreshToken.Token
         };
-        
+
         return response;
     }
 

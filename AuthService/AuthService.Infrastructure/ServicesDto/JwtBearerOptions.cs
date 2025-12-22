@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AuthService.Infrastructure.Services.JwtBearer;
+namespace AuthService.Infrastructure.ServicesDto;
 
 public class JwtBearerOptions
 {

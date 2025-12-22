@@ -1,4 +1,4 @@
-namespace AuthService.Application.Dto;
+namespace AuthService.Application.Dto.User;
 
 public record UserProfileDto(
     string Name,

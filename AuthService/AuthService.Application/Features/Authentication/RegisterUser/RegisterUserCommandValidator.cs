@@ -53,6 +53,8 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .When(x => !string.IsNullOrWhiteSpace(x.Emblem));
     }
 
-    private static bool BeValidRole(string role) =>
-        Enum.TryParse<UserType>(role.Trim(), true, out _);
+    private static bool BeValidRole(string role)
+    {
+        return Enum.TryParse<UserType>(role.Trim(), true, out _);
+    }
 }

@@ -3,6 +3,7 @@
 /* cspell:disable */
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User } from "lucide-react"
@@ -41,6 +42,7 @@ export default function ParentDashboard({
   familyEmblem,
   onLogout,
 }: ParentDashboardProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
   const safeFamilyCode = familyCode ?? "—"
@@ -80,7 +82,12 @@ export default function ParentDashboard({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={event => {
+                  event.preventDefault()
+                  router.push("/profile")
+                }}
+              >
                 <User className="mr-2 h-4 w-4" />
                 <span>Профиль</span>
               </DropdownMenuItem>

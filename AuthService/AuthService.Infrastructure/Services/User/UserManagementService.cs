@@ -1,6 +1,13 @@
-﻿namespace AuthService.Infrastructure.Services.User;
+﻿using AuthService.Application.Abstractions.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
-public class UserManagementService
+namespace AuthService.Infrastructure.Services.User;
+
+public class UserManagementService(SignInManager<Domain.Entities.User> signInManager) : IUserManagement
 {
-    
+    public async Task<bool> LogoutUserAsync()
+    {
+        await signInManager.SignOutAsync();
+        return true;
+    }
 }

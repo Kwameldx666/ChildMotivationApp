@@ -18,7 +18,7 @@ public static class PersistenceExtensions
         services.AddDataProtection();
         return services;
     }
-    
+
     private static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AuthDbContext>(options =>
@@ -28,4 +28,3 @@ public static class PersistenceExtensions
     }
     //TODO: Add extension to repositories
 }
-

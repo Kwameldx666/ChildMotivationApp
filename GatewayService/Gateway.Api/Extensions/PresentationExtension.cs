@@ -1,6 +1,8 @@
-﻿namespace Gateway.Extensions;
+﻿using Gateway.Middlewares;
 
-public static class PresentationExtension
+namespace Gateway.Extensions;
+
+internal static class PresentationExtension
 {
     public const string CorsPolicyName = "GatewayCorsPolicy";
 
@@ -9,7 +11,7 @@ public static class PresentationExtension
         services.AddControllers();
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddCorsPolicy(configuration);
     }
 

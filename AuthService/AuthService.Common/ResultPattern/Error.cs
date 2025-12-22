@@ -1,6 +1,6 @@
 namespace AuthService.Common.ResultPattern;
 
-public class Error 
+public class Error
 {
     public int ErrorCode { get; init; }
     public required string ErrorType { get; init; }
@@ -11,6 +11,6 @@ public class Error
 
     public bool Recoverable { get; init; }
 
-    public static readonly Error None = new Error { ErrorType = "None", ErrorDescription = "", Impact = "", Resolution = "" };
+    public static readonly Error None = new()
+        { ErrorType = "None", ErrorDescription = "", Impact = "", Resolution = "" };
 }
-

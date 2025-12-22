@@ -1,4 +1,4 @@
-namespace AuthService.Application.Dto;
+namespace AuthService.Application.Dto.User;
 
 public record FamilyDto(
     string? Code,

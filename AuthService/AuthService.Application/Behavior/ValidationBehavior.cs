@@ -22,10 +22,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (!_validators.Any())
-        {
-            return await next(cancellationToken);
-        }
+        if (!_validators.Any()) return await next(cancellationToken);
 
         var context = new ValidationContext<TRequest>(request);
 
@@ -35,10 +32,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             .Where(e => e is not null)
             .ToList();
 
-        if (!failures.Any())
-        {
-            return await next(cancellationToken);
-        }
+        if (!failures.Any()) return await next(cancellationToken);
 
         var errorMessage = string.Join(", ", failures.Select(e => e.ErrorMessage).Distinct().ToList());
         var error = DefaultErrors.BadRequest(errorMessage);

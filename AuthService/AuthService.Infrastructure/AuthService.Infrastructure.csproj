@@ -8,17 +8,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj" />
-        <ProjectReference Include="..\AuthService.Common\AuthService.Common.csproj" />
-        <ProjectReference Include="..\AuthService.Persistence\AuthService.Persistence.csproj" />
+        <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj"/>
+        <ProjectReference Include="..\AuthService.Common\AuthService.Common.csproj"/>
+        <ProjectReference Include="..\AuthService.Persistence\AuthService.Persistence.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1"/>
     </ItemGroup>
 
 </Project>

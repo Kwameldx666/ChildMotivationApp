@@ -26,10 +26,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (user is not null)
-        {
             return Result.Failure(HttpStatusCode.Conflict,
                 DefaultErrors.Conflict($"User with email {request.Email} already exists"));
-        }
 
         var userType = Enum.Parse<UserType>(request.Role.Trim(), true);
 
