@@ -1,4 +1,4 @@
-﻿namespace AuthService.Domain.Enums;
+﻿namespace Gateway.Common.Constants.Scopes;
 
 public static class UserScopes
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Handlers;
@@ -24,7 +22,6 @@ public static class InfrastructureExtensions
     {
         services.AddProxies();
         services.AddAuthentication(configuration);
-        services.AddAuthorization();
         services.AddSwaggerGenWithAuth();
 
         services.AddTransient<AuthorizationForwardingHandler>();
@@ -49,7 +46,7 @@ public static class InfrastructureExtensions
 
         return services;
     }
-
+    
     private static void AddProxies(this IServiceCollection services)
     {
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();

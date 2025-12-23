@@ -19,6 +19,13 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
         return await response.ToActionResultAsync();
     }
 
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentProfileAsync(CancellationToken cancellationToken)
+    {
+        using var response = await userServiceClient.GetCurrentProfileAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     [HttpPut("{userId:guid}")]
     public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
     {

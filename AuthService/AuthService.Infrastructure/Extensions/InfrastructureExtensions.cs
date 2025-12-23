@@ -18,7 +18,6 @@ namespace AuthService.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
-    [Obsolete("Obsolete")]
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services
@@ -37,7 +36,6 @@ public static class InfrastructureExtensions
         return services;
     }
 
-    [Obsolete("Obsolete")]
     private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)
     {
         var jobOptions = configuration
@@ -49,8 +47,6 @@ public static class InfrastructureExtensions
 
         services.AddQuartz(quartzConfigurator =>
         {
-            quartzConfigurator.UseMicrosoftDependencyInjectionJobFactory();
-
             var jobKey = new JobKey(jobOptions.Key);
 
             quartzConfigurator.AddJob<CleanRefreshTokenJob>(jobBuilder =>

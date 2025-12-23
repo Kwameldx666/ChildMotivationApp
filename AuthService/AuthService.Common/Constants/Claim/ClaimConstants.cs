@@ -2,5 +2,5 @@
 
 public static class ClaimConstants
 {
-    public static string Scope = "Scope";
+    public static readonly string Scope = "Scope";
 }

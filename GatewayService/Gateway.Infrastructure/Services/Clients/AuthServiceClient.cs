@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;
 using Gateway.Common.HttpUrls;
@@ -41,6 +42,16 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return await _client.SendHttpRequestAsync(
             HttpMethod.Post,
             _endpoints.Login,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+    {
+        return _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.Refresh,
             request,
             SerializerOptions,
             cancellationToken);

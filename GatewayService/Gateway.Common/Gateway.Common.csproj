@@ -7,9 +7,5 @@
         <RootNamespace>Gateway.Common</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Constants\" />
-    </ItemGroup>
-
 </Project>
 

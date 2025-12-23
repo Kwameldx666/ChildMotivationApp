@@ -11,6 +11,8 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
+        services.AddDataProtection();
+
         services
             .AddIdentityCore<User>(options =>
             {

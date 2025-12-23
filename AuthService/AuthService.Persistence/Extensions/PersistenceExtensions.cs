@@ -1,6 +1,8 @@
+using System;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.Context;
+using AuthService.Persistence.HostedServices;
 using AuthService.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +19,8 @@ public static class PersistenceExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<GenericRepository<RefreshToken, Guid>>();
         services.AddDataProtection();
+        services.AddHostedService<AuthDatabaseInitializer>();
+
         return services;
     }
 
@@ -27,5 +31,5 @@ public static class PersistenceExtensions
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
         });
     }
-    //TODO: Add extension to repositories
+
 }

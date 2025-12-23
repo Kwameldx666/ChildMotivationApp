@@ -1,4 +1,4 @@
-﻿namespace AuthService.Common.Constants.Claim;
+﻿namespace Gateway.Common.Constants.Claim;
 
 public static class ClaimConstants
 {

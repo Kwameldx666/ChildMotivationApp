@@ -8,6 +8,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY UserService/ ./UserService/
+COPY AuthService/AuthService.Domain/ ./AuthService/AuthService.Domain/
 RUN dotnet restore UserService/UserService.Api/UserService.Api.csproj
 RUN dotnet publish UserService/UserService.Api/UserService.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 

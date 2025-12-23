@@ -1,7 +1,7 @@
-﻿using AuthService.Common.Constants.Claim;
+﻿using Gateway.Common.Constants.Claim;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AuthService.Authorization.ScopeRequirement;
+namespace Gateway.Authorization.ScopeRequirement;
 
 public class ScopeRequirementHandler : AuthorizationHandler<ScopeRequirement>
 {

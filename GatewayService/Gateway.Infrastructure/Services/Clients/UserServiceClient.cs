@@ -28,6 +28,17 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> GetCurrentProfileAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = BuildProfileMePath();
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
     public Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken)
     {
         var requestUri = BuildProfilePath(userId);
@@ -48,5 +59,21 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         }
 
         return $"{basePath.TrimEnd('/')}/{userId}";
+    }
+
+    private string BuildProfileMePath()
+    {
+        if (!string.IsNullOrWhiteSpace(_endpoints.ProfileMe))
+        {
+            return _endpoints.ProfileMe;
+        }
+
+        var basePath = _endpoints.Profile;
+        if (string.IsNullOrWhiteSpace(basePath))
+        {
+            throw new InvalidOperationException("UserService profile endpoint is not configured.");
+        }
+
+        return $"{basePath.TrimEnd('/')}/me";
     }
 }

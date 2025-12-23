@@ -1,4 +1,7 @@
-﻿using Gateway.Middlewares;
+﻿using Gateway.Authorization.ScopeRequirement;
+using Gateway.Common.Constants.Scopes;
+using Gateway.Middlewares;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Gateway.Extensions;
 
@@ -12,7 +15,21 @@ internal static class PresentationExtension
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddPolicies();
         services.AddCorsPolicy(configuration);
+    }
+    
+    private static void AddPolicies(this IServiceCollection services)
+    {
+        services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();
+
+        services.AddAuthorization(options =>
+        {
+            foreach (var s in UserScopes.All) 
+            {
+                options.AddPolicy(s, policy => policy.Requirements.Add(new ScopeRequirement(s)));
+            }
+        });
     }
 
     private static void AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)

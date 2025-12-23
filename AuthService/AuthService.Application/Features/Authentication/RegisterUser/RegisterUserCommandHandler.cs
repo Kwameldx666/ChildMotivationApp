@@ -55,13 +55,26 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         };
 
         var createResult = await _userManager.CreateAsync(newUser, request.Password);
-
         if (!createResult.Succeeded)
         {
-            var errorDescription = createResult.Errors.FirstOrDefault()?.Description ?? "Failed to create user";
-            return Result.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(errorDescription));
+            var error = string.Join("; ", createResult.Errors.Select(e => e.Description));
+            return Result.Failure(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest(error));
         }
 
+        var addToRoleResult = await _userManager.AddToRoleAsync(newUser, request.Role);
+        if (!addToRoleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(newUser);
+
+            var error = string.Join("; ", addToRoleResult.Errors.Select(e => e.Description));
+            return Result.Failure(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest(error));
+        }
+
+        
         return Result.Success(HttpStatusCode.Created);
     }
 
