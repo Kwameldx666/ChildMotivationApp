@@ -4,7 +4,8 @@ import { useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import ProfileOverview from "@/components/profile-overview"
 import { authApi } from "@/features/auth/api/authApi"
-import { clearSession, selectAuthSession } from "@/features/auth/store/authSlice"
+import { clearSession, selectAuthSession, setSession } from "@/features/auth/store/authSlice"
+import type { UpdateProfilePayload } from "@/features/auth/types"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 
 export default function ProfilePage() {
@@ -12,11 +13,33 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch()
   const router = useRouter()
 
+  const userId = session?.user.id
+
   useEffect(() => {
-    if (!session) {
+    if (!userId) {
       router.replace("/")
+      return
     }
-  }, [session, router])
+
+    let cancelled = false
+
+    const fetchProfile = async () => {
+      try {
+        const refreshedSession = await authApi.getProfile(userId)
+        if (!cancelled) {
+          dispatch(setSession(refreshedSession))
+        }
+      } catch (error) {
+        console.error("[profile] Failed to refresh profile", error)
+      }
+    }
+
+    fetchProfile()
+
+    return () => {
+      cancelled = true
+    }
+  }, [userId, router, dispatch])
 
   const handleGoDashboard = useCallback(() => {
     if (!session) {
@@ -39,9 +62,29 @@ export default function ProfilePage() {
     }
   }, [dispatch, router])
 
+  const handleProfileUpdate = useCallback(
+    async (payload: UpdateProfilePayload) => {
+      if (!userId) {
+        throw new Error("Нет активной сессии")
+      }
+
+      const updatedSession = await authApi.updateProfile(userId, payload)
+      dispatch(setSession(updatedSession))
+      return updatedSession
+    },
+    [dispatch, userId],
+  )
+
   if (!session) {
     return null
   }
 
-  return <ProfileOverview session={session} onGoDashboard={handleGoDashboard} onLogout={handleLogout} />
+  return (
+    <ProfileOverview
+      session={session}
+      onGoDashboard={handleGoDashboard}
+      onLogout={handleLogout}
+      onUpdateProfile={handleProfileUpdate}
+    />
+  )
 }

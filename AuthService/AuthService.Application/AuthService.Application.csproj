@@ -18,6 +18,7 @@
         <PackageReference Include="Mapster" Version="9.0.0-pre01"/>
         <PackageReference Include="Mapster.DependencyInjection" Version="9.0.0-pre01"/>
         <PackageReference Include="MediatR" Version="14.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1"/>
     </ItemGroup>
 
 </Project>

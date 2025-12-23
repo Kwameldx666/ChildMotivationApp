@@ -1,5 +1,7 @@
 using AuthService.Application.Features.Authentication.LoginUser;
+using AuthService.Application.Features.Authentication.RefreshTokens;
 using AuthService.Application.Features.Authentication.RegisterUser;
+using AuthService.Application.Features.Authentication.RevokeToken;
 using Microsoft.AspNetCore.Mvc;
 using AuthService.Extensions;
 using MediatR;
@@ -26,9 +28,20 @@ public class AuthController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
-    /*[HttpPost("logout")]
-    public async Task<IActionResult> LogoutUserAsync(CancellationToken cancellationToken)
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenCommand request,
+        CancellationToken cancellationToken)
     {
-        var result = await
-    }*/
+        var result = await mediator.Send(request, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("revoke")]
+    public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RevokeRefreshTokenCommand request,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(request, cancellationToken);
+        return result.ToActionResult();
+    }
+
 }

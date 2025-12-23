@@ -68,7 +68,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   const [childLastName, setChildLastName] = useState("")
   const [childAge, setChildAge] = useState(10)
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0])
-  const [familyCode, setFamilyCode] = useState("")
+  const [childFamilyCode, setChildFamilyCode] = useState("")
 
   // Parent-specific fields
   const [familyName, setFamilyName] = useState("")
@@ -203,7 +203,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     localStorage.setItem("familyapp_users", JSON.stringify(users))
     localStorage.setItem("familyapp_current_user", JSON.stringify(newUser))
 
-    const familyCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+    const generatedFamilyCode = Math.random().toString(36).substring(2, 8).toUpperCase()
     localStorage.setItem(
       `familyapp_profile_${userId}`,
       JSON.stringify({
@@ -215,7 +215,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     )
     localStorage.setItem(
       `familyapp_family_${userId}`,
-      JSON.stringify({ code: familyCode, name: familyName, emblem: selectedEmblem }),
+      JSON.stringify({ code: generatedFamilyCode, name: familyName, emblem: selectedEmblem }),
     )
 
     onAuth({
@@ -226,14 +226,14 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
         avatar: "👨",
         role: "parent",
       },
-      familyCode,
+      familyCode: generatedFamilyCode,
       familyName,
       familyEmblem: selectedEmblem,
     })
   }
 
   const handleChildProfileSubmit = async () => {
-    if (!childName || !familyCode) {
+    if (!childName || !childFamilyCode) {
       setError("Пожалуйста, заполни все поля")
       return
     }
@@ -260,7 +260,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
         age: childAge,
       }),
     )
-    localStorage.setItem(`familyapp_family_${userId}`, JSON.stringify({ code: familyCode }))
+    localStorage.setItem(`familyapp_family_${userId}`, JSON.stringify({ code: childFamilyCode }))
 
     onAuth({
       user: newUser,
@@ -271,7 +271,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
         role: "child",
         age: childAge,
       },
-      familyCode,
+      familyCode: childFamilyCode,
     })
   }
 
@@ -568,8 +568,8 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 <Label>Код семьи</Label>
                 <Input
                   placeholder="ABC123"
-                  value={familyCode}
-                  onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
+                  value={childFamilyCode}
+                  onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
                   maxLength={6}
                 />
               </div>

@@ -1,6 +1,14 @@
-﻿namespace AuthService.Infrastructure.Services.Quartz;
+﻿using AuthService.Application.Abstractions.Persistence;
+using Microsoft.Extensions.Configuration;
+using Quartz;
 
-public class CleanRefreshTokenJob
+namespace AuthService.Infrastructure.Services.Quartz;
+
+public class CleanRefreshTokenJob(IRefreshTokenRepository refreshTokenRepository)
+    : IJob
 {
-    
+    public async Task Execute(IJobExecutionContext context)
+    {
+        await refreshTokenRepository.DeleteExpiredRefreshTokensAsync(context.CancellationToken);
+    }
 }

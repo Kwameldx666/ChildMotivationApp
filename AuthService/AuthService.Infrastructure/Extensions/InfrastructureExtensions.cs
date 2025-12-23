@@ -4,18 +4,21 @@ using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Identity;
 using AuthService.Infrastructure.Services.User;
-using AuthService.Infrastructure.ServicesDto;
+using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Persistence.Context;
 using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Quartz;
+using JwtBearerOptions = AuthService.Application.Options.JwtBearerOptions;
 
 namespace AuthService.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
+    [Obsolete("Obsolete")]
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services
@@ -27,11 +30,44 @@ public static class InfrastructureExtensions
             .ValidateOnStart();
 
         services.ConfigureIdentity();
+        services.ConfigureQuartz(configuration);
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<GenericRepository<RefreshToken, Guid>>();
         services.AddScoped<IUserManagement, UserManagementService>();
         return services;
+    }
+
+    [Obsolete("Obsolete")]
+    private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jobOptions = configuration
+                             .GetSection("Quartz:CleanJob")
+                             .Get<QuartzCleanJobOptions>()
+                         ?? throw new InvalidOperationException("Quartz:CleanJob configuration is missing.");
+
+        services.Configure<QuartzCleanJobOptions>(configuration.GetSection("Quartz:CleanJob"));
+
+        services.AddQuartz(quartzConfigurator =>
+        {
+            quartzConfigurator.UseMicrosoftDependencyInjectionJobFactory();
+
+            var jobKey = new JobKey(jobOptions.Key);
+
+            quartzConfigurator.AddJob<CleanRefreshTokenJob>(jobBuilder =>
+                jobBuilder.WithIdentity(jobKey));
+
+            quartzConfigurator.AddTrigger(triggerBuilder =>
+                triggerBuilder
+                    .ForJob(jobKey)
+                    .WithIdentity(jobOptions.IdentityTrigger)
+                    .StartNow()
+                    .WithSimpleSchedule(schedule =>
+                        schedule
+                            .WithInterval(TimeSpan.FromHours(jobOptions.IntervalHours))
+                            .RepeatForever()));
+        });
+
+        services.AddQuartzHostedService(options => { options.WaitForJobsToComplete = true; });
     }
 
     private static void ConfigureIdentity(this IServiceCollection services)

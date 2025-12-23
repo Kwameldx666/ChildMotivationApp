@@ -4,6 +4,7 @@ const serverBaseUrl = process.env.INTERNAL_API_URL ?? browserBaseUrl
 export const DEFAULT_API_BASE_URL = typeof window === 'undefined' ? serverBaseUrl : browserBaseUrl
 
 export const STORAGE_TOKEN_KEY = 'familyapp_token'
+export const STORAGE_REFRESH_TOKEN_KEY = 'familyapp_refresh_token'
 
 export interface HttpClientConfig {
   baseUrl?: string
@@ -25,6 +26,8 @@ export class ApiError<T = unknown> extends Error {
     this.details = details
   }
 }
+
+import { appStore } from '@/store/appStore'
 
 export class HttpClient {
   private readonly baseUrl: string
@@ -123,7 +126,17 @@ export class HttpClient {
   }
 }
 
+// Lazy import to avoid circular dependency at module evaluation time
+const resolveAccessToken = () => {
+  const stateToken = appStore.getState().auth.session?.accessToken ?? null
+  if (stateToken) {
+    return stateToken
+  }
+
+  return typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_TOKEN_KEY)
+}
+
 export const httpClient = new HttpClient({
   baseUrl: DEFAULT_API_BASE_URL,
-  getToken: () => (typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_TOKEN_KEY)),
+  getToken: resolveAccessToken,
 })

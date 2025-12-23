@@ -8,40 +8,40 @@ public class GenericRepository<TEntity, TEntityId> : IGenericRepository<TEntity,
     where TEntity : class
     where TEntityId : IEquatable<TEntityId>
 {
-    protected readonly AuthDbContext Context;
+    private readonly AuthDbContext _context;
 
     public GenericRepository(AuthDbContext context)
     {
-        Context = context;
+        _context = context;
     }
 
     public async Task<TEntity?> GetByIdAsync(TEntityId id)
     {
-        return await Context.Set<TEntity>().FindAsync(id);
+        return await _context.Set<TEntity>().FindAsync(id);
     }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync()
     {
-        return await Context.Set<TEntity>().ToListAsync();
+        return await _context.Set<TEntity>().ToListAsync();
     }
 
     public void Add(TEntity entity)
     {
-        Context.Set<TEntity>().Add(entity);
+        _context.Set<TEntity>().Add(entity);
     }
 
     public void Update(TEntity entity)
     {
-        Context.Set<TEntity>().Update(entity);
+        _context.Set<TEntity>().Update(entity);
     }
 
     public void Remove(TEntity entity)
     {
-        Context.Set<TEntity>().Remove(entity);
+        _context.Set<TEntity>().Remove(entity);
     }
 
     public async Task SaveChanges(CancellationToken cancellationToken = default)
     {
-        await Context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

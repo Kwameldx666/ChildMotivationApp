@@ -51,10 +51,29 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(x => x.Emblem)
             .MaximumLength(128)
             .When(x => !string.IsNullOrWhiteSpace(x.Emblem));
+
+        When(x => IsRole(UserType.Parent, x.Role), () =>
+        {
+            RuleFor(x => x.FamilyName)
+                .NotEmpty()
+                .WithMessage("Family name is required for parent accounts.");
+        });
+
+        When(x => IsRole(UserType.Child, x.Role), () =>
+        {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Family code is required for child accounts.");
+        });
     }
 
     private static bool BeValidRole(string role)
     {
         return Enum.TryParse<UserType>(role.Trim(), true, out _);
+    }
+
+    private static bool IsRole(UserType targetRole, string role)
+    {
+        return Enum.TryParse<UserType>(role.Trim(), true, out var parsedRole) && parsedRole == targetRole;
     }
 }

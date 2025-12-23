@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Common.HttpUrls;
@@ -35,7 +36,14 @@ public static class InfrastructureExtensions
             client.BaseAddress = new Uri(baseAddress!);
         }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
 
+        services.AddHttpClient(DefaultHttpClientNames.UserService, client =>
+        {
+            var baseAddress = configuration["Services:UserService"];
+            client.BaseAddress = new Uri(baseAddress!);
+        }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
+
         services.Configure<AuthEndpoints>(configuration.GetSection("ServiceEndpoints:AuthService"));
+        services.Configure<UserEndpoints>(configuration.GetSection("ServiceEndpoints:UserService"));
 
         TypeAdapterConfig.GlobalSettings.Scan(typeof(AuthMappingConfig).Assembly);
 
@@ -45,6 +53,7 @@ public static class InfrastructureExtensions
     private static void AddProxies(this IServiceCollection services)
     {
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();
+        services.AddScoped<IUserServiceClient, UserServiceClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

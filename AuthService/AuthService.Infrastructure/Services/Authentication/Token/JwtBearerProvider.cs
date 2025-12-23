@@ -4,24 +4,21 @@ using System.Text;
 using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Dto.User;
+using AuthService.Application.Options;
 using AuthService.Common.Constants.Claim;
-using AuthService.Infrastructure.ServicesDto;
-using AuthService.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.Infrastructure.Services.Authentication.Token;
 
-public class JwtBearerProvider(
-    IOptions<JwtBearerOptions> options,
-    GenericRepository<Domain.Entities.RefreshToken, Guid> refreshTokenRepository)
+public class JwtBearerProvider(IOptions<JwtBearerOptions> options)
     : ITokenProvider
 {
     private readonly JwtBearerOptions _optionValues = options.Value;
 
 
-    public async Task<GenerateTokenResponse> GenerateAccessToken(UserArgs args,
+    public Task<GenerateTokenResponse> GenerateAccessToken(UserArgs args,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_optionValues.Secret))
@@ -49,28 +46,17 @@ public class JwtBearerProvider(
             SigningCredentials = credentials
         };
 
-        var refreshToken = new Domain.Entities.RefreshToken
-        {
-            Id = Guid.CreateVersion7(),
-            ExpiresOnUtc = DateTime.UtcNow.AddDays(_optionValues.AccessTokenLifetime),
-            Token = GenerateRefreshToken(),
-            UserId = Guid.TryParse(args.UserId, out var userId) ? userId : Guid.Empty
-        };
-
-        refreshTokenRepository.Add(refreshToken);
-        await refreshTokenRepository.SaveChanges(cancellationToken);
-
-
         var handler = new JsonWebTokenHandler();
         var accessToken = handler.CreateToken(descriptor);
+        var refreshToken = GenerateRefreshToken();
 
         var response = new GenerateTokenResponse
         {
             AccessToken = accessToken,
-            RefreshToken = refreshToken.Token
+            RefreshToken = refreshToken
         };
 
-        return response;
+        return Task.FromResult(response);
     }
 
     public string GenerateRefreshToken()

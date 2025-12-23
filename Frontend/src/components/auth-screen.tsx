@@ -95,7 +95,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   const [familyName, setFamilyName] = useState("")
   const [familyEmblem, setFamilyEmblem] = useState<(typeof FAMILY_EMBLEMS)[number]>(FAMILY_EMBLEMS[0])
-  const [familyCode, setFamilyCode] = useState("")
+  const [childFamilyCode, setChildFamilyCode] = useState("")
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -185,7 +185,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
         return
       }
     } else {
-      if (!familyCode.trim()) {
+      if (!childFamilyCode.trim()) {
         setError("Введите код семьи.")
         return
       }
@@ -197,23 +197,37 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       return
     }
 
+    const profilePayload = {
+      name: name.trim(),
+      lastName: lastName.trim(),
+      avatar,
+      ...(role === "child" && parsedAge ? { age: parsedAge } : {}),
+    }
+
     setIsLoading(true)
     try {
-      await authApi.register({
-        email,
-        password,
-        role,
-        profile: {
-          name: name.trim(),
-          lastName: lastName.trim(),
-          avatar,
-          ...(role === "child" && parsedAge ? { age: parsedAge } : {}),
-        },
-        family:
-          role === "parent"
-            ? { name: familyName.trim(), emblem: familyEmblem }
-            : { code: familyCode.trim().toUpperCase() },
-      })
+      if (role === "parent") {
+        await authApi.register({
+          email,
+          password,
+          role: "parent",
+          profile: profilePayload,
+          family: {
+            name: familyName.trim(),
+            emblem: familyEmblem,
+          },
+        })
+      } else {
+        await authApi.register({
+          email,
+          password,
+          role: "child",
+          profile: profilePayload,
+          family: {
+            code: childFamilyCode.trim().toUpperCase(),
+          },
+        })
+      }
       setInfo("Регистрация прошла успешно! Войдите, используя указанные данные.")
       setMode("login")
       setStep("credentials")
@@ -427,11 +441,18 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         ))}
                       </select>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Код семьи создастся автоматически после регистрации.
+                    </p>
                   </>
                 ) : (
                   <div>
                     <Label>Код семьи</Label>
-                    <Input value={familyCode} onChange={(e) => setFamilyCode(e.target.value)} placeholder="ABC123" />
+                    <Input
+                      value={childFamilyCode}
+                      onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
+                      placeholder="ABC123"
+                    />
                   </div>
                 )}
 

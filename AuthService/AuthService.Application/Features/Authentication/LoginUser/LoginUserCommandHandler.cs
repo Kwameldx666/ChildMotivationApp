@@ -1,21 +1,27 @@
 ﻿using System.Net;
 using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Dto;
+using AuthService.Application.Abstractions.Persistence;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Dto.User;
+using AuthService.Application.Options;
 using AuthService.Common.Constants.Claim;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using AuthService.Domain.Entities;
+using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace AuthService.Application.Features.Authentication.LoginUser;
 
 public class LoginUserCommandHandler(
     UserManager<User> userManager,
     RoleManager<IdentityRole<Guid>> roleManager,
-    ITokenProvider tokenProvider)
+    ITokenProvider tokenProvider,
+    IRefreshTokenRepository refreshTokenRepository,
+    IUnitOfWork unitOfWork,
+    IOptions<JwtBearerOptions> jwtOptions)
     : IRequestHandler<LoginUserCommand, Result<LoginResponse>>
 {
     public async Task<Result<LoginResponse>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -49,6 +55,32 @@ public class LoginUserCommandHandler(
         };
 
         var generateTokenResponse = await tokenProvider.GenerateAccessToken(tokenArgs, cancellationToken);
+
+        var refreshTokenExpiresOnUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenLifetime);
+
+        var refreshToken = await refreshTokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
+
+        if (refreshToken is null)
+        {
+            refreshToken = new Domain.Entities.RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = generateTokenResponse.RefreshToken,
+                ExpiresOnUtc = refreshTokenExpiresOnUtc
+            };
+
+            await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        }
+        else
+        {
+            refreshToken.Token = generateTokenResponse.RefreshToken;
+            refreshToken.ExpiresOnUtc = refreshTokenExpiresOnUtc;
+            refreshTokenRepository.Update(refreshToken);
+        }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
         var authUser = new AuthUserDto(
             user.Id.ToString(),
             user.Email!,
@@ -60,14 +92,18 @@ public class LoginUserCommandHandler(
             user.LastName ?? string.Empty,
             user.Avatar ?? string.Empty,
             user.UserType.ToString().ToLowerInvariant(),
-            user.Age);
+            user.UserType == UserType.Child ? user.Age : null);
 
         var family = string.IsNullOrWhiteSpace(user.FamilyCode)
             ? null
-            : new FamilyDto(user.FamilyCode, null, null);
+            : new FamilyDto(user.FamilyCode, user.FamilyName, user.FamilyEmblem);
 
-        var response = new ExternalLoginResponse(generateTokenResponse.AccessToken, generateTokenResponse.RefreshToken,
-            authUser, profile, family);
+        var response = new ExternalLoginResponse(
+            generateTokenResponse.AccessToken,
+            generateTokenResponse.RefreshToken,
+            authUser,
+            profile,
+            family);
 
         return Result<LoginResponse>.Success(response);
     }

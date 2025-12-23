@@ -14,6 +14,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.FamilyCode)
             .HasMaxLength(64);
 
+        builder.Property(x => x.FamilyName)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.FamilyEmblem)
+            .HasMaxLength(128);
+
         builder.Property(x => x.UserStatus)
             .HasMaxLength(32)
             .IsRequired();

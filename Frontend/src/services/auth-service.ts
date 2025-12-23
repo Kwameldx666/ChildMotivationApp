@@ -1,5 +1,10 @@
-import { ApiError, httpClient, STORAGE_TOKEN_KEY } from '@/services/api/http-client'
-import type { AuthSession, AuthUser, FamilyContext, UserProfile, UserRole } from '@/features/auth/types'
+import {
+  ApiError,
+  httpClient,
+  STORAGE_REFRESH_TOKEN_KEY,
+  STORAGE_TOKEN_KEY,
+} from '@/services/api/http-client'
+import type { AuthPayload, AuthSession, AuthUser, FamilyContext, UserProfile, UserRole } from '@/features/auth/types'
 
 // cspell:ignore familyapp удалось сохранить сессию после
 
@@ -22,31 +27,32 @@ export interface RegisterPayload {
   family?: FamilyContext & { name?: string; emblem?: string }
 }
 
-export interface AuthPayload {
-  token?: string
-  user: AuthUser
-  profile: UserProfile
-  family?: FamilyContext
-}
-
-function getToken() {
+function getAccessToken() {
   if (!isBrowser) return null
   return localStorage.getItem(STORAGE_TOKEN_KEY)
 }
 
+function getStoredRefreshToken() {
+  if (!isBrowser) return null
+  return localStorage.getItem(STORAGE_REFRESH_TOKEN_KEY)
+}
+
 function persistSession(payload: AuthPayload) {
   if (!isBrowser) return null
-  const token = payload.token ?? getToken()
-  if (!token) return null
+  const accessToken = payload.accessToken ?? getAccessToken()
+  const refreshToken = payload.refreshToken ?? getStoredRefreshToken()
+  if (!accessToken || !refreshToken) return null
 
   const session: AuthSession = {
-    token,
+    accessToken,
+    refreshToken,
     user: payload.user,
     profile: payload.profile,
     family: payload.family,
   }
 
-  localStorage.setItem(STORAGE_TOKEN_KEY, token)
+  localStorage.setItem(STORAGE_TOKEN_KEY, accessToken)
+  localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload.user))
   localStorage.setItem(`${PROFILE_KEY_PREFIX}${payload.user.id}`, JSON.stringify(payload.profile))
   if (payload.family) {
@@ -66,6 +72,7 @@ function clearSession() {
   }
   localStorage.removeItem(CURRENT_USER_KEY)
   localStorage.removeItem(STORAGE_TOKEN_KEY)
+  localStorage.removeItem(STORAGE_REFRESH_TOKEN_KEY)
 }
 
 export const authService = {
@@ -94,7 +101,11 @@ export const authService = {
   async me() {
     try {
       const data = await httpClient.get<AuthPayload>('/api/auth/me')
-      const session = persistSession({ ...data, token: data.token ?? getToken() ?? undefined })
+      const session = persistSession({
+        ...data,
+        accessToken: data.accessToken ?? getAccessToken() ?? undefined,
+        refreshToken: data.refreshToken ?? getStoredRefreshToken() ?? undefined,
+      })
       return session
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
@@ -115,8 +126,9 @@ export const authService = {
 
   getCachedSession(): AuthSession | null {
     if (!isBrowser) return null
-    const token = getToken()
-    if (!token) return null
+    const accessToken = getAccessToken()
+    const refreshToken = getStoredRefreshToken()
+    if (!accessToken || !refreshToken) return null
 
     const userRaw = localStorage.getItem(CURRENT_USER_KEY)
     if (!userRaw) return null
@@ -130,7 +142,8 @@ export const authService = {
     const family = familyRaw ? (JSON.parse(familyRaw) as FamilyContext) : undefined
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user,
       profile,
       family,

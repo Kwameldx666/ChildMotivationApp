@@ -28,23 +28,39 @@ export interface LoginPayload {
   password: string
 }
 
-export interface RegisterPayload {
+interface RegisterPayloadBase {
   email: string
   password: string
-  role: UserRole
   profile: Omit<UserProfile, 'role'> & { role?: UserRole }
-  family?: FamilyContext & { name?: string; emblem?: string }
 }
 
+export type RegisterPayload =
+  | (RegisterPayloadBase & {
+      role: 'parent'
+      family: {
+        name: string
+        emblem?: string | null
+      }
+    })
+  | (RegisterPayloadBase & {
+      role: 'child'
+      family: {
+        code: string
+      }
+    })
+
 export interface AuthPayload {
-  token?: string | null
+  accessToken?: string | null
+  refreshToken?: string | null
+  tokenType?: string | null
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
 }
 
 export interface AuthSession {
-  token: string | null
+  accessToken: string | null
+  refreshToken: string | null
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
@@ -54,4 +70,17 @@ export interface AuthState {
   session: AuthSession | null
   status: 'idle' | 'loading' | 'error'
   error: string | null
+}
+
+export interface UserProfileResponse {
+  user: AuthUser
+  profile: UserProfile
+  family?: FamilyContext
+}
+
+export interface UpdateProfilePayload {
+  name?: string | null
+  lastName?: string | null
+  avatar?: string | null
+  age?: number | null
 }
