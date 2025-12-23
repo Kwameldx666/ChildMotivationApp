@@ -23,18 +23,33 @@ services:
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
     ports:
       - "8080:8080"
+  user-service:
+    build:
+      context: .
+      dockerfile: UserService/UserService.Api/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
+    ports:
+      - "8082:8080"
   gateway-service:
     build:
       context: .
       dockerfile: GatewayService/Gateway.Api/Dockerfile
     depends_on:
       - auth-service
+      - user-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081
       Services__AuthService: http://auth-service:8080/
       ServiceEndpoints__AuthService__Register: auth-service/auth/register
       ServiceEndpoints__AuthService__Login: auth-service/auth/login
+      Services__UserService: http://user-service:8080/
+      ServiceEndpoints__UserService__Profile: user-service/profile
     ports:
       - "8081:8081"
   frontend:
