@@ -7,7 +7,8 @@ namespace Gateway.Application.Abstractions.Infrastructure;
 
 public interface IAuthServiceClient
 {
-    Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> GoogleSignIn(CancellationToken cancellationToken);
 }

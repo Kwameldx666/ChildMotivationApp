@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
@@ -47,13 +46,22 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
-    public Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        return _client.SendHttpRequestAsync(
+        return await _client.SendHttpRequestAsync(
             HttpMethod.Post,
             _endpoints.Refresh,
             request,
             SerializerOptions,
             cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> GoogleSignIn(CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            _endpoints.GoogleCallback,
+            options: SerializerOptions,
+            cancellationToken: cancellationToken);
     }
 }

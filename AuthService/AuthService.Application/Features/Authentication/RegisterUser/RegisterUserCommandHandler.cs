@@ -77,6 +77,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         
         return Result.Success(HttpStatusCode.Created);
     }
+    
 
     private async Task<(string? code, string? name, string? emblem, Result? error)> ResolveFamilyContextAsync(
         UserType userType,

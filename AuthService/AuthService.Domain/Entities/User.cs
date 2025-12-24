@@ -10,7 +10,7 @@ public class User : IdentityUser<Guid>
     public string? FamilyEmblem { get; set; }
     public string UserStatus { get; set; } = null!;
     public string? Avatar { get; set; }
-    public int? Age { get; set; }
+    public int? Age { get; set; } 
     public UserType UserType { get; set; }
     public string? Name { get; set; }
     public string? LastName { get; set; }

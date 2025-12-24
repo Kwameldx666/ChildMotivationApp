@@ -30,8 +30,8 @@ public class LoginUserCommandHandler(
 
         var correctPassword = user != null && await userManager.CheckPasswordAsync(user, request.Password);
         if (user is null || !correctPassword)
-            return Result<LoginResponse>.Failure(HttpStatusCode.Unauthorized,
-                AuthorizationErrors.Unauthorized("User credentials are invalid"));
+            return Result<LoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("User credentials are invalid"));
 
         var roles = await userManager.GetRolesAsync(user);
 

@@ -27,7 +27,7 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
     }
 
     [HttpPut("{userId:guid}")]
-    public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest? request, CancellationToken cancellationToken)
     {
         if (request is null)
         {

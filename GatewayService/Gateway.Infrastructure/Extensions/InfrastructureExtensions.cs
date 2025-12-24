@@ -6,12 +6,14 @@ using Gateway.Infrastructure.Mappings;
 using Gateway.Infrastructure.Services.Clients;
 using Gateway.Infrastructure.Services.Constants;
 using Mapster;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-using JwtBearerOptions = Gateway.Infrastructure.Services.JwtBearer.JwtBearerOptions;
+using Microsoft.OpenApi.Models;
+using JwtBearerOptions = Gateway.Infrastructure.Services.Models.JwtBearer.JwtBearerOptions;
 
 namespace Gateway.Infrastructure.Extensions;
 
@@ -23,9 +25,16 @@ public static class InfrastructureExtensions
         services.AddProxies();
         services.AddAuthentication(configuration);
         services.AddSwaggerGenWithAuth();
+        services.ConfigureHttpClients(configuration);
+        services.ConfigureEndpoints(configuration);
 
-        services.AddTransient<AuthorizationForwardingHandler>();
+        TypeAdapterConfig.GlobalSettings.Scan(typeof(AuthMappingConfig).Assembly);
 
+        return services;
+    }
+
+    private static void ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration)
+    {
         services.AddHttpClient(DefaultHttpClientNames.AuthService, client =>
         {
             var baseAddress = configuration["Services:AuthService"];
@@ -38,15 +47,14 @@ public static class InfrastructureExtensions
             var baseAddress = configuration["Services:UserService"];
             client.BaseAddress = new Uri(baseAddress!);
         }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
+    }
 
+    private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<AuthEndpoints>(configuration.GetSection("ServiceEndpoints:AuthService"));
         services.Configure<UserEndpoints>(configuration.GetSection("ServiceEndpoints:UserService"));
-
-        TypeAdapterConfig.GlobalSettings.Scan(typeof(AuthMappingConfig).Assembly);
-
-        return services;
     }
-    
+
     private static void AddProxies(this IServiceCollection services)
     {
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();
@@ -56,6 +64,9 @@ public static class InfrastructureExtensions
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var jwt = configuration.GetSection("JwtBearer").Get<JwtBearerOptions>();
+        var googleConfiguration = configuration.GetSection("Authentication").Get<GoogleOptions>() ??
+                                  throw new InvalidConfigurationException("google configuration not found");
+
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -73,6 +84,11 @@ public static class InfrastructureExtensions
                     ClockSkew = TimeSpan.Zero
                 };
                 options.MapInboundClaims = false;
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = googleConfiguration.ClientId;
+                options.ClientSecret = googleConfiguration.ClientSecret;
             });
 
         services.Configure<JwtBearerOptions>(configuration.GetSection("JwtBearer"));
@@ -82,36 +98,29 @@ public static class InfrastructureExtensions
     {
         services.AddSwaggerGen(options =>
         {
-            var schemeName = JwtBearerDefaults.AuthenticationScheme;
-
-            options.AddSecurityDefinition(schemeName, new OpenApiSecurityScheme
+            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
             {
                 Name = "Authorization",
-                Description = "JWT Authorization header using the Bearer scheme.",
-                In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = schemeName.ToLower(),
-                BearerFormat = "JWT"
+                Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите: Bearer {your JWT token}"
             });
 
-            options.AddSecurityRequirement(document =>
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-                var schemeReference = new OpenApiSecuritySchemeReference(
-                    referenceId: schemeName,
-                    hostDocument: document,
-                    externalResource: null)
                 {
-                    Reference = new OpenApiReferenceWithDescription
+                    new OpenApiSecurityScheme
                     {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = schemeName
-                    }
-                };
-
-                var requirement = new OpenApiSecurityRequirement();
-                requirement.Add(schemeReference, new List<string>());   
-
-                return requirement;
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
             });
         });
     }

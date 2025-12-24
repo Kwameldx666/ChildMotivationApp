@@ -31,18 +31,7 @@ public class AuthDatabaseInitializer(
 
         using var scope = serviceProvider.CreateScope();
         var scopedProvider = scope.ServiceProvider;
-        var dbContext = scopedProvider.GetRequiredService<AuthDbContext>();
-
-        try
-        {
-            await dbContext.Database.MigrateAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to apply AuthService database migrations.");
-            throw;
-        }
-
+        
         var roleManager = scopedProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
         await EnsureRolesAsync(roleManager);
     }

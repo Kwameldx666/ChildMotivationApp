@@ -3,14 +3,13 @@ using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;
 using Gateway.Extensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gateway.Controllers;
 
 [ApiController]
 [Route("api-gateway/[controller]")]
-public class AuthController(IAuthServiceClient authClient, IUserServiceClient userServiceClient) : ControllerBase
+public class AuthController(IAuthServiceClient authClient) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
@@ -27,7 +26,8 @@ public class AuthController(IAuthServiceClient authClient, IUserServiceClient us
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest? request,
+        CancellationToken cancellationToken)
     {
         if (request is null || string.IsNullOrWhiteSpace(request.RefreshToken))
         {
@@ -38,11 +38,10 @@ public class AuthController(IAuthServiceClient authClient, IUserServiceClient us
         return await response.ToActionResultAsync();
     }
 
-    [Authorize]
-    [HttpGet("me")]
-    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    [HttpGet("signin-google")]
+    public async Task<IActionResult> GoogleCallback(CancellationToken cancellationToken)
     {
-        using var response = await userServiceClient.GetCurrentProfileAsync(cancellationToken);
+        using var response = await authClient.GoogleSignIn(cancellationToken);
         return await response.ToActionResultAsync();
     }
 }

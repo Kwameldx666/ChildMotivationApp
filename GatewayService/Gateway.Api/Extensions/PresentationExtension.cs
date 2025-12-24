@@ -1,5 +1,6 @@
 ﻿using Gateway.Authorization.ScopeRequirement;
 using Gateway.Common.Constants.Scopes;
+using Gateway.Infrastructure.Handlers;
 using Gateway.Middlewares;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,6 +22,7 @@ internal static class PresentationExtension
     
     private static void AddPolicies(this IServiceCollection services)
     {
+        services.AddTransient<AuthorizationForwardingHandler>();
         services.AddScoped<IAuthorizationHandler, ScopeRequirementHandler>();
 
         services.AddAuthorization(options =>

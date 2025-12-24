@@ -44,4 +44,10 @@ public class AuthController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
+    [HttpGet("oauth/google/callback")]
+    public async Task<IActionResult> GoogleCallbackAsync([FromQuery] string code, [FromQuery] string state)
+    {
+           
+    }
+    
 }

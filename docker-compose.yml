@@ -32,6 +32,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      JwtBearer__Secret: your_jwt_secret_key_here_change_it_to_a_secure_value_for_production_use_only_!
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
     ports:
       - "8082:8080"
@@ -46,10 +47,12 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081
       Services__AuthService: http://auth-service:8080/
+      JwtBearer__Secret: your_jwt_secret_key_here_change_it_to_a_secure_value_for_production_use_only_!
       ServiceEndpoints__AuthService__Register: auth-service/auth/register
       ServiceEndpoints__AuthService__Login: auth-service/auth/login
       Services__UserService: http://user-service:8080/
       ServiceEndpoints__UserService__Profile: user-service/profile
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres
     ports:
       - "8081:8081"
   frontend:

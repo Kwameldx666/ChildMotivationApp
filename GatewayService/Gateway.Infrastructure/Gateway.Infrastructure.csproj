@@ -16,10 +16,10 @@
       <PackageReference Include="Mapster" Version="9.0.0-pre01" />
       <PackageReference Include="Mapster.Core" Version="9.0.0-pre01" />
       <PackageReference Include="Mapster.DependencyInjection" Version="9.0.0-pre01" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.1" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
-      <PackageReference Include="Microsoft.OpenApi" Version="2.3.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.9.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.9.0" />
     </ItemGroup>
 
     <ItemGroup>
