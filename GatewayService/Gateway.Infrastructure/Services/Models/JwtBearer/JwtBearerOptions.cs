@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.Infrastructure.Services.JwtBearer;
+namespace Gateway.Infrastructure.Services.Models.JwtBearer;
 
 public class JwtBearerOptions
 {
