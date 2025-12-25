@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>AuthService.Infrastructure</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AuthService.Application\AuthService.Application.csproj"/>
+        <ProjectReference Include="..\AuthService.Common\AuthService.Common.csproj"/>
+        <ProjectReference Include="..\AuthService.Persistence\AuthService.Persistence.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Quartz" Version="3.15.1"/>
+        <PackageReference Include="Quartz.Extensions.Hosting" Version="3.15.1"/>
+    </ItemGroup>
+
+</Project>
+

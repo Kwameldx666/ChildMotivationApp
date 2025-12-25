@@ -1,0 +1,5 @@
+@AuthService.Api_HostAddress = http://localhost:7265
+
+Accept: application/json
+
+###

@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: db_net
+      POSTGRES_USER: app_owner_net
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  auth-service:
+    build:
+      context: .
+      dockerfile: AuthService/AuthService.Api/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+      Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID}
+      Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/auth/google/callback}
+      ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+    ports:
+      - "8080:8080"
+  user-service:
+    build:
+      context: .
+      dockerfile: UserService/UserService.Api/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+      ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+    ports:
+      - "8082:8080"
+  gateway-service:
+    build:
+      context: .
+      dockerfile: GatewayService/Gateway.Api/Dockerfile
+    depends_on:
+      - auth-service
+      - user-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8081
+      Services__AuthService: http://auth-service:8080/
+      JwtBearer__Secret: ${GATEWAY_JWT_SECRET:-your_gateway_jwt_secret_here}
+      ServiceEndpoints__AuthService__Register: auth-service/auth/register
+      ServiceEndpoints__AuthService__Login: auth-service/auth/login
+      Services__UserService: http://user-service:8080/
+      ServiceEndpoints__UserService__Profile: user-service/profile
+      ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+    ports:
+      - "8081:8081"
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8081
+        INTERNAL_API_URL: http://gateway-service:8081
+    depends_on:
+      - gateway-service
+    environment:
+      NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
+      INTERNAL_API_URL: http://gateway-service:8081
+    ports:
+      - "3000:3000"
+volumes:
+  postgres_data:
