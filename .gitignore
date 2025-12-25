@@ -1,0 +1,25 @@
+# Ignore build outputs
+**/bin/
+**/obj/
+
+# Node modules
+Frontend/node_modules/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Rider
+.idea/
+*.sln.iml
