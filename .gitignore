@@ -1,28 +1,59 @@
+# ----------------------------
+# Root .gitignore for this mono-repo (dotnet + Node + IDEs)
+# ----------------------------
+
 # OS artifacts
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# IDE settings
+# ----------------------------
+# Editors & IDEs
+# ----------------------------
 .vscode/
 !.vscode/extensions.json
 !.vscode/settings.json
 !.vscode/launch.json
 !.vscode/tasks.json
+.vs/
 .idea/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+*.sln.DotSettings.user
+*.sln.iml
+*.userprefs
 
-# Build outputs
+# ----------------------------
+# Build outputs (dotnet)
+# ----------------------------
 **/bin/
 **/obj/
+**/artifacts/
 **/publish/
+**/wwwroot/
 **/TestResults/
 **/GeneratedFiles/
 
+# ----------------------------
+# NuGet / packages
+# ----------------------------
+packages/
+*.nupkg
+.nuget/
+.project.lock.json
+project.fragment.lock.json
+
+# ----------------------------
+# .NET specific
+# ----------------------------
+*.dbmdl
+*.jfm
+
+# ----------------------------
 # Logs and diagnostics
+# ----------------------------
 logs/
 *.log
 *.tlog
@@ -35,7 +66,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Node / Next.js caches and builds
+# ----------------------------
+# Node / Frontend
+# ----------------------------
 **/node_modules/
 **/.next/
 **/out/
@@ -44,29 +77,48 @@ lerna-debug.log*
 **/.turbo/
 **/.swc/
 **/.cache/
+**/.parcel-cache/
 **/*.tsbuildinfo
 
-# Coverage outputs
+# Next.js
+.next/
+
+# ----------------------------
+# Test / coverage
+# ----------------------------
 coverage/
 **/coverage/
+.vscode-test/
 
-# Environment variables
+# ----------------------------
+# Environment files
+# ----------------------------
 .env
 .env.*
+# keep examples
 !.env.example
 !.env.sample
 !.env.template
-# Local env files - DO NOT COMMIT
+# local env files - DO NOT COMMIT
 .env.local
 .env.development.local
 .env.production.local
 
-
+# ----------------------------
 # Misc
-*.pidb
-*.svclog
-*.njsproj
-*.ntvs*
-*.vspscc
-*.orig
+# ----------------------------
+*.swp
+*~
+*.lock
+node-repl-history
+.pnpm-store/
+.pnp.*
+
+# Do not ignore lockfiles (we keep them for reproducible installs):
+# package-lock.json, pnpm-lock.yaml, yarn.lock
+
+# project-specific / misc
 fq_gateway/
+
+# End of file
+
