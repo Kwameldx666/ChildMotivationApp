@@ -58,8 +58,7 @@ public static class InfrastructureExtensions
             .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
             .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
-                "Post sign-in redirect uri must be provided.")
-            .ValidateOnStart();
+                "Post sign-in redirect uri must be provided.");
     }
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
