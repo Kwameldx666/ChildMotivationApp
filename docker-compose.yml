@@ -24,8 +24,6 @@ services:
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
       Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/auth/google/callback}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-    env_file:
-      - AuthService/AuthService.Api/.env
     ports:
       - "8080:8080"
   user-service:
@@ -39,8 +37,6 @@ services:
       ASPNETCORE_URLS: http://+:8080
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-    env_file:
-      - UserService/UserService.Api/.env
     ports:
       - "8082:8080"
   gateway-service:
@@ -60,8 +56,6 @@ services:
       Services__UserService: http://user-service:8080/
       ServiceEndpoints__UserService__Profile: user-service/profile
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-    env_file:
-      - GatewayService/Gateway.Api/.env
     ports:
       - "8081:8081"
   frontend:
