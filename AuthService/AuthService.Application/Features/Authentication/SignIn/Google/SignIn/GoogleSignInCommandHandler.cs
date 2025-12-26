@@ -13,7 +13,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-namespace AuthService.Application.Features.Authentication.SignIn.GoogleSignIn;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.GoogleSignIn;
 
 public class GoogleSignInCommandHandler(
     IGoogleServiceClient googleServiceClient,

@@ -5,7 +5,7 @@ using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.SignIn.GetGoogleSession;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleSession;
 
 public class GetGoogleSessionQueryHandler(IOAuthSessionStore sessionStore)
     : IRequestHandler<GetGoogleSessionQuery, Result<ExternalLoginResponse>>

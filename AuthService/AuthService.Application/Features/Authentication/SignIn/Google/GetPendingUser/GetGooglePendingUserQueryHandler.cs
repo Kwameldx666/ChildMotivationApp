@@ -5,7 +5,7 @@ using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.SignIn.GetGooglePendingUser;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.GetGooglePendingUser;
 
 public class GetGooglePendingUserQueryHandler(IOAuthPendingUserStore pendingUserStore)
     : IRequestHandler<GetGooglePendingUserQuery, Result<GooglePendingUserResponse>>

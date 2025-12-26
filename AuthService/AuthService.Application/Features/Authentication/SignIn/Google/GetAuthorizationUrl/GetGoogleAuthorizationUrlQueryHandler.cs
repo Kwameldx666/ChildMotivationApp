@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 
-namespace AuthService.Application.Features.Authentication.SignIn.GetGoogleAuthorizationUrl;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleAuthorizationUrl;
 
 public class GetGoogleAuthorizationUrlQueryHandler(
     IGoogleStateStore stateStore,
