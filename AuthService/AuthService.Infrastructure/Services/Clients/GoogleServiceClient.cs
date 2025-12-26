@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using AuthService.Application.Abstractions.Infrastructure.Clients;
 using AuthService.Common.Constants.HttpUrls;
 using AuthService.Common.ExternalOptions.SignIn;
 using AuthService.Infrastructure.Constants;
-using AuthService.Infrastructure.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace AuthService.Infrastructure.Services.Clients;

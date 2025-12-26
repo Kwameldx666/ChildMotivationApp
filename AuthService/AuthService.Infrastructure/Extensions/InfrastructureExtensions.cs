@@ -1,5 +1,6 @@
 using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Application.Abstractions.Infrastructure.Clients;
+using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Common.Constants.HttpUrls;
 using AuthService.Domain.Entities;
@@ -10,6 +11,7 @@ using AuthService.Infrastructure.Services.Identity;
 using AuthService.Infrastructure.Services.OAuth;
 using AuthService.Infrastructure.Services.User;
 using AuthService.Infrastructure.Services.Quartz;
+using AuthService.Infrastructure.Services.Session;
 using AuthService.Persistence.Context;
 using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -36,6 +38,7 @@ public static class InfrastructureExtensions
         services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
         services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
 
+        services.AddScoped<IExternalLoginSessionBuilder, ExternalLoginSessionBuilder>();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserManagement, UserManagementService>();

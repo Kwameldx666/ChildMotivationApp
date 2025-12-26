@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Gateway.Application.Dto.Login;
+﻿using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;
 using Gateway.Application.Dto.Auth;
 
@@ -14,4 +13,8 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> GetGoogleSessionAsync(string token, CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetGooglePendingUserAsync(string token, CancellationToken cancellationToken);
     Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> GetGitHubAuthorizationAsync(CancellationToken cancellationToken);
+    Task<HttpResponseMessage> GetGitHubSessionAsync(string token, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> GetGitHubPendingUserAsync(string token, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGoogleSignInRequest request, CancellationToken cancellationToken);
 }

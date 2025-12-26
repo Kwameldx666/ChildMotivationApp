@@ -22,7 +22,7 @@ services:
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
-      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/auth/google/callback}
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8080:8080"

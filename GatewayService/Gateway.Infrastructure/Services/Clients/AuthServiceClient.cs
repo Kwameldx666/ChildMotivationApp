@@ -46,7 +46,8 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request,
+        CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync(
             HttpMethod.Post,
@@ -84,6 +85,44 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     }
 
     public async Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request,
+        CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.GoogleComplete,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> GetGitHubAuthorizationAsync(CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            _endpoints.GitHubAuthorize,
+            options: SerializerOptions,
+            cancellationToken: cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> GetGitHubSessionAsync(string token, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            $"{_endpoints.GitHubSession}/{token}",
+            options: SerializerOptions,
+            cancellationToken: cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> GetGitHubPendingUserAsync(string token, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            $"{_endpoints.GitHubPending}/{token}",
+            options: SerializerOptions,
+            cancellationToken: cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGoogleSignInRequest request,
         CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync(

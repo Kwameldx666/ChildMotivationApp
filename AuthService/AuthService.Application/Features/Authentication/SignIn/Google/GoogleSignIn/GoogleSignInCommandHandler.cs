@@ -2,18 +2,16 @@
 using System.Net;
 using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Application.Abstractions.Infrastructure.Clients;
-using AuthService.Application.Abstractions.Persistence;
+using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Dto.Auth.SignIn;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Extensions;
-using AuthService.Application.Options;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using AuthService.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace AuthService.Application.Features.Authentication.SignIn.GoogleSignIn;
 
@@ -21,11 +19,7 @@ public class GoogleSignInCommandHandler(
     IGoogleServiceClient googleServiceClient,
     IGoogleStateStore stateStore,
     UserManager<User> userManager,
-    RoleManager<IdentityRole<Guid>> roleManager,
-    ITokenProvider tokenProvider,
-    IRefreshTokenRepository refreshTokenRepository,
-    IUnitOfWork unitOfWork,
-    IOptions<JwtBearerOptions> jwtOptions,
+    IExternalLoginSessionBuilder externalLoginSessionBuilder,
     IOAuthPendingUserStore pendingUserStore,
     IOAuthSessionStore sessionStore,
     ILogger<GoogleSignInCommandHandler> logger)
@@ -40,7 +34,7 @@ public class GoogleSignInCommandHandler(
                 DefaultErrors.BadRequest("State parameter is invalid or expired."));
 
         var tokenHttpResponse = await googleServiceClient.RequestAccessToken(request.Code, cancellationToken);
-        var tokenRawBody = await tokenHttpResponse.Content.ReadAsStringAsync();
+        var tokenRawBody = await tokenHttpResponse.Content.ReadAsStringAsync(cancellationToken);
         var tokenResponse = await tokenHttpResponse.EnsureSuccessAndReadJsonAsync<GoogleTokenResponse>();
 
         if (!tokenResponse.IsSuccess)
@@ -79,7 +73,7 @@ public class GoogleSignInCommandHandler(
 
             if (!userInfoHttpResponse.IsSuccessStatusCode)
             {
-                var body = await userInfoHttpResponse.Content.ReadAsStringAsync();
+                var body = await userInfoHttpResponse.Content.ReadAsStringAsync(cancellationToken);
                 logger.LogWarning("Google userinfo request failed: Status={Status}, Body={Body}",
                     userInfoHttpResponse.StatusCode, body);
             }
@@ -131,14 +125,8 @@ public class GoogleSignInCommandHandler(
 
         if (existingUser is not null)
         {
-            var sessionResult = await ExternalLoginSessionBuilder.CreateAsync(
+            var sessionResult = await externalLoginSessionBuilder.CreateAsync(
                 existingUser,
-                userManager,
-                roleManager,
-                tokenProvider,
-                refreshTokenRepository,
-                unitOfWork,
-                jwtOptions,
                 cancellationToken);
 
             if (!sessionResult.IsSuccess)

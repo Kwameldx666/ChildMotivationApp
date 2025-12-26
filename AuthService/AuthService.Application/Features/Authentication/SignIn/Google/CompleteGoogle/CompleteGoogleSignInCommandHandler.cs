@@ -1,9 +1,9 @@
 using System.Net;
 using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Abstractions.Persistence;
+using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Features.Authentication.Shared;
-using AuthService.Application.Options;
+using AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.Constants.User;
 using AuthService.Common.ResultPattern;
@@ -11,18 +11,13 @@ using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
-namespace AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
 
 public class CompleteGoogleSignInCommandHandler(
     IOAuthPendingUserStore pendingUserStore,
     UserManager<User> userManager,
-    RoleManager<IdentityRole<Guid>> roleManager,
-    ITokenProvider tokenProvider,
-    IRefreshTokenRepository refreshTokenRepository,
-    IUnitOfWork unitOfWork,
-    IOptions<JwtBearerOptions> jwtOptions)
+    IExternalLoginSessionBuilder externalLoginSessionBuilder)
     : IRequestHandler<CompleteGoogleSignInCommand, Result<ExternalLoginResponse>>
 {
     public async Task<Result<ExternalLoginResponse>> Handle(CompleteGoogleSignInCommand request,
@@ -99,14 +94,8 @@ public class CompleteGoogleSignInCommandHandler(
                 DefaultErrors.BadRequest(error));
         }
 
-        var sessionResult = await ExternalLoginSessionBuilder.CreateAsync(
+        var sessionResult = await externalLoginSessionBuilder.CreateAsync(
             newUser,
-            userManager,
-            roleManager,
-            tokenProvider,
-            refreshTokenRepository,
-            unitOfWork,
-            jwtOptions,
             cancellationToken);
 
         return sessionResult;

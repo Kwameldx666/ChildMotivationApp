@@ -86,9 +86,13 @@ export const authApi = {
     await apiClient.post(`${AUTH_BASE_PATH}/register`, payload)
   },
 
-  async getGoogleAuthorization() {
-    const { data } = await apiClient.get<GoogleAuthorizationResponse>(`${AUTH_BASE_PATH}/google/authorize`)
+  async getOAuthAuthorization(provider: 'google' | 'github' | 'microsoft') {
+    const { data } = await apiClient.get<GoogleAuthorizationResponse>(`${AUTH_BASE_PATH}/${provider}/authorize`)
     return data
+  },
+
+  async getGoogleAuthorization() {
+    return this.getOAuthAuthorization('google')
   },
 
   async fetchGoogleSession(token: string) {
