@@ -14,9 +14,9 @@ public class GetGoogleAuthorizationUrlQueryHandler(
     IGoogleStateStore stateStore,
     IOptions<GoogleOptions> googleOptions,
     IOptions<GoogleEndpoints> googleEndpoints)
-    : IRequestHandler<GetGoogleAuthorizationUrlQuery, Result<GoogleAuthorizationResponse>>
+    : IRequestHandler<GetGoogleAuthorizationUrlQuery, Result<AuthorizationResponse>>
 {
-    public async Task<Result<GoogleAuthorizationResponse>> Handle(GetGoogleAuthorizationUrlQuery request,
+    public async Task<Result<AuthorizationResponse>> Handle(GetGoogleAuthorizationUrlQuery request,
         CancellationToken cancellationToken)
     {
         var options = googleOptions.Value;
@@ -28,8 +28,8 @@ public class GetGoogleAuthorizationUrlQueryHandler(
 
         var authorizationUrl = QueryHelpers.AddQueryString(endpoints.GoogleAuthorize, query);
 
-        var response = new GoogleAuthorizationResponse(authorizationUrl, state);
-        return Result<GoogleAuthorizationResponse>.Success(response);
+        var response = new AuthorizationResponse(authorizationUrl, state);
+        return Result<AuthorizationResponse>.Success(response);
     }
 
     private static Dictionary<string, string?> BuildGoogleAuthQuery(

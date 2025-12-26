@@ -4,4 +4,4 @@ using MediatR;
 
 namespace AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleAuthorizationUrl;
 
-public record GetGoogleAuthorizationUrlQuery : IRequest<Result<GoogleAuthorizationResponse>>;
+public record GetGoogleAuthorizationUrlQuery : IRequest<Result<AuthorizationResponse>>;

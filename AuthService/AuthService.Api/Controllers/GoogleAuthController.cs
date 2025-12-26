@@ -1,8 +1,8 @@
-﻿using AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
-using AuthService.Application.Features.Authentication.SignIn.GetGoogleAuthorizationUrl;
-using AuthService.Application.Features.Authentication.SignIn.GetGooglePendingUser;
-using AuthService.Application.Features.Authentication.SignIn.GetGoogleSession;
-using AuthService.Application.Features.Authentication.SignIn.GoogleSignIn;
+﻿using AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
+using AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleAuthorizationUrl;
+using AuthService.Application.Features.Authentication.SignIn.Google.GetGooglePendingUser;
+using AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleSession;
+using AuthService.Application.Features.Authentication.SignIn.Google.GoogleSignIn;
 using AuthService.Common.ExternalOptions.SignIn;
 using AuthService.Extensions;
 using MediatR;

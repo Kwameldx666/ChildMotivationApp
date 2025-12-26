@@ -2,7 +2,7 @@ using AuthService.Application.Dto.Auth.Login;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
 
 public record CompleteGoogleSignInCommand(
     string PendingToken,

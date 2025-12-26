@@ -3,7 +3,6 @@ using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Features.Authentication.Shared;
-using AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.Constants.User;
 using AuthService.Common.ResultPattern;
