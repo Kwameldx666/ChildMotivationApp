@@ -1,8 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace AuthService.Application.Abstractions.Infrastructure.Clients;
+﻿namespace AuthService.Application.Abstractions.Infrastructure.Clients;
 
 public interface IGoogleServiceClient
 {

@@ -71,6 +71,17 @@ function MicrosoftIcon(props: { className?: string }) {
   )
 }
 
+function GitHubIcon(props: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={props.className} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1-.02-1.97-3.2.7-3.88-1.38-3.88-1.38-.53-1.35-1.29-1.71-1.29-1.71-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.74.4-1.26.72-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.19a11 11 0 0 1 5.79 0c2.21-1.5 3.18-1.19 3.18-1.19.63 1.59.23 2.77.11 3.06.74.81 1.19 1.85 1.19 3.11 0 4.43-2.69 5.41-5.25 5.69.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.13 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"
+      />
+    </svg>
+  )
+}
+
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [step, setStep] = useState<Step>("credentials")
@@ -99,6 +110,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   }, [initialMode])
 
   const canGoBack = useMemo(() => step !== "credentials", [step])
+
+  // Client-side: disable final register submit until required fields are valid
+  const isRegisterFinishDisabled = useMemo(() => {
+    if (isLoading) return true
+    if (!name.trim() || !lastName.trim()) return true
+    if (step === "parent" && !familyName.trim()) return true
+    if (step === "child" && !childFamilyCode.trim()) return true
+    if (step === "child" && age.trim()) {
+      const parsed = Number(age)
+      if (Number.isNaN(parsed) || parsed < 1 || parsed > 120) return true
+    }
+    return false
+  }, [isLoading, name, lastName, familyName, childFamilyCode, age, step])
 
   const handleBack = () => {
     setError(null)
@@ -133,18 +157,28 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   }
 
   const submitOAuth = async (provider: OAuthProvider) => {
-    if (provider !== "google") {
-      setError("Интеграция с выбранным провайдером ещё не доступна.")
-      return
-    }
-
     setError(null)
     setIsLoading(true)
+
     try {
-      const { authorizationUrl } = await authApi.getGoogleAuthorization()
+      let authorizationUrl: string | undefined
+
+      if (provider === "google") {
+        authorizationUrl = (await authApi.getOAuthAuthorization('google')).authorizationUrl
+      } else if (provider === "github") {
+        authorizationUrl = (await authApi.getOAuthAuthorization('github')).authorizationUrl
+      } else if (provider === "microsoft") {
+        authorizationUrl = (await authApi.getOAuthAuthorization('microsoft')).authorizationUrl
+      } else {
+        setError("Интеграция с выбранным провайдером ещё не доступна.")
+        setIsLoading(false)
+        return
+      }
+
+      if (!authorizationUrl) throw new Error('Authorization URL not provided')
       window.location.href = authorizationUrl
     } catch (serviceError) {
-      setError(mapApiError(serviceError, "Не удалось начать вход через Google."))
+      setError(mapApiError(serviceError, "Не удалось начать вход через провайдера."))
       setIsLoading(false)
     }
   }
@@ -280,7 +314,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   {isLoading ? "Подождите..." : mode === "login" ? "Войти" : "Продолжить"}
                 </Button>
 
-                {mode === "login" && (
+                {(mode === "login" || mode === "register") && (
                   <>
                     <div className="relative my-2">
                       <div className="absolute inset-0 flex items-center">
@@ -305,12 +339,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => submitOAuth("apple")}
+                        onClick={() => submitOAuth("github")}
                         disabled={isLoading}
-                        aria-label="Войти через Apple"
+                        aria-label="Войти через GitHub"
                       >
-                        <AppleIcon className="h-5 w-5" />
-                        <span className="sr-only">Apple</span>
+                        <GitHubIcon className="h-5 w-5" />
+                        <span className="sr-only">GitHub</span>
                       </Button>
                       <Button
                         type="button"
@@ -389,11 +423,13 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label>Имя</Label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} />
+                    <Input required aria-invalid={!name.trim()} value={name} onChange={(e) => setName(e.target.value)} />
+                    {!name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                   </div>
                   <div>
                     <Label>Фамилия</Label>
-                    <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    <Input required aria-invalid={!lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    {!lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                   </div>
                 </div>
 
@@ -402,6 +438,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     <div>
                       <Label>Возраст (опционально)</Label>
                       <Input value={age} onChange={(e) => setAge(e.target.value)} inputMode="numeric" />
+                      {age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
+                        <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
+                      )}
                     </div>
                     <div>
                       <Label>Аватар</Label>
@@ -424,7 +463,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   <>
                     <div>
                       <Label>Название семьи</Label>
-                      <Input value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
+                      <Input required aria-invalid={!familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
+                      {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                     </div>
                     <div>
                       <Label>Эмблема</Label>
@@ -448,10 +488,13 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   <div>
                     <Label>Код семьи</Label>
                     <Input
+                      required
+                      aria-invalid={!childFamilyCode.trim()}
                       value={childFamilyCode}
                       onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
                       placeholder="ABC123"
                     />
+                    {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                   </div>
                 )}
 
@@ -460,9 +503,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 <Button
                   type="submit"
                   className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
-                  disabled={isLoading}
+                  disabled={isRegisterFinishDisabled}
                 >
-                  {isLoading ? "Подождите..." : "Зарегистрироваться"}
+                  {isRegisterFinishDisabled ? "Заполните обязательные поля" : isLoading ? "Подождите..." : "Зарегистрироваться"}
                 </Button>
               </form>
             </>

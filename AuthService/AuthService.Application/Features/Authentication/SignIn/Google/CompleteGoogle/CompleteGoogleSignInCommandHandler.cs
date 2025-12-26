@@ -3,6 +3,7 @@ using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Features.Authentication.Shared;
+using AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.Constants.User;
 using AuthService.Common.ResultPattern;
@@ -11,7 +12,7 @@ using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
 
 public class CompleteGoogleSignInCommandHandler(
     IOAuthPendingUserStore pendingUserStore,

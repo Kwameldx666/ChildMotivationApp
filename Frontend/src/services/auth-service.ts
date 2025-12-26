@@ -89,7 +89,7 @@ export const authService = {
     await httpClient.post('/api/auth/register', payload, { auth: false })
   },
 
-  async oauthSignIn(provider: 'google' | 'apple' | 'microsoft') {
+  async oauthSignIn(provider: 'google' | 'github' | 'apple' | 'microsoft') {
     const data = await httpClient.post<AuthPayload>('/api/auth/oauth', { provider }, { auth: false })
     const session = persistSession(data)
     if (!session) {

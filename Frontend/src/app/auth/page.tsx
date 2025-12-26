@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
+import { isAxiosError } from "@/api/api"
 import type { CompleteGoogleSignInPayload, GooglePendingUser, UserRole } from "@/features/auth/types"
 import { useAppDispatch } from "@/store/hooks"
 import { setSession } from "@/features/auth/store/authSlice"
@@ -33,7 +34,8 @@ export default function OAuthRedirectPage() {
   const errorParam = searchParams.get("oauth_error")
 
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [fatalError, setFatalError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
   const [pendingToken, setPendingToken] = useState<string | null>(null)
   const [pendingUser, setPendingUser] = useState<GooglePendingUser | null>(null)
   const [role, setRole] = useState<UserRole>("parent")
@@ -47,19 +49,19 @@ export default function OAuthRedirectPage() {
   useEffect(() => {
     const processStatus = async () => {
       if (!statusParam) {
-        setError("Неизвестный ответ аутентификации.")
+        setFatalError("Неизвестный ответ аутентификации.")
         setIsLoading(false)
         return
       }
 
       if (statusParam === "error") {
-        setError(errorParam ?? "Авторизация прервана пользователем.")
+        setFatalError(errorParam ?? "Авторизация прервана пользователем.")
         setIsLoading(false)
         return
       }
 
       if (!tokenParam) {
-        setError("Не удалось получить токен авторизации.")
+        setFatalError("Не удалось получить токен авторизации.")
         setIsLoading(false)
         return
       }
@@ -70,7 +72,7 @@ export default function OAuthRedirectPage() {
           dispatch(setSession(session))
           router.replace("/")
         } catch (err) {
-          setError(mapApiError(err, "Не удалось завершить вход."))
+          setFatalError(mapApiError(err, "Не удалось завершить вход."))
           setIsLoading(false)
         }
         return
@@ -86,7 +88,7 @@ export default function OAuthRedirectPage() {
           setLastName(defaultLastName)
           setIsLoading(false)
         } catch (err) {
-          setError(mapApiError(err, "Не удалось получить данные профиля."))
+          setFatalError(mapApiError(err, "Не удалось получить данные профиля."))
           setIsLoading(false)
         }
         return
@@ -105,13 +107,14 @@ export default function OAuthRedirectPage() {
     event.preventDefault()
     if (!pendingToken || !pendingUser) return
 
-    setError(null)
+    // clear form-only errors (do not touch fatal errors)
+    setFormError(null)
 
     const trimmedName = name.trim()
     const trimmedLastName = lastName.trim()
 
     if (!trimmedName || !trimmedLastName) {
-      setError("Введите имя и фамилию.")
+      setFormError("Введите имя и фамилию.")
       return
     }
 
@@ -122,25 +125,25 @@ export default function OAuthRedirectPage() {
     if (role === "parent") {
       normalizedFamilyName = familyName.trim()
       if (!normalizedFamilyName) {
-        setError("Введите название семьи.")
+        setFormError("Введите название семьи.")
         return
       }
     } else {
       normalizedFamilyCode = familyCode.trim().toUpperCase()
       if (!normalizedFamilyCode) {
-        setError("Введите код семьи.")
+        setFormError("Введите код семьи.")
         return
       }
 
       if (age.trim()) {
         const numericAge = Number(age.trim())
         if (Number.isNaN(numericAge) || numericAge < 1 || numericAge > 120) {
-          setError("Возраст должен быть числом от 1 до 120.")
+          setFormError("Возраст должен быть числом от 1 до 120.")
           return
         }
         parsedAge = numericAge
       } else {
-        setError("Введите возраст ребёнка.")
+        setFormError("Введите возраст ребёнка.")
         return
       }
     }
@@ -163,7 +166,14 @@ export default function OAuthRedirectPage() {
       dispatch(setSession(session))
       router.replace("/")
     } catch (err) {
-      setError(mapApiError(err, "Не удалось завершить регистрацию."))
+      // Treat client/validation errors (4xx) as form errors; server/fatal as fatal
+      const status = (err as any)?.response?.status
+      const mapped = mapApiError(err, "Не удалось завершить регистрацию.")
+      if (status && status >= 400 && status < 500) {
+        setFormError(mapped)
+      } else {
+        setFatalError(mapped)
+      }
       setIsSubmitting(false)
     }
   }
@@ -176,13 +186,13 @@ export default function OAuthRedirectPage() {
     )
   }
 
-  if (error) {
+  if (fatalError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 space-y-4">
             <h1 className="text-xl font-semibold">Что-то пошло не так</h1>
-            <p className="text-sm text-muted-foreground whitespace-pre-line">{error}</p>
+            <p className="text-sm text-muted-foreground whitespace-pre-line">{fatalError}</p>
             <Button onClick={() => router.replace("/")}>Вернуться на главную</Button>
           </CardContent>
         </Card>
@@ -218,8 +228,8 @@ export default function OAuthRedirectPage() {
             </div>
           )}
 
-          {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded whitespace-pre-line">{error}</div>
+          {formError && (
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded whitespace-pre-line">{formError}</div>
           )}
 
           <form className="space-y-4" onSubmit={handleSubmitPending}>

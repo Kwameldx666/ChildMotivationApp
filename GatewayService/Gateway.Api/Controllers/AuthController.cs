@@ -45,6 +45,12 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         return await response.ToActionResultAsync();
     }
 
+    public async Task<IActionResult> GetGitHubAuthorizationAsync(CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetGitHubAuthorizationAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     [HttpGet("google/session/{token}")]
     public async Task<IActionResult> GetGoogleSessionAsync([FromRoute] string token, CancellationToken cancellationToken)
     {

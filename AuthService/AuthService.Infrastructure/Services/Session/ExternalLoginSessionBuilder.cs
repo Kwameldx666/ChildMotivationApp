@@ -1,28 +1,27 @@
-using System.Net;
 using AuthService.Application.Abstractions.Infrastructure;
+using AuthService.Application.Abstractions.Infrastructure.Session;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Options;
 using AuthService.Common.Constants.Claim;
-using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace AuthService.Application.Features.Authentication.SignIn;
+namespace AuthService.Infrastructure.Services.Session;
 
-internal static class ExternalLoginSessionBuilder
+public class ExternalLoginSessionBuilder(
+    UserManager<Domain.Entities.User> userManager,
+    RoleManager<IdentityRole<Guid>> roleManager,
+    ITokenProvider tokenProvider,
+    IRefreshTokenRepository refreshTokenRepository,
+    IUnitOfWork unitOfWork,
+    IOptions<JwtBearerOptions> jwtOptions
+) : IExternalLoginSessionBuilder
 {
-    public static async Task<Result<ExternalLoginResponse>> CreateAsync(
-        User user,
-        UserManager<User> userManager,
-        RoleManager<IdentityRole<Guid>> roleManager,
-        ITokenProvider tokenProvider,
-        IRefreshTokenRepository refreshTokenRepository,
-        IUnitOfWork unitOfWork,
-        IOptions<JwtBearerOptions> jwtOptions,
+    public async Task<Result<ExternalLoginResponse>> CreateAsync(
+        Domain.Entities.User user,
         CancellationToken cancellationToken)
     {
         var roles = await userManager.GetRolesAsync(user);
@@ -95,11 +94,5 @@ internal static class ExternalLoginSessionBuilder
             family);
 
         return Result<ExternalLoginResponse>.Success(response);
-    }
-
-    public static Result<ExternalLoginResponse> Failure(string message)
-    {
-        return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
-            DefaultErrors.BadRequest(message));
     }
 }

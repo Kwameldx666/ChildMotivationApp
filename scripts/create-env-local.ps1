@@ -74,7 +74,7 @@ function Get-Value([string]$key, [string]$prompt, [string]$default="") {
 $authJwt = Get-Value 'AUTH_JWT_SECRET' 'AUTH_JWT_SECRET' "$(New-Guid)"
 $authGoogleId = Get-Value 'AUTH_GOOGLE_CLIENT_ID' 'AUTH_GOOGLE_CLIENT_ID'
 $authGoogleSecret = Get-Value 'AUTH_GOOGLE_CLIENT_SECRET' 'AUTH_GOOGLE_CLIENT_SECRET'
-$authGoogleRedirect = Get-Value 'AUTH_GOOGLE_REDIRECT_URI' 'AUTH_GOOGLE_REDIRECT_URI' "http://localhost:8080/auth-service/auth/google/callback"
+$authGoogleRedirect = Get-Value 'AUTH_GOOGLE_REDIRECT_URI' 'AUTH_GOOGLE_REDIRECT_URI' "http://localhost:8080/auth-service/google/callback"
 $authDb = Get-Value 'AUTH_DB_CONNECTION' 'AUTH_DB_CONNECTION' "Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres"
 $gatewayJwt = Get-Value 'GATEWAY_JWT_SECRET' 'GATEWAY_JWT_SECRET' "$(New-Guid)"
 $nextApi = Get-Value 'NEXT_PUBLIC_API_URL' 'NEXT_PUBLIC_API_URL' "http://localhost:8081"

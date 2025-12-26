@@ -1,6 +1,9 @@
-﻿namespace AuthService.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class GitHubAuthController
+namespace AuthService.Controllers;
+
+[Route("auth-service/github")]
+public class GitHubAuthController : ControllerBase
 {
     
 }
