@@ -104,6 +104,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   // UX: track user interaction to avoid showing validation errors immediately
   const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [emailTouched, setEmailTouched] = useState(false)
   const [nameTouched, setNameTouched] = useState(false)
   const [lastNameTouched, setLastNameTouched] = useState(false)
   const [familyNameTouched, setFamilyNameTouched] = useState(false)
@@ -117,11 +118,15 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
 
 
+  // Simple email validator (not fully RFC, but practical)
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
   // Client-side: disable register submit until required fields are valid
   const isRegisterFinishDisabled = useMemo(() => {
     if (mode !== "register") return true
     if (isLoading) return true
     if (!email || !password) return true
+    if (!isValidEmail(email)) return true
     if (!name.trim() || !lastName.trim()) return true
     if (role === "parent" && !familyName.trim()) return true
     if (role === "child" && !childFamilyCode.trim()) return true
@@ -142,9 +147,15 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     e.preventDefault()
     setError(null)
     setInfo(null)
+    setSubmitAttempted(true)
 
     if (!email || !password) {
       setError("Введите email и пароль.")
+      return
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Введите корректный email.")
       return
     }
 
@@ -193,6 +204,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
     if (!email || !password) {
       setError("Введите email и пароль.")
+      return
+    }
+    if (!isValidEmail(email)) {
+      setError("Введите корректный email.")
       return
     }
     if (password.length < 6) {
@@ -258,11 +273,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       setMode("login")
       setError(null)
       setSubmitAttempted(false)
+      setEmailTouched(false)
       setNameTouched(false)
       setLastNameTouched(false)
       setFamilyNameTouched(false)
       setChildFamilyCodeTouched(false)
-      setAgeTouched(false)
+      setAgeTouched(false) 
     } catch (serviceError) {
       setError(mapApiError(serviceError, "Не удалось зарегистрироваться."))
     } finally {
@@ -289,7 +305,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
                 <div>
                   <Label>Email</Label>
-                  <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => setEmailTouched(true)} placeholder="you@example.com" aria-invalid={(emailTouched || submitAttempted) && !isValidEmail(email)} />
+                  {(emailTouched || submitAttempted) && !isValidEmail(email) && <p className="text-xs text-destructive mt-1">Введите корректный email</p>}
                 </div>
                 <div>
                   <Label>Пароль</Label>
