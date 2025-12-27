@@ -1,6 +1,6 @@
 ﻿using AuthService.Application.Enums;
 
-namespace AuthService.Application.Features.Authentication.SignIn.Shared.Dto;
+namespace AuthService.Application.Features.Authentication.External.Shared.Dto;
 
 public class ExternalSignInResult(ExternalSignInStatus status, string token)
 {

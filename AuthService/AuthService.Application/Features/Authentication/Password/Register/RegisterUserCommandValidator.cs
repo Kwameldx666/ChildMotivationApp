@@ -1,7 +1,7 @@
-using FluentValidation;
 using AuthService.Domain.Enums;
+using FluentValidation;
 
-namespace AuthService.Application.Features.Authentication.RegisterUser;
+namespace AuthService.Application.Features.Authentication.Register;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {

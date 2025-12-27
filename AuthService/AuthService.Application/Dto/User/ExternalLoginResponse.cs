@@ -1,6 +1,7 @@
-﻿using AuthService.Application.Dto.User;
+﻿using AuthService.Application.Models.Auth.Login;
+using AuthService.Application.Models.User;
 
-namespace AuthService.Application.Dto.Auth.Login;
+namespace AuthService.Application.Features.Authentication.External.Shared.Dto;
 
 public class ExternalLoginResponse(
     string accessToken,

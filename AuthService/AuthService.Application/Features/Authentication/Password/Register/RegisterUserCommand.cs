@@ -1,7 +1,7 @@
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.RegisterUser;
+namespace AuthService.Application.Features.Authentication.Register;
 
 public record RegisterUserCommand(
     string Email,

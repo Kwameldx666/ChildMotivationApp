@@ -1,25 +1,19 @@
-using System;
-using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
-using AuthService.Common.Constants;
-using AuthService.Common.Constants.Errors;
-using AuthService.Common.Constants.User;
-using AuthService.Common.ResultPattern;
 using AuthService.Application.Features.Authentication.Shared;
-using AuthService.Domain.Entities;
+using AuthService.Application.User;
+using AuthService.Common.Constants.Errors;
+using AuthService.Common.ResultPattern;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
-namespace AuthService.Application.Features.Authentication.RegisterUser;
+namespace AuthService.Application.Features.Authentication.Register;
 
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result>
 {
-    private readonly UserManager<User> _userManager;
+    private readonly UserManager<Domain.Entities.User> _userManager;
 
-    public RegisterUserCommandHandler(UserManager<User> userManager)
+    public RegisterUserCommandHandler(UserManager<Domain.Entities.User> userManager)
     {
         _userManager = userManager;
     }
@@ -43,7 +37,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             cancellationToken);
         if (errorResult is not null) return errorResult;
 
-        var newUser = new User
+        var newUser = new Domain.Entities.User
         {
             Email = request.Email,
             UserName = request.Email,

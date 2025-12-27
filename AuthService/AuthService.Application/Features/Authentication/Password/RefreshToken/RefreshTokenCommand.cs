@@ -1,4 +1,4 @@
-using AuthService.Application.Dto.Auth.Login;
+using AuthService.Application.Models.Auth.Login;
 using AuthService.Common.ResultPattern;
 using MediatR;
 

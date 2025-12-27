@@ -1,27 +1,24 @@
 ﻿using System.Net;
-using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Application.Abstractions.Persistence;
-using AuthService.Application.Dto.Auth.Login;
-using AuthService.Application.Dto.User;
-using AuthService.Application.Options;
-using AuthService.Common.Constants.Claim;
+using AuthService.Application.Claim;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Models.Auth.Login;
+using AuthService.Application.Models.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
-namespace AuthService.Application.Features.Authentication.LoginUser;
+namespace AuthService.Application.Features.Authentication.Login;
 
 public class LoginUserCommandHandler(
-    UserManager<User> userManager,
+    UserManager<Domain.Entities.User> userManager,
     RoleManager<IdentityRole<Guid>> roleManager,
     ITokenProvider tokenProvider,
     IRefreshTokenRepository refreshTokenRepository,
-    IUnitOfWork unitOfWork,
-    IOptions<JwtBearerOptions> jwtOptions)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<LoginUserCommand, Result<LoginResponse>>
 {
     public async Task<Result<LoginResponse>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -56,7 +53,7 @@ public class LoginUserCommandHandler(
 
         var generateTokenResponse = await tokenProvider.GenerateAccessToken(tokenArgs, cancellationToken);
 
-        var refreshTokenExpiresOnUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenLifetime);
+        var refreshTokenExpiresOnUtc = tokenProvider.ProvideAccessTokenLifetime();
 
         var refreshToken = await refreshTokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
 

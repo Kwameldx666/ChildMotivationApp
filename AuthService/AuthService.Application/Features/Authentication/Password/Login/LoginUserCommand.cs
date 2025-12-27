@@ -1,8 +1,7 @@
-﻿using AuthService.Application.Dto;
-using AuthService.Application.Dto.Auth.Login;
+﻿using AuthService.Application.Models.Auth.Login;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.LoginUser;
+namespace AuthService.Application.Features.Authentication.Login;
 
 public record LoginUserCommand(string Email, string Password) : IRequest<Result<LoginResponse>>;

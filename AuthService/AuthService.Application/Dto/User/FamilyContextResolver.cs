@@ -18,7 +18,7 @@ internal static class FamilyContextResolver
     private const int GeneratedCodeLength = 6;
 
     public static async Task<(string? code, string? name, string? emblem, Result? error)> ResolveAsync(
-        UserManager<User> userManager,
+        UserManager<Domain.Entities.User> userManager,
         UserType userType,
         string? code,
         string? familyName,
@@ -74,7 +74,7 @@ internal static class FamilyContextResolver
         return (fallbackCode, fallbackName, fallbackEmblem, null);
     }
 
-    private static async Task<string> GenerateUniqueFamilyCodeAsync(UserManager<User> userManager,
+    private static async Task<string> GenerateUniqueFamilyCodeAsync(UserManager<Domain.Entities.User> userManager,
         CancellationToken cancellationToken)
     {
         const int maxAttempts = 32;

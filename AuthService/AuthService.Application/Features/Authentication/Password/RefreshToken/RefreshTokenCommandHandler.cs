@@ -1,13 +1,11 @@
 using System.Net;
-using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Application.Abstractions.Persistence;
-using AuthService.Application.Dto.Auth.Login;
-using AuthService.Application.Dto.User;
-using AuthService.Application.Options;
-using AuthService.Common.Constants.Claim;
+using AuthService.Application.Claim;
+using AuthService.Application.Models.Auth.Login;
+using AuthService.Application.Models.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -18,13 +16,10 @@ public class RefreshTokenCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,
     ITokenProvider tokenProvider,
     IUnitOfWork unitOfWork,
-    IOptions<JwtBearerOptions> jwtOptions,
-    UserManager<User> userManager,
+    UserManager<Domain.Entities.User> userManager,
     RoleManager<IdentityRole<Guid>> roleManager)
     : IRequestHandler<RefreshTokenCommand, Result<LoginResponse>>
 {
-    private readonly JwtBearerOptions _jwtOptions = jwtOptions.Value;
-
     public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.RefreshToken))
@@ -52,7 +47,7 @@ public class RefreshTokenCommandHandler(
         var tokenResponse = await tokenProvider.GenerateAccessToken(userArgs, cancellationToken);
 
         refreshToken.Token = tokenResponse.RefreshToken;
-        refreshToken.ExpiresOnUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenLifetime);
+        refreshToken.ExpiresOnUtc = tokenProvider.ProvideRefreshTokenLifetime();
 
         refreshTokenRepository.Update(refreshToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -62,7 +57,7 @@ public class RefreshTokenCommandHandler(
         return Result<LoginResponse>.Success(response);
     }
 
-    private async Task<UserArgs> BuildUserArgsAsync(User user)
+    private async Task<UserArgs> BuildUserArgsAsync(Domain.Entities.User user)
     {
         var roles = await userManager.GetRolesAsync(user);
         var scopeSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
