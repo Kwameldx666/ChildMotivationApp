@@ -1,11 +1,11 @@
 ﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Dto.Auth.Login;
-using AuthService.Application.Dto.User;
-using AuthService.Application.Options;
-using AuthService.Common.Constants.Claim;
+using AuthService.Application.Abstractions.Authentication.Internal;
+using AuthService.Application.Claim;
+using AuthService.Application.Models.Auth.Login;
+using AuthService.Application.Models.User;
+using AuthService.Infrastructure.Options.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -62,5 +62,15 @@ public class JwtBearerProvider(IOptions<JwtBearerOptions> options)
     public string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(_optionValues.RefreshTokenLength));
+    }
+
+    public DateTime ProvideAccessTokenLifetime()
+    {
+        return DateTime.UtcNow.AddDays(options.Value.RefreshTokenLifetime);
+    }
+
+    public DateTime ProvideRefreshTokenLifetime()
+    {
+        return DateTime.UtcNow.AddDays(options.Value.RefreshTokenLifetime);
     }
 }

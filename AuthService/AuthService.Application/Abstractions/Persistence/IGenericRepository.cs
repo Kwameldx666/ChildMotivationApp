@@ -1,4 +1,4 @@
-﻿namespace AuthService.Application.Abstractions;
+﻿namespace AuthService.Application.Abstractions.Persistence;
 
 public interface IGenericRepository<TEntity, in TEntityId>
     where TEntity : class

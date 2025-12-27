@@ -1,9 +1,8 @@
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
-using AuthService.Application.Dto.Auth.Login;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AuthService.Infrastructure.Services.OAuth;
+namespace AuthService.Infrastructure.Common;
 
 public class OAuthSessionStore(IMemoryCache cache) : IOAuthSessionStore
 {

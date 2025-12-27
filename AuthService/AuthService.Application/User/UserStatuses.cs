@@ -1,4 +1,4 @@
-namespace AuthService.Common.Constants.User;
+namespace AuthService.Application.User;
 
 public static class UserStatuses
 {

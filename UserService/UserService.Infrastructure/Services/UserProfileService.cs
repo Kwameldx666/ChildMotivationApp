@@ -3,7 +3,7 @@ using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using UserService.Application.Abstractions;
+using UserService.Application.Interfaces;
 using UserService.Application.Dto.User;
 using UserService.Application.Features.Profile;
 

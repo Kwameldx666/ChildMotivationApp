@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Interfaces.Infrastructure;
 using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;

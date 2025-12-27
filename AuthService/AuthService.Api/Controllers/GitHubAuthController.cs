@@ -1,4 +1,5 @@
-﻿using AuthService.Application.Features.Authentication.SignIn.GitHub;
+﻿using AuthService.Application.Features.Authentication.External.GitHub.GetAuthorizationUrl;
+using AuthService.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

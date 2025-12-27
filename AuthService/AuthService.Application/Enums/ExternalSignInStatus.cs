@@ -1,6 +1,7 @@
 ﻿namespace AuthService.Application.Enums;
 
-public class ExternalSignInStatus
+public enum ExternalSignInStatus
 {
-    
+    Authenticated,
+    Pending
 }

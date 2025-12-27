@@ -1,17 +1,17 @@
-using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Abstractions.Infrastructure.Clients;
-using AuthService.Application.Abstractions.Infrastructure.Session;
-using AuthService.Application.Abstractions.Persistence;
-using AuthService.Common.Constants.HttpUrls;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Abstractions.Authentication.Internal;
+using AuthService.Application.Dto.User;
 using AuthService.Domain.Entities;
-using AuthService.Common.ExternalOptions.SignIn;
+using AuthService.Infrastructure.Common;
+using AuthService.Infrastructure.Options.External;
+using AuthService.Infrastructure.Options.JwtBearer;
+using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Clients;
 using AuthService.Infrastructure.Services.Identity;
 using AuthService.Infrastructure.Services.OAuth;
-using AuthService.Infrastructure.Services.User;
+using AuthService.Infrastructure.Services.OAuth.Google;
 using AuthService.Infrastructure.Services.Quartz;
-using AuthService.Infrastructure.Services.Session;
 using AuthService.Persistence.Context;
 using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
-using JwtBearerOptions = AuthService.Application.Options.JwtBearerOptions;
+
 
 namespace AuthService.Infrastructure.Extensions;
 
@@ -34,14 +34,13 @@ public static class InfrastructureExtensions
         services.AddProxies();
 
         services.AddMemoryCache();
-        services.AddSingleton<IGoogleStateStore, GoogleStateStore>();
+        services.AddSingleton<IOAuthStateStore, GoogleStateStore>();
+        services.AddSingleton<IOAuthStateStore, GoogleStateStore>();
         services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
-        services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
+        services.AddSingleton<OAuthPendingUserStore, OAuthPendingUserStore>();
 
         services.AddScoped<IExternalLoginSessionBuilder, ExternalLoginSessionBuilder>();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUserManagement, UserManagementService>();
 
         return services;
     }
@@ -60,6 +59,13 @@ public static class InfrastructureExtensions
             .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Client secret must be provided.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
             .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
+            .ValidateOnStart();
+
+        services.AddOptions<GitHubOptions>()
+            .Bind(configuration.GetSection("Authentication:GitHub"))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Client secret must be provided.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
+            .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
                 "Post sign-in redirect uri must be provided.")
             .ValidateOnStart();
@@ -74,7 +80,7 @@ public static class InfrastructureExtensions
     {
         services.AddHttpClient();
 
-        services.AddScoped<IGoogleServiceClient, GoogleServiceClient>();
+        services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
     }
 
     private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)

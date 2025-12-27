@@ -1,0 +1,9 @@
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
+
+namespace AuthService.Application.Abstractions.Authentication.External;
+
+public interface IOAuthSessionStore
+{
+    Task<string> StoreAsync(ExternalLoginResponse session, CancellationToken cancellationToken);
+    Task<ExternalLoginResponse?> TakeAsync(string token, CancellationToken cancellationToken);
+}

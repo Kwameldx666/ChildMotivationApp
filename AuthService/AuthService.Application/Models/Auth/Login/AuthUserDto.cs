@@ -1,4 +1,4 @@
-namespace AuthService.Application.Dto.Auth.Login;
+namespace AuthService.Application.Models.Auth.Login;
 
 public record AuthUserDto(
     string Id,

@@ -1,5 +1,5 @@
 using System;
-using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Interfaces.Infrastructure;
 using Gateway.Application.Dto.Profile;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;

@@ -1,23 +1,22 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using AuthService.Application.Abstractions.Authentication;
+using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Enums;
 using AuthService.Application.Extensions;
-using AuthService.Application.Features.Authentication.SignIn.Shared.Dto;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-namespace AuthService.Application.Features.Authentication.SignIn.Google.SignIn;
+namespace AuthService.Application.Features.Authentication.External.Google.SignIn;
 
 public class GoogleSignInCommandHandler(
-    IExternalServiceClient googleServiceClient,
+    IExternalAuthProvider googleServiceClient,
     IOAuthStateStore stateStore,
-    UserManager<User> userManager,
+    UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder,
     IOAuthPendingUserStore pendingUserStore,
     IOAuthSessionStore sessionStore,
@@ -27,13 +26,11 @@ public class GoogleSignInCommandHandler(
     public async Task<Result<ExternalSignInResult>> Handle(GoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
-        // 1. Проверка state
         var stateValid = await stateStore.ValidateStateAsync(request.State, cancellationToken);
         if (!stateValid)
             return Result<ExternalSignInResult>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("State parameter is invalid or expired."));
 
-        // 2. Запрос токена у Google
         var tokenHttpResponse = await googleServiceClient.RequestAccessToken(request.Code, cancellationToken);
         var tokenRawBody = await tokenHttpResponse.Content.ReadAsStringAsync(cancellationToken);
         var googleToken = await tokenHttpResponse.EnsureSuccessAndReadJsonAsync<GoogleTokenResponse>();
@@ -56,8 +53,7 @@ public class GoogleSignInCommandHandler(
                     $"Google OAuth error: {googleToken.Value.Error} - {googleToken.Value.ErrorDescription}"));
         }
 
-        // 3. Получение информации о пользователе
-        GoogleUserInfo userInfo;
+        ExternalUserInfo userInfo;
 
         if (!string.IsNullOrWhiteSpace(googleToken.Value?.AccessToken))
         {
@@ -71,7 +67,7 @@ public class GoogleSignInCommandHandler(
                     userInfoHttpResponse.StatusCode, body);
             }
 
-            var userInfoResponse = await userInfoHttpResponse.EnsureSuccessAndReadJsonAsync<GoogleUserInfo>();
+            var userInfoResponse = await userInfoHttpResponse.EnsureSuccessAndReadJsonAsync<ExternalUserInfo>();
             if (!userInfoResponse.IsSuccess)
                 return Result.Failure<ExternalSignInResult>(userInfoResponse.StatusCode, userInfoResponse.Error!);
 
@@ -79,13 +75,12 @@ public class GoogleSignInCommandHandler(
         }
         else if (!string.IsNullOrWhiteSpace(googleToken.Value?.IdToken))
         {
-            // Декодирование id_token
             try
             {
                 var handler = new JwtSecurityTokenHandler();
                 var jwt = handler.ReadJwtToken(googleToken.Value.IdToken);
 
-                userInfo = new GoogleUserInfo
+                userInfo = new ExternalUserInfo
                 {
                     Email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? string.Empty,
                     Name = jwt.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? string.Empty,
@@ -106,7 +101,6 @@ public class GoogleSignInCommandHandler(
                 DefaultErrors.BadRequest("No access token or id token was returned by Google."));
         }
 
-        // 4. Проверка существующего пользователя
         var existingUser = await userManager.FindByEmailAsync(userInfo.Email);
         if (existingUser is not null)
         {
@@ -119,17 +113,17 @@ public class GoogleSignInCommandHandler(
             return Result<ExternalSignInResult>.Success(result);
         }
 
-        // 5. Pending user
-        var pendingUser = new GooglePendingUser
+        var pendingUser = new ExternalUserInfo
         {
             Email = userInfo.Email,
             Name = userInfo.Name,
             Picture = userInfo.Picture,
-            Subject = userInfo.Sub
+            Sub = userInfo.Sub
         };
 
         var pendingToken = await pendingUserStore.StoreAsync(pendingUser, cancellationToken);
         var pendingResult = new ExternalSignInResult(ExternalSignInStatus.Pending, pendingToken);
+
         return Result<ExternalSignInResult>.Success(pendingResult);
     }
 }

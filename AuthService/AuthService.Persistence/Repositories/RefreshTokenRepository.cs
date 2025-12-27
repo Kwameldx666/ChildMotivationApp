@@ -1,11 +1,13 @@
-﻿using AuthService.Application.Abstractions.Persistence;
+﻿using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Persistence.Repositories;
 
-public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenRepository
+public class RefreshTokenRepository(AuthDbContext context)
+    : IRefreshTokenRepository
 {
     public async Task<RefreshToken?> GetByTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {

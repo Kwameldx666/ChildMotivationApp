@@ -1,29 +1,26 @@
 using System.Net;
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
-using AuthService.Application.Dto.Auth.Login;
-using AuthService.Application.Dto.User;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using AuthService.Application.Features.Authentication.Shared;
+using AuthService.Application.User;
 using AuthService.Common.Constants.Errors;
-using AuthService.Common.Constants.User;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
 
 public class CompleteGoogleSignInCommandHandler(
     IOAuthPendingUserStore pendingUserStore,
-    UserManager<User> userManager,
+    UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder)
     : IRequestHandler<CompleteGoogleSignInCommand, Result<ExternalLoginResponse>>
 {
     public async Task<Result<ExternalLoginResponse>> Handle(CompleteGoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
-        var pendingUser = await pendingUserStore.TakeAsync<GooglePendingUser>(request.PendingToken, cancellationToken);
+        var pendingUser = await pendingUserStore.TakeAsync(request.PendingToken, cancellationToken);
         if (pendingUser is null)
             return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Registration token is invalid or has expired."));
@@ -60,7 +57,7 @@ public class CompleteGoogleSignInCommandHandler(
 
         var avatar = string.IsNullOrWhiteSpace(request.Avatar) ? pendingUser.Picture : request.Avatar!.Trim();
 
-        var newUser = new User
+        var newUser = new Domain.Entities.User
         {
             Email = pendingUser.Email,
             UserName = pendingUser.Email,

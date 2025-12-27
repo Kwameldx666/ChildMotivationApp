@@ -1,7 +1,7 @@
 using System.Net.Http;
 using Gateway.Application.Dto.Profile;
 
-namespace Gateway.Application.Abstractions.Infrastructure;
+namespace Gateway.Application.Interfaces.Infrastructure;
 
 public interface IUserServiceClient
 {

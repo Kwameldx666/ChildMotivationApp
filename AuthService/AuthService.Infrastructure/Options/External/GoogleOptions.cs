@@ -1,4 +1,6 @@
-﻿namespace AuthService.Infrastructure.ExternalOptions.SignIn;
+﻿using AuthService.Application.Dto.User;
+
+namespace AuthService.Infrastructure.Options.External;
 
 public class GoogleOptions
 {

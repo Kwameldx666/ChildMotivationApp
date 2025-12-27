@@ -1,12 +1,11 @@
 using System.Net;
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
-using AuthService.Application.Dto.Auth.Login;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.SignIn.Google.GetSession;
+namespace AuthService.Application.Features.Authentication.External.Google.GetSession;
 
 public class GetGoogleSessionQueryHandler(IOAuthSessionStore sessionStore)
     : IRequestHandler<GetGoogleSessionQuery, Result<ExternalLoginResponse>>

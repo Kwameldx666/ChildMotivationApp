@@ -1,6 +1,6 @@
 using UserService.Application.Dto.User;
 
-namespace UserService.Application.Abstractions;
+namespace UserService.Application.Interfaces;
 
 public interface IUserProfileProvider
 {

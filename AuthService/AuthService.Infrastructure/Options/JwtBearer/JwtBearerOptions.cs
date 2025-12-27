@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AuthService.Application.Abstractions.Authentication.Internal;
 
-namespace AuthService.Infrastructure.ExternalOptions.JwtBearer;
+namespace AuthService.Infrastructure.Options.JwtBearer;
 
 public class JwtBearerOptions
 {

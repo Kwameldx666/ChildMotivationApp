@@ -1,6 +1,6 @@
 ﻿using AuthService.Domain.Entities;
 
-namespace AuthService.Application.Abstractions;
+namespace AuthService.Application.Abstractions.Persistence;
 
 public interface IRefreshTokenRepository
 {

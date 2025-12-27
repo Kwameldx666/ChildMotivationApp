@@ -1,7 +1,6 @@
-﻿
-namespace AuthService.Infrastructure.ExternalAuth.Google;
+﻿namespace AuthService.Infrastructure.Options.External;
 
-public class GoogleEndpoints 
+public class GoogleEndpoints
 {
     public string GoogleToken { get; set; } = null!;
     public string GoogleUserInfo { get; set; } = null!;

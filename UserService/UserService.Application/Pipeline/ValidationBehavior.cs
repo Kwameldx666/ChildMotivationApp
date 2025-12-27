@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace UserService.Application.Behavior;
+namespace UserService.Application.Pipeline;
 
 public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>

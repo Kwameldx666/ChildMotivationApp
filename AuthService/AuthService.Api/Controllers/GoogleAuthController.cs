@@ -1,10 +1,10 @@
-﻿using AuthService.Application.Features.Authentication.SignIn.Google.CompleteGoogle;
-using AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleAuthorizationUrl;
-using AuthService.Application.Features.Authentication.SignIn.Google.GetGooglePendingUser;
-using AuthService.Application.Features.Authentication.SignIn.Google.GetGoogleSession;
-using AuthService.Application.Features.Authentication.SignIn.Google.GoogleSignIn;
-using AuthService.Common.ExternalOptions.SignIn;
+﻿using AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
+using AuthService.Application.Features.Authentication.External.Google.GetAuthorizationUrl;
+using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
+using AuthService.Application.Features.Authentication.External.Google.GetSession;
+using AuthService.Application.Features.Authentication.External.Google.SignIn;
 using AuthService.Extensions;
+using AuthService.Infrastructure.Options.External;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;

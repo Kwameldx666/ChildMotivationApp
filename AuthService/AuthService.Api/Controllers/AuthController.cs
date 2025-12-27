@@ -1,6 +1,6 @@
-using AuthService.Application.Features.Authentication.LoginUser;
+using AuthService.Application.Features.Authentication.Login;
 using AuthService.Application.Features.Authentication.RefreshToken;
-using AuthService.Application.Features.Authentication.RegisterUser;
+using AuthService.Application.Features.Authentication.Register;
 using AuthService.Application.Features.Authentication.RevokeToken;
 using AuthService.Extensions;
 using MediatR;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AuthService.Controllers;
 
 [ApiController]
-[Route("auth-service/")]
+[Route("auth-service")]
 public class AuthController(IMediator mediator) : ControllerBase
 {
     [HttpPost("register")]

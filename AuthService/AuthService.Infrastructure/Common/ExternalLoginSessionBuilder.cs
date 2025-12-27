@@ -1,15 +1,16 @@
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Application.Abstractions.Persistence;
-using AuthService.Application.Dto.Auth.Login;
-using AuthService.Application.Dto.User;
-using AuthService.Application.Options;
-using AuthService.Common.Constants.Claim;
+using AuthService.Application.Claim;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Models.Auth.Login;
+using AuthService.Application.Models.User;
 using AuthService.Common.ResultPattern;
+using AuthService.Infrastructure.Options.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace AuthService.Infrastructure.Services.Session;
+namespace AuthService.Infrastructure.Common;
 
 public class ExternalLoginSessionBuilder(
     UserManager<Domain.Entities.User> userManager,
@@ -19,9 +20,10 @@ public class ExternalLoginSessionBuilder(
     IUnitOfWork unitOfWork,
     IOptions<JwtBearerOptions> jwtOptions
 ) : IExternalLoginSessionBuilder
-    
+
 {
-    public async Task<Result<ExternalLoginResponse>> CreateAsync(Domain.Entities.User user, CancellationToken cancellationToken = default)
+    public async Task<Result<ExternalLoginResponse>> CreateAsync(Domain.Entities.User user,
+        CancellationToken cancellationToken = default)
     {
         var roles = await userManager.GetRolesAsync(user);
 

@@ -1,4 +1,4 @@
-﻿using AuthService.Application.Behavior;
+﻿using AuthService.Application.Pipeline;
 using FluentValidation;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;

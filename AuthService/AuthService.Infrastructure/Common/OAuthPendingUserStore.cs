@@ -1,21 +1,22 @@
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
+using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
+using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AuthService.Infrastructure.Services.OAuth;
+namespace AuthService.Infrastructure.Common;
 
 public class OAuthPendingUserStore(IMemoryCache cache) :
     IOAuthPendingUserStore
 {
     private static readonly TimeSpan Lifetime = TimeSpan.FromMinutes(15);
 
-    public Task<string> StorePendingUserAsync(GooglePendingUser pendingUser, CancellationToken cancellationToken)
+    public Task<string> StoreAsync(ExternalUserInfo pendingUser, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var token = Guid.NewGuid().ToString("N");
-        cache.Set(BuildKey(token), pendingUser, new MemoryCacheEntryOptions
+        var response = new ExternalPendingUserResponse(pendingUser.Email, pendingUser.Name, pendingUser.Picture);
+        cache.Set(BuildKey(token), response, new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = Lifetime
         });
@@ -23,49 +24,31 @@ public class OAuthPendingUserStore(IMemoryCache cache) :
         return Task.FromResult(token);
     }
 
-    public Task<T?> GetAsync<T>(string token, CancellationToken cancellationToken)
-        where T : class
+    public Task<ExternalPendingUserResponse?> GetAsync(string token, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(token)) return Task.FromResult<T?>(null);
+        if (string.IsNullOrWhiteSpace(token)) return Task.FromResult<ExternalPendingUserResponse?>(null);
 
         var key = BuildKey(token);
-        if (cache.TryGetValue(key, out var obj) && obj is T t) return Task.FromResult<T?>(t);
+        if (cache.TryGetValue(key, out var obj) && obj is ExternalPendingUserResponse t)
+            return Task.FromResult<ExternalPendingUserResponse?>(t);
 
-        return Task.FromResult<T?>(null);
+        return Task.FromResult<ExternalPendingUserResponse?>(null);
     }
 
-    public Task<T?> TakeAsync<T>(string token, CancellationToken cancellationToken) where T : class
+    public Task<ExternalPendingUserResponse?> TakeAsync(string token, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(token)) return Task.FromResult<T?>(null);
+        if (string.IsNullOrWhiteSpace(token)) return Task.FromResult<ExternalPendingUserResponse?>(null);
 
         var key = BuildKey(token);
-        if (!cache.TryGetValue(key, out var obj) || obj is not T t)
-            return Task.FromResult<T?>(null);
+        if (!cache.TryGetValue(key, out var obj) || obj is not ExternalPendingUserResponse t)
+            return Task.FromResult<ExternalPendingUserResponse?>(null);
 
         cache.Remove(key);
-        return Task.FromResult<T?>(t);
-    }
-
-    // Generic store method required by IOAuthPendingUserStore
-    public Task<string> StoreAsync<T>(T pendingUser, CancellationToken cancellationToken) where T : class
-    {
-        if (pendingUser is GooglePendingUser gp)
-            return StorePendingUserAsync(gp, cancellationToken);
-
-        throw new ArgumentException("Unsupported pending user type", nameof(pendingUser));
-    }
-
-    // Adapter for the abstraction interface (store by object)
-    public Task<string> StoreAsync(object pendingUser, CancellationToken cancellationToken)
-    {
-        if (pendingUser is GooglePendingUser gp)
-            return StorePendingUserAsync(gp, cancellationToken);
-
-        throw new ArgumentException("Unsupported pending user type", nameof(pendingUser));
+        return Task.FromResult<ExternalPendingUserResponse?>(t);
     }
 
     private static string BuildKey(string token)

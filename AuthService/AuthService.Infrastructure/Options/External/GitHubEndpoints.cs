@@ -1,9 +1,8 @@
-﻿
-namespace AuthService.Infrastructure.ExternalAuth.Google;
+﻿namespace AuthService.Infrastructure.Options.External;
 
-public class GoogleEndpoints 
+public class GitHubEndpoints
 {
-    public string GoogleToken { get; set; } = null!;
-    public string GoogleUserInfo { get; set; } = null!;
-    public string GoogleAuthorize { get; set; } = null!;
+    public string GitHubeToken { get; set; } = null!;
+    public string GitHubUserInfo { get; set; } = null!;
+    public string GitHubAuthorize { get; set; } = null!;
 }

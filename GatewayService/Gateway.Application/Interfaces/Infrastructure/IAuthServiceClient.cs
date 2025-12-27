@@ -2,7 +2,7 @@
 using Gateway.Application.Dto.Register;
 using Gateway.Application.Dto.Auth;
 
-namespace Gateway.Application.Abstractions.Infrastructure;
+namespace Gateway.Application.Interfaces.Infrastructure;
 
 public interface IAuthServiceClient
 {

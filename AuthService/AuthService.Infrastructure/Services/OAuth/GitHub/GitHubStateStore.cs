@@ -1,10 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Authentication;
+using AuthService.Application.Abstractions.Authentication.External;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AuthService.Infrastructure.Services.OAuth;
+namespace AuthService.Infrastructure.Services.OAuth.GitHub;
 
 public class GitHubStateStore(IMemoryCache cache) : IOAuthStateStore
 {

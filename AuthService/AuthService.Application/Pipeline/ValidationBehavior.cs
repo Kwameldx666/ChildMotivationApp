@@ -4,7 +4,7 @@ using AuthService.Common.ResultPattern;
 using FluentValidation;
 using MediatR;
 
-namespace AuthService.Application.Behavior;
+namespace AuthService.Application.Pipeline;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
