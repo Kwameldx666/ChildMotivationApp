@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AuthService.Application.Features.Authentication.External.Google.SignIn;
+namespace AuthService.Application.Dto.Token;
 
 public sealed class GoogleTokenResponse
 {

@@ -1,16 +1,16 @@
 using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.External.Google.GetSession;
+namespace AuthService.Application.Features.Authentication.Session.Get;
 
 public class GetGoogleSessionQueryHandler(IOAuthSessionStore sessionStore)
-    : IRequestHandler<GetGoogleSessionQuery, Result<ExternalLoginResponse>>
+    : IRequestHandler<GetSessionQuery, Result<ExternalLoginResponse>>
 {
-    public async Task<Result<ExternalLoginResponse>> Handle(GetGoogleSessionQuery request,
+    public async Task<Result<ExternalLoginResponse>> Handle(GetSessionQuery request,
         CancellationToken cancellationToken)
     {
         var session = await sessionStore.TakeAsync(request.Token, cancellationToken);
