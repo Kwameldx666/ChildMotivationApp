@@ -1,5 +1,4 @@
-﻿using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Persistence;
+﻿using AuthService.Application.Abstractions.Persistence;
 using Quartz;
 
 namespace AuthService.Infrastructure.Services.Quartz;

@@ -9,12 +9,13 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> RefreshAsync(RefreshTokenRequest request, CancellationToken cancellationToken);
+    
     Task<HttpResponseMessage> GetGoogleAuthorizationAsync(CancellationToken cancellationToken);
-    Task<HttpResponseMessage> GetGoogleSessionAsync(string token, CancellationToken cancellationToken);
-    Task<HttpResponseMessage> GetGooglePendingUserAsync(string token, CancellationToken cancellationToken);
-    Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request, CancellationToken cancellationToken);
+    // Generic session/pending endpoints (used for all providers)
+    Task<HttpResponseMessage> GetSessionAsync(string token, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> GetPendingUserAsync(string token, CancellationToken cancellationToken);
+
+    Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteExternalSignInRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetGitHubAuthorizationAsync(CancellationToken cancellationToken);
-    Task<HttpResponseMessage> GetGitHubSessionAsync(string token, CancellationToken cancellationToken);
-    Task<HttpResponseMessage> GetGitHubPendingUserAsync(string token, CancellationToken cancellationToken);
-    Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGoogleSignInRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteExternalSignInRequest request, CancellationToken cancellationToken);
 }

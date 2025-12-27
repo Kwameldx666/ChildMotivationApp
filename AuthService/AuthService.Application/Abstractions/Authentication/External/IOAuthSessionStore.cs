@@ -1,4 +1,4 @@
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 
 namespace AuthService.Application.Abstractions.Authentication.External;
 

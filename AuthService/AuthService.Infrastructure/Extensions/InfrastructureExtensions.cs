@@ -1,25 +1,20 @@
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Abstractions.Authentication.Internal;
-using AuthService.Application.Dto.User;
 using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Common;
 using AuthService.Infrastructure.Options.External;
 using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Authentication.Token;
-using AuthService.Infrastructure.Services.Clients;
 using AuthService.Infrastructure.Services.Identity;
-using AuthService.Infrastructure.Services.OAuth;
 using AuthService.Infrastructure.Services.OAuth.Google;
 using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Persistence.Context;
-using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
-
 
 namespace AuthService.Infrastructure.Extensions;
 
@@ -74,6 +69,7 @@ public static class InfrastructureExtensions
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<GoogleEndpoints>(configuration.GetSection("ServicesEndpoints:Google"));
+        services.Configure<GitHubEndpoints>(configuration.GetSection("ServicesEndpoints:GitHub"));
     }
 
     private static void AddProxies(this IServiceCollection services)

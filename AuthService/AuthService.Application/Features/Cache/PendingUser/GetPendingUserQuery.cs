@@ -4,4 +4,4 @@ using MediatR;
 
 namespace AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
 
-public record GetGooglePendingUserQuery(string Token) : IRequest<Result<ExternalPendingUserResponse>>;
+public record GetPendingUserQuery(string Token) : IRequest<Result<ExternalPendingUserResponse>>;

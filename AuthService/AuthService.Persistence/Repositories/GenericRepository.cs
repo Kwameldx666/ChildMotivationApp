@@ -1,5 +1,4 @@
-﻿using AuthService.Application.Abstractions;
-using AuthService.Application.Abstractions.Persistence;
+﻿using AuthService.Application.Abstractions.Persistence;
 using AuthService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

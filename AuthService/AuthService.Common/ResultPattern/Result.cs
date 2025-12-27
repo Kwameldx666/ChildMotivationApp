@@ -4,10 +4,6 @@ namespace AuthService.Common.ResultPattern;
 
 public class Result : IResult, IFailureResult<Result>
 {
-    public bool IsSuccess { get; }
-    public int StatusCode { get; }
-    public Error? Error { get; }
-
     protected Result(bool isSuccess, int statusCode, Error? error)
     {
         IsSuccess = isSuccess;
@@ -18,14 +14,18 @@ public class Result : IResult, IFailureResult<Result>
             throw new InvalidOperationException("Invalid result state.");
     }
 
-    public static Result Success(HttpStatusCode statusCode = HttpStatusCode.OK)
-    {
-        return new Result(true, (int)statusCode, Error.None);
-    }
-
     public static Result Failure(HttpStatusCode statusCode, Error error)
     {
         return new Result(false, (int)statusCode, error);
+    }
+
+    public bool IsSuccess { get; }
+    public int StatusCode { get; }
+    public Error? Error { get; }
+
+    public static Result Success(HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        return new Result(true, (int)statusCode, Error.None);
     }
 
     public static Result<T> Failure<T>(HttpStatusCode statusCode, Error error)
@@ -41,8 +41,6 @@ public class Result : IResult, IFailureResult<Result>
 
 public class Result<T> : Result, IResult<T>, IFailureResult<Result<T>>
 {
-    public T? Value { get; }
-
     internal Result(bool isSuccess, int statusCode, Error? error, T? value) : base(isSuccess, statusCode, error)
     {
         Value = value;
@@ -50,8 +48,10 @@ public class Result<T> : Result, IResult<T>, IFailureResult<Result<T>>
 
     public new static Result<T> Failure(HttpStatusCode statusCode, Error error)
     {
-        return Result.Failure<T>(statusCode, error);
+        return Failure<T>(statusCode, error);
     }
+
+    public T? Value { get; }
 
     public static Result<T> Success(T value, HttpStatusCode statusCode = HttpStatusCode.OK)
     {

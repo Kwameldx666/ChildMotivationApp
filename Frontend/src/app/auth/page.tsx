@@ -32,6 +32,7 @@ export default function OAuthRedirectPage() {
   const statusParam = searchParams.get("oauth_status")?.toLowerCase() ?? null
   const tokenParam = searchParams.get("oauth_token")
   const errorParam = searchParams.get("oauth_error")
+  const providerParam = (searchParams.get("oauth_provider") ?? "google").toLowerCase() as string
 
   const [isLoading, setIsLoading] = useState(true)
   const [fatalError, setFatalError] = useState<string | null>(null)
@@ -68,7 +69,7 @@ export default function OAuthRedirectPage() {
 
       if (statusParam === "authenticated") {
         try {
-          const session = await authApi.fetchGoogleSession(tokenParam)
+          const session = await authApi.fetchProviderSession(providerParam, tokenParam)
           dispatch(setSession(session))
           router.replace("/")
         } catch (err) {
@@ -80,7 +81,7 @@ export default function OAuthRedirectPage() {
 
       if (statusParam === "pending") {
         try {
-          const data = await authApi.fetchGooglePendingUser(tokenParam)
+          const data = await authApi.fetchProviderPendingUser(providerParam, tokenParam)
           const [defaultName, defaultLastName] = splitName(data.name)
           setPendingToken(tokenParam)
           setPendingUser(data)
@@ -162,7 +163,7 @@ export default function OAuthRedirectPage() {
 
     try {
       setIsSubmitting(true)
-      const session = await authApi.completeGoogleSignIn(payload)
+      const session = await authApi.completeProviderSignIn(providerParam, payload)
       dispatch(setSession(session))
       router.replace("/")
     } catch (err) {

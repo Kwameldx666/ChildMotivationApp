@@ -3,8 +3,6 @@ using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Enums;
-using AuthService.Application.Extensions;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
@@ -23,62 +21,60 @@ public class GoogleSignInCommandHandler(
     ILogger<GoogleSignInCommandHandler> logger)
     : IRequestHandler<GoogleSignInCommand, Result<ExternalSignInResult>>
 {
-    public async Task<Result<ExternalSignInResult>> Handle(GoogleSignInCommand request,
+    public async Task<Result<ExternalSignInResult>> Handle(
+        GoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
-        var stateValid = await stateStore.ValidateStateAsync(request.State, cancellationToken);
+        var stateValid = await stateStore.ValidateStateAsync(
+            request.State,
+            cancellationToken);
+
         if (!stateValid)
-            return Result<ExternalSignInResult>.Failure(HttpStatusCode.BadRequest,
+        {
+            return Result.Failure<ExternalSignInResult>(
+                HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("State parameter is invalid or expired."));
-
-        var tokenHttpResponse = await googleServiceClient.RequestAccessToken(request.Code, cancellationToken);
-        var tokenRawBody = await tokenHttpResponse.Content.ReadAsStringAsync(cancellationToken);
-        var googleToken = await tokenHttpResponse.EnsureSuccessAndReadJsonAsync<GoogleTokenResponse>();
-
-        if (!googleToken.IsSuccess)
-        {
-            logger.LogWarning("Google token endpoint failed: Status={Status}, Body={Body}",
-                tokenHttpResponse.StatusCode, tokenRawBody);
-
-            return Result.Failure<ExternalSignInResult>(googleToken.StatusCode, googleToken.Error!);
         }
 
-        if (!string.IsNullOrWhiteSpace(googleToken.Value?.Error))
-        {
-            logger.LogWarning("Google OAuth error: {Error} - {Description}. Raw: {Body}",
-                googleToken.Value.Error, googleToken.Value.ErrorDescription, tokenRawBody);
+        var tokenResult =
+            await googleServiceClient.RequestAccessToken(
+                request.Code,
+                cancellationToken);
 
-            return Result.Failure<ExternalSignInResult>(HttpStatusCode.Unauthorized,
-                AuthorizationErrors.Unauthorized(
-                    $"Google OAuth error: {googleToken.Value.Error} - {googleToken.Value.ErrorDescription}"));
-        }
+        if (!tokenResult.IsSuccess)
+            return Result.Failure<ExternalSignInResult>(
+                tokenResult.StatusCode,
+                tokenResult.Error!);
 
         ExternalUserInfo userInfo;
-
-        if (!string.IsNullOrWhiteSpace(googleToken.Value?.AccessToken))
+        
+        if (!string.IsNullOrWhiteSpace(tokenResult.Value!.AccessToken))
         {
-            var userInfoHttpResponse =
-                await googleServiceClient.RequestUserInfo(googleToken.Value!.AccessToken, cancellationToken);
+            var userInfoResult =
+                await googleServiceClient.RequestUserInfo(
+                    tokenResult.Value.AccessToken,
+                    cancellationToken);
 
-            if (!userInfoHttpResponse.IsSuccessStatusCode)
+            if (!userInfoResult.IsSuccess)
             {
-                var body = await userInfoHttpResponse.Content.ReadAsStringAsync(cancellationToken);
-                logger.LogWarning("Google userinfo request failed: Status={Status}, Body={Body}",
-                    userInfoHttpResponse.StatusCode, body);
+                logger.LogWarning(
+                    "Failed to fetch Google user info: {Error}",
+                    userInfoResult.Error?.ErrorDescription);
+
+                return Result.Failure<ExternalSignInResult>(
+                    userInfoResult.StatusCode,
+                    userInfoResult.Error!);
             }
 
-            var userInfoResponse = await userInfoHttpResponse.EnsureSuccessAndReadJsonAsync<ExternalUserInfo>();
-            if (!userInfoResponse.IsSuccess)
-                return Result.Failure<ExternalSignInResult>(userInfoResponse.StatusCode, userInfoResponse.Error!);
-
-            userInfo = userInfoResponse.Value!;
+            userInfo = userInfoResult.Value!;
         }
-        else if (!string.IsNullOrWhiteSpace(googleToken.Value?.IdToken))
+        // 2️⃣ Fallback — id_token
+        else if (!string.IsNullOrWhiteSpace(tokenResult.Value.IdToken))
         {
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(googleToken.Value.IdToken);
+                var jwt = handler.ReadJwtToken(tokenResult.Value.IdToken);
 
                 userInfo = new ExternalUserInfo
                 {
@@ -90,40 +86,59 @@ public class GoogleSignInCommandHandler(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to decode id_token from Google token response.");
-                return Result.Failure<ExternalSignInResult>(HttpStatusCode.BadRequest,
-                    DefaultErrors.BadRequest("Failed to obtain userinfo from Google token response."));
+                logger.LogError(
+                    ex,
+                    "Failed to decode Google id_token");
+
+                return Result.Failure<ExternalSignInResult>(
+                    HttpStatusCode.BadRequest,
+                    DefaultErrors.BadRequest(
+                        "Failed to obtain user info from Google id_token."));
             }
         }
         else
         {
-            return Result.Failure<ExternalSignInResult>(HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest("No access token or id token was returned by Google."));
+            return Result.Failure<ExternalSignInResult>(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest(
+                    "Google did not return access_token or id_token."));
         }
 
-        var existingUser = await userManager.FindByEmailAsync(userInfo.Email);
+        // 3️⃣ Пользователь уже существует
+        var existingUser =
+            await userManager.FindByEmailAsync(userInfo.Email);
+
         if (existingUser is not null)
         {
-            var sessionResult = await externalLoginSessionBuilder.CreateAsync(existingUser, cancellationToken);
+            var sessionResult =
+                await externalLoginSessionBuilder.CreateAsync(
+                    existingUser,
+                    cancellationToken);
+
             if (!sessionResult.IsSuccess)
-                return Result.Failure<ExternalSignInResult>(sessionResult.StatusCode, sessionResult.Error!);
+                return Result.Failure<ExternalSignInResult>(
+                    sessionResult.StatusCode,
+                    sessionResult.Error!);
 
-            var sessionToken = await sessionStore.StoreAsync(sessionResult.Value!, cancellationToken);
-            var result = new ExternalSignInResult(ExternalSignInStatus.Authenticated, sessionToken);
-            return Result<ExternalSignInResult>.Success(result);
+            var sessionToken =
+                await sessionStore.StoreAsync(
+                    sessionResult.Value!,
+                    cancellationToken);
+
+            return Result<ExternalSignInResult>.Success(
+                new ExternalSignInResult(
+                    ExternalSignInStatus.Authenticated,
+                    sessionToken));
         }
+        
+        var pendingToken =
+            await pendingUserStore.StoreAsync(
+                userInfo,
+                cancellationToken);
 
-        var pendingUser = new ExternalUserInfo
-        {
-            Email = userInfo.Email,
-            Name = userInfo.Name,
-            Picture = userInfo.Picture,
-            Sub = userInfo.Sub
-        };
-
-        var pendingToken = await pendingUserStore.StoreAsync(pendingUser, cancellationToken);
-        var pendingResult = new ExternalSignInResult(ExternalSignInStatus.Pending, pendingToken);
-
-        return Result<ExternalSignInResult>.Success(pendingResult);
+        return Result<ExternalSignInResult>.Success(
+            new ExternalSignInResult(
+                ExternalSignInStatus.Pending,
+                pendingToken));
     }
 }

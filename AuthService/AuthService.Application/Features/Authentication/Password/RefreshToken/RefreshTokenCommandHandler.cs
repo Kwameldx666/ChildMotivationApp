@@ -8,7 +8,6 @@ using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace AuthService.Application.Features.Authentication.RefreshToken;
 

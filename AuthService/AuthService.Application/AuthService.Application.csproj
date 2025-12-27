@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Authentication\Password\" />
+        <Folder Include="Features\Authentication\Password\"/>
     </ItemGroup>
 
 </Project>

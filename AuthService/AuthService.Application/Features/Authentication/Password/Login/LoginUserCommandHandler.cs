@@ -2,7 +2,7 @@
 using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Application.Claim;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 using AuthService.Application.Models.Auth.Login;
 using AuthService.Application.Models.User;
 using AuthService.Common.Constants.Errors;

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace AuthService.Application.Features.Authentication.External.GitHub.GetAuthorizationUrl;
 
-public record GetGitHubAuthorizationUrlQuery() : IRequest<Result<AuthorizationResponse>>;
+public record GetGitHubAuthorizationUrlQuery : IRequest<Result<AuthorizationResponse>>;
