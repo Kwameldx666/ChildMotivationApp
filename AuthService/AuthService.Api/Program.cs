@@ -1,16 +1,17 @@
+using System.Security.Claims;
+using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Claim;
-using AuthService.Application.Dto.User;
 using AuthService.Application.Extensions;
-using AuthService.Extensions;
-using AuthService.Infrastructure.Extensions;
-using AuthService.Persistence.Extensions;
-using Microsoft.EntityFrameworkCore;
-using AuthService.Persistence.Context;
-using Microsoft.AspNetCore.Identity;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
-using Microsoft.Extensions.Options;
+using AuthService.Extensions;
+using AuthService.Infrastructure.Common;
+using AuthService.Infrastructure.Extensions;
 using AuthService.Infrastructure.Options.External;
+using AuthService.Persistence.Context;
+using AuthService.Persistence.Extensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 // Disable service provider validation during build to avoid premature activation errors while all registrations are still being composed.
@@ -19,34 +20,109 @@ builder.Host.UseDefaultServiceProvider((ctx, spOptions) => { spOptions.ValidateO
 builder.Services.AddPresentation();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Defensive: ensure external auth factory is registered when AddProxies didn't run
+if (!builder.Services.Any(sd => sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory)))
+{
+    Console.WriteLine("Program: registering IExternalAuthProviderFactory fallback");
+    builder.Services.AddSingleton<AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory, AuthService.Infrastructure.Services.Authentication.External.ExternalAuthProviderFactory>();
+}
+
+// Ensure concrete provider classes are resolvable (factory requires them)
+if (!builder.Services.Any(sd => sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.GoogleAuthProvider)))
+{
+    Console.WriteLine("Program: registering GoogleAuthProvider fallback");
+    builder.Services.AddScoped<AuthService.Infrastructure.Services.Authentication.External.GoogleAuthProvider>();
+}
+if (!builder.Services.Any(sd => sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.GitHubAuthProvider)))
+{
+    Console.WriteLine("Program: registering GitHubAuthProvider fallback");
+    builder.Services.AddScoped<AuthService.Infrastructure.Services.Authentication.External.GitHubAuthProvider>();
+}
+
+// Startup sanity check: attempt to resolve factory and build sample auth URLs to log redirect_uri values
+try
+{
+    var spDiag = builder.Services.BuildServiceProvider();
+    var factoryDiag = spDiag.GetService<AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory>();
+    if (factoryDiag is not null)
+    {
+        try
+        {
+            var g = factoryDiag.GetProvider(AuthService.Application.Enums.ExternalProviderType.Google);
+            var gUrl = g.BuildAuthQuery("diagstate", AuthService.Domain.Enums.ExternalScopes.All.ToArray());
+            Console.WriteLine($"Startup diag: Google auth URL sample: {gUrl.AuthorizationUrl}");
+
+            var gh = factoryDiag.GetProvider(AuthService.Application.Enums.ExternalProviderType.GitHub);
+            var ghUrl = gh.BuildAuthQuery("diagstate", AuthService.Domain.Enums.ExternalScopes.GitHub.ToArray());
+            Console.WriteLine($"Startup diag: GitHub auth URL sample: {ghUrl.AuthorizationUrl}");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Startup diag: provider build failed: {ex.GetType().Name} - {ex.Message}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Startup diag: factory unresolved");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Startup diag: build service provider failed: {ex.GetType().Name} - {ex.Message}");
+}
+
 // Defensive: some historical interface duplicates and registration ordering caused the
 // concrete pending/session store to be present but the interface mapping to be missing
 // in some deployed images. Ensure the interface-to-concrete mappings exist explicitly
 // as a fallback so handlers that depend on the interface can be resolved.
 if (!builder.Services.Any(sd =>
-        sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore)))
+        sd.ServiceType == typeof(IOAuthPendingUserStore)))
     builder.Services
-        .AddSingleton<AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore>(sp =>
-            sp.GetRequiredService<AuthService.Infrastructure.Common.OAuthPendingUserStore>());
+        .AddSingleton<IOAuthPendingUserStore>(sp =>
+            sp.GetRequiredService<OAuthPendingUserStore>());
 if (!builder.Services.Any(sd =>
-        sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore)))
-    builder.Services.AddSingleton<AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore>(sp =>
-        sp.GetRequiredService<AuthService.Infrastructure.Common.OAuthSessionStore>());
+        sd.ServiceType == typeof(IOAuthSessionStore)))
+    builder.Services.AddSingleton<IOAuthSessionStore>(sp =>
+        sp.GetRequiredService<OAuthSessionStore>());
 
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 
 // Diagnostic: ensure required DI registrations are present before building the app.
 var hasPendingStore = builder.Services.Any(sd =>
-    sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore));
+    sd.ServiceType == typeof(IOAuthPendingUserStore));
 var hasSessionStore = builder.Services.Any(sd =>
-    sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore));
+    sd.ServiceType == typeof(IOAuthSessionStore));
 
 // Additional defensive diagnostics: check for concrete implementation descriptor names as some registrations may be using implementation-only registrations
 var hasPendingImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthPendingUserStore");
 var hasSessionImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthSessionStore");
 Console.WriteLine(
     $"DI diagnostic impl: OAuthPendingUserStore present: {hasPendingImpl}, OAuthSessionStore present: {hasSessionImpl}");
+
+// Check whether IExternalAuthProviderFactory is registered and can be resolved
+var hasFactoryDescriptor = builder.Services.Any(sd =>
+    sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory));
+Console.WriteLine($"DI diagnostic: IExternalAuthProviderFactory registered: {hasFactoryDescriptor}");
+try
+{
+    var spDiag = builder.Services.BuildServiceProvider();
+    try
+    {
+        var factoryResolved = spDiag.GetService<AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory>() is not null;
+        Console.WriteLine($"DI resolve IExternalAuthProviderFactory success: {factoryResolved}");
+    }
+    catch (Exception rex)
+    {
+        Console.WriteLine($"DI resolve IExternalAuthProviderFactory threw: {rex.GetType().Name} - {rex.Message}");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"DI diagnostic build service provider failed: {ex.GetType().Name} - {ex.Message}");
+}
+
 try
 {
     // Write service descriptors to a Linux-friendly path and attempt to resolve some options to log any exceptions early.
@@ -146,7 +222,7 @@ using (var scope = app.Services.CreateScope())
 
                         logger.LogInformation("Adding scope claim {Scope} to role {Role}", scopeClaim, roleName);
                         await roleManager.AddClaimAsync(role,
-                            new System.Security.Claims.Claim(ClaimConstants.Scope, scopeClaim));
+                            new Claim(ClaimConstants.Scope, scopeClaim));
                     }
                 }
             }

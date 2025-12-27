@@ -1,7 +1,5 @@
 ﻿using AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
 using AuthService.Application.Features.Authentication.External.Google.GetAuthorizationUrl;
-using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
-using AuthService.Application.Features.Authentication.External.Google.GetSession;
 using AuthService.Application.Features.Authentication.External.Google.SignIn;
 using AuthService.Extensions;
 using AuthService.Infrastructure.Options.External;
@@ -35,7 +33,8 @@ public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> go
             var errorQuery = new Dictionary<string, string?>
             {
                 ["oauth_status"] = "error",
-                ["oauth_error"] = result.Error?.ErrorDescription ?? "Authentication failed."
+                ["oauth_error"] = result.Error?.ErrorDescription ?? "Authentication failed.",
+                ["oauth_provider"] = "google"
             };
 
             var errorRedirect = QueryHelpers.AddQueryString(redirectBaseError, errorQuery);
@@ -46,31 +45,14 @@ public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> go
         var query = new Dictionary<string, string?>
         {
             ["oauth_status"] = result.Value!.Status.ToString().ToLowerInvariant(),
-            ["oauth_token"] = result.Value!.Token
+            ["oauth_token"] = result.Value!.Token,
+            ["oauth_provider"] = "google"
         };
 
         var redirectUrl = QueryHelpers.AddQueryString(redirectBase, query);
         return Redirect(redirectUrl);
     }
-
-    [HttpGet("session/{token}")]
-    public async Task<IActionResult> GetGoogleSessionAsync([FromRoute] string token,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetGoogleSessionQuery(token);
-        var result = await mediator.Send(query, cancellationToken);
-        return result.ToActionResult();
-    }
-
-    [HttpGet("pending/{token}")]
-    public async Task<IActionResult> GetPendingGoogleUserAsync([FromRoute] string token,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetGooglePendingUserQuery(token);
-        var result = await mediator.Send(query, cancellationToken);
-        return result.ToActionResult();
-    }
-
+    
     [HttpPost("complete")]
     public async Task<IActionResult> CompleteGoogleSignInAsync([FromBody] CompleteGoogleSignInCommand command,
         CancellationToken cancellationToken)

@@ -67,11 +67,9 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
     }
 
     [HttpPost("github/complete")]
-    public async Task<IActionResult> CompleteGitHubSignInAsync([FromBody] CompleteGoogleSignInRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteGitHubSignInAsync([FromBody] CompleteExternalSignInRequest request, CancellationToken cancellationToken)
     {
         using var response = await authClient.CompleteGitHubSignInAsync(request, cancellationToken);
         return await response.ToActionResultAsync();
     }
-
-
 }

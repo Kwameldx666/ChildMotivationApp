@@ -7,7 +7,7 @@ using MediatR;
 
 namespace AuthService.Application.Features.Authentication.Session.Get;
 
-public class GetGoogleSessionQueryHandler(IOAuthSessionStore sessionStore)
+public class GetSessionQueryHandler(IOAuthSessionStore sessionStore)
     : IRequestHandler<GetSessionQuery, Result<ExternalLoginResponse>>
 {
     public async Task<Result<ExternalLoginResponse>> Handle(GetSessionQuery request,

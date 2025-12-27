@@ -15,7 +15,7 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> GetSessionAsync(string token, CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetPendingUserAsync(string token, CancellationToken cancellationToken);
 
-    Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteExternalSignInRequest request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetGitHubAuthorizationAsync(CancellationToken cancellationToken);
-    Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGitHubSignInRequest request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteExternalSignInRequest request, CancellationToken cancellationToken);
 }

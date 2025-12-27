@@ -1,16 +1,17 @@
 using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
 using AuthService.Application.Features.Authentication.External.Shared.Dto;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
+namespace AuthService.Application.Features.Cache.PendingUser;
 
-public class GetGooglePendingUserQueryHandler(IOAuthPendingUserStore pendingUserStore)
-    : IRequestHandler<GetGooglePendingUserQuery, Result<ExternalPendingUserResponse>>
+public class GetPendingUserQueryHandler(IOAuthPendingUserStore pendingUserStore)
+    : IRequestHandler<GetPendingUserQuery, Result<ExternalPendingUserResponse>>
 {
-    public async Task<Result<ExternalPendingUserResponse>> Handle(GetGooglePendingUserQuery request,
+    public async Task<Result<ExternalPendingUserResponse>> Handle(GetPendingUserQuery request,
         CancellationToken cancellationToken)
     {
         var pendingUser = await pendingUserStore.GetAsync(request.Token, cancellationToken);

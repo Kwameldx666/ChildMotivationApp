@@ -1,5 +1,5 @@
 using AuthService.Application.Abstractions.Authentication.External;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace AuthService.Infrastructure.Common;

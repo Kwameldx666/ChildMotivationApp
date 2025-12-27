@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AuthService.Application.Abstractions.Authentication.Internal;
 
 namespace AuthService.Infrastructure.Options.JwtBearer;
 

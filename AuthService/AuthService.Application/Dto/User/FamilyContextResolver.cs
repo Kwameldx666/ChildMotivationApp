@@ -1,12 +1,7 @@
-using System;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
-using System.Threading;
-using System.Threading.Tasks;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

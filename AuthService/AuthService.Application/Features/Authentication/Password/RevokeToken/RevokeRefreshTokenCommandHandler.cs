@@ -1,5 +1,4 @@
 using System.Net;
-using AuthService.Application.Abstractions;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;

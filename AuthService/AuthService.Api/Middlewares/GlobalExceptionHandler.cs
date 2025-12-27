@@ -1,5 +1,4 @@
 ﻿using AuthService.Common.Constants.Errors;
-using AuthService.Common.ResultPattern;
 using AuthService.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 

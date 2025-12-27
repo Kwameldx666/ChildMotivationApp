@@ -1,5 +1,4 @@
 using AuthService.Domain.Entities;
-using AuthService.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

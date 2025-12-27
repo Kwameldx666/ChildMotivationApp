@@ -2,10 +2,11 @@ using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Application.Claim;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 using AuthService.Application.Models.Auth.Login;
 using AuthService.Application.Models.User;
 using AuthService.Common.ResultPattern;
+using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Options.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.Options;
 namespace AuthService.Infrastructure.Common;
 
 public class ExternalLoginSessionBuilder(
-    UserManager<Domain.Entities.User> userManager,
+    UserManager<User> userManager,
     RoleManager<IdentityRole<Guid>> roleManager,
     ITokenProvider tokenProvider,
     IRefreshTokenRepository refreshTokenRepository,
@@ -22,7 +23,7 @@ public class ExternalLoginSessionBuilder(
 ) : IExternalLoginSessionBuilder
 
 {
-    public async Task<Result<ExternalLoginResponse>> CreateAsync(Domain.Entities.User user,
+    public async Task<Result<ExternalLoginResponse>> CreateAsync(User user,
         CancellationToken cancellationToken = default)
     {
         var roles = await userManager.GetRolesAsync(user);
@@ -51,7 +52,7 @@ public class ExternalLoginSessionBuilder(
         var refreshToken = await refreshTokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
         if (refreshToken is null)
         {
-            refreshToken = new Domain.Entities.RefreshToken
+            refreshToken = new RefreshToken
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,

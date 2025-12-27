@@ -1,7 +1,12 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Dto.Token;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Common.Constants.Errors;
+using AuthService.Common.ResultPattern;
 using AuthService.Infrastructure.Constants;
 using AuthService.Infrastructure.Options.External;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,11 +20,11 @@ public class GoogleAuthProvider(
     IHttpClientFactory clientFactory) :
     IExternalAuthProvider
 {
+    private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.Google);
     private readonly GoogleEndpoints _googleEndpoints = googleEndpoints.Value;
     private readonly GoogleOptions _googleOptions = googleOptions.Value;
-    private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.Google);
 
-    public async Task<HttpResponseMessage> RequestAccessToken(string code, CancellationToken cancellationToken)
+    public async Task<Result<ExternalAuthToken>> RequestAccessToken(string code, CancellationToken cancellationToken)
     {
         // Per Google OAuth spec, send client_id and client_secret in the request body as x-www-form-urlencoded
         using var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -38,17 +43,85 @@ public class GoogleAuthProvider(
 
         var response = await _client.SendAsync(request, cancellationToken);
 
-        return response;
+        if (!response.IsSuccessStatusCode)
+        {
+            return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
+                AuthorizationErrors.ExternalAuthFailed());
+        }
+
+        var token = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken: cancellationToken);
+
+        if (token is null || string.IsNullOrEmpty(token.AccessToken))
+        {
+            return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
+                AuthorizationErrors.ExternalAuthFailed("The access token is missing"));
+        }
+        var result = new ExternalAuthToken(token.AccessToken, token.IdToken);
+        return Result<ExternalAuthToken>.Success(result);
     }
 
-    public async Task<HttpResponseMessage> RequestUserInfo(string accessToken, CancellationToken cancellationToken)
+    public async Task<Result<ExternalUserInfo>> RequestUserInfo(
+        string accessToken,
+        CancellationToken cancellationToken)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, _googleEndpoints.GoogleUserInfo);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            return Result.Failure<ExternalUserInfo>(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Access token is empty"));
+        }
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            _googleEndpoints.GoogleUserInfo);
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", accessToken);
+
+        HttpResponseMessage response;
+
+        try
+        {
+            response = await _client.SendAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return Result.Failure<ExternalUserInfo>(
+                HttpStatusCode.ServiceUnavailable,
+                AuthorizationErrors.ExternalProviderUnavailable());
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return Result.Failure<ExternalUserInfo>(
+                response.StatusCode,
+                AuthorizationErrors.ExternalAuthFailed());
+        }
+
+        var userInfo = await response.Content
+            .ReadFromJsonAsync<ExternalUserInfo>(cancellationToken);
+
+        if (userInfo is null)
+        {
+            return Result.Failure<ExternalUserInfo>(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Empty user info response"));
+        }
         
-        var response = await _client.SendAsync(request, cancellationToken);
-        return response;
+        if (string.IsNullOrWhiteSpace(userInfo.Email))
+        {
+            return Result.Failure<ExternalUserInfo>(
+                HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Email was not provided by external provider"));
+        }
+
+        return Result<ExternalUserInfo>.Success(userInfo);
     }
+
 
     public AuthorizationResponse BuildAuthQuery(string state, string[] scopes)
     {

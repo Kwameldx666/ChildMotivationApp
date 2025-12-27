@@ -1,5 +1,3 @@
-using System;
-using AuthService.Application.Abstractions;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.Context;

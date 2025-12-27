@@ -40,8 +40,8 @@ public class GitHubStateStore(IMemoryCache cache) : IOAuthStateStore
 
     private string BuildKey(string state)
     {
-        var sha256 = SHA256.Create();
-        var key = sha256.ComputeHash(Encoding.UTF8.GetBytes(state));
-        return "github-state:" + key;
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(state));
+        return "github-state:" + hash;
     }
 }

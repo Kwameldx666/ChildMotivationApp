@@ -1,7 +1,9 @@
+using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
 using AuthService.Application.Features.Authentication.Login;
 using AuthService.Application.Features.Authentication.RefreshToken;
 using AuthService.Application.Features.Authentication.Register;
 using AuthService.Application.Features.Authentication.RevokeToken;
+using AuthService.Application.Features.Authentication.Session.Get;
 using AuthService.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +43,24 @@ public class AuthController(IMediator mediator) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(request, cancellationToken);
+        return result.ToActionResult();
+    }
+    
+    [HttpGet("session/{token}")]
+    public async Task<IActionResult> GetGoogleSessionAsync([FromRoute] string token,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetSessionQuery(token);
+        var result = await mediator.Send(query, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpGet("pending/{token}")]
+    public async Task<IActionResult> GetPendingGoogleUserAsync([FromRoute] string token,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPendingUserQuery(token);
+        var result = await mediator.Send(query, cancellationToken);
         return result.ToActionResult();
     }
 }

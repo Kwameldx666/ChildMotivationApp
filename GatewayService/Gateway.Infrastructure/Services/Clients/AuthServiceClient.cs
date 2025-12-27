@@ -95,7 +95,7 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return await GetPendingUserAsync(token, cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request,
+    public async Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteExternalSignInRequest request,
         CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync(
@@ -125,12 +125,12 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return await GetPendingUserAsync(token, cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGoogleSignInRequest request,
+    public async Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteExternalSignInRequest request,
         CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync(
             HttpMethod.Post,
-            _endpoints.GoogleComplete,
+            _endpoints.GitHubComplete,
             request,
             SerializerOptions,
             cancellationToken);

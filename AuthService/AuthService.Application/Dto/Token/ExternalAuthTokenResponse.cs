@@ -1,6 +1,6 @@
 ﻿namespace AuthService.Application.Dto.Token;
 
-public class ExternalAuthTokenResponse
-{
-    
-}
+public sealed record ExternalAuthToken(
+    string AccessToken,
+    string? IdToken = null!
+);
