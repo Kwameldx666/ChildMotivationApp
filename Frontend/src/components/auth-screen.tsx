@@ -102,6 +102,14 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
 
+  // UX: track user interaction to avoid showing validation errors immediately
+  const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [nameTouched, setNameTouched] = useState(false)
+  const [lastNameTouched, setLastNameTouched] = useState(false)
+  const [familyNameTouched, setFamilyNameTouched] = useState(false)
+  const [childFamilyCodeTouched, setChildFamilyCodeTouched] = useState(false)
+  const [ageTouched, setAgeTouched] = useState(false)
+
   useEffect(() => {
     setMode(initialMode)
     setInfo(null)
@@ -181,6 +189,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const submitRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSubmitAttempted(true)
 
     if (!email || !password) {
       setError("Введите email и пароль.")
@@ -248,6 +257,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       setInfo("Регистрация прошла успешно! Войдите, используя указанные данные.")
       setMode("login")
       setError(null)
+      setSubmitAttempted(false)
+      setNameTouched(false)
+      setLastNameTouched(false)
+      setFamilyNameTouched(false)
+      setChildFamilyCodeTouched(false)
+      setAgeTouched(false)
     } catch (serviceError) {
       setError(mapApiError(serviceError, "Не удалось зарегистрироваться."))
     } finally {
@@ -312,13 +327,13 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label>Имя</Label>
-                        <Input required aria-invalid={!name.trim()} value={name} onChange={(e) => setName(e.target.value)} />
-                        {!name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        <Input required aria-invalid={(nameTouched || submitAttempted) && !name.trim()} value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setNameTouched(true)} />
+                        {(nameTouched || submitAttempted) && !name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>
                       <div>
                         <Label>Фамилия</Label>
-                        <Input required aria-invalid={!lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                        {!lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        <Input required aria-invalid={(lastNameTouched || submitAttempted) && !lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} onBlur={() => setLastNameTouched(true)} />
+                        {(lastNameTouched || submitAttempted) && !lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>
                     </div>
 
@@ -326,10 +341,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label>Возраст (опционально)</Label>
-                          <Input value={age} onChange={(e) => setAge(e.target.value)} inputMode="numeric" />
-                          {age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
+                          <Input value={age} onChange={(e) => setAge(e.target.value)} onBlur={() => setAgeTouched(true)} inputMode="numeric" />
+                          {(ageTouched || submitAttempted) && age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
                             <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
-                          )}
+                          )} 
                         </div>
                         <div>
                           <Label>Аватар</Label>
@@ -352,8 +367,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <>
                         <div>
                           <Label>Название семьи</Label>
-                          <Input required aria-invalid={!familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
-                          {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                          <Input required aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} onBlur={() => setFamilyNameTouched(true)} />
+                          {(familyNameTouched || submitAttempted) && !familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                         </div>
                         <div>
                           <Label>Эмблема</Label>
@@ -376,12 +391,13 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         <Label>Код семьи</Label>
                         <Input
                           required
-                          aria-invalid={!childFamilyCode.trim()}
+                          aria-invalid={(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim()}
                           value={childFamilyCode}
                           onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
+                          onBlur={() => setChildFamilyCodeTouched(true)}
                           placeholder="ABC123"
                         />
-                        {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        {(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>
                     )}
                   </>
