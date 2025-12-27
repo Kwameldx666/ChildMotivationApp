@@ -96,19 +96,32 @@ export const authApi = {
   },
 
   async fetchGoogleSession(token: string) {
-    const { data } = await apiClient.get<AuthPayload>(`${AUTH_BASE_PATH}/google/session/${token}`)
+    return this.fetchProviderSession('google', token)
+  },
+
+  async fetchGooglePendingUser(token: string) {
+    return this.fetchProviderPendingUser('google', token)
+  },
+
+  async completeGoogleSignIn(payload: CompleteGoogleSignInPayload) {
+    return this.completeProviderSignIn('google', payload)
+  },
+
+  // Generic provider helpers
+  async fetchProviderSession(provider: string, token: string) {
+    const { data } = await apiClient.get<AuthPayload>(`${AUTH_BASE_PATH}/${provider}/session/${token}`)
     const session = toSession(data)
     persistTokens(session)
     return session
   },
 
-  async fetchGooglePendingUser(token: string) {
-    const { data } = await apiClient.get<GooglePendingUser>(`${AUTH_BASE_PATH}/google/pending/${token}`)
+  async fetchProviderPendingUser(provider: string, token: string) {
+    const { data } = await apiClient.get<GooglePendingUser>(`${AUTH_BASE_PATH}/${provider}/pending/${token}`)
     return data
   },
 
-  async completeGoogleSignIn(payload: CompleteGoogleSignInPayload) {
-    const { data } = await apiClient.post<AuthPayload>(`${AUTH_BASE_PATH}/google/complete`, payload)
+  async completeProviderSignIn(provider: string, payload: CompleteGoogleSignInPayload) {
+    const { data } = await apiClient.post<AuthPayload>(`${AUTH_BASE_PATH}/${provider}/complete`, payload)
     const session = toSession(data)
     persistTokens(session)
     return session
