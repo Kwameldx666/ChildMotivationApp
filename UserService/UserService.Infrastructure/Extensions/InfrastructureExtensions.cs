@@ -1,7 +1,7 @@
 using AuthService.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using UserService.Application.Abstractions;
+using UserService.Application.Interfaces;
 using UserService.Infrastructure.Services;
 using UserService.Persistence.Context;
 

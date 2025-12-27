@@ -5,6 +5,10 @@ WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
+# Ensure required system dependencies for Npgsql/kerberos are present to avoid runtime warnings about libgssapi
+RUN apt-get update && apt-get install -y --no-install-recommends libkrb5-3 libgssapi-krb5-2 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY AuthService/ ./AuthService/

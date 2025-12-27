@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Text.Json;
-using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Interfaces.Infrastructure;
 using Gateway.Application.Dto.Profile;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Extensions;

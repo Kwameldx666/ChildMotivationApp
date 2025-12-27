@@ -1,4 +1,4 @@
-﻿using Gateway.Application.Abstractions.Infrastructure;
+﻿using Gateway.Application.Interfaces.Infrastructure;
 using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;
@@ -45,9 +45,31 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         return await response.ToActionResultAsync();
     }
 
+    [HttpGet("github/authorize")]
     public async Task<IActionResult> GetGitHubAuthorizationAsync(CancellationToken cancellationToken)
     {
         using var response = await authClient.GetGitHubAuthorizationAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpGet("github/session/{token}")]
+    public async Task<IActionResult> GetGitHubSessionAsync([FromRoute] string token, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetGitHubSessionAsync(token, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpGet("github/pending/{token}")]
+    public async Task<IActionResult> GetGitHubPendingUserAsync([FromRoute] string token, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetGitHubPendingUserAsync(token, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpPost("github/complete")]
+    public async Task<IActionResult> CompleteGitHubSignInAsync([FromBody] CompleteGoogleSignInRequest request, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.CompleteGitHubSignInAsync(request, cancellationToken);
         return await response.ToActionResultAsync();
     }
 

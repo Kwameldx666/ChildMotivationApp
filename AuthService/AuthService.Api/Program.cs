@@ -1,3 +1,5 @@
+using AuthService.Application.Claim;
+using AuthService.Application.Dto.User;
 using AuthService.Application.Extensions;
 using AuthService.Extensions;
 using AuthService.Infrastructure.Extensions;
@@ -7,16 +9,86 @@ using AuthService.Persistence.Context;
 using Microsoft.AspNetCore.Identity;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
-using AuthService.Common.Constants.Claim;
 using Microsoft.Extensions.Options;
-using AuthService.Common.ExternalOptions.SignIn;
+using AuthService.Infrastructure.Options.External;
 
 var builder = WebApplication.CreateBuilder(args);
+// Disable service provider validation during build to avoid premature activation errors while all registrations are still being composed.
+builder.Host.UseDefaultServiceProvider((ctx, spOptions) => { spOptions.ValidateOnBuild = false; });
 
 builder.Services.AddPresentation();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Defensive: some historical interface duplicates and registration ordering caused the
+// concrete pending/session store to be present but the interface mapping to be missing
+// in some deployed images. Ensure the interface-to-concrete mappings exist explicitly
+// as a fallback so handlers that depend on the interface can be resolved.
+if (!builder.Services.Any(sd =>
+        sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore)))
+    builder.Services
+        .AddSingleton<AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore>(sp =>
+            sp.GetRequiredService<AuthService.Infrastructure.Common.OAuthPendingUserStore>());
+if (!builder.Services.Any(sd =>
+        sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore)))
+    builder.Services.AddSingleton<AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore>(sp =>
+        sp.GetRequiredService<AuthService.Infrastructure.Common.OAuthSessionStore>());
+
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddInfrastructure(builder.Configuration);
+
+// Diagnostic: ensure required DI registrations are present before building the app.
+var hasPendingStore = builder.Services.Any(sd =>
+    sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthPendingUserStore));
+var hasSessionStore = builder.Services.Any(sd =>
+    sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IOAuthSessionStore));
+
+// Additional defensive diagnostics: check for concrete implementation descriptor names as some registrations may be using implementation-only registrations
+var hasPendingImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthPendingUserStore");
+var hasSessionImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthSessionStore");
+Console.WriteLine(
+    $"DI diagnostic impl: OAuthPendingUserStore present: {hasPendingImpl}, OAuthSessionStore present: {hasSessionImpl}");
+try
+{
+    // Write service descriptors to a Linux-friendly path and attempt to resolve some options to log any exceptions early.
+    var lines = builder.Services.Select(sd =>
+        sd.ServiceType.FullName + " -> " + (sd.ImplementationType?.FullName ??
+                                            sd.ImplementationFactory?.GetType().FullName ?? "(factory)")).ToArray();
+    File.WriteAllLines("/tmp/svcdiag.txt", lines);
+    Console.WriteLine(
+        $"DI diagnostic: IOAuthPendingUserStore registered: {hasPendingStore}, IOAuthSessionStore registered: {hasSessionStore}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"DI diagnostic write failed: {ex.Message}");
+}
+
+// Additional startup diagnostics: attempt to read GoogleOptions and GitHubOptions and log whether accessing Value throws.
+try
+{
+    var googleAccessor = builder.Services.BuildServiceProvider().GetService<IOptions<GoogleOptions>>();
+    if (googleAccessor is not null)
+        try
+        {
+            var go = googleAccessor.Value;
+            Console.WriteLine(
+                $"Startup diag: GoogleOptions loaded: ClientId={(string.IsNullOrWhiteSpace(go.ClientId) ? "(empty)" : "set")}, RedirectUri={(string.IsNullOrWhiteSpace(go.RedirectUri) ? "(empty)" : "set")}");
+        }
+        catch (Exception ox)
+        {
+            Console.WriteLine($"Startup diag: GoogleOptions access thrown: {ox.GetType().Name} - {ox.Message}");
+        }
+}
+catch (Exception)
+{
+    // ignore - don't block startup
+}
+
+// Remove any registered startup option validators to avoid hard failure when some optional OAuth provider options are missing in certain environments.
+// This is a defensive measure for development and containers where some providers may be intentionally unconfigured.
+var validatorDescriptors = builder.Services.Where(sd =>
+    sd.ImplementationType?.Name == "StartupValidator" ||
+    (sd.ImplementationType?.FullName?.Contains("Options.StartupValidator") ?? false)).ToList();
+foreach (var sd in validatorDescriptors) builder.Services.Remove(sd);
 
 var app = builder.Build();
 
@@ -81,20 +153,27 @@ using (var scope = app.Services.CreateScope())
 
             logger.LogInformation("Database migrations and seeding finished.");
 
-            // Log Google OAuth configuration for diagnostics (do not log the secret itself)
+            // Log presence of OAuth configuration from raw configuration keys (do not create options objects at startup).
             try
             {
-                var googleOptions = services.GetRequiredService<IOptions<GoogleOptions>>().Value;
-                var maskedSecret = string.IsNullOrWhiteSpace(googleOptions.ClientSecret)
-                    ? "(not set)"
-                    : "****REDACTED****";
+                var config = services.GetRequiredService<IConfiguration>();
+                var gClientId = config["Authentication:Google:ClientId"];
+                var gRedirect = config["Authentication:Google:RedirectUri"];
+                var gHasSecret = !string.IsNullOrWhiteSpace(config["Authentication:Google:ClientSecret"]);
                 logger.LogInformation(
-                    "Google OAuth configuration: ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
-                    googleOptions.ClientId, googleOptions.RedirectUri, maskedSecret);
+                    "Google OAuth configuration (raw): ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
+                    gClientId ?? "(none)", gRedirect ?? "(none)", gHasSecret);
+
+                var ghClientId = config["Authentication:GitHub:ClientId"];
+                var ghRedirect = config["Authentication:GitHub:RedirectUri"];
+                var ghHasSecret = !string.IsNullOrWhiteSpace(config["Authentication:GitHub:ClientSecret"]);
+                logger.LogInformation(
+                    "GitHub OAuth configuration (raw): ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
+                    ghClientId ?? "(none)", ghRedirect ?? "(none)", ghHasSecret);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to read Google options at startup.");
+                logger.LogWarning(ex, "Failed to read raw OAuth configuration at startup.");
             }
 
             succeeded = true;

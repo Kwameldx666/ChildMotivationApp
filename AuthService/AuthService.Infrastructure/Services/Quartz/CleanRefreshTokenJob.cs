@@ -1,5 +1,5 @@
-﻿using AuthService.Application.Abstractions.Persistence;
-using Microsoft.Extensions.Configuration;
+﻿using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Persistence;
 using Quartz;
 
 namespace AuthService.Infrastructure.Services.Quartz;

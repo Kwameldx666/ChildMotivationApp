@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Interfaces.Infrastructure;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Infrastructure.Mappings;
@@ -14,6 +14,8 @@ using Microsoft.OpenApi.Models;
 using JwtBearerOptions = Gateway.Infrastructure.Services.Models.JwtBearer.JwtBearerOptions;
 
 namespace Gateway.Infrastructure.Extensions;
+
+public record ResolvedServiceAddress(string BaseAddress);
 
 public static class InfrastructureExtensions
 {
@@ -33,17 +35,43 @@ public static class InfrastructureExtensions
 
     private static void ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration)
     {
+        // Resolve and normalize AuthService base address before registering HttpClients to avoid modifying the IServiceCollection inside a delegate.
+        var authBaseAddress = configuration["Services:AuthService"];
+        if (string.IsNullOrWhiteSpace(authBaseAddress))
+        {
+            authBaseAddress = "http://localhost:7265";
+        }
+
+        var runningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+        if (!runningInContainer && authBaseAddress.Contains("auth-service"))
+        {
+            try
+            {
+                var uri = new Uri(authBaseAddress);
+                var builder = new UriBuilder(uri) { Host = "localhost" };
+                authBaseAddress = builder.Uri.ToString().TrimEnd('/');
+            }
+            catch
+            {
+                authBaseAddress = "http://localhost:7265";
+            }
+        }
+
+        // Register resolved address for diagnostics (must be done on the IServiceCollection, outside runtime delegates)
+        services.AddSingleton(new ResolvedServiceAddress(authBaseAddress));
+
         services.AddHttpClient(DefaultHttpClientNames.AuthService, client =>
         {
-            var baseAddress = configuration["Services:AuthService"];
-
-            client.BaseAddress = new Uri(baseAddress!);
+            client.BaseAddress = new Uri(authBaseAddress);
         }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
+
+        // UserService client — keep existing behaviour, with a sensible localhost fallback for dev
+        var userBaseAddress = configuration["Services:UserService"];
+        if (string.IsNullOrWhiteSpace(userBaseAddress)) userBaseAddress = "http://localhost:5110";
 
         services.AddHttpClient(DefaultHttpClientNames.UserService, client =>
         {
-            var baseAddress = configuration["Services:UserService"];
-            client.BaseAddress = new Uri(baseAddress!);
+            client.BaseAddress = new Uri(userBaseAddress);
         }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
     }
 

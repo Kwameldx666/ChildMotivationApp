@@ -1,4 +1,5 @@
-﻿using AuthService.Application.Abstractions.Persistence;
+﻿using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Persistence;
 using AuthService.Persistence.Context;
 
 namespace AuthService.Persistence.Repositories;

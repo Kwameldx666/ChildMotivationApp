@@ -23,6 +23,11 @@ services:
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
       Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
+      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
+      Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID}
+      Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-http://localhost:8080/auth-service/github/callback}
+      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8080:8080"
@@ -51,8 +56,8 @@ services:
       ASPNETCORE_URLS: http://+:8081
       Services__AuthService: http://auth-service:8080/
       JwtBearer__Secret: ${GATEWAY_JWT_SECRET:-your_gateway_jwt_secret_here}
-      ServiceEndpoints__AuthService__Register: auth-service/auth/register
-      ServiceEndpoints__AuthService__Login: auth-service/auth/login
+      ServiceEndpoints__AuthService__Register: auth-service/register
+      ServiceEndpoints__AuthService__Login: auth-service/login
       Services__UserService: http://user-service:8080/
       ServiceEndpoints__UserService__Profile: user-service/profile
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}

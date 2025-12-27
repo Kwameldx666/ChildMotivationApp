@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using AuthService.Common.Constants.Claim;
+using AuthService.Application.Claim;
 using AuthService.Domain.Enums;
 using AuthService.Persistence.Context;
 using Microsoft.AspNetCore.Identity;
