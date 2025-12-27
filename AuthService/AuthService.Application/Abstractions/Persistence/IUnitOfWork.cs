@@ -1,4 +1,4 @@
-﻿namespace AuthService.Application.Abstractions.Persistence;
+﻿namespace AuthService.Application.Abstractions;
 
 public interface IUnitOfWork
 {

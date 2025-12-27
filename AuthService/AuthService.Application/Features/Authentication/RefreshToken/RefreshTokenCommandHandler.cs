@@ -1,5 +1,5 @@
 using System.Net;
-using AuthService.Application.Abstractions.Infrastructure;
+using AuthService.Application.Abstractions;
 using AuthService.Application.Abstractions.Persistence;
 using AuthService.Application.Dto.Auth.Login;
 using AuthService.Application.Dto.User;

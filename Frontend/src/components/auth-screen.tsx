@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft } from "lucide-react"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 
-type Step = "credentials" | "role" | "parent" | "child"
+
 
 interface AuthScreenProps {
   onAuth: (session: AuthSession) => void
@@ -84,7 +84,6 @@ function GitHubIcon(props: { className?: string }) {
 
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode)
-  const [step, setStep] = useState<Step>("credentials")
   const [role, setRole] = useState<UserRole>("parent")
 
   const [email, setEmail] = useState("")
@@ -105,34 +104,30 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   useEffect(() => {
     setMode(initialMode)
-    setStep("credentials")
     setInfo(null)
   }, [initialMode])
 
-  const canGoBack = useMemo(() => step !== "credentials", [step])
 
-  // Client-side: disable final register submit until required fields are valid
+
+  // Client-side: disable register submit until required fields are valid
   const isRegisterFinishDisabled = useMemo(() => {
+    if (mode !== "register") return true
     if (isLoading) return true
+    if (!email || !password) return true
     if (!name.trim() || !lastName.trim()) return true
-    if (step === "parent" && !familyName.trim()) return true
-    if (step === "child" && !childFamilyCode.trim()) return true
-    if (step === "child" && age.trim()) {
+    if (role === "parent" && !familyName.trim()) return true
+    if (role === "child" && !childFamilyCode.trim()) return true
+    if (role === "child" && age.trim()) {
       const parsed = Number(age)
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 120) return true
     }
     return false
-  }, [isLoading, name, lastName, familyName, childFamilyCode, age, step])
+  }, [mode, isLoading, email, password, name, lastName, familyName, childFamilyCode, age, role])
 
   const handleBack = () => {
     setError(null)
     setInfo(null)
-    if (!canGoBack) {
-      onBack()
-      return
-    }
-    if (step === "role") setStep("credentials")
-    if (step === "parent" || step === "child") setStep("role")
+    onBack()
   }
 
   const submitLogin = async (e: React.FormEvent) => {
@@ -183,7 +178,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     }
   }
 
-  const submitRegisterStart = (e: React.FormEvent) => {
+  const submitRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
@@ -195,13 +190,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       setError("Пароль должен быть минимум 6 символов.")
       return
     }
-
-    setStep("role")
-  }
-
-  const submitRegisterFinish = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
 
     if (!name.trim() || !lastName.trim()) {
       setError("Введите имя и фамилию.")
@@ -259,7 +247,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       }
       setInfo("Регистрация прошла успешно! Войдите, используя указанные данные.")
       setMode("login")
-      setStep("credentials")
       setError(null)
     } catch (serviceError) {
       setError(mapApiError(serviceError, "Не удалось зарегистрироваться."))
@@ -277,14 +264,14 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
             Назад
           </Button>
 
-          {step === "credentials" && (
+          {(mode === "login" || mode === "register") && (
             <>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold mb-2">{mode === "login" ? "Вход" : "Регистрация"}</h2>
                 <p className="text-sm text-muted-foreground">FamilyQuest</p>
               </div>
 
-              <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegisterStart}>
+              <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
                 <div>
                   <Label>Email</Label>
                   <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
@@ -299,6 +286,107 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   />
                 </div>
 
+                {mode === "register" && (
+                  <>
+                    <div className="text-center mb-2">
+                      <p className="text-sm text-muted-foreground">Выберите роль и заполните профиль</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        type="button"
+                        variant={role === "parent" ? "default" : "outline"}
+                        onClick={() => setRole("parent")}
+                      >
+                        Родитель
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={role === "child" ? "default" : "outline"}
+                        onClick={() => setRole("child")}
+                      >
+                        Ребёнок
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label>Имя</Label>
+                        <Input required aria-invalid={!name.trim()} value={name} onChange={(e) => setName(e.target.value)} />
+                        {!name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                      </div>
+                      <div>
+                        <Label>Фамилия</Label>
+                        <Input required aria-invalid={!lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                        {!lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                      </div>
+                    </div>
+
+                    {role === "child" && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>Возраст (опционально)</Label>
+                          <Input value={age} onChange={(e) => setAge(e.target.value)} inputMode="numeric" />
+                          {age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
+                            <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
+                          )}
+                        </div>
+                        <div>
+                          <Label>Аватар</Label>
+                          <select
+                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                            value={avatar}
+                            onChange={(e) => setAvatar(e.target.value as (typeof AVATARS)[number])}
+                          >
+                            {AVATARS.map((item) => (
+                              <option key={item} value={item}>
+                                {item}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {role === "parent" ? (
+                      <>
+                        <div>
+                          <Label>Название семьи</Label>
+                          <Input required aria-invalid={!familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
+                          {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        </div>
+                        <div>
+                          <Label>Эмблема</Label>
+                          <select
+                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                            value={familyEmblem}
+                            onChange={(e) => setFamilyEmblem(e.target.value as (typeof FAMILY_EMBLEMS)[number])}
+                          >
+                            {FAMILY_EMBLEMS.map((item) => (
+                              <option key={item} value={item}>
+                                {item}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Код семьи создастся автоматически после регистрации.</p>
+                      </>
+                    ) : (
+                      <div>
+                        <Label>Код семьи</Label>
+                        <Input
+                          required
+                          aria-invalid={!childFamilyCode.trim()}
+                          value={childFamilyCode}
+                          onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
+                          placeholder="ABC123"
+                        />
+                        {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {error && (
                   <div className="text-sm text-destructive bg-destructive/10 p-3 rounded whitespace-pre-line">
                     {error}
@@ -309,9 +397,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 <Button
                   type="submit"
                   className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
-                  disabled={isLoading}
+                  disabled={mode === "register" ? isRegisterFinishDisabled : isLoading}
                 >
-                  {isLoading ? "Подождите..." : mode === "login" ? "Войти" : "Продолжить"}
+                  {mode === "register" ? (isRegisterFinishDisabled ? "Заполните обязательные поля" : isLoading ? "Подождите..." : "Зарегистрироваться") : (isLoading ? "Подождите..." : "Войти")}
                 </Button>
 
                 {(mode === "login" || mode === "register") && (
@@ -374,142 +462,11 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 </div>
               </form>
             </>
-          )}
+          )} 
 
-          {step === "role" && (
-            <div className="space-y-4">
-              <div className="text-center mb-2">
-                <h2 className="text-2xl font-bold">Выберите роль</h2>
-                <p className="text-sm text-muted-foreground">Для регистрации нужно выбрать родителя или ребёнка.</p>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="button"
-                  variant={role === "parent" ? "default" : "outline"}
-                  onClick={() => setRole("parent")}
-                >
-                  Родитель
-                </Button>
-                <Button
-                  type="button"
-                  variant={role === "child" ? "default" : "outline"}
-                  onClick={() => setRole("child")}
-                >
-                  Ребёнок
-                </Button>
-              </div>
 
-              <Button
-                type="button"
-                className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
-                onClick={() => setStep(role === "parent" ? "parent" : "child")}
-              >
-                Продолжить
-              </Button>
-            </div>
-          )}
 
-          {(step === "parent" || step === "child") && (
-            <>
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold mb-2">
-                  {step === "parent" ? "Данные родителя" : "Данные ребёнка"}
-                </h2>
-                <p className="text-sm text-muted-foreground">Заполните профиль для завершения регистрации.</p>
-              </div>
-
-              <form className="space-y-4" onSubmit={submitRegisterFinish}>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label>Имя</Label>
-                    <Input required aria-invalid={!name.trim()} value={name} onChange={(e) => setName(e.target.value)} />
-                    {!name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
-                  </div>
-                  <div>
-                    <Label>Фамилия</Label>
-                    <Input required aria-invalid={!lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                    {!lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
-                  </div>
-                </div>
-
-                {step === "child" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label>Возраст (опционально)</Label>
-                      <Input value={age} onChange={(e) => setAge(e.target.value)} inputMode="numeric" />
-                      {age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
-                        <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Аватар</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                        value={avatar}
-                        onChange={(e) => setAvatar(e.target.value as (typeof AVATARS)[number])}
-                      >
-                        {AVATARS.map((item) => (
-                          <option key={item} value={item}>
-                            {item}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {step === "parent" ? (
-                  <>
-                    <div>
-                      <Label>Название семьи</Label>
-                      <Input required aria-invalid={!familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
-                      {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
-                    </div>
-                    <div>
-                      <Label>Эмблема</Label>
-                      <select
-                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                        value={familyEmblem}
-                        onChange={(e) => setFamilyEmblem(e.target.value as (typeof FAMILY_EMBLEMS)[number])}
-                      >
-                        {FAMILY_EMBLEMS.map((item) => (
-                          <option key={item} value={item}>
-                            {item}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Код семьи создастся автоматически после регистрации.
-                    </p>
-                  </>
-                ) : (
-                  <div>
-                    <Label>Код семьи</Label>
-                    <Input
-                      required
-                      aria-invalid={!childFamilyCode.trim()}
-                      value={childFamilyCode}
-                      onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
-                      placeholder="ABC123"
-                    />
-                    {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
-                  </div>
-                )}
-
-                {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
-
-                <Button
-                  type="submit"
-                  className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
-                  disabled={isRegisterFinishDisabled}
-                >
-                  {isRegisterFinishDisabled ? "Заполните обязательные поля" : isLoading ? "Подождите..." : "Зарегистрироваться"}
-                </Button>
-              </form>
-            </>
-          )}
         </CardContent>
       </Card>
     </div>
