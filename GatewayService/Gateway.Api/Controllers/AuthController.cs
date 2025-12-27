@@ -52,17 +52,17 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         return await response.ToActionResultAsync();
     }
 
-    [HttpGet("github/session/{token}")]
-    public async Task<IActionResult> GetGitHubSessionAsync([FromRoute] string token, CancellationToken cancellationToken)
+    [HttpGet("{provider}/session/{token}")]
+    public async Task<IActionResult> GetProviderSessionAsync([FromRoute] string provider, [FromRoute] string token, CancellationToken cancellationToken)
     {
-        using var response = await authClient.GetGitHubSessionAsync(token, cancellationToken);
+        using var response = await authClient.GetSessionAsync(token, cancellationToken);
         return await response.ToActionResultAsync();
     }
 
-    [HttpGet("github/pending/{token}")]
-    public async Task<IActionResult> GetGitHubPendingUserAsync([FromRoute] string token, CancellationToken cancellationToken)
+    [HttpGet("{provider}/pending/{token}")]
+    public async Task<IActionResult> GetProviderPendingUserAsync([FromRoute] string provider, [FromRoute] string token, CancellationToken cancellationToken)
     {
-        using var response = await authClient.GetGitHubPendingUserAsync(token, cancellationToken);
+        using var response = await authClient.GetPendingUserAsync(token, cancellationToken);
         return await response.ToActionResultAsync();
     }
 
@@ -73,26 +73,5 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         return await response.ToActionResultAsync();
     }
 
-    [HttpGet("google/session/{token}")]
-    public async Task<IActionResult> GetGoogleSessionAsync([FromRoute] string token, CancellationToken cancellationToken)
-    {
-        using var response = await authClient.GetGoogleSessionAsync(token, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
 
-    [HttpGet("google/pending/{token}")]
-    public async Task<IActionResult> GetGooglePendingUserAsync([FromRoute] string token,
-        CancellationToken cancellationToken)
-    {
-        using var response = await authClient.GetGooglePendingUserAsync(token, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
-
-    [HttpPost("google/complete")]
-    public async Task<IActionResult> CompleteGoogleSignInAsync([FromBody] CompleteGoogleSignInRequest request,
-        CancellationToken cancellationToken)
-    {
-        using var response = await authClient.CompleteGoogleSignInAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
 }

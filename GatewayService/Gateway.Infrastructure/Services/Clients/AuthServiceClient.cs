@@ -66,22 +66,33 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken: cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetGoogleSessionAsync(string token, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetSessionAsync(string token, CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync<object>(
             HttpMethod.Get,
-            $"{_endpoints.GoogleSession}/{token}",
+            $"{_endpoints.Session}/{token}",
             options: SerializerOptions,
             cancellationToken: cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetGooglePendingUserAsync(string token, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetPendingUserAsync(string token, CancellationToken cancellationToken)
     {
         return await _client.SendHttpRequestAsync<object>(
             HttpMethod.Get,
-            $"{_endpoints.GooglePending}/{token}",
+            $"{_endpoints.Pending}/{token}",
             options: SerializerOptions,
             cancellationToken: cancellationToken);
+    }
+
+    // Backwards-compatible delegates
+    public async Task<HttpResponseMessage> GetGoogleSessionAsync(string token, CancellationToken cancellationToken)
+    {
+        return await GetSessionAsync(token, cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> GetGooglePendingUserAsync(string token, CancellationToken cancellationToken)
+    {
+        return await GetPendingUserAsync(token, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> CompleteGoogleSignInAsync(CompleteGoogleSignInRequest request,
@@ -106,20 +117,12 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
 
     public async Task<HttpResponseMessage> GetGitHubSessionAsync(string token, CancellationToken cancellationToken)
     {
-        return await _client.SendHttpRequestAsync<object>(
-            HttpMethod.Get,
-            $"{_endpoints.GitHubSession}/{token}",
-            options: SerializerOptions,
-            cancellationToken: cancellationToken);
+        return await GetSessionAsync(token, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> GetGitHubPendingUserAsync(string token, CancellationToken cancellationToken)
     {
-        return await _client.SendHttpRequestAsync<object>(
-            HttpMethod.Get,
-            $"{_endpoints.GitHubPending}/{token}",
-            options: SerializerOptions,
-            cancellationToken: cancellationToken);
+        return await GetPendingUserAsync(token, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> CompleteGitHubSignInAsync(CompleteGoogleSignInRequest request,
