@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace AuthService.Application.Features.Authentication.External.Google.SignIn;
 
 public class GoogleSignInCommandHandler(
-    IExternalAuthProvider googleServiceClient,
+    IExternalAuthProviderFactory googleServiceClientFactory,
     IOAuthSessionStore sessionStore,
     UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder,
@@ -25,6 +25,7 @@ public class GoogleSignInCommandHandler(
         GoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
+        var googleServiceClient = googleServiceClientFactory.GetProvider(ExternalProviderType.Google);
         var stateValid = await stateStore.ValidateStateAsync(ExternalProviderType.Google, request.State, cancellationToken);
 
         if (!stateValid)

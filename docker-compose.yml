@@ -46,26 +46,29 @@ services:
       Redis__Configuration: ${REDIS_CONFIGURATION:-redis:6379}
       ConnectionStrings__Redis: ${REDIS_CONNECTIONSTRING:-redis:6379}
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
-      Authentication__Google__RedirectUri: http://auth-service:8080/auth-service/google/callback
-      Authentication__Google__PostSignInRedirectUri: http://localhost:3000/auth
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI}
+
+      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
       Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID:-dev}
       Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET:-dev}
-      Authentication__GitHub__RedirectUri: http://auth-service:8080/auth-service/github/callback
-      Authentication__GitHub__PostSignInRedirectUri: http://localhost:3000/auth
+      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI}
+
+      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
       Authentication__Discord__ClientId: ${AUTH_DISCORD_CLIENT_ID:-dev}
       Authentication__Discord__ClientSecret: ${AUTH_DISCORD_CLIENT_SECRET:-dev}
-      Authentication__Discord__RedirectUri: http://auth-service:8080/auth-service/discord/callback
-      Authentication__Discord__PostSignInRedirectUri: http://localhost:3000/auth
+      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI}
+
+      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8080:8080"
     volumes:
       - auth_keys:/root/.aspnet/DataProtection-Keys
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/auth-service/health || exit 1"]
       timeout: 10s
       retries: 5
       start_period: 30s

@@ -30,6 +30,37 @@ public class DebugController(IServiceProvider serviceProvider, ILogger<DebugCont
         });
     }
 
+    [HttpGet("options")]
+    public IActionResult Options()
+    {
+        var google = serviceProvider.GetService(typeof(Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.GoogleOptions>)) as Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.GoogleOptions>;
+        var github = serviceProvider.GetService(typeof(Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.GitHubOptions>)) as Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.GitHubOptions>;
+        var discord = serviceProvider.GetService(typeof(Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.DiscordOptions>)) as Microsoft.Extensions.Options.IOptions<AuthService.Infrastructure.Options.External.DiscordOptions>;
+
+        return Ok(new
+        {
+            google = google?.Value?.RedirectUri,
+            github = github?.Value?.RedirectUri,
+            discord = discord?.Value?.RedirectUri
+        });
+    }
+
+    [HttpGet("config")]
+    public IActionResult Config()
+    {
+        var cfg = serviceProvider.GetService(typeof(IConfiguration)) as IConfiguration;
+        var google = cfg?["Authentication:Google:RedirectUri"];
+        var github = cfg?["Authentication:GitHub:RedirectUri"];
+        var discord = cfg?["Authentication:Discord:RedirectUri"];
+
+        return Ok(new
+        {
+            google,
+            github,
+            discord
+        });
+    }
+
     private static string BuildKey(string state, string provider)
     {
         using var sha256 = SHA256.Create();

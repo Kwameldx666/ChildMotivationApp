@@ -63,4 +63,11 @@ public class AuthController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(query, cancellationToken);
         return result.ToActionResult();
     }
+
+    // Lightweight health endpoint to satisfy container readiness checks
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        return Ok(new { status = "ok" });
+    }
 }
