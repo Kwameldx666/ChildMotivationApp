@@ -1,4 +1,4 @@
-﻿using AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
+﻿using AuthService.Application.Features.Authentication.External.Google.CompleteSignIn;
 using AuthService.Application.Features.Authentication.External.Google.GetAuthorizationUrl;
 using AuthService.Application.Features.Authentication.External.Google.SignIn;
 using AuthService.Extensions;
@@ -52,7 +52,7 @@ public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> go
         var redirectUrl = QueryHelpers.AddQueryString(redirectBase, query);
         return Redirect(redirectUrl);
     }
-    
+
     [HttpPost("complete")]
     public async Task<IActionResult> CompleteGoogleSignInAsync([FromBody] CompleteGoogleSignInCommand command,
         CancellationToken cancellationToken)

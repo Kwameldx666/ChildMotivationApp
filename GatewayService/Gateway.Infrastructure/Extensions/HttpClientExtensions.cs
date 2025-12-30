@@ -16,10 +16,7 @@ public static class HttpClientExtensions
     {
         using var request = new HttpRequestMessage(httpMethod, requestUri);
 
-        if (body is not null)
-        {
-            request.Content = JsonContent.Create(body, options: options);
-        }
+        if (body is not null) request.Content = JsonContent.Create(body, options: options);
 
         return await httpClient.SendAsync(request, cancellationToken);
     }

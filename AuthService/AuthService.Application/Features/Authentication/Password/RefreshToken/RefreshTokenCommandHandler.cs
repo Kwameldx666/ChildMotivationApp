@@ -9,7 +9,7 @@ using AuthService.Common.ResultPattern;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.RefreshToken;
+namespace AuthService.Application.Features.Authentication.Password.RefreshToken;
 
 public class RefreshTokenCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,

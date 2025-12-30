@@ -19,7 +19,7 @@ internal static class PresentationExtension
         services.AddPolicies();
         services.AddCorsPolicy(configuration);
     }
-    
+
     private static void AddPolicies(this IServiceCollection services)
     {
         services.AddTransient<AuthorizationForwardingHandler>();
@@ -27,10 +27,8 @@ internal static class PresentationExtension
 
         services.AddAuthorization(options =>
         {
-            foreach (var s in UserScopes.All) 
-            {
+            foreach (var s in UserScopes.All)
                 options.AddPolicy(s, policy => policy.Requirements.Add(new ScopeRequirement(s)));
-            }
         });
     }
 
@@ -40,7 +38,7 @@ internal static class PresentationExtension
 
         services.AddCors(options =>
         {
-            options.AddPolicy(CorsPolicyName, builder =>    
+            options.AddPolicy(CorsPolicyName, builder =>
             {
                 builder.WithOrigins(allowedOrigins!)
                     .AllowAnyHeader()

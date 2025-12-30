@@ -23,9 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="ExternalAuth\GitHub\"/>
-        <Folder Include="ExternalAuth\Google\"/>
-        <Folder Include="Providers\Internal\"/>
+        <Folder Include="Services\OAuth\Discord\" />
         <Folder Include="Services\Session\"/>
     </ItemGroup>
 

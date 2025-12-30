@@ -3,7 +3,6 @@ using AuthService.Application.Features.Authentication.External.GitHub.GetAuthori
 using AuthService.Application.Features.Authentication.External.GitHub.SignIn;
 using AuthService.Extensions;
 using AuthService.Infrastructure.Options.External;
-using AuthService.Infrastructure.Services.Authentication.External;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;

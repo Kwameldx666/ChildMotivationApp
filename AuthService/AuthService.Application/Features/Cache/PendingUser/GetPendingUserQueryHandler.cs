@@ -1,7 +1,6 @@
 using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
-using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Dto.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;

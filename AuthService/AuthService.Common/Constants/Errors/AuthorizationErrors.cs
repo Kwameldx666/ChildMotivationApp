@@ -45,7 +45,7 @@ public static class AuthorizationErrors
 
     public static Error ExternalAuthFailed(string description = "")
     {
-        return new Error()
+        return new Error
         {
             ErrorCode = 500,
             ErrorType = "ExternalAuthFailed",
@@ -60,7 +60,7 @@ public static class AuthorizationErrors
 
     public static Error ExternalProviderUnavailable()
     {
-        return new Error()
+        return new Error
         {
             ErrorCode = 501,
             ErrorType = "ExternalProviderUnavailable",

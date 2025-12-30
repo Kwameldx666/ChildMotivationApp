@@ -11,26 +11,58 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_owner_net -d db_net -h localhost -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   auth-service:
     build:
       context: .
       dockerfile: AuthService/AuthService.Api/Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      # For local development default to in-memory state store to avoid requiring Redis
+      Authentication__UseDistributedStateStore: ${AUTH_USE_DISTRIBUTED_STATE_STORE:-false}
+      Redis__Configuration: ${REDIS_CONFIGURATION:-redis:6379}
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
-      Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID}
-      Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
+      Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
+      Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
       Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
       Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
-      Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID}
-      Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+      Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID:-dev}
+      Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET:-dev}
       Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-http://localhost:8080/auth-service/github/callback}
       Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
+      Authentication__Discord__ClientId: ${AUTH_DISCORD_CLIENT_ID:-dev}
+      Authentication__Discord__ClientSecret: ${AUTH_DISCORD_CLIENT_SECRET:-dev}
+      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI:-http://localhost:8080/auth-service/discord/callback}
+      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
   user-service:
     build:
       context: .
@@ -49,8 +81,10 @@ services:
       context: .
       dockerfile: GatewayService/Gateway.Api/Dockerfile
     depends_on:
-      - auth-service
-      - user-service
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081

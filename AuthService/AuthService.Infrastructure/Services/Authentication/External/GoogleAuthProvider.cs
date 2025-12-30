@@ -4,9 +4,10 @@ using System.Net.Http.Json;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.Token;
 using AuthService.Application.Dto.User;
-using AuthService.Application.Features.Authentication.External.Shared.Dto;
+using AuthService.Application.Enums;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
+using AuthService.Infrastructure.Common;
 using AuthService.Infrastructure.Constants;
 using AuthService.Infrastructure.Options.External;
 using Microsoft.AspNetCore.WebUtilities;
@@ -23,7 +24,8 @@ public class GoogleAuthProvider(
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.Google);
     private readonly GoogleEndpoints _googleEndpoints = googleEndpoints.Value;
     private readonly GoogleOptions _googleOptions = googleOptions.Value;
-
+    public ExternalProviderType ProviderType => ExternalProviderType.Google;
+    
     public async Task<Result<ExternalAuthToken>> RequestAccessToken(string code, CancellationToken cancellationToken)
     {
         // Per Google OAuth spec, send client_id and client_secret in the request body as x-www-form-urlencoded
@@ -44,18 +46,14 @@ public class GoogleAuthProvider(
         var response = await _client.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
-        {
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
                 AuthorizationErrors.ExternalAuthFailed());
-        }
 
-        var token = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken: cancellationToken);
+        var token = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken);
 
         if (token is null || string.IsNullOrEmpty(token.AccessToken))
-        {
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
                 AuthorizationErrors.ExternalAuthFailed("The access token is missing"));
-        }
         var result = new ExternalAuthToken(token.AccessToken, token.IdToken);
         return Result<ExternalAuthToken>.Success(result);
     }
@@ -65,11 +63,9 @@ public class GoogleAuthProvider(
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(accessToken))
-        {
             return Result.Failure<ExternalUserInfo>(
                 HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Access token is empty"));
-        }
 
         var request = new HttpRequestMessage(
             HttpMethod.Get,
@@ -96,34 +92,28 @@ public class GoogleAuthProvider(
         }
 
         if (!response.IsSuccessStatusCode)
-        {
             return Result.Failure<ExternalUserInfo>(
                 response.StatusCode,
                 AuthorizationErrors.ExternalAuthFailed());
-        }
 
         var userInfo = await response.Content
             .ReadFromJsonAsync<ExternalUserInfo>(cancellationToken);
 
         if (userInfo is null)
-        {
             return Result.Failure<ExternalUserInfo>(
                 HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Empty user info response"));
-        }
-        
+
         if (string.IsNullOrWhiteSpace(userInfo.Email))
-        {
             return Result.Failure<ExternalUserInfo>(
                 HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Email was not provided by external provider"));
-        }
 
         return Result<ExternalUserInfo>.Success(userInfo);
     }
 
 
-    public AuthorizationResponse BuildAuthQuery(string state, string[] scopes)
+    public AuthorizationUrlResponse BuildAuthQuery(string state, string[] scopes)
     {
         var query = new Dictionary<string, string?>
         {
@@ -138,7 +128,7 @@ public class GoogleAuthProvider(
 
         var authorizationUrl = QueryHelpers.AddQueryString(googleEndpoints.Value.GoogleAuthorize, query);
 
-        var response = new AuthorizationResponse(authorizationUrl, state);
+        var response = new AuthorizationUrlResponse(authorizationUrl, state);
         return response;
     }
 }

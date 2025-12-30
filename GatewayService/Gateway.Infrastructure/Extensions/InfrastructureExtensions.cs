@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Gateway.Application.Interfaces.Infrastructure;
+using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Infrastructure.Mappings;
@@ -9,13 +9,12 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using JwtBearerOptions = Gateway.Infrastructure.Services.Models.JwtBearer.JwtBearerOptions;
 
 namespace Gateway.Infrastructure.Extensions;
-
-public record ResolvedServiceAddress(string BaseAddress);
 
 public static class InfrastructureExtensions
 {
@@ -33,46 +32,59 @@ public static class InfrastructureExtensions
         return services;
     }
 
-    private static void ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureHttpClients(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        // Resolve and normalize AuthService base address before registering HttpClients to avoid modifying the IServiceCollection inside a delegate.
-        var authBaseAddress = configuration["Services:AuthService"];
-        if (string.IsNullOrWhiteSpace(authBaseAddress))
+        ConfigureClient(
+            services,
+            configuration,
+            DefaultHttpClientNames.AuthService,
+            "Services:AuthService",
+            "http://localhost:7265");
+
+        ConfigureClient(
+            services,
+            configuration,
+            DefaultHttpClientNames.UserService,
+            "Services:UserService",
+            "http://localhost:5110");
+    }
+    
+    private static void ConfigureClient(
+        IServiceCollection services,
+        IConfiguration configuration,
+        string clientName,
+        string configKey,
+        string defaultAddress)
+    {
+        var baseAddress = GetBaseAddress(configuration, configKey, defaultAddress);
+
+        services.AddHttpClient(clientName, client =>
+                client.BaseAddress = new Uri(baseAddress))
+            .AddHttpMessageHandler<AuthorizationForwardingHandler>();
+    }
+
+    private static string GetBaseAddress(
+        IConfiguration configuration,
+        string key,
+        string fallback)
+    {
+        var address = configuration[key];
+
+        if (string.IsNullOrWhiteSpace(address))
+            return fallback;
+
+        try
         {
-            authBaseAddress = "http://localhost:7265";
+            var uri = new Uri(address);
+            // Respect the configured host/port/scheme as provided (do not force localhost).
+            return uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
         }
-
-        var runningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-        if (!runningInContainer && authBaseAddress.Contains("auth-service"))
+        catch
         {
-            try
-            {
-                var uri = new Uri(authBaseAddress);
-                var builder = new UriBuilder(uri) { Host = "localhost" };
-                authBaseAddress = builder.Uri.ToString().TrimEnd('/');
-            }
-            catch
-            {
-                authBaseAddress = "http://localhost:7265";
-            }
+            return fallback;
         }
-
-        // Register resolved address for diagnostics (must be done on the IServiceCollection, outside runtime delegates)
-        services.AddSingleton(new ResolvedServiceAddress(authBaseAddress));
-
-        services.AddHttpClient(DefaultHttpClientNames.AuthService, client =>
-        {
-            client.BaseAddress = new Uri(authBaseAddress);
-        }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
-
-        // UserService client — keep existing behaviour, with a sensible localhost fallback for dev
-        var userBaseAddress = configuration["Services:UserService"];
-        if (string.IsNullOrWhiteSpace(userBaseAddress)) userBaseAddress = "http://localhost:5110";
-
-        services.AddHttpClient(DefaultHttpClientNames.UserService, client =>
-        {
-            client.BaseAddress = new Uri(userBaseAddress);
-        }).AddHttpMessageHandler<AuthorizationForwardingHandler>();
     }
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
@@ -108,7 +120,7 @@ public static class InfrastructureExtensions
                 };
                 options.MapInboundClaims = false;
             });
-        
+
         services.Configure<JwtBearerOptions>(configuration.GetSection("JwtBearer"));
     }
 

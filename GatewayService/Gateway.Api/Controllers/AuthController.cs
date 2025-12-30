@@ -1,4 +1,4 @@
-﻿using Gateway.Application.Interfaces.Infrastructure;
+﻿using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Dto.Auth;
 using Gateway.Application.Dto.Login;
 using Gateway.Application.Dto.Register;
@@ -30,18 +30,40 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         CancellationToken cancellationToken)
     {
         if (request is null || string.IsNullOrWhiteSpace(request.RefreshToken))
-        {
             return BadRequest("Refresh token is required.");
-        }
 
         using var response = await authClient.RefreshAsync(request, cancellationToken);
         return await response.ToActionResultAsync();
     }
+    
+    [HttpGet("{provider}/session/{token}")]
+    public async Task<IActionResult> GetProviderSessionAsync([FromRoute] string provider, [FromRoute] string token,
+        CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetSessionAsync(token, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
 
+    [HttpGet("{provider}/pending/{token}")]
+    public async Task<IActionResult> GetProviderPendingUserAsync([FromRoute] string provider, [FromRoute] string token,
+        CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetPendingUserAsync(token, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+    
     [HttpGet("google/authorize")]
     public async Task<IActionResult> GetGoogleAuthorizationAsync(CancellationToken cancellationToken)
     {
         using var response = await authClient.GetGoogleAuthorizationAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+    
+    [HttpPost("google/complete")]
+    public async Task<IActionResult> CompleteGoogleSignInAsync([FromBody] CompleteExternalSignInRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var response = await authClient.CompleteGoogleSignInAsync(request, cancellationToken);
         return await response.ToActionResultAsync();
     }
 
@@ -51,25 +73,27 @@ public class AuthController(IAuthServiceClient authClient) : ControllerBase
         using var response = await authClient.GetGitHubAuthorizationAsync(cancellationToken);
         return await response.ToActionResultAsync();
     }
-
-    [HttpGet("{provider}/session/{token}")]
-    public async Task<IActionResult> GetProviderSessionAsync([FromRoute] string provider, [FromRoute] string token, CancellationToken cancellationToken)
-    {
-        using var response = await authClient.GetSessionAsync(token, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
-
-    [HttpGet("{provider}/pending/{token}")]
-    public async Task<IActionResult> GetProviderPendingUserAsync([FromRoute] string provider, [FromRoute] string token, CancellationToken cancellationToken)
-    {
-        using var response = await authClient.GetPendingUserAsync(token, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
-
+    
     [HttpPost("github/complete")]
-    public async Task<IActionResult> CompleteGitHubSignInAsync([FromBody] CompleteExternalSignInRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CompleteGitHubSignInAsync([FromBody] CompleteExternalSignInRequest request,
+        CancellationToken cancellationToken)
     {
         using var response = await authClient.CompleteGitHubSignInAsync(request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpPost("discord/authorize")]
+    public async Task<IActionResult> GetDiscordAuthorizationAsync(CancellationToken cancellationToken)
+    {
+        using var response = await authClient.GetDiscordAuthorizationAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+    
+    [HttpPost("discord/complete")]
+    public async Task<IActionResult> CompleteDiscordSignInAsync([FromBody] CompleteExternalSignInRequest request,
+        CancellationToken cancellationToken)
+    {
+        using var response = await authClient.CompleteDiscordSignInAsync(request, cancellationToken);
         return await response.ToActionResultAsync();
     }
 }

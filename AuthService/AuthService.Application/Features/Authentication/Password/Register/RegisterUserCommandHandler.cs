@@ -1,5 +1,5 @@
 using System.Net;
-using AuthService.Application.Features.Authentication.Shared;
+using AuthService.Application.Dto.User;
 using AuthService.Application.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
@@ -7,7 +7,7 @@ using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.Register;
+namespace AuthService.Application.Features.Authentication.Password.Register;
 
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result>
 {

@@ -60,13 +60,17 @@ function AppleIcon(props: { className?: string }) {
   )
 }
 
-function MicrosoftIcon(props: { className?: string }) {
+function DiscordIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={props.className} aria-hidden="true">
-      <path fill="#f35325" d="M2 2h9v9H2z" />
-      <path fill="#81bc06" d="M13 2h9v9h-9z" />
-      <path fill="#05a6f0" d="M2 13h9v9H2z" />
-      <path fill="#ffba08" d="M13 13h9v9h-9z" />
+      <path
+        fill="currentColor"
+        d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.0371 19.7363 19.7363 0 0 0-4.8852 1.5152.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.075.075 0 0 0 .0812-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.0692.0692 0 0 0-.0366-.0966c-.6528-.2476-1.2743-.5495-1.8722-.8923a.0703.0703 0 0 1-.0065-.1177c.1254-.0943.2508-.1923.3718-.2914a.0576.0576 0 0 1 .0596-.0107c3.9278 1.7933 8.18 1.7933 12.0614 0a.0566.0566 0 0 1 .0609.0098c.121.099.2464.198.3718.2923a.0702.0702 0 0 1-.0057.1176c-.598.343-.6302.3608-1.873.8924a.0686.0686 0 0 0-.0359.0966c.3604.698.7719 1.3628 1.2245 1.9932a.076.076 0 0 0 .0813.0276c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.082.082 0 0 0 .03-.0559c.5004-5.177-.8382-9.5818-3.5485-13.6604a.0619.0619 0 0 0-.0312-.0282z"
+      />
+      <path
+        fill="#fff"
+        d="M9.173 15.305c-1.18 0-2.155-1.085-2.155-2.420 0-1.334 0-3.048 0-3.048s.975-.469 2.155-.469 2.156.426 2.156.426 1.017-.426 2.297-.426 2.156.469 2.156.469 0 1.714 0 3.048c0 1.335-.971 2.42-2.151 2.42-1.18 0-2.155-1.085-2.155-1.085s-.976 1.085-2.298 1.085z"
+      />
     </svg>
   )
 }
@@ -182,7 +186,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       } else if (provider === "github") {
         authorizationUrl = (await authApi.getOAuthAuthorization('github')).authorizationUrl
       } else if (provider === "microsoft") {
-        authorizationUrl = (await authApi.getOAuthAuthorization('microsoft')).authorizationUrl
+        // legacy: treat microsoft button as discord
+        authorizationUrl = (await authApi.getOAuthAuthorization('discord')).authorizationUrl
+      } else if (provider === 'discord') {
+        authorizationUrl = (await authApi.getOAuthAuthorization('discord')).authorizationUrl
       } else {
         setError("Интеграция с выбранным провайдером ещё не доступна.")
         setIsLoading(false)
@@ -470,12 +477,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => submitOAuth("microsoft")}
+                        onClick={() => submitOAuth("discord")}
                         disabled={isLoading}
-                        aria-label="Войти через Microsoft"
+                        aria-label="Войти через Discord"
                       >
-                        <MicrosoftIcon className="h-5 w-5" />
-                        <span className="sr-only">Microsoft</span>
+                        <DiscordIcon className="h-5 w-5" />
+                        <span className="sr-only">Discord</span>
                       </Button>
                     </div>
                   </>

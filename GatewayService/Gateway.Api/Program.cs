@@ -1,6 +1,5 @@
 using Gateway.Extensions;
 using Gateway.Infrastructure.Extensions;
-using Gateway.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +16,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if (!isRunningInContainer)
-{
-    app.UseHttpsRedirection();
-}
+if (!isRunningInContainer) app.UseHttpsRedirection();
 app.UseCors(PresentationExtension.CorsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();

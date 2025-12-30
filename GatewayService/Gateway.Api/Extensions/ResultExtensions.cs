@@ -10,9 +10,7 @@ public static class ResultExtensions
         if (result.IsSuccess)
         {
             if (result is IResult<object> valueResult && valueResult.Value is not null)
-            {
                 return new ObjectResult(valueResult.Value) { StatusCode = result.StatusCode };
-            }
 
             return new StatusCodeResult(result.StatusCode);
         }
@@ -22,7 +20,7 @@ public static class ResultExtensions
 
     public static ProblemDetails ToProblemDetails(this Error error)
     {
-        return new ProblemDetails()
+        return new ProblemDetails
         {
             Extensions =
             {

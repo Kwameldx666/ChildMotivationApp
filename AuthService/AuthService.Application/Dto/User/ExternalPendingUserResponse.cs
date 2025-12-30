@@ -1,4 +1,4 @@
-﻿namespace AuthService.Application.Features.Authentication.External.Shared.Dto;
+﻿namespace AuthService.Application.Dto.User;
 
 public class ExternalPendingUserResponse(string email, string name, string picture)
 {

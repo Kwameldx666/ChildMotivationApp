@@ -1,5 +1,4 @@
-using System;
-using Gateway.Application.Interfaces.Infrastructure;
+using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Dto.Profile;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -27,12 +26,10 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
     }
 
     [HttpPut("{userId:guid}")]
-    public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest? request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest? request,
+        CancellationToken cancellationToken)
     {
-        if (request is null)
-        {
-            return BadRequest("Request body cannot be null.");
-        }
+        if (request is null) return BadRequest("Request body cannot be null.");
 
         using var response = await userServiceClient.UpdateProfileAsync(userId, request, cancellationToken);
         return await response.ToActionResultAsync();

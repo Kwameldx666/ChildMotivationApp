@@ -7,7 +7,6 @@ using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Identity;
-using AuthService.Infrastructure.Services.OAuth.Google;
 using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Persistence.Context;
 using Microsoft.AspNetCore.Identity;
@@ -22,15 +21,13 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.ValidateConfiguration(configuration);
         services.ConfigureIdentity();
         services.ConfigureQuartz(configuration);
         services.ConfigureEndpoints(configuration);
         services.AddProxies();
-
+        services.AddCacheStores();
         services.AddMemoryCache();
-        services.AddSingleton<IOAuthStateStore, GoogleStateStore>();
-        services.AddSingleton<IOAuthStateStore, GoogleStateStore>();
+        services.ValidateConfiguration(configuration);
         services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
         services.AddSingleton<OAuthPendingUserStore, OAuthPendingUserStore>();
 
@@ -40,36 +37,91 @@ public static class InfrastructureExtensions
         return services;
     }
 
-    private static void ValidateConfiguration(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddOptions<JwtBearerOptions>()
-            .Bind(configuration.GetSection("JwtBearer"))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "JwtBearer:Secret must be provided.")
-            .Validate(options => options.AccessTokenLifetime > 0,
-                "JwtBearer:AccessTokenLifetime must be greater than zero.")
-            .ValidateOnStart();
+  private static void ValidateConfiguration(
+    this IServiceCollection services,
+    IConfiguration configuration)
+{
+    // =========================
+    // JWT bearer configuration
+    // =========================
+    services.AddOptions<JwtBearerOptions>()
+        .Bind(configuration.GetSection("JwtBearer"))
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.Secret),
+            "JwtBearer:Secret must be provided.")
+        .Validate(
+            options => options.AccessTokenLifetime > 0,
+            "JwtBearer:AccessTokenLifetime must be greater than zero.")
+        .ValidateOnStart();
 
-        services.AddOptions<GoogleOptions>()
-            .Bind(configuration.GetSection("Authentication:Google"))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Client secret must be provided.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
-            .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
-            .ValidateOnStart();
+    // =========================
+    // Google OAuth configuration
+    // =========================
+    services.AddOptions<GoogleOptions>()
+        .Bind(configuration.GetSection("Authentication:Google"))
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
+            "Google ClientSecret must be provided.")
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientId),
+            "Google ClientId must be provided.")
+        .Validate(
+            options => !string.IsNullOrEmpty(options.RedirectUri),
+            "Google RedirectUri must be provided.")
+        .ValidateOnStart();
 
-        services.AddOptions<GitHubOptions>()
-            .Bind(configuration.GetSection("Authentication:GitHub"))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Client secret must be provided.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
-            .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
-                "Post sign-in redirect uri must be provided.")
-            .ValidateOnStart();
-    }
+    // =========================
+    // GitHub OAuth configuration
+    // =========================
+    services.AddOptions<GitHubOptions>()
+        .Bind(configuration.GetSection("Authentication:GitHub"))
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
+            "GitHub ClientSecret must be provided.")
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientId),
+            "GitHub ClientId must be provided.")
+        .Validate(
+            options => !string.IsNullOrEmpty(options.RedirectUri),
+            "GitHub RedirectUri must be provided.")
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
+            "GitHub PostSignInRedirectUri must be provided.")
+        .ValidateOnStart();
+
+    // =========================
+    // Discord OAuth configuration
+    // =========================
+    services.AddOptions<DiscordOptions>()
+        .Bind(configuration.GetSection("Authentication:Discord"))
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
+            "Discord ClientSecret must be provided.")
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.ClientId),
+            "Discord ClientId must be provided.")
+        .Validate(
+            options => !string.IsNullOrEmpty(options.RedirectUri),
+            "Discord RedirectUri must be provided.")
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
+            "Discord PostSignInRedirectUri must be provided.")
+        .ValidateOnStart();
+}
+
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<GoogleEndpoints>(configuration.GetSection("ServicesEndpoints:Google"));
         services.Configure<GitHubEndpoints>(configuration.GetSection("ServicesEndpoints:GitHub"));
+        services.Configure<DiscordOptions>(configuration.GetSection("ServicesEndpoints:Discord"));
+    }
+
+    private static void AddCacheStores(this IServiceCollection services)
+    {
+
+        services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
+        services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
     }
 
     private static void AddProxies(this IServiceCollection services)
@@ -77,6 +129,11 @@ public static class InfrastructureExtensions
         services.AddHttpClient();
 
         services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
+        services.AddScoped<IExternalAuthProvider, GitHubAuthProvider>();
+        services.AddScoped<IExternalAuthProvider, DiscordAuthProvider>();
+        
+        services.AddScoped<IExternalAuthProviderFactory, ExternalAuthProviderFactory>();
+
     }
 
     private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)
