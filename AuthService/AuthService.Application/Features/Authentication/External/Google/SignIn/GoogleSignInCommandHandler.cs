@@ -12,12 +12,12 @@ using Microsoft.Extensions.Logging;
 namespace AuthService.Application.Features.Authentication.External.Google.SignIn;
 
 public class GoogleSignInCommandHandler(
-    IExternalAuthProvider googleServiceClient,
-    IOAuthStateStore stateStore,
+    IExternalAuthProviderFactory googleServiceClientFactory,
+    IOAuthSessionStore sessionStore,
     UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder,
     IOAuthPendingUserStore pendingUserStore,
-    IOAuthSessionStore sessionStore,
+    IOAuthStateStore stateStore,
     ILogger<GoogleSignInCommandHandler> logger)
     : IRequestHandler<GoogleSignInCommand, Result<ExternalSignInResult>>
 {
@@ -25,16 +25,13 @@ public class GoogleSignInCommandHandler(
         GoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
-        var stateValid = await stateStore.ValidateStateAsync(
-            request.State,
-            cancellationToken);
+        var googleServiceClient = googleServiceClientFactory.GetProvider(ExternalProviderType.Google);
+        var stateValid = await stateStore.ValidateStateAsync(ExternalProviderType.Google, request.State, cancellationToken);
 
         if (!stateValid)
-        {
             return Result.Failure<ExternalSignInResult>(
                 HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("State parameter is invalid or expired."));
-        }
 
         var tokenResult =
             await googleServiceClient.RequestAccessToken(
@@ -47,7 +44,7 @@ public class GoogleSignInCommandHandler(
                 tokenResult.Error!);
 
         ExternalUserInfo userInfo;
-        
+
         if (!string.IsNullOrWhiteSpace(tokenResult.Value!.AccessToken))
         {
             var userInfoResult =
@@ -130,7 +127,7 @@ public class GoogleSignInCommandHandler(
                     ExternalSignInStatus.Authenticated,
                     sessionToken));
         }
-        
+
         var pendingToken =
             await pendingUserStore.StoreAsync(
                 userInfo,

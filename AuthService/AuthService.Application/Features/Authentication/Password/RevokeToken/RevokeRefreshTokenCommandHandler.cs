@@ -4,7 +4,7 @@ using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.RevokeToken;
+namespace AuthService.Application.Features.Authentication.Password.RevokeToken;
 
 public class RevokeRefreshTokenCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,

@@ -24,6 +24,18 @@ function splitName(fullName: string): [string, string] {
   return [parts[0], parts[1]]
 }
 
+function mapOAuthError(e: string | null | undefined) {
+  if (!e) return "Авторизация прервана пользователем."
+  const lower = e.toLowerCase()
+  if (lower.includes("access token") || lower.includes("access_token") || lower.includes("the access token is missing"))
+    return "Не получен токен доступа от провайдера. Попробуйте ещё раз или вернитесь на главную."
+  if (lower.includes("github did not return required user information") || lower.includes("did not return required user information"))
+    return "Провайдер не вернул необходимые данные пользователя (email). Попробуйте другой аккаунт или вернитесь на главную."
+  if (lower.includes("error while processing") || lower.includes("authentication failed"))
+    return "Ошибка при обработке запроса на сервере. Попробуйте позже."
+  return e
+}
+
 export default function OAuthRedirectPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -56,7 +68,8 @@ export default function OAuthRedirectPage() {
       }
 
       if (statusParam === "error") {
-        setFatalError(errorParam ?? "Авторизация прервана пользователем.")
+        const mappedError = mapOAuthError(errorParam)
+        setFatalError(mappedError)
         setIsLoading(false)
         return
       }
@@ -101,6 +114,13 @@ export default function OAuthRedirectPage() {
 
     processStatus()
   }, [dispatch, errorParam, router, statusParam, tokenParam])
+
+  // Auto-redirect to home after showing fatal error for a short time
+  useEffect(() => {
+    if (!fatalError) return
+    const t = setTimeout(() => router.replace("/"), 6000)
+    return () => clearTimeout(t)
+  }, [fatalError, router])
 
   const avatarPreview = useMemo(() => pendingUser?.picture ?? null, [pendingUser])
 

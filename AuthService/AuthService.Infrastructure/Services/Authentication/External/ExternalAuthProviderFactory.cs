@@ -4,28 +4,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthService.Infrastructure.Services.Authentication.External;
 
-using Microsoft.Extensions.Logging;
-
 public class ExternalAuthProviderFactory : IExternalAuthProviderFactory
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<ExternalAuthProviderFactory> _logger;
 
-    public ExternalAuthProviderFactory(IServiceProvider serviceProvider, ILogger<ExternalAuthProviderFactory> logger)
+    public ExternalAuthProviderFactory(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _logger = logger;
-        _logger.LogInformation("ExternalAuthProviderFactory created");
     }
 
     public IExternalAuthProvider GetProvider(ExternalProviderType providerType)
     {
-        _logger.LogInformation("Resolving external auth provider for {ProviderType}", providerType);
-        return providerType switch
-        {
-            ExternalProviderType.Google => _serviceProvider.GetRequiredService<GoogleAuthProvider>(),
-            ExternalProviderType.GitHub => _serviceProvider.GetRequiredService<GitHubAuthProvider>(),
-            _ => throw new NotSupportedException($"External provider '{providerType}' is not supported.")
-        };
+        // Resolve scoped providers inside a scope so factory can be singleton-safe
+        using var scope = _serviceProvider.CreateScope();
+        var providers = scope.ServiceProvider.GetServices<IExternalAuthProvider>();
+        var provider = providers.FirstOrDefault(p => p.ProviderType == providerType);
+        if (provider == null)
+            throw new InvalidOperationException($"Provider {providerType} not registered.");
+        return provider;
     }
 }

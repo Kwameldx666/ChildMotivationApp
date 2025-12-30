@@ -1,10 +1,10 @@
-using AuthService.Application.Dto.User;
+﻿using AuthService.Application.Dto.User;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.External.Discord.CompleteSignIn;
 
-public record CompleteGoogleSignInCommand(
+public record CompleteDiscordSignInCommand(
     string PendingToken,
     string Role,
     string Name,

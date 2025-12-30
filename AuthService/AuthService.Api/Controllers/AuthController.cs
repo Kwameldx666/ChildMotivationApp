@@ -1,9 +1,9 @@
-using AuthService.Application.Features.Authentication.External.Google.GetPendingUser;
-using AuthService.Application.Features.Authentication.Login;
-using AuthService.Application.Features.Authentication.RefreshToken;
-using AuthService.Application.Features.Authentication.Register;
-using AuthService.Application.Features.Authentication.RevokeToken;
-using AuthService.Application.Features.Authentication.Session.Get;
+using AuthService.Application.Features.Authentication.Password.Login;
+using AuthService.Application.Features.Authentication.Password.RefreshToken;
+using AuthService.Application.Features.Authentication.Password.Register;
+using AuthService.Application.Features.Authentication.Password.RevokeToken;
+using AuthService.Application.Features.Cache.PendingUser;
+using AuthService.Application.Features.Cache.Session.Get;
 using AuthService.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +45,7 @@ public class AuthController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(request, cancellationToken);
         return result.ToActionResult();
     }
-    
+
     [HttpGet("session/{token}")]
     public async Task<IActionResult> GetGoogleSessionAsync([FromRoute] string token,
         CancellationToken cancellationToken)
@@ -62,5 +62,12 @@ public class AuthController(IMediator mediator) : ControllerBase
         var query = new GetPendingUserQuery(token);
         var result = await mediator.Send(query, cancellationToken);
         return result.ToActionResult();
+    }
+
+    // Lightweight health endpoint to satisfy container readiness checks
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        return Ok(new { status = "ok" });
     }
 }

@@ -1,7 +1,7 @@
-using System.Net;
+﻿using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
-using AuthService.Application.Features.Authentication.Shared;
+using AuthService.Application.Features.Authentication.External.GitHub.CompleteSignIn;
 using AuthService.Application.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
@@ -9,15 +9,15 @@ using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.External.Google.CompleteGoogle;
+namespace AuthService.Application.Features.Authentication.External.Discord.CompleteSignIn;
 
-public class CompleteGoogleSignInCommandHandler(
+public class CompleteDiscordSignInCommandHandler(
     IOAuthPendingUserStore pendingUserStore,
     UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder)
-    : IRequestHandler<CompleteGoogleSignInCommand, Result<ExternalLoginResponse>>
+    : IRequestHandler<CompleteGitHubSignInCommand, Result<ExternalLoginResponse>>
 {
-    public async Task<Result<ExternalLoginResponse>> Handle(CompleteGoogleSignInCommand request,
+    public async Task<Result<ExternalLoginResponse>> Handle(CompleteGitHubSignInCommand request,
         CancellationToken cancellationToken)
     {
         var pendingUser = await pendingUserStore.TakeAsync(request.PendingToken, cancellationToken);

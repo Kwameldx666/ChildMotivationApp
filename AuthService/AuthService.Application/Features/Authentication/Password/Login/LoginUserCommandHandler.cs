@@ -11,7 +11,7 @@ using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace AuthService.Application.Features.Authentication.Login;
+namespace AuthService.Application.Features.Authentication.Password.Login;
 
 public class LoginUserCommandHandler(
     UserManager<Domain.Entities.User> userManager,

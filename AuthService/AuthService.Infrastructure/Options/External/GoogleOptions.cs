@@ -1,6 +1,8 @@
-﻿namespace AuthService.Infrastructure.Options.External;
+﻿using Microsoft.AspNetCore.Authentication.OAuth;
 
-public class GoogleOptions
+namespace AuthService.Infrastructure.Options.External;
+
+public class GoogleOptions : OAuthOptions
 {
     public string ClientId { get; set; } = null!;
     public string ClientSecret { get; set; } = null!;

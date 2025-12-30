@@ -5,7 +5,7 @@ using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.Session.Get;
+namespace AuthService.Application.Features.Cache.Session.Get;
 
 public class GetSessionQueryHandler(IOAuthSessionStore sessionStore)
     : IRequestHandler<GetSessionQuery, Result<ExternalLoginResponse>>

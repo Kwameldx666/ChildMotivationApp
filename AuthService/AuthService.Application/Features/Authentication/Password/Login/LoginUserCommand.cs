@@ -2,6 +2,6 @@
 using AuthService.Common.ResultPattern;
 using MediatR;
 
-namespace AuthService.Application.Features.Authentication.Login;
+namespace AuthService.Application.Features.Authentication.Password.Login;
 
 public record LoginUserCommand(string Email, string Password) : IRequest<Result<LoginResponse>>;

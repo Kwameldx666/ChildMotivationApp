@@ -6,15 +6,16 @@ namespace Gateway.Middlewares;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
+        CancellationToken cancellationToken)
     {
-        Error error = exception switch
+        var error = exception switch
         {
             _ => DefaultErrors.InternalServerError(exception.Message)
         };
 
         httpContext.Response.StatusCode = error.ErrorCode;
-        httpContext.Response.WriteAsJsonAsync(error.ToProblemDetails(), cancellationToken: cancellationToken);
+        httpContext.Response.WriteAsJsonAsync(error.ToProblemDetails(), cancellationToken);
         return new ValueTask<bool>(false);
     }
 }

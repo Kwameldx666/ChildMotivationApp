@@ -1,7 +1,5 @@
-using System;
-using System.Net.Http;
 using System.Text.Json;
-using Gateway.Application.Interfaces.Infrastructure;
+using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Dto.Profile;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Extensions;
@@ -13,9 +11,9 @@ namespace Gateway.Infrastructure.Services.Clients;
 public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapshot<UserEndpoints> endpoints)
     : IUserServiceClient
 {
-    private readonly UserEndpoints _endpoints = endpoints.Value;
-    private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.UserService);
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.UserService);
+    private readonly UserEndpoints _endpoints = endpoints.Value;
 
     public Task<HttpResponseMessage> GetProfileAsync(Guid userId, CancellationToken cancellationToken)
     {
@@ -39,7 +37,8 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
-    public Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request, CancellationToken cancellationToken)
+    public Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request,
+        CancellationToken cancellationToken)
     {
         var requestUri = BuildProfilePath(userId);
         return _client.SendHttpRequestAsync(
@@ -54,25 +53,18 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     {
         var basePath = _endpoints.Profile;
         if (string.IsNullOrWhiteSpace(basePath))
-        {
             throw new InvalidOperationException("UserService profile endpoint is not configured.");
-        }
 
         return $"{basePath.TrimEnd('/')}/{userId}";
     }
 
     private string BuildProfileMePath()
     {
-        if (!string.IsNullOrWhiteSpace(_endpoints.ProfileMe))
-        {
-            return _endpoints.ProfileMe;
-        }
+        if (!string.IsNullOrWhiteSpace(_endpoints.ProfileMe)) return _endpoints.ProfileMe;
 
         var basePath = _endpoints.Profile;
         if (string.IsNullOrWhiteSpace(basePath))
-        {
             throw new InvalidOperationException("UserService profile endpoint is not configured.");
-        }
 
         return $"{basePath.TrimEnd('/')}/me";
     }

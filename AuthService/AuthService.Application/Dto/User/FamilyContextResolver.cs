@@ -6,7 +6,7 @@ using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthService.Application.Features.Authentication.Shared;
+namespace AuthService.Application.Dto.User;
 
 internal static class FamilyContextResolver
 {

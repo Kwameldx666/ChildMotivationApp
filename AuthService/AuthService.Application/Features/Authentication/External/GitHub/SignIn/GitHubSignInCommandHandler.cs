@@ -10,73 +10,66 @@ using Microsoft.Extensions.Logging;
 
 namespace AuthService.Application.Features.Authentication.External.GitHub.SignIn;
 
-public class GitHubSignInCommandHandler(
+public sealed class GitHubSignInCommandHandler(
     IOAuthStateStore stateStore,
     IExternalAuthProviderFactory providerFactory,
     IExternalLoginSessionBuilder externalLoginSessionBuilder,
     IOAuthPendingUserStore pendingUserStore,
     IOAuthSessionStore sessionStore,
     UserManager<Domain.Entities.User> userManager,
-    Microsoft.Extensions.Logging.ILogger<GitHubSignInCommandHandler> logger)
+    ILogger<GitHubSignInCommandHandler> logger)
     : IRequestHandler<GitHubSignInCommand, Result<ExternalSignInResult>>
 {
     public async Task<Result<ExternalSignInResult>> Handle(
         GitHubSignInCommand request,
         CancellationToken cancellationToken)
     {
-        // Log callback inputs (do not log sensitive tokens)
-        logger.LogInformation("GitHub callback received: state={State}, hasCode={HasCode}", request.State, !string.IsNullOrWhiteSpace(request.Code));
+        logger.LogInformation(
+            "GitHub callback received: state={State}, hasCode={HasCode}",
+            request.State,
+            !string.IsNullOrWhiteSpace(request.Code));
 
-        // 1️⃣ Проверка state
-        var stateValid =
-            await stateStore.ValidateStateAsync(
-                request.State,
-                cancellationToken);
-
-        if (!stateValid)
+        // 1️⃣ Validate state
+        if (!await stateStore.ValidateStateAsync(ExternalProviderType.GitHub, request.State, cancellationToken))
         {
-            logger.LogWarning("Invalid or expired OAuth state: {State}", request.State);
+            logger.LogWarning("Invalid OAuth state: {State}", request.State);
+
             return Result.Failure<ExternalSignInResult>(
                 HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest(
-                    "State parameter is invalid or expired."));
+                DefaultErrors.BadRequest("State parameter is invalid or expired."));
         }
 
-        // Resolve provider explicitly (use GitHub provider)
-        var authProvider = providerFactory.GetProvider(AuthService.Application.Enums.ExternalProviderType.GitHub);
+        // 2️⃣ Provider
+        var authProvider = providerFactory.GetProvider(ExternalProviderType.GitHub);
 
-        // 2️⃣ Exchange code → access_token
-        var tokenResult =
-            await authProvider.RequestAccessToken(
-                request.Code,
-                cancellationToken);
+        // 3️⃣ Token exchange
+        var tokenResult = await authProvider.RequestAccessToken(
+            request.Code,
+            cancellationToken);
 
         if (!tokenResult.IsSuccess)
         {
-            logger.LogWarning("GitHub token exchange failed: status={Status}, error={Error}", tokenResult.StatusCode, tokenResult.Error?.ErrorDescription);
             return Result.Failure<ExternalSignInResult>(
                 tokenResult.StatusCode,
                 tokenResult.Error!);
         }
 
-        if (string.IsNullOrWhiteSpace(tokenResult.Value!.AccessToken))
+        var accessToken = tokenResult.Value?.AccessToken;
+
+        if (string.IsNullOrWhiteSpace(accessToken))
         {
-            logger.LogWarning("GitHub token exchange returned empty access token.");
             return Result.Failure<ExternalSignInResult>(
                 HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest(
-                    "GitHub did not return access token."));
+                DefaultErrors.BadRequest("GitHub did not return access token."));
         }
 
-        // 3️⃣ Получение user info
-        var userInfoResult =
-            await authProvider.RequestUserInfo(
-                tokenResult.Value.AccessToken!,
-                cancellationToken);
+        // 4️⃣ User info
+        var userInfoResult = await authProvider.RequestUserInfo(
+            accessToken,
+            cancellationToken);
 
         if (!userInfoResult.IsSuccess)
         {
-            logger.LogWarning("GitHub userinfo fetch failed: status={Status}, error={Error}", userInfoResult.StatusCode, userInfoResult.Error?.ErrorDescription);
             return Result.Failure<ExternalSignInResult>(
                 userInfoResult.StatusCode,
                 userInfoResult.Error!);
@@ -84,17 +77,27 @@ public class GitHubSignInCommandHandler(
 
         var userInfo = userInfoResult.Value!;
 
-        // 4️⃣ Пользователь уже существует
-        var existingUser =
-            await userManager.FindByEmailAsync(
-                userInfo.Email);
+        // 5️⃣ Missing email → pending
+        if (string.IsNullOrWhiteSpace(userInfo.Email))
+        {
+            var pendingToken = await pendingUserStore.StoreAsync(
+                userInfo,
+                cancellationToken);
+
+            return Result<ExternalSignInResult>.Success(
+                new ExternalSignInResult(
+                    ExternalSignInStatus.Pending,
+                    pendingToken));
+        }
+
+        // 6️⃣ Existing user
+        var existingUser = await userManager.FindByEmailAsync(userInfo.Email);
 
         if (existingUser is not null)
         {
-            var sessionResult =
-                await externalLoginSessionBuilder.CreateAsync(
-                    existingUser,
-                    cancellationToken);
+            var sessionResult = await externalLoginSessionBuilder.CreateAsync(
+                existingUser,
+                cancellationToken);
 
             if (!sessionResult.IsSuccess)
             {
@@ -103,10 +106,9 @@ public class GitHubSignInCommandHandler(
                     sessionResult.Error!);
             }
 
-            var sessionToken =
-                await sessionStore.StoreAsync(
-                    sessionResult.Value!,
-                    cancellationToken);
+            var sessionToken = await sessionStore.StoreAsync(
+                sessionResult.Value!,
+                cancellationToken);
 
             return Result<ExternalSignInResult>.Success(
                 new ExternalSignInResult(
@@ -114,15 +116,14 @@ public class GitHubSignInCommandHandler(
                     sessionToken));
         }
 
-        // 5️⃣ Новый пользователь → Pending
-        var pendingToken =
-            await pendingUserStore.StoreAsync(
-                userInfo,
-                cancellationToken);
+        // 7️⃣ New user → pending
+        var newPendingToken = await pendingUserStore.StoreAsync(
+            userInfo,
+            cancellationToken);
 
         return Result<ExternalSignInResult>.Success(
             new ExternalSignInResult(
                 ExternalSignInStatus.Pending,
-                pendingToken));
+                newPendingToken));
     }
 }

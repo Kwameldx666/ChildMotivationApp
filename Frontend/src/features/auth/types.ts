@@ -21,7 +21,7 @@ export interface FamilyContext {
   emblem?: string | null
 }
 
-export type OAuthProvider = 'google' | 'github' | 'apple' | 'microsoft'
+export type OAuthProvider = 'google' | 'github' | 'apple' | 'microsoft' | 'discord'
 
 export interface GoogleAuthorizationResponse {
   authorizationUrl: string
