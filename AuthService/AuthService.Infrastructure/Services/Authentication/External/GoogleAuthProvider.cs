@@ -12,18 +12,21 @@ using AuthService.Infrastructure.Constants;
 using AuthService.Infrastructure.Options.External;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Services.Authentication.External;
 
 public class GoogleAuthProvider(
     IOptions<GoogleEndpoints> googleEndpoints,
     IOptions<GoogleOptions> googleOptions,
-    IHttpClientFactory clientFactory) :
+    IHttpClientFactory clientFactory,
+    ILogger<GoogleAuthProvider> logger) :
     IExternalAuthProvider
 {
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.Google);
     private readonly GoogleEndpoints _googleEndpoints = googleEndpoints.Value;
     private readonly GoogleOptions _googleOptions = googleOptions.Value;
+    private readonly ILogger<GoogleAuthProvider> _logger = logger;
     public ExternalProviderType ProviderType => ExternalProviderType.Google;
     
     public async Task<Result<ExternalAuthToken>> RequestAccessToken(string code, CancellationToken cancellationToken)
@@ -46,8 +49,13 @@ public class GoogleAuthProvider(
         var response = await _client.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
+            _logger.LogError("Google token request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
-                AuthorizationErrors.ExternalAuthFailed());
+                AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
+        }
 
         var token = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken);
 
@@ -92,9 +100,14 @@ public class GoogleAuthProvider(
         }
 
         if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
+            _logger.LogError("Google userinfo request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalUserInfo>(
                 response.StatusCode,
-                AuthorizationErrors.ExternalAuthFailed());
+                AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
+        }
 
         var userInfo = await response.Content
             .ReadFromJsonAsync<ExternalUserInfo>(cancellationToken);

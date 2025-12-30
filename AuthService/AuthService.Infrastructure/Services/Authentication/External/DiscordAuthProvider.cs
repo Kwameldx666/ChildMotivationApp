@@ -11,18 +11,21 @@ using AuthService.Infrastructure.Constants;
 using AuthService.Infrastructure.Options.External;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Services.Authentication.External;
 
 public class DiscordAuthProvider(
     IOptions<DiscordOptions> discordOptions,
     IOptions<DiscordEndpoints> discordEndpoint,
-    IHttpClientFactory client) : IExternalAuthProvider
+    IHttpClientFactory client,
+    ILogger<DiscordAuthProvider> logger) : IExternalAuthProvider
 {
     // Keep IOptions<T> references and defer accessing .Value until methods run so the app won't force validation at DI registration time.
     private readonly DiscordEndpoints _discordEndpoints = discordEndpoint.Value;
     private readonly DiscordOptions _discordOptions = discordOptions.Value;
     private readonly HttpClient _client = client.CreateClient(DefaultHttpClientNames.Discord);
+    private readonly ILogger<DiscordAuthProvider> _logger = logger;
     public ExternalProviderType ProviderType => ExternalProviderType.Discord;
 
  public async Task<Result<ExternalAuthToken>> RequestAccessToken(string code, CancellationToken cancellationToken)
@@ -44,8 +47,13 @@ public class DiscordAuthProvider(
         var response = await _client.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
+            _logger.LogError("Discord token request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
-                AuthorizationErrors.ExternalAuthFailed());
+                AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
+        }
 
         var token = await response.Content.ReadFromJsonAsync<ExternalAuthToken>(cancellationToken);
 
@@ -90,9 +98,14 @@ public class DiscordAuthProvider(
         }
 
         if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
+            _logger.LogError("Discord userinfo request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalUserInfo>(
                 response.StatusCode,
-                AuthorizationErrors.ExternalAuthFailed());
+                AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
+        }
 
         var userInfo = await response.Content
             .ReadFromJsonAsync<ExternalUserInfo>(cancellationToken);
