@@ -7,6 +7,7 @@ using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Identity;
+using AuthService.Infrastructure.Services.OAuth;
 using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Persistence.Context;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +25,7 @@ public static class InfrastructureExtensions
         services.ConfigureIdentity();
         services.ConfigureQuartz(configuration);
         services.ConfigureEndpoints(configuration);
+        services.AddDistributedMemoryCache();
         services.AddProxies();
         services.AddCacheStores();
         services.AddMemoryCache();
@@ -121,6 +123,7 @@ public static class InfrastructureExtensions
     {
 
         services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
+        services.AddSingleton<IOAuthStateStore, DistributedOAuthStateStore>();
         services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
     }
 

@@ -41,6 +41,7 @@ services:
       # For local development default to in-memory state store to avoid requiring Redis
       Authentication__UseDistributedStateStore: ${AUTH_USE_DISTRIBUTED_STATE_STORE:-false}
       Redis__Configuration: ${REDIS_CONFIGURATION:-redis:6379}
+      ConnectionStrings__Redis: ${REDIS_CONNECTIONSTRING:-redis:6379}
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
