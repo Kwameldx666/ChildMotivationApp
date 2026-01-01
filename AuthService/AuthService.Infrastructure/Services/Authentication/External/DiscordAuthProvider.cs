@@ -108,8 +108,48 @@ public class DiscordAuthProvider(
                 AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
         }
 
-        var userInfo = await response.Content
-            .ReadFromJsonAsync<ExternalUserInfo>(cancellationToken);
+        var userBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        ExternalUserInfo? userInfo = null;
+
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(userBody);
+            var root = doc.RootElement;
+
+            var id = root.TryGetProperty("id", out var idProp) && idProp.ValueKind == System.Text.Json.JsonValueKind.String
+                ? idProp.GetString()
+                : null;
+
+            var email = root.TryGetProperty("email", out var emailProp) && emailProp.ValueKind == System.Text.Json.JsonValueKind.String
+                ? emailProp.GetString()
+                : null;
+
+            var username = root.TryGetProperty("global_name", out var globalNameProp) && globalNameProp.ValueKind == System.Text.Json.JsonValueKind.String
+                ? globalNameProp.GetString()
+                : null;
+
+            if (string.IsNullOrWhiteSpace(username) && root.TryGetProperty("username", out var usernameProp) && usernameProp.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                username = usernameProp.GetString();
+            }
+
+            var picture = root.TryGetProperty("avatar", out var avatarProp) && avatarProp.ValueKind == System.Text.Json.JsonValueKind.String
+                ? BuildDiscordAvatarUrl(id, avatarProp.GetString())
+                : null;
+
+            userInfo = new ExternalUserInfo
+            {
+                Email = email ?? string.Empty,
+                Name = username ?? string.Empty,
+                Picture = picture ?? string.Empty,
+                Sub = id ?? string.Empty
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to map Discord userinfo response. Raw body: {Body}", userBody);
+        }
 
         if (userInfo is null)
             return Result.Failure<ExternalUserInfo>(
@@ -117,13 +157,22 @@ public class DiscordAuthProvider(
                 DefaultErrors.BadRequest("Empty user info response"));
 
         if (string.IsNullOrWhiteSpace(userInfo.Email))
-            return Result.Failure<ExternalUserInfo>(
-                HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest("Email was not provided by external provider"));
+        {
+            _logger.LogWarning("Discord did not provide an email for the current user. Returning partial user info for pending flow.");
+        }
 
         return Result<ExternalUserInfo>.Success(userInfo);
     }
 
+    private static string? BuildDiscordAvatarUrl(string? userId, string? avatarId)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(avatarId))
+            return null;
+
+        var normalizedAvatarId = avatarId.Trim();
+        var extension = normalizedAvatarId.StartsWith("a_") ? "gif" : "png";
+        return $"https://cdn.discordapp.com/avatars/{userId.Trim()}/{normalizedAvatarId}.{extension}?size=256";
+    }
 
     public AuthorizationUrlResponse BuildAuthQuery(string state, string[] scopes)
     {

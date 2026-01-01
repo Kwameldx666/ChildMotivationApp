@@ -49,6 +49,13 @@ public static class InfrastructureExtensions
             DefaultHttpClientNames.UserService,
             "Services:UserService",
             "http://localhost:5110");
+
+        ConfigureClient(
+            services,
+            configuration,
+            DefaultHttpClientNames.TaskService,
+            "Services:TaskService",
+            "http://localhost:8083");
     }
     
     private static void ConfigureClient(
@@ -91,12 +98,14 @@ public static class InfrastructureExtensions
     {
         services.Configure<AuthEndpoints>(configuration.GetSection("ServiceEndpoints:AuthService"));
         services.Configure<UserEndpoints>(configuration.GetSection("ServiceEndpoints:UserService"));
+        services.Configure<TaskEndpoints>(configuration.GetSection("ServiceEndpoints:TaskService"));
     }
 
     private static void AddProxies(this IServiceCollection services)
     {
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();
         services.AddScoped<IUserServiceClient, UserServiceClient>();
+        services.AddScoped<ITaskServiceClient, TaskServiceClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

@@ -55,6 +55,13 @@ public class DiscordSignInCommandHandler(
 
         var userInfo = userInfoResult.Value!;
 
+        if (string.IsNullOrWhiteSpace(userInfo.Email))
+        {
+            var missingEmailPendingToken = await pendingUserStore.StoreAsync(userInfo, cancellationToken);
+            return Result<ExternalSignInResult>.Success(
+                new ExternalSignInResult(ExternalSignInStatus.Pending, missingEmailPendingToken));
+        }
+
         // 4️⃣ Пользователь уже существует
         var existingUser =
             await userManager.FindByEmailAsync(

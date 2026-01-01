@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
-import { isAxiosError } from "@/api/api"
 import type { CompleteGoogleSignInPayload, GooglePendingUser, UserRole } from "@/features/auth/types"
 import { useAppDispatch } from "@/store/hooks"
 import { setSession } from "@/features/auth/store/authSlice"
@@ -51,6 +50,7 @@ export default function OAuthRedirectPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [pendingToken, setPendingToken] = useState<string | null>(null)
   const [pendingUser, setPendingUser] = useState<GooglePendingUser | null>(null)
+  const [email, setEmail] = useState("")
   const [role, setRole] = useState<UserRole>("parent")
   const [name, setName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -98,6 +98,7 @@ export default function OAuthRedirectPage() {
           const [defaultName, defaultLastName] = splitName(data.name)
           setPendingToken(tokenParam)
           setPendingUser(data)
+          setEmail(data.email ?? "")
           setName(defaultName)
           setLastName(defaultLastName)
           setIsLoading(false)
@@ -108,7 +109,7 @@ export default function OAuthRedirectPage() {
         return
       }
 
-      setError("Получен неизвестный статус авторизации.")
+      setFatalError("Получен неизвестный статус авторизации.")
       setIsLoading(false)
     }
 
@@ -123,6 +124,7 @@ export default function OAuthRedirectPage() {
   }, [fatalError, router])
 
   const avatarPreview = useMemo(() => pendingUser?.picture ?? null, [pendingUser])
+  const normalizedEmailFromProvider = pendingUser?.email?.trim() ?? ""
 
   const handleSubmitPending = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -133,9 +135,15 @@ export default function OAuthRedirectPage() {
 
     const trimmedName = name.trim()
     const trimmedLastName = lastName.trim()
+    const trimmedEmail = email.trim().toLowerCase()
 
     if (!trimmedName || !trimmedLastName) {
       setFormError("Введите имя и фамилию.")
+      return
+    }
+
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      setFormError("Введите корректный email.")
       return
     }
 
@@ -174,6 +182,7 @@ export default function OAuthRedirectPage() {
       role,
       name: trimmedName,
       lastName: trimmedLastName,
+      email: trimmedEmail,
       avatar: avatarPreview,
       age: parsedAge,
       familyCode: normalizedFamilyCode,
@@ -254,6 +263,19 @@ export default function OAuthRedirectPage() {
           )}
 
           <form className="space-y-4" onSubmit={handleSubmitPending}>
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+              {normalizedEmailFromProvider && (
+                <p className="text-xs text-muted-foreground mt-1">Email импортирован из профиля провайдера</p>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Имя</Label>

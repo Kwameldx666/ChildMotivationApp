@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
-using AuthService.Application.Features.Authentication.External.GitHub.CompleteSignIn;
 using AuthService.Application.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
@@ -15,9 +14,9 @@ public class CompleteDiscordSignInCommandHandler(
     IOAuthPendingUserStore pendingUserStore,
     UserManager<Domain.Entities.User> userManager,
     IExternalLoginSessionBuilder externalLoginSessionBuilder)
-    : IRequestHandler<CompleteGitHubSignInCommand, Result<ExternalLoginResponse>>
+    : IRequestHandler<CompleteDiscordSignInCommand, Result<ExternalLoginResponse>>
 {
-    public async Task<Result<ExternalLoginResponse>> Handle(CompleteGitHubSignInCommand request,
+    public async Task<Result<ExternalLoginResponse>> Handle(CompleteDiscordSignInCommand request,
         CancellationToken cancellationToken)
     {
         var pendingUser = await pendingUserStore.TakeAsync(request.PendingToken, cancellationToken);
@@ -25,15 +24,22 @@ public class CompleteDiscordSignInCommandHandler(
             return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Registration token is invalid or has expired."));
 
+        var resolvedEmail = string.IsNullOrWhiteSpace(pendingUser.Email)
+            ? request.Email?.Trim()
+            : pendingUser.Email.Trim();
+
+        if (string.IsNullOrWhiteSpace(resolvedEmail))
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Email is required to complete registration."));
+
+        var existingUser = await userManager.FindByEmailAsync(resolvedEmail);
+        if (existingUser is not null)
+            return await externalLoginSessionBuilder.CreateAsync(existingUser, cancellationToken);
+
         var normalizedRole = request.Role.Trim();
         if (!Enum.TryParse<UserType>(normalizedRole, true, out var userType))
             return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Provided role is not supported."));
-
-        var existingUser = await userManager.FindByEmailAsync(pendingUser.Email);
-        if (existingUser is not null)
-            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.Conflict,
-                DefaultErrors.Conflict($"User with email {pendingUser.Email} already exists."));
 
         if (userType == UserType.Child && request.Age is null)
             return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
@@ -59,8 +65,8 @@ public class CompleteDiscordSignInCommandHandler(
 
         var newUser = new Domain.Entities.User
         {
-            Email = pendingUser.Email,
-            UserName = pendingUser.Email,
+            Email = resolvedEmail,
+            UserName = resolvedEmail,
             EmailConfirmed = true,
             FamilyCode = familyCode,
             FamilyName = familyName,

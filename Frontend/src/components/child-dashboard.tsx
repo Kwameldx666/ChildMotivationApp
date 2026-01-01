@@ -2,7 +2,7 @@
 
 // cspell:disable
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface ChildDashboardProps {
   userProfile: {
@@ -74,6 +75,30 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
     setAiMessage(suggestions[Math.floor(Math.random() * suggestions.length)])
   }
 
+  const avatarImageUrl = useMemo(() => {
+    const value = userProfile.avatar?.trim()
+    if (!value) {
+      return null
+    }
+
+    try {
+      const parsed = new URL(value)
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null
+    } catch {
+      return null
+    }
+  }, [userProfile.avatar])
+
+  const avatarFallbackSymbol = useMemo(() => {
+    const value = userProfile.avatar?.trim()
+    if (value && !avatarImageUrl) {
+      return value
+    }
+
+    const nameInitial = userProfile.name?.trim()?.charAt(0)?.toUpperCase()
+    return nameInitial || "🙂"
+  }, [avatarImageUrl, userProfile.avatar, userProfile.name])
+
   return (
     <div className="min-h-screen bg-background">
       {/* CHANGE: Changed header from sticky to fixed so it scrolls naturally but stays visible at top */}
@@ -108,9 +133,10 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg">
-                    {userProfile.avatar}
-                  </div>
+                  <Avatar className="h-8 w-8">
+                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
+                    <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -297,6 +323,38 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
               </button>
             ))}
           </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">Загрузить своё изображение</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="text-sm"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                try {
+                  // Try to get current user id from local cache
+                  let userId: string | undefined
+                  const raw = localStorage.getItem('familyapp_current_user')
+                  if (raw) userId = JSON.parse(raw).id
+                  if (!userId) {
+                    alert('Не удалось определить пользователя. Пожалуйста, перезайдите.')
+                    return
+                  }
+
+                  const { authService } = await import('@/services/auth-service')
+                  await authService.uploadAvatar(userId, file)
+                  // Simple UX: reload to pick up new avatar
+                  window.location.reload()
+                } catch (err) {
+                  console.error(err)
+                  alert('Ошибка при загрузке аватара')
+                }
+              }}
+            />
+          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAvatarPicker(false)}>
               Отмена

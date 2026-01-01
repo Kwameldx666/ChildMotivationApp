@@ -49,6 +49,23 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, System.IO.Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken)
+    {
+        var requestUri = BuildProfilePath(userId) + "/avatar";
+
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(fileStream);
+        if (!string.IsNullOrWhiteSpace(contentType)) streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        content.Add(streamContent, "file", fileName);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
+        {
+            Content = content
+        };
+
+        return _client.SendAsync(request, cancellationToken);
+    }
+
     private string BuildProfilePath(Guid userId)
     {
         var basePath = _endpoints.Profile;

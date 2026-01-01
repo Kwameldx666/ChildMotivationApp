@@ -96,7 +96,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [name, setName] = useState("")
   const [lastName, setLastName] = useState("")
   const [age, setAge] = useState<string>("")
-  const [avatar, setAvatar] = useState<(typeof AVATARS)[number]>(AVATARS[0])
+  const [avatar, setAvatar] = useState<string>(AVATARS[0])
 
   const [familyName, setFamilyName] = useState("")
   const [familyEmblem, setFamilyEmblem] = useState<(typeof FAMILY_EMBLEMS)[number]>(FAMILY_EMBLEMS[0])
@@ -372,17 +372,35 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         </div>
                         <div>
                           <Label>Аватар</Label>
-                          <select
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                            value={avatar}
-                            onChange={(e) => setAvatar(e.target.value as (typeof AVATARS)[number])}
-                          >
-                            {AVATARS.map((item) => (
-                              <option key={item} value={item}>
-                                {item}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="flex gap-2">
+                            <select
+                              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                              value={avatar}
+                              onChange={(e) => setAvatar(e.target.value)}
+                            >
+                              {AVATARS.map((item) => (
+                                <option key={item} value={item}>
+                                  {item}
+                                </option>
+                              ))}
+                            </select>
+
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="text-sm"
+                              onChange={async (e) => {
+                                const f = e.target.files?.[0]
+                                if (!f) return
+                                const reader = new FileReader()
+                                reader.onload = () => {
+                                  const result = reader.result as string | null
+                                  if (result) setAvatar(result)
+                                }
+                                reader.readAsDataURL(f)
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using AuthService.Application.Abstractions.Authentication.External;
@@ -208,6 +209,45 @@ public class GitHubAuthProvider(
                 DefaultErrors.BadRequest("GitHub did not return required user information"));
         }
 
+        if (string.IsNullOrWhiteSpace(user.Picture) || string.IsNullOrWhiteSpace(user.Sub))
+        {
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(userBody);
+                var root = doc.RootElement;
+
+                if (string.IsNullOrWhiteSpace(user.Picture) &&
+                    root.TryGetProperty("avatar_url", out var avatarProp) &&
+                    avatarProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var avatar = avatarProp.GetString();
+                    if (!string.IsNullOrWhiteSpace(avatar))
+                    {
+                        user.Picture = avatar!;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(user.Sub))
+                {
+                    if (root.TryGetProperty("id", out var idProp))
+                    {
+                        user.Sub = ExtractGitHubIdentifier(idProp);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(user.Sub) &&
+                        root.TryGetProperty("node_id", out var nodeIdProp) &&
+                        nodeIdProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                    {
+                        user.Sub = nodeIdProp.GetString() ?? string.Empty;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Failed to extract GitHub metadata from userinfo payload");
+            }
+        }
+
         // If GitHub didn't include email on /user, try /user/emails to fetch primary/verified email
         if (string.IsNullOrWhiteSpace(user.Email))
         {
@@ -272,6 +312,18 @@ public class GitHubAuthProvider(
         }
 
         return Result<ExternalUserInfo>.Success(user);
+    }
+
+    private static string ExtractGitHubIdentifier(System.Text.Json.JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            System.Text.Json.JsonValueKind.String => element.GetString() ?? string.Empty,
+            System.Text.Json.JsonValueKind.Number => element.TryGetInt64(out var number)
+                ? number.ToString(CultureInfo.InvariantCulture)
+                : element.GetRawText(),
+            _ => string.Empty
+        };
     }
 
     public AuthorizationUrlResponse BuildAuthQuery(string state, string[] scopes)

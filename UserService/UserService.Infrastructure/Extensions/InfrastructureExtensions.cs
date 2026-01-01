@@ -28,6 +28,9 @@ public static class InfrastructureExtensions
 
         services.AddScoped<IUserProfileProvider, UserProfileService>();
 
+        // Avatar store (filesystem by default)
+        services.AddSingleton<UserService.Infrastructure.Services.Avatar.IAvatarStore, UserService.Infrastructure.Services.Avatar.FileSystemAvatarStore>();
+
         return services;
     }
 }

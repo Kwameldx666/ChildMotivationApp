@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react"
 import type { AuthSession, UpdateProfilePayload } from "@/features/auth/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,10 +52,21 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
     setErrorMessage(null)
   }, [profile])
 
-  const avatarSymbol = useMemo(() => {
-    if (profile.avatar?.trim()) {
-      return profile.avatar
+  const avatarImageUrl = useMemo(() => {
+    const value = profile.avatar?.trim()
+    if (!value) {
+      return null
     }
+
+    try {
+      const parsed = new URL(value)
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null
+    } catch {
+      return null
+    }
+  }, [profile.avatar])
+
+  const fallbackInitials = useMemo(() => {
     const initialsSource = `${profile.name} ${profile.lastName}`.trim()
     if (!initialsSource) {
       return user.email.charAt(0).toUpperCase()
@@ -66,7 +77,20 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
       .map(part => part.charAt(0).toUpperCase())
       .join("")
     return initials || user.email.charAt(0).toUpperCase()
-  }, [profile.avatar, profile.lastName, profile.name, user.email])
+  }, [profile.lastName, profile.name, user.email])
+
+  const avatarSymbol = useMemo(() => {
+    const value = profile.avatar?.trim()
+    if (!value) {
+      return fallbackInitials
+    }
+
+    if (avatarImageUrl) {
+      return fallbackInitials
+    }
+
+    return value
+  }, [avatarImageUrl, fallbackInitials, profile.avatar])
 
   const handleFieldChange = (field: keyof ProfileFormState) => (value: string) => {
     setFormState(previous => ({ ...previous, [field]: value }))
@@ -154,6 +178,7 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
           <CardHeader className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 text-2xl">
+                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Фото профиля" />}
                 <AvatarFallback>{avatarSymbol}</AvatarFallback>
               </Avatar>
               <div>
@@ -203,13 +228,12 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profile-avatar">Эмодзи или инициалы</Label>
+                  <Label htmlFor="profile-avatar">Эмодзи, инициалы или ссылка на фото</Label>
                   <Input
                     id="profile-avatar"
                     value={formState.avatar}
                     onChange={event => handleFieldChange("avatar")(event.target.value)}
-                    placeholder="Например, 🌟 или AI"
-                    maxLength={4}
+                    placeholder="🌟, AI или https://avatar"
                   />
                 </div>
                 {profile.role === "child" && (
