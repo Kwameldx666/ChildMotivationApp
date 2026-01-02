@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User } from "lucide-react"
+import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User, Sparkles } from "lucide-react"
 import TasksList from "@/components/tasks-list"
 import RewardsShop from "@/components/rewards-shop"
 import AnalyticsDashboard from "@/components/analytics-dashboard"
@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AppRouteId, routeRecord } from "@/routes/config"
 
 interface ParentDashboardProps {
   userProfile: {
@@ -140,40 +141,57 @@ export default function ParentDashboard({
               </div>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="gap-2">
-                <Avatar className="h-8 w-8">
-                  {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
-                  <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:inline">{userProfile.name}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">Код семьи: {safeFamilyCode}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={event => {
-                  event.preventDefault()
-                  router.push("/profile")
-                }}
-              >
-                <User className="mr-2 h-4 w-4" />
-                <span>Профиль</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Выйти</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-3">
+            <Button
+              className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
+              onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+            >
+              <Sparkles className="h-4 w-4" />
+              AI чат
+            </Button>
+            <Button
+              size="icon"
+              className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
+              onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+              aria-label="AI чат"
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2">
+                  <Avatar className="h-8 w-8">
+                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
+                    <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline">{userProfile.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{userProfile.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">Код семьи: {safeFamilyCode}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={event => {
+                    event.preventDefault()
+                    router.push("/profile")
+                  }}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Профиль</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Выйти</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 

@@ -6,4 +6,5 @@ public static class DefaultHttpClientNames
     public const string UserService = "HttpClient_UserService";
     public const string TaskService = "HttpClient_TaskService";
     public const string ShopService = "HttpClient_ShopService";
+    public const string AiService = "HttpClient_AiService";
 }

@@ -30,6 +30,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
+import { AppRouteId, routeRecord } from "@/routes/config"
 
 
 interface ChildDashboardProps {
@@ -138,7 +139,14 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
             </div>
 
             {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <Button
+                className="gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30"
+                onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+              >
+                <MessageSquare className="h-4 w-4" />
+                AI чат
+              </Button>
               {renderInlineStat("Уровень", String(level), "text-primary")}
               {renderInlineStat("Опыт", `${xp}`, "text-accent")}
               {renderInlineStat("Очки", `${points}`, "text-secondary")}

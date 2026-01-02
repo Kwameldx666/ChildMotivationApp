@@ -6,6 +6,7 @@ export enum AppRouteId {
   ParentDashboard = 'parent-dashboard',
   ChildDashboard = 'child-dashboard',
   TaskCreate = 'task-create',
+  AiAssistant = 'ai-assistant',
 }
 
 export interface RouteConfig {
@@ -52,6 +53,13 @@ export const routes: RouteConfig[] = [
     label: 'Создать задачу',
     layout: 'app',
     requiredRoles: ['parent'],
+  },
+  {
+    id: AppRouteId.AiAssistant,
+    path: '/ai',
+    label: 'AI ассистент',
+    layout: 'app',
+    requiredRoles: ['parent', 'child'],
   },
 ]
 

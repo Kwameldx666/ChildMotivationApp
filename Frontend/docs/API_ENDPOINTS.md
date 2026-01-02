@@ -34,6 +34,7 @@
 - `POST /api-gateway/ai/reward-suggestions` - Идеи наград
 - `POST /api-gateway/ai/chat` - Чат с ИИ
 - `GET /api-gateway/ai/analytics` - Аналитика от ИИ
+> Все AI-вызовы проксируются в выделенный **AiService** (порт 8095), поэтому сервис можно масштабировать независимо от остальных API.
 
 ## Analytics
 - `GET /api-gateway/analytics/overview` - Обзор семьи
