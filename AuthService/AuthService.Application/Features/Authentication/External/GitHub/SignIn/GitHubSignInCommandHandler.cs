@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.User;
 using AuthService.Application.Enums;
@@ -76,6 +77,17 @@ public sealed class GitHubSignInCommandHandler(
         }
 
         var userInfo = userInfoResult.Value!;
+        var providerKey = userInfo.Sub?.Trim();
+        var providerName = ExternalProviderType.GitHub.ToString();
+
+        if (!string.IsNullOrWhiteSpace(providerKey))
+        {
+            var linkedUser = await userManager.FindByLoginAsync(providerName, providerKey);
+            if (linkedUser is not null)
+            {
+                return await IssueSessionAsync(linkedUser);
+            }
+        }
 
         // 5️⃣ Missing email → pending
         if (string.IsNullOrWhiteSpace(userInfo.Email))
@@ -95,8 +107,53 @@ public sealed class GitHubSignInCommandHandler(
 
         if (existingUser is not null)
         {
+            await EnsureExternalLoginAsync(existingUser);
+            return await IssueSessionAsync(existingUser);
+        }
+
+        // 7️⃣ New user → pending
+        var newPendingToken = await pendingUserStore.StoreAsync(
+            userInfo,
+            cancellationToken);
+
+        return Result<ExternalSignInResult>.Success(
+            new ExternalSignInResult(
+                ExternalSignInStatus.Pending,
+                newPendingToken));
+
+        async Task EnsureExternalLoginAsync(Domain.Entities.User targetUser)
+        {
+            if (string.IsNullOrWhiteSpace(providerKey))
+            {
+                return;
+            }
+
+            var currentLogins = await userManager.GetLoginsAsync(targetUser);
+            if (currentLogins.Any(login => login.LoginProvider == providerName && login.ProviderKey == providerKey))
+            {
+                return;
+            }
+
+            var addLoginResult = await userManager.AddLoginAsync(
+                targetUser,
+                new UserLoginInfo(providerName, providerKey, providerName));
+
+            if (!addLoginResult.Succeeded)
+            {
+                var error = string.Join(
+                    "; ",
+                    addLoginResult.Errors.Select(e => e.Description));
+                logger.LogWarning(
+                    "Failed to attach GitHub login for user {UserId}: {Errors}",
+                    targetUser.Id,
+                    error);
+            }
+        }
+
+        async Task<Result<ExternalSignInResult>> IssueSessionAsync(Domain.Entities.User targetUser)
+        {
             var sessionResult = await externalLoginSessionBuilder.CreateAsync(
-                existingUser,
+                targetUser,
                 cancellationToken);
 
             if (!sessionResult.IsSuccess)
@@ -115,15 +172,5 @@ public sealed class GitHubSignInCommandHandler(
                     ExternalSignInStatus.Authenticated,
                     sessionToken));
         }
-
-        // 7️⃣ New user → pending
-        var newPendingToken = await pendingUserStore.StoreAsync(
-            userInfo,
-            cancellationToken);
-
-        return Result<ExternalSignInResult>.Success(
-            new ExternalSignInResult(
-                ExternalSignInStatus.Pending,
-                newPendingToken));
     }
 }

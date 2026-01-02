@@ -9,6 +9,7 @@ public record CompleteGoogleSignInCommand(
     string Role,
     string Name,
     string LastName,
+    string? Email,
     string? Avatar,
     int? Age,
     string? FamilyCode,

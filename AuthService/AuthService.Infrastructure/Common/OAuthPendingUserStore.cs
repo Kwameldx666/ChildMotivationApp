@@ -14,7 +14,11 @@ public class OAuthPendingUserStore(IMemoryCache cache) :
         cancellationToken.ThrowIfCancellationRequested();
 
         var token = Guid.NewGuid().ToString("N");
-        var response = new ExternalPendingUserResponse(pendingUser.Email, pendingUser.Name, pendingUser.Picture);
+        var response = new ExternalPendingUserResponse(
+            pendingUser.Email,
+            pendingUser.Name,
+            pendingUser.Picture,
+            pendingUser.Sub);
         cache.Set(BuildKey(token), response, new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = Lifetime

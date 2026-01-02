@@ -12,7 +12,7 @@ namespace UserService.Api.Controllers;
 
 [ApiController]
 [Route("user-service/[controller]")]
-public class ProfileController(IMediator mediator) : ControllerBase
+public class ProfileController(IMediator mediator, UserService.Infrastructure.Services.Avatar.IAvatarStore avatarStore) : ControllerBase
 {
     [Authorize(Policy = AuthorizationConstants.UserReadPolicy)]
     [HttpGet("{userId:guid}")]
@@ -65,5 +65,27 @@ public class ProfileController(IMediator mediator) : ControllerBase
         }
 
         return Ok(updatedProfile);
+    }
+
+    [HttpPost("{userId:guid}/avatar")]
+    public async Task<IActionResult> UploadAvatarAsync(Guid userId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0) return BadRequest("File is required");
+
+        string url;
+        try
+        {
+            url = await avatarStore.SaveAsync(userId, file, cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+
+        var updated = await mediator.Send(new UpdateUserProfileCommand(userId, null, null, url, null), cancellationToken);
+        if (updated is null)
+            return NotFound();
+
+        return Ok(updated);
     }
 }

@@ -23,7 +23,11 @@ public class DistributedOAuthPendingUserStore : IOAuthPendingUserStore
         cancellationToken.ThrowIfCancellationRequested();
 
         var token = Guid.NewGuid().ToString("N");
-        var response = new ExternalPendingUserResponse(pendingUser.Email, pendingUser.Name, pendingUser.Picture);
+        var response = new ExternalPendingUserResponse(
+            pendingUser.Email,
+            pendingUser.Name,
+            pendingUser.Picture,
+            pendingUser.Sub);
         var key = BuildKey(token);
         var payload = JsonSerializer.Serialize(response);
 

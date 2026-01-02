@@ -34,4 +34,14 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
         using var response = await userServiceClient.UpdateProfileAsync(userId, request, cancellationToken);
         return await response.ToActionResultAsync();
     }
+
+    [HttpPost("{userId:guid}/avatar")]
+    public async Task<IActionResult> UploadAvatarAsync(Guid userId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0) return BadRequest("File is required");
+
+        using var stream = file.OpenReadStream();
+        using var response = await userServiceClient.UploadAvatarAsync(userId, stream, file.FileName, file.ContentType, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
 }

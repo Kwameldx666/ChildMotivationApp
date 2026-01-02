@@ -5,6 +5,7 @@ export enum AppRouteId {
   Auth = 'auth',
   ParentDashboard = 'parent-dashboard',
   ChildDashboard = 'child-dashboard',
+  TaskCreate = 'task-create',
 }
 
 export interface RouteConfig {
@@ -44,6 +45,13 @@ export const routes: RouteConfig[] = [
     label: 'Панель ребёнка',
     layout: 'app',
     requiredRoles: ['child'],
+  },
+  {
+    id: AppRouteId.TaskCreate,
+    path: '/dashboard/tasks/new',
+    label: 'Создать задачу',
+    layout: 'app',
+    requiredRoles: ['parent'],
   },
 ]
 

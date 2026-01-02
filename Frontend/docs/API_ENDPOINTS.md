@@ -1,34 +1,36 @@
 <!-- cspell:disable -->
 # API Endpoints (для future development)
 
+> 💡 **Важно:** все запросы к задачам должны идти через **Gateway** (например, `GET /api/tasks` → Gateway → TaskService).
+
 ## Authentication
-- `POST /api/auth/register` - Регистрация
-- `POST /api/auth/login` - Вход
-- `POST /api/auth/logout` - Выход
-- `GET /api/auth/me` - Текущий пользователь
+- `POST /api-gateway/auth/register` - Регистрация
+- `POST /api-gateway/auth/login` - Вход
+- `POST /api-gateway/auth/logout` - Выход
+- `GET /api-gateway/auth/me` - Текущий пользователь
 
 ## Tasks
-- `GET /api/tasks` - Список задач
-- `POST /api/tasks` - Создание задачи
-- `PUT /api/tasks/:id` - Редактирование
-- `DELETE /api/tasks/:id` - Удаление
-- `POST /api/tasks/:id/complete` - Отметить выполненной
+- `GET /api-gateway/tasks` - Список задач
+- `POST /api-gateway/tasks` - Создание задачи
+- `PUT /api-gateway/tasks/:id` - Редактирование
+- `DELETE /api-gateway/tasks/:id` - Удаление
+- `POST /api-gateway/tasks/:id/complete` - Отметить выполненной
 
 ## Rewards
-- `GET /api/rewards` - Список наград
-- `POST /api/rewards` - Создание награды
-- `PUT /api/rewards/:id` - Редактирование
-- `DELETE /api/rewards/:id` - Удаление
-- `POST /api/rewards/:id/purchase` - Покупка награды
+- `GET /api-gateway/rewards` - Список наград
+- `POST /api-gateway/rewards` - Создание награды
+- `PUT /api-gateway/rewards/:id` - Редактирование
+- `DELETE /api-gateway/rewards/:id` - Удаление
+- `POST /api-gateway/rewards/:id/purchase` - Покупка награды
 
 ## AI
-- `POST /api/ai/task-suggestions` - Предложения задач
-- `POST /api/ai/reward-suggestions` - Идеи наград
-- `POST /api/ai/chat` - Чат с ИИ
-- `GET /api/ai/analytics` - Аналитика от ИИ
+- `POST /api-gateway/ai/task-suggestions` - Предложения задач
+- `POST /api-gateway/ai/reward-suggestions` - Идеи наград
+- `POST /api-gateway/ai/chat` - Чат с ИИ
+- `GET /api-gateway/ai/analytics` - Аналитика от ИИ
 
 ## Analytics
-- `GET /api/analytics/overview` - Обзор семьи
-- `GET /api/analytics/user/:id` - Статистика пользователя
-- `GET /api/analytics/leaderboard` - Таблица лидеров
+- `GET /api-gateway/analytics/overview` - Обзор семьи
+- `GET /api-gateway/analytics/user/:id` - Статистика пользователя
+- `GET /api-gateway/analytics/leaderboard` - Таблица лидеров
 <!-- cspell:enable -->

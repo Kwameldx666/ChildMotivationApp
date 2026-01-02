@@ -34,6 +34,7 @@ export interface GooglePendingUser {
   email: string
   name: string
   picture: string
+  providerUserId?: string
 }
 
 export interface CompleteGoogleSignInPayload {
@@ -41,6 +42,7 @@ export interface CompleteGoogleSignInPayload {
   role: UserRole
   name: string
   lastName: string
+  email?: string | null
   avatar?: string | null
   age?: number | null
   familyCode?: string | null

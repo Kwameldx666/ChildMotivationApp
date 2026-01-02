@@ -8,6 +8,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+// Serve static files (avatars, etc.)
+app.UseStaticFiles();
+
 var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
 if (app.Environment.IsDevelopment())

@@ -40,6 +40,9 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+// Serve static files (avatars, etc.) from wwwroot
+app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

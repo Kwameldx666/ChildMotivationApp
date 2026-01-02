@@ -18,7 +18,11 @@ public class GetPendingUserQueryHandler(IOAuthPendingUserStore pendingUserStore)
             return Result<ExternalPendingUserResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("Pending registration token is invalid or has expired."));
 
-        var response = new ExternalPendingUserResponse(pendingUser.Email, pendingUser.Name, pendingUser.Picture);
+        var response = new ExternalPendingUserResponse(
+            pendingUser.Email,
+            pendingUser.Name,
+            pendingUser.Picture,
+            pendingUser.ProviderUserId);
         return Result<ExternalPendingUserResponse>.Success(response);
     }
 }

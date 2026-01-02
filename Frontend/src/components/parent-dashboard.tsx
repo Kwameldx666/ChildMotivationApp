@@ -2,7 +2,7 @@
 
 /* cspell:disable */
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,6 +14,7 @@ import ChildrenManagement from "@/components/children-management"
 import TaskTemplates from "@/components/task-templates"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
+import { AppRouteId, routeRecord } from "@/routes/config"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface ParentDashboardProps {
   userProfile: {
@@ -47,10 +49,42 @@ export default function ParentDashboard({
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
   const safeFamilyCode = familyCode ?? "—"
 
+  useEffect(() => {
+    const cb = () => router.push(routeRecord[AppRouteId.TaskCreate].path)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('open-task-create', cb as EventListener)
+      return () => window.removeEventListener('open-task-create', cb as EventListener)
+    }
+  }, [router])
+
   const handleCreateReward = (reward: { title: string; description: string; cost: number; icon: string }) => {
     console.log("[v0] Reward created:", reward)
     setIsRewardModalOpen(false)
   }
+
+  const avatarImageUrl = useMemo(() => {
+    const value = userProfile.avatar?.trim()
+    if (!value) {
+      return null
+    }
+
+    try {
+      const parsed = new URL(value)
+      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null
+    } catch {
+      return null
+    }
+  }, [userProfile.avatar])
+
+  const avatarFallbackSymbol = useMemo(() => {
+    const value = userProfile.avatar?.trim()
+    if (value && !avatarImageUrl) {
+      return value
+    }
+
+    const nameInitial = userProfile.name?.trim()?.charAt(0)?.toUpperCase()
+    return nameInitial || "🙂"
+  }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
   return (
     <div className="min-h-screen bg-background">
@@ -68,9 +102,10 @@ export default function ParentDashboard({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg">
-                  {userProfile.avatar}
-                </div>
+                <Avatar className="h-8 w-8">
+                  {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
+                  <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
+                </Avatar>
                 <span className="hidden sm:inline">{userProfile.name}</span>
               </Button>
             </DropdownMenuTrigger>
@@ -136,7 +171,7 @@ export default function ParentDashboard({
                 <h2 className="text-xl font-bold">Управление задачами</h2>
                 <p className="text-sm text-muted-foreground">Создавайте и отслеживайте задачи для детей</p>
               </div>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => router.push(routeRecord[AppRouteId.TaskCreate].path)}>
                 <Plus className="w-4 h-4" />
                 Создать задачу
               </Button>

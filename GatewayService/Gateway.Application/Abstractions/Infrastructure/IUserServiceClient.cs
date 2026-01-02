@@ -9,4 +9,6 @@ public interface IUserServiceClient
 
     Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request,
         CancellationToken cancellationToken);
+
+    Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, System.IO.Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken);
 }
