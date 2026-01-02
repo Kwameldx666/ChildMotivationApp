@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import type { CreateTaskPayload } from "@/services/tasks-service"
+import type { CreateTaskPayload, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { CalendarDays, Check, Flame, Plus, Sparkles, Star, Wand2 } from "lucide-react"
 
 interface TaskCreationModalProps {
@@ -27,13 +27,21 @@ const CATEGORY_OPTIONS = [
   { value: "sport", label: "Активность" },
 ]
 
-const CONFIRM_OPTIONS = [
+const CONFIRM_OPTIONS: { value: TaskEvidenceRequirement; label: string }[] = [
+  { value: "none", label: "Без подтверждения" },
   { value: "photo", label: "Фото" },
-  { value: "checklist", label: "Чек-лист" },
-  { value: "note", label: "Комментарий" },
+  { value: "video", label: "Видео" },
+  { value: "document", label: "Документ" },
 ]
 
-const QUICK_TEMPLATES = [
+const QUICK_TEMPLATES: Array<{
+  label: string
+  title: string
+  description: string
+  category: string
+  confirmation: TaskEvidenceRequirement
+  difficulty: number
+}> = [
   {
     label: "Чистота",
     title: "Навести порядок в комнате",
@@ -47,7 +55,7 @@ const QUICK_TEMPLATES = [
     title: "30 минут чтения",
     description: "Выбери книгу и расскажи 5 новых фактов, которые ты узнал.",
     category: "study",
-    confirmation: "checklist",
+    confirmation: "document",
     difficulty: 2,
   },
   {
@@ -66,7 +74,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const [category, setCategory] = useState("home")
   const [difficulty, setDifficulty] = useState(2)
   const [dueDate, setDueDate] = useState("")
-  const [confirmationType, setConfirmationType] = useState("photo")
+  const [confirmationType, setConfirmationType] = useState<TaskEvidenceRequirement>("photo")
   const [rewardValue, setRewardValue] = useState("100")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -120,6 +128,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       await _onSubmit({
         title: trimmedTitle,
         description: description.trim() ? description.trim() : undefined,
+        confirmationType,
       })
       resetForm()
       onClose()

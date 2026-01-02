@@ -28,25 +28,34 @@ import {
   DialogFooter,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
+
 
 interface ChildDashboardProps {
+  userId: string
   userProfile: {
     name: string
     avatar: string
     age?: number
     role: "parent" | "child"
+    xp?: number | null
+    level?: number | null
+    points?: number | null
+    streakDays?: number | null
   }
   familyCode: string
   onLogout: () => void
 }
 
-export default function ChildDashboard({ userProfile, familyCode, onLogout }: ChildDashboardProps) {
+export default function ChildDashboard({ userId, userProfile, familyCode, onLogout }: ChildDashboardProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
-  const [xp, setXp] = useState(2450)
-  const [level, setLevel] = useState(8)
-  const [points, setPoints] = useState(1250)
-  const [streak, setStreak] = useState(7)
+  const { stats, isLoading: statsLoading } = useChildProgressStats()
+  const xp = stats.xp
+  const level = stats.level
+  const points = stats.points
+  const streak = stats.streak
   const [hudCollapsed, setHudCollapsed] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -99,6 +108,24 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
     return nameInitial || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
+  const renderInlineStat = (label: string, value: string, accentClass: string) => (
+    <div className="text-center">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      {statsLoading ? <Skeleton className="h-5 w-12 mx-auto" /> : <p className={`font-bold text-lg ${accentClass}`}>{value}</p>}
+    </div>
+  )
+
+  const renderCardStat = (label: string, value: string, accentClass: string) => (
+    <Card className="bg-card border-border">
+      <CardContent className="pt-4">
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+          {statsLoading ? <Skeleton className="h-8 w-20 mx-auto" /> : <p className={`text-3xl font-bold ${accentClass}`}>{value}</p>}
+        </div>
+      </CardContent>
+    </Card>
+  )
+
   return (
     <div className="min-h-screen bg-background">
       {/* CHANGE: Changed header from sticky to fixed so it scrolls naturally but stays visible at top */}
@@ -112,22 +139,10 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
 
             {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
             <div className="flex items-center gap-4">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Уровень</p>
-                <p className="font-bold text-lg text-primary">{level}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Опыт</p>
-                <p className="font-bold text-lg text-accent">{xp}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Очки</p>
-                <p className="font-bold text-lg text-secondary">{points}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Серия</p>
-                <p className="font-bold text-lg text-orange-500">🔥{streak}</p>
-              </div>
+              {renderInlineStat("Уровень", String(level), "text-primary")}
+              {renderInlineStat("Опыт", `${xp}`, "text-accent")}
+              {renderInlineStat("Очки", `${points}`, "text-secondary")}
+              {renderInlineStat("Серия", `🔥${streak}`, "text-orange-500")}
             </div>
 
             <DropdownMenu>
@@ -173,38 +188,10 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
 
           {/* CHANGE: Full HUD stats in grid below header, scrolls naturally */}
           <div className="grid grid-cols-4 gap-4">
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Уровень</p>
-                  <p className="text-3xl font-bold text-primary">{level}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Опыт</p>
-                  <p className="text-3xl font-bold text-accent">{xp}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Очки</p>
-                  <p className="text-3xl font-bold text-secondary">{points}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Серия</p>
-                  <p className="text-3xl font-bold text-orange-500">🔥 {streak} дн.</p>
-                </div>
-              </CardContent>
-            </Card>
+            {renderCardStat("Уровень", String(level), "text-primary")}
+            {renderCardStat("Опыт", `${xp}`, "text-accent")}
+            {renderCardStat("Очки", `${points}`, "text-secondary")}
+            {renderCardStat("Серия", `🔥 ${streak} дн.`, "text-orange-500")}
           </div>
         </div>
       </header>
@@ -277,7 +264,15 @@ export default function ChildDashboard({ userProfile, familyCode, onLogout }: Ch
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-4">
-            <ChildProfile />
+            <ChildProfile
+              childId={userId}
+              name={userProfile.name}
+              avatarSymbol={avatarFallbackSymbol}
+              avatarImageUrl={avatarImageUrl}
+              familyCode={familyCode}
+              stats={stats}
+              statsLoading={statsLoading}
+            />
           </TabsContent>
         </Tabs>
       </main>

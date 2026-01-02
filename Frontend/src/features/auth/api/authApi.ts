@@ -86,10 +86,10 @@ export const authApi = {
     await apiClient.post(`${AUTH_BASE_PATH}/register`, payload)
   },
 
-  async getOAuthAuthorization(provider: 'google' | 'github' | 'microsoft' | 'discord') {
+  async getOAuthAuthorization(provider: 'google' | 'github' | 'microsoft' | 'discord'): Promise<GoogleAuthorizationResponse> {
     if (provider === 'discord') {
       // Gateway expects POST for Discord authorization route
-      const { data } = await apiClient.post<GoogleAuthorizationResponse>(`${AUTH_BASE_PATH}/discord/authorize`, {}, { auth: false })
+      const { data } = await apiClient.post<GoogleAuthorizationResponse>(`${AUTH_BASE_PATH}/discord/authorize`, {})
       return data
     }
 

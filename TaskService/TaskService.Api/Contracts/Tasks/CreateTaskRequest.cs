@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace TaskService.Api.Contracts.Tasks;
+
+public class CreateTaskRequest
+{
+    [Required]
+    [StringLength(256)]
+    public string Title { get; init; } = string.Empty;
+
+    [StringLength(2000)]
+    public string? Description { get; init; }
+
+    [Required]
+    [StringLength(64)]
+    public string CreatedByUserId { get; init; } = string.Empty;
+
+    [StringLength(16)]
+    public string ConfirmationType { get; init; } = "none";
+}

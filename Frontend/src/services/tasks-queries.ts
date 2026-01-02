@@ -1,10 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useAppSelector } from '@/store/hooks'
+import { selectAuthSession } from '@/features/auth/store/authSlice'
 import { tasksService, TaskDto, CreateTaskPayload, UpdateTaskPayload } from './tasks-service'
 
 export function useTasks() {
+  const session = useAppSelector(selectAuthSession)
+  const scopedKey: [string, string] = session
+    ? [session.profile.role, session.user.id]
+    : ['public', 'anonymous']
+
   return useQuery<TaskDto[]>({
-    queryKey: ['tasks'],
+    queryKey: ['tasks', ...scopedKey],
     queryFn: () => tasksService.list(),
+    enabled: Boolean(session),
     staleTime: 60_000, // 1 minute
     gcTime: 1000 * 60 * 5, // 5 minutes
   })
@@ -39,5 +47,19 @@ export function useCompleteTask() {
   return useMutation({
     mutationFn: (id: string) => tasksService.complete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
+export function useSubmitTaskEvidence() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) => tasksService.submitEvidence(id, file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
+export function useDownloadTaskEvidence() {
+  return useMutation({
+    mutationFn: (id: string) => tasksService.downloadEvidence(id),
   })
 }

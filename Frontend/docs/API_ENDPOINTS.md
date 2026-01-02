@@ -16,6 +16,12 @@
 - `DELETE /api-gateway/tasks/:id` - Удаление
 - `POST /api-gateway/tasks/:id/complete` - Отметить выполненной
 
+## Gamification
+- `GET /api-gateway/missions?recurrence=daily` - Список миссий (по умолчанию все типы)
+- `POST /api-gateway/missions/:id/progress` - Обновить прогресс миссии
+- `GET /api-gateway/achievements` - Список достижений
+- `POST /api-gateway/achievements/:id/progress` - Обновить прогресс достижения
+
 ## Rewards
 - `GET /api-gateway/rewards` - Список наград
 - `POST /api-gateway/rewards` - Создание награды

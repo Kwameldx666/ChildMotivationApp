@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import type { LucideIcon } from "lucide-react"
 import { Activity, ArrowLeft, CalendarDays, Check, Flame, Heart, Plus, Sparkles, Star, Wand2 } from "lucide-react"
+import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 
 type CategoryValue = "home" | "study" | "care" | "sport"
 
@@ -27,10 +28,11 @@ const CATEGORY_OPTIONS = [
 ] as const satisfies Array<{ value: CategoryValue; label: string }>
 
 const CONFIRM_OPTIONS = [
+  { value: "none", label: "Без подтверждения" },
   { value: "photo", label: "Фото" },
-  { value: "checklist", label: "Чек-лист" },
-  { value: "note", label: "Комментарий" },
-]
+  { value: "video", label: "Видео" },
+  { value: "document", label: "Документ" },
+] as const satisfies Array<{ value: TaskEvidenceRequirement; label: string }>
 
 const QUICK_TEMPLATES = [
   {
@@ -48,7 +50,7 @@ const QUICK_TEMPLATES = [
     title: "30 минут чтения",
     description: "Выбери книгу и расскажи 5 новых фактов, которые ты узнал.",
     category: "study",
-    confirmation: "checklist",
+    confirmation: "document",
     difficulty: 2,
   },
   {
@@ -87,7 +89,7 @@ export default function NewTaskPage() {
   const [category, setCategory] = useState<CategoryValue>("home")
   const [difficulty, setDifficulty] = useState(2)
   const [dueDate, setDueDate] = useState("")
-  const [confirmationType, setConfirmationType] = useState<(typeof CONFIRM_OPTIONS)[number]["value"]>("photo")
+  const [confirmationType, setConfirmationType] = useState<TaskEvidenceRequirement>("photo")
   const [rewardValue, setRewardValue] = useState("100")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -135,6 +137,7 @@ export default function NewTaskPage() {
       await createTask.mutateAsync({
         title: title.trim(),
         description: description.trim(),
+        confirmationType,
       })
       toast({ title: "Задача создана", description: "Она появится в вашем списке" })
       router.push(routeRecord[AppRouteId.ParentDashboard].path)

@@ -10,4 +10,7 @@ public class CreateTaskRequest
 
     [StringLength(2000)]
     public string? Description { get; init; }
+
+    [StringLength(16)]
+    public string? ConfirmationType { get; init; }
 }

@@ -1,17 +1,32 @@
 import { httpClient } from '@/services/api/http-client'
 
+export type TaskEvidenceRequirement = 'none' | 'photo' | 'video' | 'document'
+
+export interface TaskEvidenceDto {
+  requirement: TaskEvidenceRequirement
+  isSubmitted: boolean
+  fileName?: string | null
+  contentType?: string | null
+  fileSize?: number | null
+  uploadedAt?: string | null
+  uploadedByUserId?: string | null
+}
+
 export interface TaskDto {
   id: string
   title: string
   description?: string
   completed: boolean
   createdAt: string
+  completedAt?: string | null
   createdByUserId: string
+  evidence: TaskEvidenceDto
 }
 
 export interface CreateTaskPayload {
   title: string
   description?: string
+  confirmationType?: TaskEvidenceRequirement
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {
@@ -33,5 +48,13 @@ export const tasksService = {
   },
   complete(taskId: string) {
     return httpClient.post<void>(`/api-gateway/tasks/${taskId}/complete`)
+  },
+  submitEvidence(taskId: string, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return httpClient.post<TaskDto>(`/api-gateway/tasks/${taskId}/evidence`, formData)
+  },
+  downloadEvidence(taskId: string) {
+    return httpClient.get<Blob>(`/api-gateway/tasks/${taskId}/evidence`, { responseType: 'blob' })
   },
 }

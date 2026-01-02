@@ -2,6 +2,7 @@ using Gateway.Api.Contracts.Tasks;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gateway.Controllers;
@@ -40,7 +41,8 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
         {
             title = payload.Title,
             description = payload.Description,
-            createdByUserId = userId
+            createdByUserId = userId,
+            confirmationType = payload.ConfirmationType
         };
 
         using var response = await taskClient.CreateAsync(upstreamPayload, cancellationToken);
@@ -67,5 +69,46 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
     {
         using var response = await taskClient.CompleteAsync(id, cancellationToken);
         return await response.ToActionResultAsync();
+    }
+
+    [HttpPost("{id:guid}/evidence")]
+    public async Task<IActionResult> UploadEvidence(Guid id, IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+        {
+            return BadRequest("Необходимо прикрепить файл подтверждения.");
+        }
+
+        var userId = User.GetUserId();
+        if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
+
+        await using var stream = file.OpenReadStream();
+        using var response = await taskClient.UploadEvidenceAsync(
+            id,
+            stream,
+            file.FileName,
+            string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType,
+            userId,
+            cancellationToken);
+
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpGet("{id:guid}/evidence")]
+    public async Task<IActionResult> DownloadEvidence(Guid id, CancellationToken cancellationToken)
+    {
+        using var response = await taskClient.DownloadEvidenceAsync(id, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            return await response.ToActionResultAsync();
+        }
+
+        var bytes = await response.Content.ReadAsByteArrayAsync();
+        var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+        var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                       ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
+                       ?? $"evidence-{id}";
+
+        return File(bytes, contentType, fileName);
     }
 }

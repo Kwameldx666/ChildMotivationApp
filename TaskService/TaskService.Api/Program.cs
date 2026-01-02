@@ -1,7 +1,9 @@
-using TaskService.Infrastructure.Extensions;
-using TaskService.Persistence.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TaskService.Api.Middlewares;
+using TaskService.Application;
+using TaskService.Infrastructure.Extensions;
+using TaskService.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +11,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddApplication();
+
 // Infrastructure
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Persistence (DB)
 builder.Services.AddPersistence(builder.Configuration);
+
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();
 
@@ -38,6 +44,8 @@ using (var scope = app.Services.CreateScope())
         // Don't rethrow so container can still start and surface the error to logs
     }
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseRouting();
 app.MapControllers();
