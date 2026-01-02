@@ -37,6 +37,28 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> GetFamilyMembersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var requestUri = BuildFamilyMembersPath(userId);
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetCurrentFamilyMembersAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = BuildFamilyMembersMePath();
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
     public Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request,
         CancellationToken cancellationToken)
     {
@@ -84,5 +106,24 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             throw new InvalidOperationException("UserService profile endpoint is not configured.");
 
         return $"{basePath.TrimEnd('/')}/me";
+    }
+
+    private string BuildFamilyMembersPath(Guid userId)
+    {
+        if (!string.IsNullOrWhiteSpace(_endpoints.FamilyMembers))
+        {
+            return _endpoints.FamilyMembers.Contains("{userId}")
+                ? _endpoints.FamilyMembers.Replace("{userId}", userId.ToString())
+                : $"{_endpoints.FamilyMembers.TrimEnd('/')}/{userId}";
+        }
+
+        return $"{BuildProfilePath(userId)}/family-members";
+    }
+
+    private string BuildFamilyMembersMePath()
+    {
+        if (!string.IsNullOrWhiteSpace(_endpoints.FamilyMembersMe)) return _endpoints.FamilyMembersMe;
+
+        return $"{BuildProfileMePath()}/family-members";
     }
 }

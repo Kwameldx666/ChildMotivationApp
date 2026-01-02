@@ -56,6 +56,13 @@ public static class InfrastructureExtensions
             DefaultHttpClientNames.TaskService,
             "Services:TaskService",
             "http://localhost:8083");
+
+        ConfigureClient(
+            services,
+            configuration,
+            DefaultHttpClientNames.ShopService,
+            "Services:ShopService",
+            "http://localhost:8091");
     }
     
     private static void ConfigureClient(
@@ -99,6 +106,7 @@ public static class InfrastructureExtensions
         services.Configure<AuthEndpoints>(configuration.GetSection("ServiceEndpoints:AuthService"));
         services.Configure<UserEndpoints>(configuration.GetSection("ServiceEndpoints:UserService"));
         services.Configure<TaskEndpoints>(configuration.GetSection("ServiceEndpoints:TaskService"));
+        services.Configure<ShopEndpoints>(configuration.GetSection("ServiceEndpoints:ShopService"));
     }
 
     private static void AddProxies(this IServiceCollection services)
@@ -106,6 +114,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();
         services.AddScoped<IUserServiceClient, UserServiceClient>();
         services.AddScoped<ITaskServiceClient, TaskServiceClient>();
+        services.AddScoped<IShopServiceClient, ShopServiceClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

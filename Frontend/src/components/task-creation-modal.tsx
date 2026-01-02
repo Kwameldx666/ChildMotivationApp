@@ -1,7 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,13 +11,13 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import type { CreateTaskPayload } from "@/services/tasks-service"
 import { CalendarDays, Check, Flame, Plus, Sparkles, Star, Wand2 } from "lucide-react"
 
 interface TaskCreationModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (task: any) => void
+  onSubmit: (payload: CreateTaskPayload) => Promise<void> | void
 }
 
 const CATEGORY_OPTIONS = [
@@ -62,7 +61,6 @@ const QUICK_TEMPLATES = [
 ]
 
 export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }: TaskCreationModalProps) {
-  const router = useRouter()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("home")
@@ -70,6 +68,26 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const [dueDate, setDueDate] = useState("")
   const [confirmationType, setConfirmationType] = useState("photo")
   const [rewardValue, setRewardValue] = useState("100")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const resetForm = useCallback(() => {
+    setTitle("")
+    setDescription("")
+    setCategory("home")
+    setDifficulty(2)
+    setDueDate("")
+    setConfirmationType("photo")
+    setRewardValue("100")
+    setSubmitError(null)
+    setIsSubmitting(false)
+  }, [])
+
+  useEffect(() => {
+    if (!open) {
+      resetForm()
+    }
+  }, [open, resetForm])
 
   const summary = useMemo(
     () => ({
@@ -89,9 +107,28 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
     setDifficulty(template.difficulty)
   }
 
-  const handleSubmit = () => {
-    onClose()
-    router.push(routeRecord[AppRouteId.TaskCreate].path)
+  const handleSubmit = async () => {
+    const trimmedTitle = title.trim()
+    if (!trimmedTitle) {
+      setSubmitError("Введите название задачи")
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+      setSubmitError(null)
+      await _onSubmit({
+        title: trimmedTitle,
+        description: description.trim() ? description.trim() : undefined,
+      })
+      resetForm()
+      onClose()
+    } catch (error) {
+      console.error("[task-creation-modal] Failed to create task", error)
+      setSubmitError("Не удалось создать задачу. Попробуйте ещё раз.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -303,11 +340,12 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
           <Button variant="ghost" onClick={onClose} className="flex-1">
             Отмена
           </Button>
-          <Button onClick={handleSubmit} className="flex-1 gap-2">
+          <Button onClick={handleSubmit} className="flex-1 gap-2" disabled={isSubmitting}>
             <Plus className="h-4 w-4" />
-            Создать задачу
+            {isSubmitting ? "Создаём..." : "Создать задачу"}
           </Button>
         </div>
+        {submitError && <p className="px-5 pb-4 text-sm text-destructive">{submitError}</p>}
       </DialogContent>
     </Dialog>
   )

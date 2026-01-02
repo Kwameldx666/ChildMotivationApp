@@ -1,227 +1,171 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Plus, Edit2, Trash2, Bell, BellOff, Copy, Check } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-
-interface Child {
-  id: string
-  childId: string
-  name: string
-  lastName: string
-  avatar: string
-  age: number
-  notificationsEnabled: boolean
-}
+import { Check, Copy, RefreshCw, Users } from "lucide-react"
+import { useFamilyMembers } from "@/services/family-queries"
+import type { FamilyMember } from "@/services/family-service"
 
 interface ChildrenManagementProps {
-  familyCode: string
+  familyCode?: string | null
 }
 
-function generateChildId(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  let result = ""
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
+const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
+
+const resolveAvatar = (member: FamilyMember, index: number) => {
+  const value = member.avatar?.trim()
+  if (value) return value
+  return FALLBACK_AVATARS[index % FALLBACK_AVATARS.length]
 }
+
+const formatMemberName = (member: FamilyMember) => {
+  if (member.lastName?.trim()) {
+    return `${member.name} ${member.lastName}`
+  }
+  return member.name
+}
+
+const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
-  const [children, setChildren] = useState<Child[]>([
-    {
-      id: "1",
-      childId: "A3K9M2",
-      name: "Иван",
-      lastName: "Иванов",
-      avatar: "👦",
-      age: 8,
-      notificationsEnabled: true,
-    },
-    {
-      id: "2",
-      childId: "B7L2N5",
-      name: "Мария",
-      lastName: "Иванова",
-      avatar: "👧",
-      age: 11,
-      notificationsEnabled: true,
-    },
-  ])
-
-  const [isOpen, setIsOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ name: "", lastName: "", age: "" })
+  const normalizedFamilyCode =
+    familyCode && familyCode.trim() && familyCode !== "—" ? familyCode.trim() : null
+  const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
+    enabled: Boolean(normalizedFamilyCode),
+  })
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  const handleAdd = () => {
-    if (formData.name && formData.lastName && formData.age) {
-      const newChild: Child = {
-        id: Date.now().toString(),
-        childId: generateChildId(),
-        name: formData.name,
-        lastName: formData.lastName,
-        avatar: "👤",
-        age: Number.parseInt(formData.age),
-        notificationsEnabled: true,
-      }
-      setChildren([...children, newChild])
-      setFormData({ name: "", lastName: "", age: "" })
-      setIsOpen(false)
+  const children = useMemo(() => {
+    if (!data) return []
+    return data.filter((member) => member.role?.toLowerCase() === "child")
+  }, [data])
+
+  const handleCopyId = async (source?: string | null) => {
+    if (!source) return
+    try {
+      await navigator.clipboard.writeText(source)
+      setCopiedId(source)
+      setTimeout(() => setCopiedId(null), 2000)
+    } catch (error) {
+      console.error("[children-management] Failed to copy value", error)
     }
   }
 
-  const handleDelete = (id: string) => {
-    setChildren(children.filter((child) => child.id !== id))
-  }
-
-  const toggleNotifications = (id: string) => {
-    setChildren(
-      children.map((child) =>
-        child.id === id ? { ...child, notificationsEnabled: !child.notificationsEnabled } : child,
-      ),
+  if (!normalizedFamilyCode) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center space-y-3">
+          <Users className="w-10 h-10 mx-auto text-muted-foreground" />
+          <h3 className="text-lg font-semibold">Создайте семью</h3>
+          <p className="text-sm text-muted-foreground">
+            Чтобы видеть подключенных детей, создайте семью и поделитесь кодом с ребёнком
+          </p>
+        </CardContent>
+      </Card>
     )
   }
 
-  const handleCopyId = (childId: string) => {
-    navigator.clipboard.writeText(childId)
-    setCopiedId(childId)
-    setTimeout(() => setCopiedId(null), 2000)
+  if (isLoading || (isFetching && !data)) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center space-y-2">
+          <Users className="w-10 h-10 mx-auto text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Загружаем список подключённых детей…</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center space-y-3">
+          <p className="text-sm text-muted-foreground">Не удалось получить список детей</p>
+          <Button variant="outline" className="gap-2" onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4" />
+            Повторить
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (children.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center space-y-3">
+          <p className="text-sm text-muted-foreground">Пока ни один ребёнок не подключился</p>
+          <p className="text-xs text-muted-foreground">
+            Передайте код семьи <span className="font-semibold">{normalizedFamilyCode}</span> ребёнку.
+            После подключения его профиль появится здесь автоматически.
+          </p>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Добавить ребёнка
+      <Card>
+        <CardContent className="py-6 flex flex-col gap-3">
+          <p className="text-sm text-muted-foreground">
+            Поделитесь кодом семьи, чтобы ребёнок смог присоединиться:
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-base font-semibold tracking-wide font-mono bg-secondary/40 px-3 py-2 rounded">
+              {normalizedFamilyCode}
+            </span>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => handleCopyId(normalizedFamilyCode)}>
+              {copiedId === normalizedFamilyCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+              {copiedId === normalizedFamilyCode ? "Скопировано" : "Скопировать код"}
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Добавить ребёнка</DialogTitle>
-              <DialogDescription>Введите данные ребёнка, чтобы добавить его в семью</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Имя</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Иван"
-                />
-              </div>
-              <div>
-                <Label htmlFor="lastName">Фамилия</Label>
-                <Input
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  placeholder="Иванов"
-                />
-              </div>
-              <div>
-                <Label htmlFor="age">Возраст</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  placeholder="8"
-                  min="1"
-                  max="18"
-                />
-              </div>
-              <Button onClick={handleAdd} className="w-full">
-                Добавить
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {children.length === 0 ? (
-        <Card>
-          <CardContent className="pt-12 text-center">
-            <p className="text-muted-foreground mb-4">Нет добавленных детей</p>
-            <p className="text-sm text-muted-foreground">
-              Добавьте первого ребёнка, чтобы начать использовать приложение
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {children.map((child) => (
-            <Card key={child.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl">
-                      {child.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">
-                        {child.name} {child.lastName}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{child.age} лет</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold">
-                          ID: {child.childId}
-                        </span>
-                        <button
-                          onClick={() => handleCopyId(child.childId)}
-                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                          title="Скопировать ID"
-                        >
-                          {copiedId === child.childId ? (
-                            <Check className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
+      <div className="grid gap-4">
+        {children.map((child, index) => (
+          <Card key={child.id}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl">
+                    {resolveAvatar(child, index)}
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => toggleNotifications(child.id)}
-                      title={child.notificationsEnabled ? "Отключить уведомления" : "Включить уведомления"}
-                    >
-                      {child.notificationsEnabled ? (
-                        <Bell className="w-4 h-4 text-accent" />
-                      ) : (
-                        <BellOff className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </Button>
-                    <Button size="icon" variant="ghost">
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => handleDelete(child.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-lg">{formatMemberName(child)}</h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                        {child.role?.toLowerCase() === "child" ? "Ребёнок" : child.role}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {child.age ? `${child.age} лет` : "Возраст не указан"}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold" title={child.id}>
+                        ID: {formatShortId(child.id)}
+                      </span>
+                      <button
+                        onClick={() => handleCopyId(child.id)}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        title="Скопировать ID"
+                      >
+                        {copiedId === child.id ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 }

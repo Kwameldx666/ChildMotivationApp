@@ -25,6 +25,20 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
         return await response.ToActionResultAsync();
     }
 
+    [HttpGet("{userId:guid}/family-members")]
+    public async Task<IActionResult> GetFamilyMembersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        using var response = await userServiceClient.GetFamilyMembersAsync(userId, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpGet("me/family-members")]
+    public async Task<IActionResult> GetCurrentFamilyMembersAsync(CancellationToken cancellationToken)
+    {
+        using var response = await userServiceClient.GetCurrentFamilyMembersAsync(cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     [HttpPut("{userId:guid}")]
     public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateProfileRequest? request,
         CancellationToken cancellationToken)

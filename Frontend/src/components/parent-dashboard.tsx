@@ -14,7 +14,11 @@ import ChildrenManagement from "@/components/children-management"
 import TaskTemplates from "@/components/task-templates"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import TaskCreationModal from "@/components/task-creation-modal"
+import { useCreateTask } from "@/services/tasks-queries"
+import { useCreateProduct } from "@/services/shop-queries"
+import type { CreateTaskPayload } from "@/services/tasks-service"
+import { useToast } from "@/hooks/use-toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,19 +51,56 @@ export default function ParentDashboard({
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const safeFamilyCode = familyCode ?? "—"
+  const createTask = useCreateTask()
+  const createProduct = useCreateProduct()
+  const { toast } = useToast()
 
   useEffect(() => {
-    const cb = () => router.push(routeRecord[AppRouteId.TaskCreate].path)
+    const cb = () => setIsTaskModalOpen(true)
     if (typeof window !== 'undefined') {
       window.addEventListener('open-task-create', cb as EventListener)
       return () => window.removeEventListener('open-task-create', cb as EventListener)
     }
-  }, [router])
+    return undefined
+  }, [])
 
-  const handleCreateReward = (reward: { title: string; description: string; cost: number; icon: string }) => {
-    console.log("[v0] Reward created:", reward)
-    setIsRewardModalOpen(false)
+  const handleCreateTask = async (payload: CreateTaskPayload) => {
+    try {
+      await createTask.mutateAsync(payload)
+      toast({ title: "Задача создана", description: "Она появится в списке задач" })
+    } catch (error) {
+      toast({ title: "Не удалось создать задачу", description: "Попробуйте ещё раз", variant: "destructive" })
+      throw error
+    }
+  }
+
+  const handleCreateReward = async (reward: {
+    title: string
+    description: string
+    cost: number
+    icon: string
+    stock: number
+  }) => {
+    try {
+      await createProduct.mutateAsync({
+        name: `${reward.icon} ${reward.title}`.trim(),
+        description: reward.description ? `${reward.icon} ${reward.description}`.trim() : reward.description,
+        price: reward.cost,
+        stock: reward.stock,
+        isActive: true,
+      })
+
+      toast({ title: "Товар добавлен", description: "Награда появится в магазине" })
+    } catch (error) {
+      toast({
+        title: "Не удалось добавить товар",
+        description: error instanceof Error ? error.message : "Попробуйте ещё раз",
+        variant: "destructive",
+      })
+      throw error
+    }
   }
 
   const avatarImageUrl = useMemo(() => {
@@ -171,9 +212,12 @@ export default function ParentDashboard({
                 <h2 className="text-xl font-bold">Управление задачами</h2>
                 <p className="text-sm text-muted-foreground">Создавайте и отслеживайте задачи для детей</p>
               </div>
-              <Button className="gap-2" onClick={() => router.push(routeRecord[AppRouteId.TaskCreate].path)}>
+              <Button
+                className="gap-2"
+                onClick={() => router.push("/dashboard/tasks/new")}
+              >
                 <Plus className="w-4 h-4" />
-                Создать задачу
+                Перейти к созданию
               </Button>
             </div>
             <TasksList userType="parent" />
@@ -214,7 +258,7 @@ export default function ParentDashboard({
                 Добавляйте, редактируйте и управляйте профилями детей
               </p>
             </div>
-            <ChildrenManagement familyCode={safeFamilyCode} />
+            <ChildrenManagement familyCode={familyCode} />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
@@ -241,6 +285,12 @@ export default function ParentDashboard({
         open={isRewardModalOpen}
         onClose={() => setIsRewardModalOpen(false)}
         onSubmit={handleCreateReward}
+        isSubmitting={createProduct.isPending}
+      />
+      <TaskCreationModal
+        open={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSubmit={handleCreateTask}
       />
     </div>
   )

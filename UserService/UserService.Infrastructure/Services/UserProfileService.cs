@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using UserService.Application.Interfaces;
 using UserService.Application.Dto.User;
 using UserService.Application.Features.Profile;
@@ -55,6 +57,36 @@ public class UserProfileService(UserManager<User> userManager) : IUserProfilePro
         }
 
         return UserProfileMapper.Map(user);
+    }
+
+    public async Task<IReadOnlyCollection<FamilyMemberDto>> GetFamilyMembersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var familyCode = await userManager.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => u.FamilyCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(familyCode))
+        {
+            return Array.Empty<FamilyMemberDto>();
+        }
+
+        var members = await userManager.Users
+            .AsNoTracking()
+            .Where(u => u.FamilyCode == familyCode)
+            .OrderBy(u => u.UserType)
+            .ThenBy(u => u.Name)
+            .Select(u => new FamilyMemberDto(
+                u.Id,
+                u.UserType.ToString().ToLowerInvariant(),
+                u.Name ?? string.Empty,
+                u.LastName,
+                u.Avatar,
+                u.UserType == UserType.Child ? u.Age : null))
+            .ToListAsync(cancellationToken);
+
+        return members;
     }
 
     private static string? Normalize(string? value)

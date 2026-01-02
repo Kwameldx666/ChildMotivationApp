@@ -154,6 +154,14 @@ export default function TasksList({ userType }: TasksListProps) {
 	const completeTask = useCompleteTask()
 	const updateTask = useUpdateTask()
 
+	const openTaskCreation = () => {
+		if (typeof window !== "undefined") {
+			window.dispatchEvent(new Event("open-task-create"))
+			return
+		}
+		router.push(routeRecord[AppRouteId.TaskCreate].path)
+	}
+
 	const tasks = (data ?? []) as TaskDto[]
 
 	const decoratedTasks: DecoratedTask[] = tasks
@@ -257,7 +265,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				{userType === "parent" && (
 					<Button
 						className="mt-6 gap-2"
-						onClick={() => router.push(routeRecord[AppRouteId.TaskCreate].path)}
+						onClick={openTaskCreation}
 					>
 						<Plus className="h-4 w-4" />
 						Создать задачу
@@ -285,7 +293,7 @@ export default function TasksList({ userType }: TasksListProps) {
 								<Button
 									variant="secondary"
 									className="border border-white/50 bg-white/10 text-white hover:bg-white/20"
-									onClick={() => router.push(routeRecord[AppRouteId.TaskCreate].path)}
+									onClick={openTaskCreation}
 								>
 									<Plus className="mr-1 h-4 w-4" />
 									Новая задача
@@ -361,6 +369,7 @@ export default function TasksList({ userType }: TasksListProps) {
 			<div className="space-y-5">
 				{filteredTasks.map((task, index) => {
 					const statusMeta = STATUS_META[task.status]
+					const StatusIcon = statusMeta.icon
 					return (
 						<Card key={task.id} className="relative overflow-hidden border-none bg-transparent shadow-none">
 							<div className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card/95 shadow-xl">
@@ -374,7 +383,7 @@ export default function TasksList({ userType }: TasksListProps) {
 										<div className="max-w-2xl space-y-3">
 											<div className="flex flex-wrap items-center gap-3">
 												<Badge className={cn("flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]", statusMeta.badge)}>
-													<statusMeta.icon className="h-3.5 w-3.5" />
+													<StatusIcon className="h-3.5 w-3.5" />
 													{statusMeta.label}
 												</Badge>
 												<span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
@@ -444,40 +453,40 @@ export default function TasksList({ userType }: TasksListProps) {
 												))}
 											</div>
 
-											<div className="flex flex-wrap justify-end gap-2">
-												{userType === "parent" && !task.completed && (
-													<>
-														<Button variant="outline" size="sm" onClick={() => handleReject(task)}>
-															Отклонить
-														</Button>
-														<Button size="sm" className="gap-2" onClick={() => handleConfirm(task.id)}>
-															<CheckCircle2 className="h-4 w-4" />
-															Подтвердить
-														</Button>
-													</>
-												)}
-
-												{userType === "child" && !task.completed && (
+										<div className="flex flex-wrap justify-end gap-2">
+											{userType === "parent" && !task.completed && (
+												<>
+													<Button variant="outline" size="sm" onClick={() => handleReject(task)}>
+														Отклонить
+													</Button>
 													<Button size="sm" className="gap-2" onClick={() => handleConfirm(task.id)}>
 														<CheckCircle2 className="h-4 w-4" />
-														Я сделал
+														Подтвердить
 													</Button>
-												)}
+												</>
+											)}
 
-												{task.completed && (
-													<Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
-														Задача закрыта
-													</Badge>
-												)}
-											</div>
+											{userType === "child" && !task.completed && (
+												<Button size="sm" className="gap-2" onClick={() => handleConfirm(task.id)}>
+													<CheckCircle2 className="h-4 w-4" />
+													Я сделал
+												</Button>
+											)}
+
+											{task.completed && (
+												<Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
+													Задача закрыта
+												</Badge>
+											)}
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</Card>
-					)
-				})}
-			</div>
+				)
+			})}
+		</div>
 		</div>
 	)
 }

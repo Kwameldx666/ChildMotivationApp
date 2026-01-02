@@ -6,20 +6,39 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Plus, Sparkles } from "lucide-react"
+import { Loader2, Plus, Sparkles } from "lucide-react"
 
 interface RewardCreationModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (reward: { title: string; description: string; cost: number; icon: string }) => void
+  onSubmit: (reward: { title: string; description: string; cost: number; icon: string; stock: number }) => void | Promise<void>
+  isSubmitting?: boolean
 }
 
-const ICON_OPTIONS = ["🎮", "🍕", "🎬", "🎡", "📚", "😎", "🎨", "🏀", "🎸", "🎭", "🚴", "🍦", "🎯", "🎪", "🎤", "🏊"]
+const ICON_OPTIONS = [
+  "🎮",
+  "🍕",
+  "🎬",
+  "🎡",
+  "📚",
+  "😎",
+  "🎨",
+  "🏀",
+  "🎸",
+  "🎭",
+  "🚴",
+  "🍦",
+  "🎯",
+  "🎪",
+  "🎤",
+  "🏊",
+]
 
-export default function RewardCreationModal({ open, onClose, onSubmit }: RewardCreationModalProps) {
+export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitting = false }: RewardCreationModalProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [cost, setCost] = useState("")
+  const [stock, setStock] = useState("1")
   const [selectedIcon, setSelectedIcon] = useState("🎁")
   const [isAiGenerating, setIsAiGenerating] = useState(false)
 
@@ -29,21 +48,36 @@ export default function RewardCreationModal({ open, onClose, onSubmit }: RewardC
       setTitle("Поход в кино")
       setDescription("Выбери фильм и иди всей семьёй в кинотеатр")
       setCost("800")
+      setStock("1")
       setSelectedIcon("🎬")
       setIsAiGenerating(false)
     }, 2000)
   }
 
-  const handleSubmit = () => {
-    if (title && description && cost) {
-      onSubmit({ title, description, cost: Number.parseInt(cost), icon: selectedIcon })
+  const handleSubmit = async () => {
+    if (!title || !description || !cost || !stock) return
+
+    try {
+      await onSubmit({
+        title,
+        description,
+        cost: Number.parseInt(cost, 10),
+        icon: selectedIcon,
+        stock: Math.max(1, Number.parseInt(stock, 10) || 1),
+      })
+
       setTitle("")
       setDescription("")
       setCost("")
+      setStock("1")
       setSelectedIcon("🎁")
       onClose()
+    } catch (error) {
+      console.error("[reward-creation-modal] Failed to submit reward", error)
     }
   }
+
+  const disabled = isSubmitting || isAiGenerating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -55,10 +89,11 @@ export default function RewardCreationModal({ open, onClose, onSubmit }: RewardC
 
         <div className="space-y-4 py-4">
           <Button
+            type="button"
             variant="outline"
             className="w-full gap-2 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 hover:from-purple-100 hover:to-pink-100"
             onClick={handleAiGenerate}
-            disabled={isAiGenerating}
+            disabled={disabled}
           >
             {isAiGenerating ? (
               <>
@@ -74,7 +109,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit }: RewardC
           </Button>
 
           <div className="space-y-2">
-            <Label htmlFor="icon">Иконка награды</Label>
+            <Label>Иконка награды</Label>
             <div className="grid grid-cols-8 gap-2">
               {ICON_OPTIONS.map((icon) => (
                 <button
@@ -86,6 +121,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit }: RewardC
                       : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => setSelectedIcon(icon)}
+                  disabled={isSubmitting}
                 >
                   {icon}
                 </button>
@@ -94,39 +130,74 @@ export default function RewardCreationModal({ open, onClose, onSubmit }: RewardC
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Название награды</Label>
+            <Label htmlFor="reward-title">Название награды</Label>
             <Input
-              id="title"
+              id="reward-title"
               placeholder="Например: Час игр на консоли"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(event) => setTitle(event.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Описание</Label>
+            <Label htmlFor="reward-description">Описание</Label>
             <Textarea
-              id="description"
+              id="reward-description"
               placeholder="Подробное описание награды..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
               rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cost">Стоимость в очках</Label>
-            <Input id="cost" type="number" placeholder="500" value={cost} onChange={(e) => setCost(e.target.value)} />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="reward-cost">Стоимость в очках</Label>
+              <Input
+                id="reward-cost"
+                type="number"
+                min="1"
+                step="10"
+                value={cost}
+                onChange={(event) => setCost(event.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reward-stock">Количество наград</Label>
+              <Input
+                id="reward-stock"
+                type="number"
+                min="1"
+                step="1"
+                value={stock}
+                onChange={(event) => setStock(event.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1 bg-transparent">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 bg-transparent"
+            disabled={isSubmitting}
+          >
             Отмена
           </Button>
-          <Button onClick={handleSubmit} disabled={!title || !description || !cost} className="flex-1 gap-2">
-            <Plus className="w-4 h-4" />
-            Создать награду
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!title || !description || !cost || !stock || isSubmitting}
+            className="flex-1 gap-2"
+          >
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {isSubmitting ? "Сохраняем" : "Создать награду"}
           </Button>
         </div>
       </DialogContent>

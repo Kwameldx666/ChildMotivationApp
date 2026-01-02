@@ -40,27 +40,23 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Authentication__UseDistributedStateStore: ${AUTH_USE_DISTRIBUTED_STATE_STORE:-true}
-      Redis__Configuration: ${REDIS_CONFIGURATION:-redis:6379}
-      ConnectionStrings__Redis: ${REDIS_CONNECTIONSTRING:-redis:6379}
-      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
-
+      Authentication__UseDistributedStateStore: true
+      Redis__Configuration: redis:6379
+      ConnectionStrings__Redis: redis:6379
+      ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
-      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI}
-
-      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
+      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
       Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID:-dev}
       Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET:-dev}
-      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI}
-
-      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
+      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-http://localhost:8080/auth-service/github/callback}
+      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
       Authentication__Discord__ClientId: ${AUTH_DISCORD_CLIENT_ID:-dev}
       Authentication__Discord__ClientSecret: ${AUTH_DISCORD_CLIENT_SECRET:-dev}
-      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI}
-
-      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:3000/auth}
-      ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI:-http://localhost:8080/auth-service/discord/callback}
+      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
     ports:
       - "8080:8080"
     volumes:
@@ -80,7 +76,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8082:8080"
@@ -113,12 +109,48 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      JwtBearer__Secret: ${TASK_JWT_SECRET:-task_jwt_secret}
       ConnectionStrings__TaskService: ${TASKSERVICE_DB_CONNECTION:-Host=postgres-task;Port=5432;Database=task_db;Username=task_owner;Password=postgres}
     ports:
       - "8083:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/task-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  postgres-shop:
+    image: postgres:15
+    container_name: postgres_shop_db
+    restart: unless-stopped
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: shop_db
+      POSTGRES_USER: shop_owner
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_shop_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop_owner -d shop_db -h postgres-shop -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  shop-service:
+    build:
+      context: .
+      dockerfile: ShopService/ShopService.Api/Dockerfile
+    depends_on:
+      postgres-shop:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__ShopService: ${SHOPSERVICE_DB_CONNECTION:-Host=postgres-shop;Port=5432;Database=shop_db;Username=shop_owner;Password=postgres}
+    ports:
+      - "8091:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/shop-service/health || exit 1"]
       timeout: 10s
       retries: 5
       start_period: 10s
@@ -134,18 +166,22 @@ services:
         condition: service_started
       task-service:
         condition: service_started
+      shop-service:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081
       Services__AuthService: http://auth-service:8080/
-      # Use the same secret as AuthService to allow token validation
-      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ServiceEndpoints__AuthService__Register: auth-service/register
       ServiceEndpoints__AuthService__Login: auth-service/login
       Services__UserService: http://user-service:8080/
       ServiceEndpoints__UserService__Profile: user-service/profile
       Services__TaskService: http://task-service:8080/
       ServiceEndpoints__TaskService__Tasks: task-service/tasks
+      Services__ShopService: http://shop-service:8080/
+      ServiceEndpoints__ShopService__Products: shop-service/products
+      ServiceEndpoints__ShopService__Orders: shop-service/orders
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8081:8081"
@@ -163,9 +199,10 @@ services:
       NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
       INTERNAL_API_URL: http://gateway-service:8081
     ports:
-      - "3000:3000"
+      - "4000:3000"
 
 volumes:
   postgres_data:
   auth_keys:
   postgres_task_data:
+  postgres_shop_data:
