@@ -155,6 +155,29 @@ services:
       retries: 5
       start_period: 10s
 
+  ai-service:
+    build:
+      context: .
+      dockerfile: AiService/AiService.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      AiProvider__Provider: OpenAI
+      AiProvider__BaseUrl: https://api.openai.com/
+      AiProvider__ChatEndpoint: v1/chat/completions
+      AiProvider__Model: gpt-4o-mini
+      AiProvider__Temperature: 0.6
+      AiProvider__MaxTokens: 700
+      AiProvider__TimeoutSeconds: 45
+      AiProvider__ApiKey: ${OPENAI_API_KEY:-}
+    ports:
+      - "8095:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ai-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
   gateway-service:
     build:
       context: .
@@ -167,6 +190,8 @@ services:
       task-service:
         condition: service_started
       shop-service:
+        condition: service_started
+      ai-service:
         condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -182,6 +207,11 @@ services:
       Services__ShopService: http://shop-service:8080/
       ServiceEndpoints__ShopService__Products: shop-service/products
       ServiceEndpoints__ShopService__Orders: shop-service/orders
+      Services__AiService: http://ai-service:8080/
+      ServiceEndpoints__AiService__TaskSuggestions: ai-service/task-suggestions
+      ServiceEndpoints__AiService__RewardSuggestions: ai-service/reward-suggestions
+      ServiceEndpoints__AiService__Chat: ai-service/chat
+      ServiceEndpoints__AiService__Analytics: ai-service/analytics
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8081:8081"
