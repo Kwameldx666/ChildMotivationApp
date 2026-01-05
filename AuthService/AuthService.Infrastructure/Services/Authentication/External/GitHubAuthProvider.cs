@@ -77,7 +77,42 @@ public class GitHubAuthProvider(
         request.Headers.UserAgent.Clear();
         request.Headers.UserAgent.Add(new ProductInfoHeaderValue("AuthService", "1.0"));
 
-        var response = await _client.SendAsync(request, cancellationToken);
+        _logger.LogInformation("GitHubAuthProvider: Sending token request to {TokenEndpoint}", tokenEndpoint);
+        
+        HttpResponseMessage response;
+        try
+        {
+            response = await _client.SendAsync(request, cancellationToken);
+            _logger.LogInformation("GitHubAuthProvider: Received response with status {StatusCode}", response.StatusCode);
+        }
+        catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+        {
+            _logger.LogError(ex, "GitHubAuthProvider: Request to {TokenEndpoint} timed out", tokenEndpoint);
+            return Result.Failure<ExternalAuthToken>(
+                HttpStatusCode.GatewayTimeout,
+                DefaultErrors.InternalServerError("GitHub API request timed out. Please try again."));
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "GitHubAuthProvider: Request to {TokenEndpoint} was canceled", tokenEndpoint);
+            return Result.Failure<ExternalAuthToken>(
+                HttpStatusCode.RequestTimeout,
+                DefaultErrors.InternalServerError("GitHub API request was canceled."));
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "GitHubAuthProvider: HTTP request to {TokenEndpoint} failed", tokenEndpoint);
+            return Result.Failure<ExternalAuthToken>(
+                HttpStatusCode.BadGateway,
+                DefaultErrors.InternalServerError("Failed to connect to GitHub API."));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GitHubAuthProvider: Unexpected error while calling {TokenEndpoint}", tokenEndpoint);
+            return Result.Failure<ExternalAuthToken>(
+                HttpStatusCode.InternalServerError,
+                DefaultErrors.InternalServerError("Unexpected error while contacting GitHub API."));
+        }
 
         if (!response.IsSuccessStatusCode)
         {

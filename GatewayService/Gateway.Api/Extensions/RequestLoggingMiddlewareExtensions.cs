@@ -1,6 +1,11 @@
-﻿namespace Gateway.Extensions;
+﻿using Gateway.Middlewares;
 
-public class RequestLoggingMiddlewareExtensions
+namespace Gateway.Extensions;
+
+public static class RequestLoggingMiddlewareExtensions
 {
-    
+    public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder builder)
+    {
+        return builder.UseMiddleware<RequestLoggingMiddleware>();
+    }
 }

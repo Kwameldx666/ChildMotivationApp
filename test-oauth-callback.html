@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discord OAuth Test</title>
+</head>
+<body>
+    <h1>Discord OAuth Callback Test</h1>
+    <p>Current URL: <span id="currentUrl"></span></p>
+    <p>Code parameter: <span id="code"></span></p>
+    <p>State parameter: <span id="state"></span></p>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('code').textContent = urlParams.get('code') || 'Not found';
+        document.getElementById('state').textContent = urlParams.get('state') || 'Not found';
+        
+        console.log('Full URL:', window.location.href);
+        console.log('Search params:', window.location.search);
+        console.log('Code:', urlParams.get('code'));
+        console.log('State:', urlParams.get('state'));
+    </script>
+</body>
+</html>

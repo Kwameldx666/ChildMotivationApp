@@ -33,7 +33,8 @@ public class ShopServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return _client.SendHttpRequestAsync(HttpMethod.Post, uri, request, SerializerOptions, cancellationToken);
     }
 
-    public Task<HttpResponseMessage> UpdateProductAsync(Guid id, object request, CancellationToken cancellationToken = default)
+    public Task<HttpResponseMessage> UpdateProductAsync(Guid id, object request,
+        CancellationToken cancellationToken = default)
     {
         var uri = $"{BuildProductsPath()}/{id}";
         return _client.SendHttpRequestAsync(HttpMethod.Put, uri, request, SerializerOptions, cancellationToken);
@@ -45,7 +46,8 @@ public class ShopServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return _client.SendHttpRequestAsync<object>(HttpMethod.Delete, uri, null, SerializerOptions, cancellationToken);
     }
 
-    public Task<HttpResponseMessage> GetOrdersAsync(string? userId = null, CancellationToken cancellationToken = default)
+    public Task<HttpResponseMessage> GetOrdersAsync(string? userId = null,
+        CancellationToken cancellationToken = default)
     {
         var uri = BuildOrdersPath();
         if (!string.IsNullOrWhiteSpace(userId))
@@ -65,7 +67,8 @@ public class ShopServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
         return _client.SendHttpRequestAsync(HttpMethod.Post, uri, request, SerializerOptions, cancellationToken);
     }
 
-    public Task<HttpResponseMessage> UpdateOrderStatusAsync(Guid id, object request, CancellationToken cancellationToken = default)
+    public Task<HttpResponseMessage> UpdateOrderStatusAsync(Guid id, object request,
+        CancellationToken cancellationToken = default)
     {
         var uri = $"{BuildOrdersPath()}/{id}/status";
         return _client.SendHttpRequestAsync(HttpMethod.Put, uri, request, SerializerOptions, cancellationToken);
@@ -80,14 +83,16 @@ public class ShopServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     private string BuildProductsPath()
     {
         var basePath = _endpoints.Products;
-        if (string.IsNullOrWhiteSpace(basePath)) throw new InvalidOperationException("ShopService products endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(basePath))
+            throw new InvalidOperationException("ShopService products endpoint is not configured.");
         return basePath.TrimEnd('/');
     }
 
     private string BuildOrdersPath()
     {
         var basePath = _endpoints.Orders;
-        if (string.IsNullOrWhiteSpace(basePath)) throw new InvalidOperationException("ShopService orders endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(basePath))
+            throw new InvalidOperationException("ShopService orders endpoint is not configured.");
         return basePath.TrimEnd('/');
     }
 }

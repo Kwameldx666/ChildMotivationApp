@@ -16,13 +16,15 @@ public sealed class AiServiceClient(IHttpClientFactory clientFactory, IOptionsSn
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.AiService);
     private readonly AiEndpoints _endpoints = endpoints.Value;
 
-    public Task<HttpResponseMessage> GetTaskSuggestionsAsync(object request, CancellationToken cancellationToken = default)
+    public Task<HttpResponseMessage> GetTaskSuggestionsAsync(object request,
+        CancellationToken cancellationToken = default)
     {
         var uri = BuildPath(_endpoints.TaskSuggestions);
         return _client.SendHttpRequestAsync(HttpMethod.Post, uri, request, SerializerOptions, cancellationToken);
     }
 
-    public Task<HttpResponseMessage> GetRewardSuggestionsAsync(object request, CancellationToken cancellationToken = default)
+    public Task<HttpResponseMessage> GetRewardSuggestionsAsync(object request,
+        CancellationToken cancellationToken = default)
     {
         var uri = BuildPath(_endpoints.RewardSuggestions);
         return _client.SendHttpRequestAsync(HttpMethod.Post, uri, request, SerializerOptions, cancellationToken);
@@ -47,20 +49,11 @@ public sealed class AiServiceClient(IHttpClientFactory clientFactory, IOptionsSn
             ["userId"] = userId
         };
 
-        if (!string.IsNullOrWhiteSpace(familyId))
-        {
-            query["familyId"] = familyId;
-        }
+        if (!string.IsNullOrWhiteSpace(familyId)) query["familyId"] = familyId;
 
-        if (windowDays.HasValue)
-        {
-            query["windowDays"] = windowDays.Value.ToString(CultureInfo.InvariantCulture);
-        }
+        if (windowDays.HasValue) query["windowDays"] = windowDays.Value.ToString(CultureInfo.InvariantCulture);
 
-        if (maxInsights.HasValue)
-        {
-            query["maxInsights"] = maxInsights.Value.ToString(CultureInfo.InvariantCulture);
-        }
+        if (maxInsights.HasValue) query["maxInsights"] = maxInsights.Value.ToString(CultureInfo.InvariantCulture);
 
         uri = QueryHelpers.AddQueryString(uri, query);
         return _client.SendHttpRequestAsync<object>(HttpMethod.Get, uri, null, SerializerOptions, cancellationToken);
@@ -68,7 +61,8 @@ public sealed class AiServiceClient(IHttpClientFactory clientFactory, IOptionsSn
 
     private static string BuildPath(string path)
     {
-        if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("AI service endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(path))
+            throw new InvalidOperationException("AI service endpoint is not configured.");
         return path.Trim('/');
     }
 }

@@ -196,22 +196,22 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081
-      Services__AuthService: http://auth-service:8080/
+      Services__Auth__BaseUrl: http://auth-service:8080
+      Services__Auth__TimeoutSeconds: 30
+      Services__Auth__MaxRetries: 3
+      Services__User__BaseUrl: http://user-service:8080
+      Services__User__TimeoutSeconds: 30
+      Services__User__MaxRetries: 3
+      Services__Task__BaseUrl: http://task-service:8080
+      Services__Task__TimeoutSeconds: 30
+      Services__Task__MaxRetries: 3
+      Services__Shop__BaseUrl: http://shop-service:8080
+      Services__Shop__TimeoutSeconds: 30
+      Services__Shop__MaxRetries: 3
+      Services__Ai__BaseUrl: http://ai-service:8080
+      Services__Ai__TimeoutSeconds: 30
+      Services__Ai__MaxRetries: 3
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
-      ServiceEndpoints__AuthService__Register: auth-service/register
-      ServiceEndpoints__AuthService__Login: auth-service/login
-      Services__UserService: http://user-service:8080/
-      ServiceEndpoints__UserService__Profile: user-service/profile
-      Services__TaskService: http://task-service:8080/
-      ServiceEndpoints__TaskService__Tasks: task-service/tasks
-      Services__ShopService: http://shop-service:8080/
-      ServiceEndpoints__ShopService__Products: shop-service/products
-      ServiceEndpoints__ShopService__Orders: shop-service/orders
-      Services__AiService: http://ai-service:8080/
-      ServiceEndpoints__AiService__TaskSuggestions: ai-service/task-suggestions
-      ServiceEndpoints__AiService__RewardSuggestions: ai-service/reward-suggestions
-      ServiceEndpoints__AiService__Chat: ai-service/chat
-      ServiceEndpoints__AiService__Analytics: ai-service/analytics
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8081:8081"
@@ -226,7 +226,7 @@ services:
     depends_on:
       - gateway-service
     environment:
-      NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
+      NEXT_PUBLIC_API_URL: http://localhost:8081
       INTERNAL_API_URL: http://gateway-service:8081
     ports:
       - "4000:3000"

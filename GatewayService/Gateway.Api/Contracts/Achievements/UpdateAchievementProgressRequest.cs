@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.Api.Contracts.Achievements;
+namespace Gateway.Contracts.Achievements;
 
 public class UpdateAchievementProgressRequest
 {
-    [Range(1, 1000)]
-    public int ProgressDelta { get; init; } = 1;
+    [Range(1, 1000)] public int ProgressDelta { get; init; } = 1;
 }

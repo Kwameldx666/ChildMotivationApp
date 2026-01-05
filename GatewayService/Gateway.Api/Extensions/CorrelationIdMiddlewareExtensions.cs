@@ -1,4 +1,6 @@
-﻿namespace Gateway.Middlewares;
+﻿using Gateway.Middlewares;
+
+namespace Gateway.Extensions;
 
 public static class CorrelationIdMiddlewareExtensions
 {

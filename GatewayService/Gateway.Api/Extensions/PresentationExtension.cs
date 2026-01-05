@@ -2,7 +2,9 @@
 using Gateway.Common.Constants.Scopes;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 
 namespace Gateway.Extensions;
 
@@ -18,6 +20,38 @@ internal static class PresentationExtension
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddPolicies();
         services.AddCorsPolicy(configuration);
+        services.AddSwaggerGenWithAuth();
+    }
+
+    private static void AddSwaggerGenWithAuth(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите: Bearer {your JWT token}"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
     }
 
     private static void AddPolicies(this IServiceCollection services)

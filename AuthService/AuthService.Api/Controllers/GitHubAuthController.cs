@@ -7,11 +7,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Controllers;
 
 [Route("auth-service/github")]
-public class GitHubAuthController(IMediator mediator, IOptions<GitHubOptions> gitHubOptions) : ControllerBase
+public class GitHubAuthController(IMediator mediator, IOptions<GitHubOptions> gitHubOptions, ILogger<GitHubAuthController> logger) : ControllerBase
 {
     [HttpGet("authorize")]
     public async Task<IActionResult> GetGitHubAuthorizationUrlAsync(CancellationToken cancellationToken)
@@ -24,7 +25,11 @@ public class GitHubAuthController(IMediator mediator, IOptions<GitHubOptions> gi
     public async Task<IActionResult> GitHubCallbackAsync([FromQuery] string state, [FromQuery] string code,
         CancellationToken cancellationToken)
     {
-        var result = await mediator.Send(new GitHubSignInCommand(state, code), cancellationToken);
+        logger.LogInformation("GitHubCallback: received state (preview) {StatePreview}, codeLength={CodeLength}", state?.Substring(0, Math.Min(8, state?.Length ?? 0)), code?.Length ?? 0);
+        
+        logger.LogInformation("GitHubCallback: About to send GitHubSignInCommand to MediatR");
+        var result = await mediator.Send(new GitHubSignInCommand(state!, code!), cancellationToken);
+        logger.LogInformation("GitHubCallback: Received result from MediatR, IsSuccess={IsSuccess}", result.IsSuccess);
         if (!result.IsSuccess)
         {
             var redirectBaseError = gitHubOptions.Value.PostSignInRedirectUri;

@@ -29,7 +29,9 @@ var healthChecks = builder.Services.AddHealthChecks();
 
 if (!string.IsNullOrWhiteSpace(defaultConn))
 {
-    healthChecks.AddNpgSql(defaultConn, name: "postgres", tags: new[] { "ready" });
+    // healthChecks.AddNpgSql requires AspNetCore.HealthChecks.NpgSql package
+    // healthChecks.AddNpgSql(defaultConn, name: "postgres", tags: new[] { "ready" });
+    Console.WriteLine("HealthChecks: Postgres health check requires AspNetCore.HealthChecks.NpgSql package.");
 }
 else
 {
@@ -38,7 +40,9 @@ else
 
 if (!string.IsNullOrWhiteSpace(redisConn))
 {
-    healthChecks.AddRedis(redisConn, name: "redis", tags: new[] { "ready" });
+    // healthChecks.AddRedis requires AspNetCore.HealthChecks.Redis package
+    // healthChecks.AddRedis(redisConn, name: "redis", tags: new[] { "ready" });
+    Console.WriteLine("HealthChecks: Redis health check requires AspNetCore.HealthChecks.Redis package.");
 }
 else
 {
@@ -118,6 +122,16 @@ if (!builder.Services.Any(sd =>
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 
+// MediatR handler diagnostics
+var handlerDescriptors = builder.Services.Where(sd => 
+    sd.ServiceType.IsGenericType && 
+    sd.ServiceType.GetGenericTypeDefinition().FullName?.Contains("IRequestHandler") == true).ToList();
+Console.WriteLine($"MediatR diagnostic: Found {handlerDescriptors.Count} IRequestHandler registrations");
+foreach (var hd in handlerDescriptors.Take(10))
+{
+    Console.WriteLine($"  Handler: {hd.ServiceType.GenericTypeArguments.FirstOrDefault()?.Name} -> {hd.ImplementationType?.Name}");
+}
+
 // Diagnostic: ensure required DI registrations are present before building the app.
 var hasPendingStore = builder.Services.Any(sd =>
     sd.ServiceType == typeof(IOAuthPendingUserStore));
@@ -176,7 +190,7 @@ try
         {
             Console.WriteLine($"DI diagnostic: IOAuthStateStore test failed to build/resolve: {ex.GetType().Name} - {ex.Message}");
         }
-    File.WriteAllLines("/tmp/svcdiag.txt", lines);
+    
     Console.WriteLine(
         $"DI diagnostic: IOAuthPendingUserStore registered: {hasPendingStore}, IOAuthSessionStore registered: {hasSessionStore}");
 }
@@ -206,6 +220,7 @@ if (app.Environment.IsDevelopment())
 
 if (!isRunningInContainer) app.UseHttpsRedirection();
 
+app.UseCors(AuthService.Extensions.PresentationExtensions.CorsPolicyName);
 app.UseExceptionHandler(_ => { });
 app.MapControllers();
 

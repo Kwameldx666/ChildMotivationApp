@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
-using Gateway.Application.Dto.Auth;
-using Gateway.Application.Dto.Login;
-using Gateway.Application.Dto.Register;
+using Gateway.Application.Features.Auth.DTOs;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Extensions;
 using Gateway.Infrastructure.Services.Constants;
