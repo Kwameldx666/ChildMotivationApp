@@ -4,4 +4,6 @@ public class UserEndpoints
 {
     public string Profile { get; set; } = string.Empty;
     public string ProfileMe { get; set; } = string.Empty;
+    public string FamilyMembers { get; set; } = string.Empty;
+    public string FamilyMembersMe { get; set; } = string.Empty;
 }

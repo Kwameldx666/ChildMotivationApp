@@ -125,6 +125,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   // Simple email validator (not fully RFC, but practical)
   const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
+  const resolveOAuthProvider = (provider: OAuthProvider): 'google' | 'github' | 'microsoft' | 'discord' => {
+    if (provider === 'google' || provider === 'github' || provider === 'discord') {
+      return provider
+    }
+
+    if (provider === 'microsoft') {
+      // Legacy: Microsoft button routes through Discord provider for now
+      return 'discord'
+    }
+
+    throw new Error('Интеграция с выбранным провайдером ещё не доступна.')
+  }
+
   // Client-side: disable register submit until required fields are valid
   const isRegisterFinishDisabled = useMemo(() => {
     if (mode !== "register") return true
@@ -179,24 +192,11 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setIsLoading(true)
 
     try {
-      let authorizationUrl: string | undefined
-
-      if (provider === "google") {
-        authorizationUrl = (await authApi.getOAuthAuthorization('google')).authorizationUrl
-      } else if (provider === "github") {
-        authorizationUrl = (await authApi.getOAuthAuthorization('github')).authorizationUrl
-      } else if (provider === "microsoft") {
-        // legacy: treat microsoft button as discord
-        authorizationUrl = (await authApi.getOAuthAuthorization('discord')).authorizationUrl
-      } else if (provider === 'discord') {
-        authorizationUrl = (await authApi.getOAuthAuthorization('discord')).authorizationUrl
-      } else {
-        setError("Интеграция с выбранным провайдером ещё не доступна.")
-        setIsLoading(false)
-        return
+      const resolvedProvider = resolveOAuthProvider(provider)
+      const { authorizationUrl } = await authApi.getOAuthAuthorization(resolvedProvider)
+      if (!authorizationUrl) {
+        throw new Error('Authorization URL not provided')
       }
-
-      if (!authorizationUrl) throw new Error('Authorization URL not provided')
       window.location.href = authorizationUrl
     } catch (serviceError) {
       setError(mapApiError(serviceError, "Не удалось начать вход через провайдера."))

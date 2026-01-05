@@ -16,6 +16,12 @@
 - `DELETE /api-gateway/tasks/:id` - Удаление
 - `POST /api-gateway/tasks/:id/complete` - Отметить выполненной
 
+## Gamification
+- `GET /api-gateway/missions?recurrence=daily` - Список миссий (по умолчанию все типы)
+- `POST /api-gateway/missions/:id/progress` - Обновить прогресс миссии
+- `GET /api-gateway/achievements` - Список достижений
+- `POST /api-gateway/achievements/:id/progress` - Обновить прогресс достижения
+
 ## Rewards
 - `GET /api-gateway/rewards` - Список наград
 - `POST /api-gateway/rewards` - Создание награды
@@ -28,6 +34,7 @@
 - `POST /api-gateway/ai/reward-suggestions` - Идеи наград
 - `POST /api-gateway/ai/chat` - Чат с ИИ
 - `GET /api-gateway/ai/analytics` - Аналитика от ИИ
+> Все AI-вызовы проксируются в выделенный **AiService** (порт 8095), поэтому сервис можно масштабировать независимо от остальных API.
 
 ## Analytics
 - `GET /api-gateway/analytics/overview` - Обзор семьи

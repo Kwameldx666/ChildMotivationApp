@@ -1,4 +1,4 @@
-﻿using Gateway.Application.Dto.Register;
+﻿using Gateway.Application.Features.Auth.DTOs;
 using Mapster;
 
 namespace Gateway.Infrastructure.Mappings;

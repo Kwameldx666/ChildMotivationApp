@@ -1,6 +1,7 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
-using Gateway.Application.Dto.Profile;
+using Gateway.Application.Features.User.DTOs;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Extensions;
 using Gateway.Infrastructure.Services.Constants;
@@ -37,6 +38,28 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> GetFamilyMembersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var requestUri = BuildFamilyMembersPath(userId);
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetCurrentFamilyMembersAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = BuildFamilyMembersMePath();
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
     public Task<HttpResponseMessage> UpdateProfileAsync(Guid userId, UpdateProfileRequest request,
         CancellationToken cancellationToken)
     {
@@ -49,13 +72,15 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
-    public Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, System.IO.Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken)
+    public Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, Stream fileStream, string fileName,
+        string contentType, CancellationToken cancellationToken)
     {
         var requestUri = BuildProfilePath(userId) + "/avatar";
 
         using var content = new MultipartFormDataContent();
         var streamContent = new StreamContent(fileStream);
-        if (!string.IsNullOrWhiteSpace(contentType)) streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        if (!string.IsNullOrWhiteSpace(contentType))
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         content.Add(streamContent, "file", fileName);
 
         var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
@@ -84,5 +109,22 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             throw new InvalidOperationException("UserService profile endpoint is not configured.");
 
         return $"{basePath.TrimEnd('/')}/me";
+    }
+
+    private string BuildFamilyMembersPath(Guid userId)
+    {
+        if (!string.IsNullOrWhiteSpace(_endpoints.FamilyMembers))
+            return _endpoints.FamilyMembers.Contains("{userId}")
+                ? _endpoints.FamilyMembers.Replace("{userId}", userId.ToString())
+                : $"{_endpoints.FamilyMembers.TrimEnd('/')}/{userId}";
+
+        return $"{BuildProfilePath(userId)}/family-members";
+    }
+
+    private string BuildFamilyMembersMePath()
+    {
+        if (!string.IsNullOrWhiteSpace(_endpoints.FamilyMembersMe)) return _endpoints.FamilyMembersMe;
+
+        return $"{BuildProfileMePath()}/family-members";
     }
 }

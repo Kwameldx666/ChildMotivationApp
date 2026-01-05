@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7-labs
+# syntax=docker/dockerfile:1
 
 ARG NEXT_PUBLIC_API_URL=http://localhost:8081
 ARG INTERNAL_API_URL=http://gateway-service:8080
@@ -13,15 +13,13 @@ WORKDIR /app
 FROM base AS deps
 RUN corepack enable
 COPY Frontend/package.json Frontend/pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-	pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 FROM base AS build
 RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY Frontend/ .
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-	pnpm build
+RUN pnpm build
 
 FROM node:20-alpine AS runner
 ARG NEXT_PUBLIC_API_URL

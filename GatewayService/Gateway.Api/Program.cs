@@ -20,6 +20,13 @@ if (app.Environment.IsDevelopment())
 }
 
 if (!isRunningInContainer) app.UseHttpsRedirection();
+
+// Add correlation ID first to track all requests
+app.UseCorrelationId();
+
+// Add request logging
+app.UseRequestLogging();
+
 app.UseCors(PresentationExtension.CorsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();

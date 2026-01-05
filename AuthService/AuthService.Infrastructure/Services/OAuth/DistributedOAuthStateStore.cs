@@ -35,9 +35,16 @@ public class DistributedOAuthStateStore : IOAuthStateStore
             AbsoluteExpirationRelativeToNow = Lifetime
         };
 
-        await _cache.SetStringAsync(key, "1", options, cancellationToken);
-
-        _logger.LogInformation("DistributedOAuthStateStore: created state (preview) {StatePreview}, key {KeyPreview}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), provider);
+        try
+        {
+            await _cache.SetStringAsync(key, "1", options, cancellationToken);
+            _logger.LogInformation("DistributedOAuthStateStore: created state (preview) {StatePreview}, key {KeyPreview}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), provider);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "DistributedOAuthStateStore: Redis error while creating state, provider={Provider}", provider);
+            throw;
+        }
 
         return state;
     }
@@ -53,13 +60,23 @@ public class DistributedOAuthStateStore : IOAuthStateStore
         }
 
         var key = BuildKey(provider, state);
-        var found = await _cache.GetStringAsync(key, cancellationToken) is not null;
-        _logger.LogInformation("DistributedOAuthStateStore: validating state (preview) {StatePreview}, key {KeyPreview}, found={Found}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), found, provider);
+        
+        try
+        {
+            _logger.LogInformation("DistributedOAuthStateStore: attempting to get state from Redis, key {KeyPreview}", key?.Substring(0, Math.Min(12, key.Length)));
+            var found = await _cache.GetStringAsync(key, cancellationToken) is not null;
+            _logger.LogInformation("DistributedOAuthStateStore: validating state (preview) {StatePreview}, key {KeyPreview}, found={Found}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), found, provider);
 
-        if (!found) return false;
+            if (!found) return false;
 
-        await _cache.RemoveAsync(key, cancellationToken);
-        return true;
+            await _cache.RemoveAsync(key, cancellationToken);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "DistributedOAuthStateStore: Redis error while validating state (preview) {StatePreview}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), provider);
+            return false;
+        }
     }
 
     private static string BuildKey(ExternalProviderType provider, string state)

@@ -25,7 +25,9 @@ public class GoogleSignInCommandHandler(
         GoogleSignInCommand request,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("GoogleSignInCommandHandler: START - attempting to get Google provider");
         var googleServiceClient = googleServiceClientFactory.GetProvider(ExternalProviderType.Google);
+        logger.LogInformation("GoogleSignInCommandHandler: Got provider, validating state");
         var stateValid = await stateStore.ValidateStateAsync(ExternalProviderType.Google, request.State, cancellationToken);
 
         if (!stateValid)

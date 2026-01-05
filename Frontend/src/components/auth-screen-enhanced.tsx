@@ -133,13 +133,20 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   const isParentCreateDisabled = isLoading || !familyName.trim()
   const isChildProfileDisabled = isLoading || !childName.trim() || !childFamilyCode.trim()
 
+  const resolveProvider = (provider: 'google' | 'github' | 'microsoft' | 'discord'): 'google' | 'github' | 'microsoft' | 'discord' => {
+    if (provider === 'microsoft') {
+      return 'discord'
+    }
+    return provider
+  }
+
   // CHANGE: Added demo mode
   const submitOAuth = async (provider: 'google' | 'github' | 'microsoft' | 'discord') => {
     setError("")
     setIsLoading(true)
 
     try {
-      const { authorizationUrl } = await authApi.getOAuthAuthorization(provider)
+      const { authorizationUrl } = await authApi.getOAuthAuthorization(resolveProvider(provider))
       if (!authorizationUrl) throw new Error('Authorization URL not provided')
       window.location.href = authorizationUrl
     } catch (err) {

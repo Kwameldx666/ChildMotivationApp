@@ -82,7 +82,14 @@ export default function Home() {
   }
 
   if (screen === "child-dashboard" && session) {
-    return <ChildDashboard userProfile={session.profile} familyCode={session.family?.code ?? ""} onLogout={handleLogout} />
+    return (
+      <ChildDashboard
+        userId={session.user.id}
+        userProfile={session.profile}
+        familyCode={session.family?.code ?? ""}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   return <WelcomeScreen onStart={handleStartAdventure} />

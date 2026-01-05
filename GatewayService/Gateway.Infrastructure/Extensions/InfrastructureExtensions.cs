@@ -3,15 +3,14 @@ using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Infrastructure.Mappings;
+using Gateway.Infrastructure.Options;
 using Gateway.Infrastructure.Services.Clients;
 using Gateway.Infrastructure.Services.Constants;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using JwtBearerOptions = Gateway.Infrastructure.Services.Models.JwtBearer.JwtBearerOptions;
 
 namespace Gateway.Infrastructure.Extensions;
@@ -23,7 +22,6 @@ public static class InfrastructureExtensions
     {
         services.AddProxies();
         services.AddAuthentication(configuration);
-        services.AddSwaggerGenWithAuth();
         services.ConfigureHttpClients(configuration);
         services.ConfigureEndpoints(configuration);
 
@@ -36,62 +34,61 @@ public static class InfrastructureExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        ConfigureClient(
+        // Configure service options
+        services.Configure<AuthServiceOptions>(configuration.GetSection("Services:Auth"));
+        services.Configure<UserServiceOptions>(configuration.GetSection("Services:User"));
+        services.Configure<TaskServiceOptions>(configuration.GetSection("Services:Task"));
+        services.Configure<ShopServiceOptions>(configuration.GetSection("Services:Shop"));
+        services.Configure<AiServiceOptions>(configuration.GetSection("Services:Ai"));
+
+        ConfigureClientWithPolly<AuthServiceOptions>(
             services,
             configuration,
             DefaultHttpClientNames.AuthService,
-            "Services:AuthService",
-            "http://localhost:7265");
+            "Services:Auth");
 
-        ConfigureClient(
+        ConfigureClientWithPolly<UserServiceOptions>(
             services,
             configuration,
             DefaultHttpClientNames.UserService,
-            "Services:UserService",
-            "http://localhost:5110");
+            "Services:User");
 
-        ConfigureClient(
+        ConfigureClientWithPolly<TaskServiceOptions>(
             services,
             configuration,
             DefaultHttpClientNames.TaskService,
-            "Services:TaskService",
-            "http://localhost:8083");
+            "Services:Task");
+
+        ConfigureClientWithPolly<ShopServiceOptions>(
+            services,
+            configuration,
+            DefaultHttpClientNames.ShopService,
+            "Services:Shop");
+
+        ConfigureClientWithPolly<AiServiceOptions>(
+            services,
+            configuration,
+            DefaultHttpClientNames.AiService,
+            "Services:Ai");
     }
-    
-    private static void ConfigureClient(
+
+    private static void ConfigureClientWithPolly<TOptions>(
         IServiceCollection services,
         IConfiguration configuration,
         string clientName,
-        string configKey,
-        string defaultAddress)
+        string configKey)
+        where TOptions : ServiceOptions
     {
-        var baseAddress = GetBaseAddress(configuration, configKey, defaultAddress);
+        var options = configuration.GetSection(configKey).Get<TOptions>();
+        var baseUrl = options?.BaseUrl ?? "http://localhost";
+        var timeoutSeconds = options?.TimeoutSeconds ?? 30;
 
         services.AddHttpClient(clientName, client =>
-                client.BaseAddress = new Uri(baseAddress))
+            {
+                client.BaseAddress = new Uri(baseUrl);
+                client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            })
             .AddHttpMessageHandler<AuthorizationForwardingHandler>();
-    }
-
-    private static string GetBaseAddress(
-        IConfiguration configuration,
-        string key,
-        string fallback)
-    {
-        var address = configuration[key];
-
-        if (string.IsNullOrWhiteSpace(address))
-            return fallback;
-
-        try
-        {
-            var uri = new Uri(address);
-            // Respect the configured host/port/scheme as provided (do not force localhost).
-            return uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
-        }
-        catch
-        {
-            return fallback;
-        }
     }
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
@@ -99,6 +96,8 @@ public static class InfrastructureExtensions
         services.Configure<AuthEndpoints>(configuration.GetSection("ServiceEndpoints:AuthService"));
         services.Configure<UserEndpoints>(configuration.GetSection("ServiceEndpoints:UserService"));
         services.Configure<TaskEndpoints>(configuration.GetSection("ServiceEndpoints:TaskService"));
+        services.Configure<ShopEndpoints>(configuration.GetSection("ServiceEndpoints:ShopService"));
+        services.Configure<AiEndpoints>(configuration.GetSection("ServiceEndpoints:AiService"));
     }
 
     private static void AddProxies(this IServiceCollection services)
@@ -106,6 +105,8 @@ public static class InfrastructureExtensions
         services.AddScoped<IAuthServiceClient, AuthServiceClient>();
         services.AddScoped<IUserServiceClient, UserServiceClient>();
         services.AddScoped<ITaskServiceClient, TaskServiceClient>();
+        services.AddScoped<IShopServiceClient, ShopServiceClient>();
+        services.AddScoped<IAiServiceClient, AiServiceClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -131,36 +132,5 @@ public static class InfrastructureExtensions
             });
 
         services.Configure<JwtBearerOptions>(configuration.GetSection("JwtBearer"));
-    }
-
-    private static void AddSwaggerGenWithAuth(this IServiceCollection services)
-    {
-        services.AddSwaggerGen(options =>
-        {
-            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Введите: Bearer {your JWT token}"
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
-        });
     }
 }

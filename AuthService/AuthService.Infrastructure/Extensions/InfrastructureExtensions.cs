@@ -1,19 +1,25 @@
+using AuthService.Application.Abstractions.Authentication;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Abstractions.Authentication.Internal;
+using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Common;
 using AuthService.Infrastructure.Options.External;
 using AuthService.Infrastructure.Options.JwtBearer;
-using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Authentication.Token;
-using AuthService.Infrastructure.Services.Identity;
+using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.OAuth;
+using AuthService.Infrastructure.Services.Clients;
 using AuthService.Infrastructure.Services.Quartz;
+using AuthService.Infrastructure.Services.Identity;
 using AuthService.Persistence.Context;
+using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Caching.Distributed;
 using Quartz;
 
 namespace AuthService.Infrastructure.Extensions;
@@ -22,121 +28,157 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.ValidateConfiguration(configuration);
         services.ConfigureIdentity();
         services.ConfigureQuartz(configuration);
         services.ConfigureEndpoints(configuration);
-        services.AddDistributedMemoryCache();
         services.AddProxies();
-        services.AddCacheStores();
-        services.AddMemoryCache();
-        services.ValidateConfiguration(configuration);
-        services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
-        services.AddSingleton<OAuthPendingUserStore, OAuthPendingUserStore>();
+
+        // IOAuthStateStore: require distributed (Redis) backing only — do not register in-memory or simple fallbacks.
+
+        // Choose state store backing: distributed (Redis) or "no-cache" fallback (no in-memory caching allowed).
+        var useDistributed = configuration.GetValue<bool>("Authentication:UseDistributedStateStore");
+        if (useDistributed)
+        {
+            // Prefer a top-level ConnectionStrings:Redis entry for Docker-friendly configuration
+            var redisConn = configuration.GetConnectionString("Redis") ?? configuration["Redis:Configuration"] ?? $"{configuration["Redis:Host"] ?? "redis"}:{configuration["Redis:Port"] ?? "6379"}";
+            Console.WriteLine($"Infrastructure: UseDistributedStateStore enabled; Redis connection: {redisConn}");
+            
+            services.AddStackExchangeRedisCache(options => 
+            { 
+                options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
+                {
+                    EndPoints = { redisConn },
+                    ConnectTimeout = 5000,
+                    SyncTimeout = 5000,
+                    AsyncTimeout = 5000,
+                    ConnectRetry = 3,
+                    AbortOnConnectFail = false,
+                    AllowAdmin = false
+                };
+                options.InstanceName = "auth:";
+            });
+
+            // Register concrete distributed stores so they can be resolved when Redis is available.
+            services.TryAddSingleton<DistributedOAuthStateStore>();
+            services.TryAddSingleton<DistributedOAuthSessionStore>();
+            services.TryAddSingleton<DistributedOAuthPendingUserStore>();
+
+            // Register interface mappings to distributed implementations.
+            services.AddSingleton<IOAuthSessionStore>(sp => sp.GetRequiredService<DistributedOAuthSessionStore>());
+            services.AddSingleton<IOAuthPendingUserStore>(sp => sp.GetRequiredService<DistributedOAuthPendingUserStore>());
+
+            // Use a factory for IOAuthStateStore that resolves the distributed implementation only when a working IDistributedCache is present.
+            // No in-memory or simple fallback is allowed to avoid accidental memory caching of OAuth state.
+            services.AddSingleton<IOAuthStateStore>(sp =>
+            {
+                var dist = sp.GetService<IDistributedCache>();
+                if (dist is not null)
+                {
+                    // Resolve concrete distributed store (its constructor requires IDistributedCache which is present)
+                    return sp.GetRequiredService<DistributedOAuthStateStore>();
+                }
+
+                // No in-memory fallback allowed — fail fast and inform user to enable distributed store and configure Redis.
+                throw new InvalidOperationException("Distributed cache (Redis) is required for IOAuthStateStore. Enable Authentication:UseDistributedStateStore and configure Redis in 'Redis:Configuration' or 'Redis:Host/Port'.");
+            });
+        }
+        else
+        {
+            Console.WriteLine("Infrastructure: UseDistributedStateStore disabled; not registering in-memory caches. Using no-op stores for session/pending to avoid memory caching.");
+
+            // Register no-op implementations for session and pending stores to satisfy DI without enabling in-memory caching.
+            services.AddSingleton<IOAuthSessionStore, NoopOAuthSessionStore>();
+            services.AddSingleton<IOAuthPendingUserStore, NoopOAuthPendingUserStore>();
+        }
 
         services.AddScoped<IExternalLoginSessionBuilder, ExternalLoginSessionBuilder>();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
 
+        // Note: IOAuthPendingUserStore and IOAuthSessionStore are already registered above
+        // in either the distributed or no-op branch. Do NOT add recursive self-referencing registrations.
+
+        // Write a small diagnostic file into the container to make service registrations visible for troubleshooting.
+        try
+        {
+            var interesting = new[]
+            {
+                "IOAuthPendingUserStore",
+                "IOAuthSessionStore",
+                "IOAuthStateStore"
+            };
+
+            var lines = services
+                .Where(sd => sd.ServiceType != null && interesting.Any(k => sd.ServiceType.FullName != null && sd.ServiceType.FullName.Contains(k)))
+                .Select(sd => sd.ServiceType.FullName + " -> " + (sd.ImplementationType?.FullName ?? sd.ImplementationFactory?.GetType().FullName ?? "(factory)"))
+                .ToArray();
+
+            System.IO.File.WriteAllLines("/tmp/infrastructure-svcdiag.txt", lines);
+        }
+        catch
+        {
+            // best-effort diagnostic only
+        }
+
         return services;
     }
 
-  private static void ValidateConfiguration(
-    this IServiceCollection services,
-    IConfiguration configuration)
-{
-    // =========================
-    // JWT bearer configuration
-    // =========================
-    services.AddOptions<JwtBearerOptions>()
-        .Bind(configuration.GetSection("JwtBearer"))
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.Secret),
-            "JwtBearer:Secret must be provided.")
-        .Validate(
-            options => options.AccessTokenLifetime > 0,
-            "JwtBearer:AccessTokenLifetime must be greater than zero.")
-        .ValidateOnStart();
+    private static void ValidateConfiguration(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<JwtBearerOptions>()
+            .Bind(configuration.GetSection("JwtBearer"))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "JwtBearer:Secret must be provided.")
+            .Validate(options => options.AccessTokenLifetime > 0,
+                "JwtBearer:AccessTokenLifetime must be greater than zero.");
 
-    // =========================
-    // Google OAuth configuration
-    // =========================
-    services.AddOptions<GoogleOptions>()
-        .Bind(configuration.GetSection("Authentication:Google"))
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
-            "Google ClientSecret must be provided.")
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientId),
-            "Google ClientId must be provided.")
-        .Validate(
-            options => !string.IsNullOrEmpty(options.RedirectUri),
-            "Google RedirectUri must be provided.")
-        .ValidateOnStart();
+        services.AddOptions<GoogleOptions>()
+            .Bind(configuration.GetSection("Authentication:Google"));
 
-    // =========================
-    // GitHub OAuth configuration
-    // =========================
-    services.AddOptions<GitHubOptions>()
-        .Bind(configuration.GetSection("Authentication:GitHub"))
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
-            "GitHub ClientSecret must be provided.")
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientId),
-            "GitHub ClientId must be provided.")
-        .Validate(
-            options => !string.IsNullOrEmpty(options.RedirectUri),
-            "GitHub RedirectUri must be provided.")
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
-            "GitHub PostSignInRedirectUri must be provided.")
-        .ValidateOnStart();
+        services.AddOptions<GitHubOptions>()
+            .Bind(configuration.GetSection("Authentication:GitHub"));
 
-    // =========================
-    // Discord OAuth configuration
-    // =========================
-    services.AddOptions<DiscordOptions>()
-        .Bind(configuration.GetSection("Authentication:Discord"))
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientSecret),
-            "Discord ClientSecret must be provided.")
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.ClientId),
-            "Discord ClientId must be provided.")
-        .Validate(
-            options => !string.IsNullOrEmpty(options.RedirectUri),
-            "Discord RedirectUri must be provided.")
-        .Validate(
-            options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
-            "Discord PostSignInRedirectUri must be provided.")
-        .ValidateOnStart();
-}
-
+        services.AddOptions<DiscordOptions>()
+            .Bind(configuration.GetSection("Authentication:Discord"));
+    }
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<GoogleEndpoints>(configuration.GetSection("ServicesEndpoints:Google"));
         services.Configure<GitHubEndpoints>(configuration.GetSection("ServicesEndpoints:GitHub"));
-        services.Configure<DiscordOptions>(configuration.GetSection("ServicesEndpoints:Discord"));
-    }
-
-    private static void AddCacheStores(this IServiceCollection services)
-    {
-
-        services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
-        services.AddSingleton<IOAuthStateStore, DistributedOAuthStateStore>();
-        services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
+        services.Configure<DiscordEndpoints>(configuration.GetSection("ServicesEndpoints:Discord"));
     }
 
     private static void AddProxies(this IServiceCollection services)
     {
-        services.AddHttpClient();
+        Console.WriteLine("AddProxies: registering proxy services...");
+        
+        // Register named HttpClients with proper timeout configuration
+        services.AddHttpClient(Constants.DefaultHttpClientNames.Google, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
+        
+        services.AddHttpClient(Constants.DefaultHttpClientNames.GitHub, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
+        
+        services.AddHttpClient(Constants.DefaultHttpClientNames.Discord, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
 
+        // Register external auth providers as IExternalAuthProvider
         services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
         services.AddScoped<IExternalAuthProvider, GitHubAuthProvider>();
         services.AddScoped<IExternalAuthProvider, DiscordAuthProvider>();
-        
-        services.AddScoped<IExternalAuthProviderFactory, ExternalAuthProviderFactory>();
 
+        // Register factory for choosing proper provider at runtime
+        Console.WriteLine("AddProxies: adding IExternalAuthProviderFactory registration");
+        services.AddScoped<IExternalAuthProviderFactory, ExternalAuthProviderFactory>();
     }
 
     private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)

@@ -1,176 +1,118 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+	DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
-import { Upload, Camera, Video, Send, X } from "lucide-react"
+import { Upload, Send } from "lucide-react"
+import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 
 interface TaskSubmissionModalProps {
-  open: boolean
-  onClose: () => void
-  taskTitle: string
-  confirmationType: "photo" | "video" | "checklist"
-  requirements?: string
-  onSubmit: (submission: { type: string; content: string; comment: string }) => void
+	open: boolean
+	onClose: () => void
+	taskTitle: string
+	confirmationType: TaskEvidenceRequirement
+	requirements?: string
+	isSubmitting?: boolean
+	onSubmit: (file: File) => Promise<void> | void
+}
+
+const ACCEPT_MAP: Record<TaskEvidenceRequirement, string> = {
+	none: '',
+	photo: 'image/*',
+	video: 'video/*',
+	document: '.pdf,.doc,.docx,.txt',
 }
 
 export default function TaskSubmissionModal({
-  open,
-  onClose,
-  taskTitle,
-  confirmationType,
-  requirements,
-  onSubmit,
+	open,
+	onClose,
+	taskTitle,
+	confirmationType,
+	requirements,
+	isSubmitting,
+	onSubmit,
 }: TaskSubmissionModalProps) {
-  const [comment, setComment] = useState("")
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
-  const [checklistItems, setChecklistItems] = useState<boolean[]>([])
+	const [file, setFile] = useState<File | null>(null)
+	const accept = ACCEPT_MAP[confirmationType]
+	useEffect(() => {
+		if (!open) {
+			setFile(null)
+		}
+	}, [open])
 
-  const handleSubmit = () => {
-    onSubmit({
-      type: confirmationType,
-      content: uploadedFiles.join(","),
-      comment,
-    })
-    setComment("")
-    setUploadedFiles([])
-    setChecklistItems([])
-    onClose()
-  }
 
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Выполнить задачу: {taskTitle}</DialogTitle>
-          <DialogDescription>Отправьте подтверждение выполнения задачи</DialogDescription>
-        </DialogHeader>
+	const instruction = useMemo(() => {
+		switch (confirmationType) {
+			case "photo":
+				return "Загрузите чёткое фото результата."
+			case "video":
+				return "Запишите короткое видео, показывающее выполненную работу."
+			case "document":
+				return "Прикрепите документ или заметку с подтверждением."
+			default:
+				return ""
+		}
+	}, [confirmationType])
 
-        <div className="space-y-4 py-4">
-          {/* Requirements info */}
-          {requirements && (
-            <Card className="p-3 bg-blue-50 border-blue-200">
-              <p className="text-sm font-medium text-blue-900">Требования:</p>
-              <p className="text-sm text-blue-800 mt-1">{requirements}</p>
-            </Card>
-          )}
+	const handleSubmit = async () => {
+		if (!file) return
+		await onSubmit(file)
+		setFile(null)
+	}
 
-          {/* Photo/Video upload */}
-          {(confirmationType === "photo" || confirmationType === "video") && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {confirmationType === "photo" ? "📸 Загрузить фото" : "🎥 Загрузить видео"}
-              </label>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                <div className="space-y-2">
-                  {confirmationType === "photo" ? (
-                    <Camera className="w-8 h-8 mx-auto text-muted-foreground" />
-                  ) : (
-                    <Video className="w-8 h-8 mx-auto text-muted-foreground" />
-                  )}
-                  <p className="text-sm text-muted-foreground">Нажмите или перетащите файл сюда</p>
-                  <p className="text-xs text-muted-foreground/60">
-                    {confirmationType === "photo" ? "JPG, PNG до 5MB" : "MP4, WebM до 50MB"}
-                  </p>
-                </div>
-              </div>
-              {uploadedFiles.length > 0 && (
-                <div className="space-y-2">
-                  {uploadedFiles.map((file, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded"
-                    >
-                      <span className="text-sm text-green-800">✓ Файл загружен {idx + 1}</span>
-                      <button
-                        onClick={() => setUploadedFiles(uploadedFiles.filter((_, i) => i !== idx))}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <Button
-                variant="outline"
-                className="w-full gap-2 bg-transparent"
-                onClick={() => setUploadedFiles([...uploadedFiles, `file_${Date.now()}`])}
-              >
-                <Upload className="w-4 h-4" />
-                Добавить файл
-              </Button>
-            </div>
-          )}
+	return (
+		<Dialog open={open} onOpenChange={onClose}>
+			<DialogContent className="sm:max-w-lg">
+				<DialogHeader>
+					<DialogTitle>Отправка подтверждения</DialogTitle>
+					<DialogDescription>Задача: {taskTitle}</DialogDescription>
+				</DialogHeader>
 
-          {/* Checklist */}
-          {confirmationType === "checklist" && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">✓ Чек-лист выполнения</label>
-              <div className="space-y-2">
-                {["Полностью завершено", "Проверено качество", "Готово к проверке"].map((item, idx) => (
-                  <label key={idx} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={checklistItems[idx] || false}
-                      onChange={(e) => {
-                        const newItems = [...checklistItems]
-                        newItems[idx] = e.target.checked
-                        setChecklistItems(newItems)
-                      }}
-                      className="w-4 h-4 rounded"
-                    />
-                    <span className="text-sm">{item}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+				<div className="space-y-4 py-4">
+					{requirements && (
+						<Card className="p-3 bg-blue-50 border-blue-200">
+							<p className="text-sm font-medium text-blue-900">Требования родителя</p>
+							<p className="text-sm text-blue-800 mt-1">{requirements}</p>
+						</Card>
+					)}
 
-          {/* Comment */}
-          <div className="space-y-2">
-            <label htmlFor="comment" className="text-sm font-medium">
-              💬 Комментарий (опционально)
-            </label>
-            <Textarea
-              id="comment"
-              placeholder="Добавьте комментарий к отправке..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-            />
-          </div>
-        </div>
+					<div className="space-y-2">
+						<label className="text-sm font-medium flex items-center gap-2">
+							<Upload className="w-4 h-4" /> Выберите файл
+						</label>
+						<input
+							type="file"
+							accept={accept}
+							onChange={(event) => {
+								const next = event.target.files?.[0]
+								setFile(next ?? null)
+							}}
+							className="w-full text-sm"
+						/>
+						{instruction && <p className="text-xs text-muted-foreground">{instruction}</p>}
+						{file && <p className="text-xs text-foreground">Выбран файл: {file.name}</p>}
+					</div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} className="bg-transparent">
-            Отмена
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={
-              confirmationType === "photo" || confirmationType === "video"
-                ? uploadedFiles.length === 0
-                : confirmationType === "checklist"
-                  ? !checklistItems.some(Boolean)
-                  : false
-            }
-            className="gap-2"
-          >
-            <Send className="w-4 h-4" />
-            Отправить на проверку
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+				</div>
+
+				<DialogFooter className="gap-2">
+					<Button variant="outline" onClick={onClose} className="bg-transparent">
+						Отмена
+					</Button>
+					<Button onClick={handleSubmit} disabled={!file || isSubmitting} className="gap-2">
+						<Send className="w-4 h-4" />
+						{isSubmitting ? "Отправляем..." : "Отправить"}
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	)
 }

@@ -7,11 +7,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Controllers;
 
 [Route("auth-service/google")]
-public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> googleOptions) : ControllerBase
+public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> googleOptions, ILogger<GoogleAuthController> logger) : ControllerBase
 {
     [HttpGet("authorize")]
     public async Task<IActionResult> GetGoogleAuthorizationUrlAsync(CancellationToken cancellationToken)
@@ -24,6 +25,8 @@ public class GoogleAuthController(IMediator mediator, IOptions<GoogleOptions> go
     public async Task<IActionResult> GoogleCallbackAsync([FromQuery] string code, [FromQuery] string state,
         CancellationToken cancellationToken)
     {
+        logger.LogInformation("GoogleCallback: received state (preview) {StatePreview}, codeLength={CodeLength}", state?.Substring(0, Math.Min(8, state?.Length ?? 0)), code?.Length ?? 0);
+        
         var command = new GoogleSignInCommand(code, state);
         var result = await mediator.Send(command, cancellationToken);
 

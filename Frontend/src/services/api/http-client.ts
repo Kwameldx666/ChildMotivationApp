@@ -13,6 +13,7 @@ export interface HttpClientConfig {
 
 export interface RequestOptions extends RequestInit {
   auth?: boolean
+  responseType?: 'json' | 'text' | 'blob'
 }
 
 export class ApiError<T = unknown> extends Error {
@@ -61,7 +62,7 @@ export class HttpClient {
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { auth = true, headers: incomingHeaders, body, ...rest } = options
+    const { auth = true, headers: incomingHeaders, body, responseType = 'json', ...rest } = options
     const headers = new Headers(incomingHeaders)
 
     // Guard & auto-fix: rewrite `/api/*` -> `/api-gateway/*` and warn (show stack in dev)
@@ -110,7 +111,7 @@ export class HttpClient {
       }
     }
 
-    const payload = await this.parsePayload(response)
+    const payload = await this.parsePayload(response, responseType)
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -122,8 +123,17 @@ export class HttpClient {
     return payload as T
   }
 
-  private async parsePayload(response: Response) {
+  private async parsePayload(response: Response, responseType: NonNullable<RequestOptions['responseType']>) {
     if (response.status === 204) return undefined
+
+    if (responseType === 'blob') {
+      return await response.blob()
+    }
+
+    if (responseType === 'text') {
+      return await response.text().catch(() => undefined)
+    }
+
     const contentType = response.headers.get('Content-Type') ?? ''
 
     if (contentType.includes('application/json')) {

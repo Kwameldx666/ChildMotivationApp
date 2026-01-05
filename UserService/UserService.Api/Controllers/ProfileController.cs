@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Api.Authorization;
 using UserService.Api.Contracts.Profile;
+using UserService.Application.Features.Profile.GetFamilyMembers;
 using UserService.Application.Features.Profile.GetUserProfile;
 using UserService.Application.Features.Profile.UpdateUserProfile;
 
@@ -31,10 +32,9 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentProfileAsync(CancellationToken cancellationToken)
     {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-        if (string.IsNullOrWhiteSpace(userIdValue) || !Guid.TryParse(userIdValue, out var userId))
+        if (!TryResolveUserId(out var userId, out var errorResult))
         {
-            return Unauthorized("User identifier is missing.");
+            return errorResult ?? Unauthorized("User identifier is missing.");
         }
 
         var profile = await mediator.Send(new GetUserProfileQuery(userId), cancellationToken);
@@ -44,6 +44,27 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
         }
 
         return Ok(profile);
+    }
+
+    [Authorize(Policy = AuthorizationConstants.UserReadPolicy)]
+    [HttpGet("{userId:guid}/family-members")]
+    public async Task<IActionResult> GetFamilyMembersAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var members = await mediator.Send(new GetFamilyMembersQuery(userId), cancellationToken);
+        return Ok(members);
+    }
+
+    [Authorize(Policy = AuthorizationConstants.UserReadPolicy)]
+    [HttpGet("me/family-members")]
+    public async Task<IActionResult> GetCurrentFamilyMembersAsync(CancellationToken cancellationToken)
+    {
+        if (!TryResolveUserId(out var userId, out var errorResult))
+        {
+            return errorResult ?? Unauthorized("User identifier is missing.");
+        }
+
+        var members = await mediator.Send(new GetFamilyMembersQuery(userId), cancellationToken);
+        return Ok(members);
     }
 
     [HttpPut("{userId:guid}")]
@@ -87,5 +108,20 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
             return NotFound();
 
         return Ok(updated);
+    }
+
+    private bool TryResolveUserId(out Guid userId, out IActionResult? errorResult)
+    {
+        userId = Guid.Empty;
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (string.IsNullOrWhiteSpace(userIdValue) || !Guid.TryParse(userIdValue, out var resolvedUserId))
+        {
+            errorResult = Unauthorized("User identifier is missing.");
+            return false;
+        }
+
+        userId = resolvedUserId;
+        errorResult = null;
+        return true;
     }
 }

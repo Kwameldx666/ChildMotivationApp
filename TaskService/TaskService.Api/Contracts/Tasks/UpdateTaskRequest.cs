@@ -11,4 +11,7 @@ public class UpdateTaskRequest
     public string? Description { get; init; }
 
     public bool? Completed { get; init; }
+
+    [StringLength(16)]
+    public string? ConfirmationType { get; init; }
 }

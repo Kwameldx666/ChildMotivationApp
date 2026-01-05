@@ -71,6 +71,7 @@ export default function ChildDashboardPage() {
 
   const dashboard = session && userId ? (
     <ChildDashboard
+      userId={userId}
       userProfile={{
         name: session.profile.name,
         avatar,

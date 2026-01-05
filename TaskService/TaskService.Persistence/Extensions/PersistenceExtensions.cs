@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TaskService.Application.Abstractions;
+using TaskService.Domain.Repositories;
 using TaskService.Persistence.Context;
-using TaskService.Infrastructure.Abstractions;
 using TaskService.Persistence.Repositories;
 
 namespace TaskService.Persistence.Extensions;
@@ -23,11 +24,12 @@ public static class PersistenceExtensions
 
         services.AddDbContext<TaskDbContext>(options => options.UseNpgsql(conn));
 
-        // Add in-memory cache for short-term caching
-        services.AddMemoryCache();
-
-        // Register EF-backed task store
-        services.AddScoped<ITaskStore, EfTaskStore>();
+        services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<IMissionRepository, MissionRepository>();
+        services.AddScoped<IMissionProgressRepository, MissionProgressRepository>();
+        services.AddScoped<IAchievementRepository, AchievementRepository>();
+        services.AddScoped<IAchievementProgressRepository, AchievementProgressRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

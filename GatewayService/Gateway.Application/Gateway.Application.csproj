@@ -7,9 +7,5 @@
         <RootNamespace>Gateway.Application</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Gateway.Common\Gateway.Common.csproj"/>
-    </ItemGroup>
-
 </Project>
 
