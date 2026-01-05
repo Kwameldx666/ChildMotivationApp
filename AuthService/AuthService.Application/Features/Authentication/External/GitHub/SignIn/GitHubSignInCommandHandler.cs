@@ -25,21 +25,9 @@ public sealed class GitHubSignInCommandHandler(
         GitHubSignInCommand request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation(
-            "GitHubSignInCommandHandler START: state={State}, hasCode={HasCode}",
-            request.State,
-            !string.IsNullOrWhiteSpace(request.Code));
-        
-        logger.LogInformation(
-            "GitHub callback received: state={State}, hasCode={HasCode}",
-            request.State,
-            !string.IsNullOrWhiteSpace(request.Code));
-
-        // 1️⃣ Validate state
-        logger.LogInformation("GitHubSignInCommandHandler: About to validate state");
+        // Validate state
         if (!await stateStore.ValidateStateAsync(ExternalProviderType.GitHub, request.State, cancellationToken))
         {
-            logger.LogWarning("Invalid OAuth state: {State}", request.State);
 
             return Result.Failure<ExternalSignInResult>(
                 HttpStatusCode.BadRequest,

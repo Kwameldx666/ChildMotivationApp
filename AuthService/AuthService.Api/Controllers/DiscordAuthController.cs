@@ -7,12 +7,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
 
 namespace AuthService.Controllers;
 
 [Route("auth-service/discord")]
-public class DiscordAuthController(IMediator mediator, IOptions<DiscordOptions> discordOptions, ILogger<DiscordAuthController> logger) : ControllerBase
+public class DiscordAuthController(IMediator mediator, IOptions<DiscordOptions> discordOptions) : ControllerBase
 {
     [HttpGet("authorize")]
     public async Task<IActionResult> GetDiscordAuthorizationUrlAsync(CancellationToken cancellationToken)
@@ -25,8 +24,6 @@ public class DiscordAuthController(IMediator mediator, IOptions<DiscordOptions> 
     public async Task<IActionResult> DiscordCallbackAsync([FromQuery] string code, [FromQuery] string state,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("DiscordCallback: received state (preview) {StatePreview}, codeLength={CodeLength}", state?.Substring(0, Math.Min(8, state?.Length ?? 0)), code?.Length ?? 0);
-
         var result = await mediator.Send(new DiscordSignInCommand(state, code), cancellationToken);
         if (!result.IsSuccess)
         {

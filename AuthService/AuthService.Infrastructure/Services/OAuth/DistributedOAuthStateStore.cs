@@ -7,17 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AuthService.Infrastructure.Services.OAuth;
 
-public class DistributedOAuthStateStore : IOAuthStateStore
+public class DistributedOAuthStateStore(IDistributedCache cache, ILogger<DistributedOAuthStateStore> logger) : IOAuthStateStore
 {
     private static readonly TimeSpan Lifetime = TimeSpan.FromMinutes(10);
-    private readonly IDistributedCache _cache;
-    private readonly ILogger<DistributedOAuthStateStore> _logger;
-
-    public DistributedOAuthStateStore(IDistributedCache cache, ILogger<DistributedOAuthStateStore> logger)
-    {
-        _cache = cache;
-        _logger = logger;
-    }
 
     public async Task<string> CreateStateAsync(ExternalProviderType provider, CancellationToken cancellationToken)
     {
@@ -35,16 +27,8 @@ public class DistributedOAuthStateStore : IOAuthStateStore
             AbsoluteExpirationRelativeToNow = Lifetime
         };
 
-        try
-        {
-            await _cache.SetStringAsync(key, "1", options, cancellationToken);
-            _logger.LogInformation("DistributedOAuthStateStore: created state (preview) {StatePreview}, key {KeyPreview}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), provider);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "DistributedOAuthStateStore: Redis error while creating state, provider={Provider}", provider);
-            throw;
-        }
+        await cache.SetStringAsync(key, "1", options, cancellationToken);
+        logger.LogDebug("Created OAuth state for {Provider}", provider);
 
         return state;
     }
@@ -55,7 +39,7 @@ public class DistributedOAuthStateStore : IOAuthStateStore
 
         if (string.IsNullOrWhiteSpace(state))
         {
-            _logger.LogWarning("DistributedOAuthStateStore: validation failed - state is empty");
+            logger.LogWarning("OAuth state validation failed - state is empty");
             return false;
         }
 
@@ -63,18 +47,20 @@ public class DistributedOAuthStateStore : IOAuthStateStore
         
         try
         {
-            _logger.LogInformation("DistributedOAuthStateStore: attempting to get state from Redis, key {KeyPreview}", key?.Substring(0, Math.Min(12, key.Length)));
-            var found = await _cache.GetStringAsync(key, cancellationToken) is not null;
-            _logger.LogInformation("DistributedOAuthStateStore: validating state (preview) {StatePreview}, key {KeyPreview}, found={Found}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), key?.Substring(0, Math.Min(12, key.Length)), found, provider);
+            var found = await cache.GetStringAsync(key, cancellationToken) is not null;
+            
+            if (!found)
+            {
+                logger.LogWarning("OAuth state not found for {Provider}", provider);
+                return false;
+            }
 
-            if (!found) return false;
-
-            await _cache.RemoveAsync(key, cancellationToken);
+            await cache.RemoveAsync(key, cancellationToken);
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "DistributedOAuthStateStore: Redis error while validating state (preview) {StatePreview}, provider={Provider}", state?.Substring(0, Math.Min(8, state.Length)), provider);
+            logger.LogError(ex, "Redis error while validating OAuth state for {Provider}", provider);
             return false;
         }
     }
