@@ -121,8 +121,58 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         reply.AppendLine($"Вот что можно сделать: {BuildAnswerCore(request.Message)}");
 
         var followUps = BuildFollowUps(request.Message, request.Context);
-        return Task.FromResult(new AiChatResponse(conversationId, reply.ToString().Trim(), followUps,
+        var actions = BuildActionsForMessage(request.Message);
+        return Task.FromResult(new AiChatResponse(conversationId, reply.ToString().Trim(), followUps, actions,
             timeProvider.GetUtcNow()));
+    }
+
+    private static IReadOnlyCollection<AiAction> BuildActionsForMessage(string message)
+    {
+        var actions = new List<AiAction>();
+        var lowerMsg = message.ToLowerInvariant();
+
+        if (lowerMsg.Contains("задач") || lowerMsg.Contains("создай") || lowerMsg.Contains("добав"))
+        {
+            actions.Add(new AiAction
+            {
+                Type = AiActionType.CreateTask,
+                Label = "Создать задачу",
+                Description = "Создать новую задачу по вашему запросу",
+                Variant = "primary",
+                Priority = 1,
+                Payload = new CreateTaskPayload
+                {
+                    Title = "Новая задача",
+                    Description = "Описание задачи на основе вашего запроса",
+                    Difficulty = 2,
+                    RewardXp = 80,
+                    RewardPoints = 20,
+                    Category = "general"
+                }
+            });
+        }
+
+        if (lowerMsg.Contains("наград") || lowerMsg.Contains("приз") || lowerMsg.Contains("поощрен"))
+        {
+            actions.Add(new AiAction
+            {
+                Type = AiActionType.CreateReward,
+                Label = "Создать награду",
+                Description = "Добавить новую награду в магазин",
+                Variant = "secondary",
+                Priority = 2,
+                Payload = new CreateRewardPayload
+                {
+                    Title = "Новая награда",
+                    Description = "Награда за достижения",
+                    Cost = 200,
+                    Category = "general",
+                    Icon = "🎁"
+                }
+            });
+        }
+
+        return actions;
     }
 
     public Task<AiAnalyticsResponse> BuildAnalyticsAsync(AiAnalyticsRequest request,

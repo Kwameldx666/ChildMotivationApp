@@ -21,7 +21,7 @@ public sealed class AiProviderOptions
 
     public Uri ResolveBaseUri()
     {
-        var candidate = string.IsNullOrWhiteSpace(BaseUrl) ? "https://api.openai.com/" : BaseUrl;
+        var candidate = string.IsNullOrWhiteSpace(BaseUrl) ? "https://api.gptgod.online/v1/" : BaseUrl;
         if (!candidate!.EndsWith("/", StringComparison.Ordinal)) candidate += "/";
 
         return new Uri(candidate, UriKind.Absolute);

@@ -1,14 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ArrowLeft, Bot, PenSquare, RotateCcw, Send, Sparkles, Wand2 } from "lucide-react"
+import { ArrowLeft, Bot, Check, PenSquare, Play, RotateCcw, Send, Sparkles, Wand2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { useAiChat } from "@/hooks/use-ai-chat"
+import { useAiChat, type ChatMessage } from "@/hooks/use-ai-chat"
+import type { AiAction } from "@/services/ai-service"
 
 interface AIChatPageProps {
   userName?: string
@@ -77,7 +78,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
     return base
   }, [familyName, role, userName])
 
-  const { messages, sendMessage, isThinking, followUps, lastReplyAt, conversationId, reset } = useAiChat({
+  const { messages, sendMessage, isThinking, followUps, pendingActions, lastReplyAt, conversationId, reset, executeAction, dismissAction } = useAiChat({
     greeting,
     context,
     maxHistory: 14,
@@ -171,7 +172,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
               <div ref={scrollerRef} className="h-[60vh] overflow-y-auto rounded-2xl bg-black/20 p-5 shadow-inner shadow-black/40">
                 <div className="flex flex-col gap-4">
                   {messages.map(message => (
-                    <div key={message.id} className={cn("flex w-full", message.role === "user" ? "justify-end" : "justify-start")}> 
+                    <div key={message.id} className={cn("flex w-full flex-col", message.role === "user" ? "items-end" : "items-start")}> 
                       <div
                         className={cn(
                           "max-w-[80%] rounded-2xl border px-4 py-3 text-sm shadow-lg",
@@ -188,6 +189,20 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                           {message.timestamp.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
+                      
+                      {/* Render actions for assistant messages */}
+                      {message.role === "assistant" && message.actions && message.actions.length > 0 && (
+                        <div className="mt-2 flex max-w-[80%] flex-wrap gap-2">
+                          {message.actions.map((action, idx) => (
+                            <ActionButton
+                              key={`${message.id}-action-${idx}`}
+                              action={action}
+                              onExecute={executeAction}
+                              onDismiss={dismissAction}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
 
@@ -199,6 +214,26 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                   )}
                 </div>
               </div>
+
+              {/* Pending Actions Panel */}
+              {pendingActions.length > 0 && (
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-emerald-200">
+                    Доступные действия
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {pendingActions.map((action, idx) => (
+                      <ActionButton
+                        key={`pending-${idx}`}
+                        action={action}
+                        onExecute={executeAction}
+                        onDismiss={dismissAction}
+                        showDismiss
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {followUps.length > 0 && (
@@ -321,6 +356,67 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
           </aside>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Action Button Component
+interface ActionButtonProps {
+  action: AiAction
+  onExecute: (action: AiAction) => Promise<void>
+  onDismiss: (action: AiAction) => void
+  showDismiss?: boolean
+}
+
+function ActionButton({ action, onExecute, onDismiss, showDismiss = false }: ActionButtonProps) {
+  const [isExecuting, setIsExecuting] = useState(false)
+
+  const handleExecute = async () => {
+    setIsExecuting(true)
+    try {
+      await onExecute(action)
+    } finally {
+      setIsExecuting(false)
+    }
+  }
+
+  const variantStyles = {
+    primary: "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:opacity-90",
+    secondary: "bg-white/10 text-slate-200 hover:bg-white/20 border border-white/20",
+    destructive: "bg-red-500/20 text-red-200 hover:bg-red-500/30 border border-red-500/30",
+  }
+
+  const actionIcons: Record<string, React.ReactNode> = {
+    CreateTask: <Check className="h-3.5 w-3.5" />,
+    CreateTasks: <Check className="h-3.5 w-3.5" />,
+    CreateReward: <Sparkles className="h-3.5 w-3.5" />,
+    CreateRewards: <Sparkles className="h-3.5 w-3.5" />,
+    Navigate: <Play className="h-3.5 w-3.5" />,
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        size="sm"
+        disabled={isExecuting}
+        className={cn(
+          "h-8 gap-1.5 rounded-full px-3 text-xs font-medium transition-all",
+          variantStyles[action.variant] ?? variantStyles.primary
+        )}
+        onClick={handleExecute}
+      >
+        {actionIcons[action.type] ?? <Play className="h-3.5 w-3.5" />}
+        {isExecuting ? "Выполняю…" : action.label}
+      </Button>
+      {showDismiss && (
+        <button
+          type="button"
+          onClick={() => onDismiss(action)}
+          className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/10 hover:text-white"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { aiService, type AiChatRequestPayload, type AiChatResponsePayload } from '@/services/ai-service'
+import { aiService, type AiAction, type AiChatRequestPayload, type AiChatResponsePayload } from '@/services/ai-service'
 
 export type ChatAuthor = 'system' | 'user' | 'assistant'
 
@@ -11,6 +11,7 @@ export interface ChatMessage {
   role: ChatAuthor
   content: string
   timestamp: Date
+  actions?: AiAction[]
 }
 
 interface UseAiChatOptions {
@@ -23,9 +24,12 @@ interface UseAiChatResult {
   messages: ChatMessage[]
   conversationId: string | null
   followUps: string[]
+  pendingActions: AiAction[]
   lastReplyAt: Date | null
   isThinking: boolean
   sendMessage: (message: string) => Promise<void>
+  executeAction: (action: AiAction) => Promise<void>
+  dismissAction: (action: AiAction) => void
   reset: () => void
 }
 
@@ -77,6 +81,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
   )
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [followUps, setFollowUps] = useState<string[]>([])
+  const [pendingActions, setPendingActions] = useState<AiAction[]>([])
   const [lastReplyAt, setLastReplyAt] = useState<Date | null>(greeting ? new Date() : null)
   const [isThinking, setIsThinking] = useState(false)
 
@@ -84,6 +89,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
     setMessages(greeting ? [{ id: 'greeting', role: 'assistant', content: greeting, timestamp: new Date() }] : [])
     setConversationId(null)
     setFollowUps([])
+    setPendingActions([])
     setLastReplyAt(greeting ? new Date() : null)
   }, [greeting])
 
@@ -119,11 +125,13 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
           role: 'assistant',
           content: response.reply?.trim() || 'Уточните запрос, пожалуйста, я потерял контекст.',
           timestamp: response.generatedAt ? new Date(response.generatedAt) : new Date(),
+          actions: response.actions ?? [],
         }
 
         setConversationId(response.conversationId ?? null)
         setMessages(prev => [...prev, assistantMessage])
         setFollowUps(response.followUpSuggestions?.filter(Boolean) ?? [])
+        setPendingActions(response.actions ?? [])
         setLastReplyAt(assistantMessage.timestamp)
       } catch (error) {
         console.error('[ai-chat] Failed to fetch reply', error)
@@ -135,5 +143,29 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
     [conversationId, isThinking, maxHistory, messages, preparedContext],
   )
 
-  return { messages, conversationId, followUps, lastReplyAt, isThinking, sendMessage, reset }
+  const executeAction = useCallback(async (action: AiAction) => {
+    try {
+      const result = await aiService.executeAction({
+        action,
+        userId: preparedContext?.displayName ?? 'unknown',
+        familyId: preparedContext?.familyName,
+      })
+
+      if (result.success) {
+        toast.success(result.message ?? `Действие "${action.label}" выполнено!`)
+        setPendingActions(prev => prev.filter(a => a !== action))
+      } else {
+        toast.error(result.message ?? 'Не удалось выполнить действие')
+      }
+    } catch (error) {
+      console.error('[ai-chat] Failed to execute action', error)
+      toast.error('Ошибка при выполнении действия')
+    }
+  }, [preparedContext])
+
+  const dismissAction = useCallback((action: AiAction) => {
+    setPendingActions(prev => prev.filter(a => a !== action))
+  }, [])
+
+  return { messages, conversationId, followUps, pendingActions, lastReplyAt, isThinking, sendMessage, executeAction, dismissAction, reset }
 }
