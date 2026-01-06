@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace AiService.Application.Contracts;
 
 public sealed class TaskSuggestionsRequest
@@ -13,7 +11,10 @@ public sealed class TaskSuggestionsRequest
     public string? Tone { get; init; }
     public string? Language { get; init; }
 
-    public int ResolveLimit() => Math.Clamp(MaxSuggestions ?? 5, 1, 10);
+    public int ResolveLimit()
+    {
+        return Math.Clamp(MaxSuggestions ?? 5, 1, 10);
+    }
 }
 
 public sealed record TaskSuggestion(
@@ -32,5 +33,8 @@ public sealed record TaskSuggestionsResponse(
     IReadOnlyCollection<string> Tips)
 {
     public static TaskSuggestionsResponse Empty()
-        => new TaskSuggestionsResponse(Array.Empty<TaskSuggestion>(), "Недостаточно данных для рекомендаций.", Array.Empty<string>());
+    {
+        return new TaskSuggestionsResponse(Array.Empty<TaskSuggestion>(), "Недостаточно данных для рекомендаций.",
+            Array.Empty<string>());
+    }
 }

@@ -31,10 +31,7 @@ public static class ServiceCollectionExtensions
             var options = optionsMonitor.CurrentValue;
             var fallback = sp.GetRequiredService<RuleBasedAiOrchestrator>();
 
-            if (!options.IsConfigured())
-            {
-                return fallback;
-            }
+            if (!options.IsConfigured()) return fallback;
 
             var client = sp.GetRequiredService<OpenAiClient>();
             var timeProvider = sp.GetRequiredService<TimeProvider>();

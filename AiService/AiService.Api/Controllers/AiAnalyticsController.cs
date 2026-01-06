@@ -11,12 +11,10 @@ public sealed class AiAnalyticsController(IAiOrchestrator orchestrator) : Contro
     [HttpGet]
     [ProducesResponseType(typeof(AiAnalyticsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Get([FromQuery] AiAnalyticsRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Get([FromQuery] AiAnalyticsRequest? request, CancellationToken cancellationToken)
     {
         if (request is null || string.IsNullOrWhiteSpace(request.UserId))
-        {
             return BadRequest("UserId query parameter is required.");
-        }
 
         var response = await orchestrator.BuildAnalyticsAsync(request, cancellationToken);
         return Ok(response);

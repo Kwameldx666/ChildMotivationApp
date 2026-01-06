@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using AiService.Infrastructure.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,23 +12,23 @@ internal sealed class OpenAiClient
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly HttpClient _httpClient;
-    private readonly IOptionsMonitor<AiProviderOptions> _optionsMonitor;
     private readonly ILogger<OpenAiClient> _logger;
+    private readonly IOptionsMonitor<AiProviderOptions> _optionsMonitor;
 
-    public OpenAiClient(HttpClient httpClient, IOptionsMonitor<AiProviderOptions> optionsMonitor, ILogger<OpenAiClient> logger)
+    public OpenAiClient(HttpClient httpClient, IOptionsMonitor<AiProviderOptions> optionsMonitor,
+        ILogger<OpenAiClient> logger)
     {
         _httpClient = httpClient;
         _optionsMonitor = optionsMonitor;
         _logger = logger;
     }
 
-    public async Task<string> GetCompletionAsync(IReadOnlyList<OpenAiMessage> messages, CancellationToken cancellationToken)
+    public async Task<string> GetCompletionAsync(IReadOnlyList<OpenAiMessage> messages,
+        CancellationToken cancellationToken)
     {
         var options = _optionsMonitor.CurrentValue;
         if (string.IsNullOrWhiteSpace(options.ApiKey))
-        {
             throw new InvalidOperationException("OpenAI API key is not configured (AiProvider__ApiKey).");
-        }
 
         var requestPayload = new OpenAiChatRequest(
             options.ResolveModel(),
@@ -46,9 +40,7 @@ internal sealed class OpenAiClient
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", options.ApiKey);
 
         if (!string.IsNullOrWhiteSpace(options.Organization))
-        {
             request.Headers.TryAddWithoutValidation("OpenAI-Organization", options.Organization);
-        }
 
         request.Content = JsonContent.Create(requestPayload, options: SerializerOptions);
 
@@ -66,9 +58,7 @@ internal sealed class OpenAiClient
             choices.GetArrayLength() > 0 &&
             choices[0].TryGetProperty("message", out var messageElement) &&
             messageElement.TryGetProperty("content", out var contentElement))
-        {
             return contentElement.GetString() ?? string.Empty;
-        }
 
         _logger.LogWarning("OpenAI payload has unexpected format: {Payload}", payload);
         return string.Empty;
@@ -77,15 +67,27 @@ internal sealed class OpenAiClient
 
 internal sealed record OpenAiMessage(string Role, string Content)
 {
-    public static OpenAiMessage System(string content) => new("system", content);
-    public static OpenAiMessage User(string content) => new("user", content);
-    public static OpenAiMessage Assistant(string content) => new("assistant", content);
+    public static OpenAiMessage System(string content)
+    {
+        return new OpenAiMessage("system", content);
+    }
+
+    public static OpenAiMessage User(string content)
+    {
+        return new OpenAiMessage("user", content);
+    }
+
+    public static OpenAiMessage Assistant(string content)
+    {
+        return new OpenAiMessage("assistant", content);
+    }
 }
 
 internal sealed record OpenAiChatRequest(
     string Model,
     double Temperature,
-    [property: JsonPropertyName("max_tokens")] int MaxTokens,
+    [property: JsonPropertyName("max_tokens")]
+    int MaxTokens,
     IReadOnlyCollection<OpenAiChatMessage> Messages);
 
 internal sealed record OpenAiChatMessage(string Role, string Content);
