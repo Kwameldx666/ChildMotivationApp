@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using System.Text.Json;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Dto.Token;
 using AuthService.Application.Dto.User;
@@ -26,7 +26,6 @@ public class DiscordAuthProvider(
     private readonly DiscordEndpoints _discordEndpoints = discordEndpoint.Value;
     private readonly DiscordOptions _discordOptions = discordOptions.Value;
     private readonly HttpClient _client = client.CreateClient(DefaultHttpClientNames.Discord);
-    private readonly ILogger<DiscordAuthProvider> _logger = logger;
     public ExternalProviderType ProviderType => ExternalProviderType.Discord;
 
     public async Task<Result<ExternalAuthToken>> RequestAccessToken(string code, CancellationToken cancellationToken)
@@ -51,13 +50,12 @@ public class DiscordAuthProvider(
         if (!response.IsSuccessStatusCode)
         {
             var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
-            _logger.LogError("Discord token request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
+            logger.LogError("Discord token request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
                 AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
         }
 
-        var query = System.Web.HttpUtility.ParseQueryString(body);
-        var token = System.Text.Json.JsonSerializer.Deserialize<GitHubTokenResponse>(body);
+        var token = JsonSerializer.Deserialize<GitHubTokenResponse>(body);
         if (token is null || string.IsNullOrEmpty(token.AccessToken))
             return Result.Failure<ExternalAuthToken>(HttpStatusCode.BadRequest,
                 AuthorizationErrors.ExternalAuthFailed("The access token is missing"));
@@ -100,9 +98,9 @@ public class DiscordAuthProvider(
 
         if (!response.IsSuccessStatusCode)
         {
-            var body = await response.Content.ReadAsStringAsync();
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
             var shortBody = body?.Length > 800 ? body.Substring(0, 800) + "..." : body;
-            _logger.LogError("Discord userinfo request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
+            logger.LogError("Discord userinfo request failed: {Status} {Body}", (int)response.StatusCode, shortBody);
             return Result.Failure<ExternalUserInfo>(
                 response.StatusCode,
                 AuthorizationErrors.ExternalAuthFailed($"Provider returned {(int)response.StatusCode}: {shortBody}"));
@@ -114,27 +112,27 @@ public class DiscordAuthProvider(
 
         try
         {
-            using var doc = System.Text.Json.JsonDocument.Parse(userBody);
+            using var doc = JsonDocument.Parse(userBody);
             var root = doc.RootElement;
 
-            var id = root.TryGetProperty("id", out var idProp) && idProp.ValueKind == System.Text.Json.JsonValueKind.String
+            var id = root.TryGetProperty("id", out var idProp) && idProp.ValueKind == JsonValueKind.String
                 ? idProp.GetString()
                 : null;
 
-            var email = root.TryGetProperty("email", out var emailProp) && emailProp.ValueKind == System.Text.Json.JsonValueKind.String
+            var email = root.TryGetProperty("email", out var emailProp) && emailProp.ValueKind == JsonValueKind.String
                 ? emailProp.GetString()
                 : null;
 
-            var username = root.TryGetProperty("global_name", out var globalNameProp) && globalNameProp.ValueKind == System.Text.Json.JsonValueKind.String
+            var username = root.TryGetProperty("global_name", out var globalNameProp) && globalNameProp.ValueKind == JsonValueKind.String
                 ? globalNameProp.GetString()
                 : null;
 
-            if (string.IsNullOrWhiteSpace(username) && root.TryGetProperty("username", out var usernameProp) && usernameProp.ValueKind == System.Text.Json.JsonValueKind.String)
+            if (string.IsNullOrWhiteSpace(username) && root.TryGetProperty("username", out var usernameProp) && usernameProp.ValueKind == JsonValueKind.String)
             {
                 username = usernameProp.GetString();
             }
 
-            var picture = root.TryGetProperty("avatar", out var avatarProp) && avatarProp.ValueKind == System.Text.Json.JsonValueKind.String
+            var picture = root.TryGetProperty("avatar", out var avatarProp) && avatarProp.ValueKind == JsonValueKind.String
                 ? BuildDiscordAvatarUrl(id, avatarProp.GetString())
                 : null;
 
@@ -148,7 +146,7 @@ public class DiscordAuthProvider(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to map Discord userinfo response. Raw body: {Body}", userBody);
+            logger.LogWarning(ex, "Failed to map Discord userinfo response. Raw body: {Body}", userBody);
         }
 
         if (userInfo is null)
@@ -158,7 +156,7 @@ public class DiscordAuthProvider(
 
         if (string.IsNullOrWhiteSpace(userInfo.Email))
         {
-            _logger.LogWarning("Discord did not provide an email for the current user. Returning partial user info for pending flow.");
+            logger.LogWarning("Discord did not provide an email for the current user. Returning partial user info for pending flow.");
         }
 
         return Result<ExternalUserInfo>.Success(userInfo);

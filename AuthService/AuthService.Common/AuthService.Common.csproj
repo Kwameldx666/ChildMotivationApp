@@ -7,9 +7,5 @@
         <RootNamespace>AuthService.Common</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Folder Include="HttpUrls\"/>
-    </ItemGroup>
-
 </Project>
 

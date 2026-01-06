@@ -1,7 +1,5 @@
-using AuthService.Application.Abstractions.Authentication;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Abstractions.Authentication.Internal;
-using AuthService.Application.Abstractions.Persistence;
 using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Common;
 using AuthService.Infrastructure.Options.External;
@@ -9,16 +7,13 @@ using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.OAuth;
-using AuthService.Infrastructure.Services.Clients;
 using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Infrastructure.Services.Identity;
 using AuthService.Persistence.Context;
-using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.Distributed;
 using Quartz;
 

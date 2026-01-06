@@ -10,6 +10,5 @@ public sealed class GitHubTokenResponse
 
     [JsonPropertyName("error")] public string? Error { get; init; }
 
-    [JsonPropertyName("error_description")]
-    public string? ErrorDescription { get; init; }
+    [JsonPropertyName("error_description")] public string? ErrorDescription { get; init; }
 }
