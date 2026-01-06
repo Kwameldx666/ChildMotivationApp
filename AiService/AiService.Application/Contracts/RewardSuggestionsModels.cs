@@ -9,7 +9,10 @@ public sealed class RewardSuggestionsRequest
     public int? MaxSuggestions { get; init; }
     public IReadOnlyCollection<string> RecentlyPurchasedRewards { get; init; } = Array.Empty<string>();
 
-    public int ResolveLimit() => Math.Clamp(MaxSuggestions ?? 4, 1, 8);
+    public int ResolveLimit()
+    {
+        return Math.Clamp(MaxSuggestions ?? 4, 1, 8);
+    }
 }
 
 public sealed record RewardSuggestion(

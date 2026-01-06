@@ -13,10 +13,7 @@ public sealed class AiChatController(IAiOrchestrator orchestrator) : ControllerB
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Send([FromBody] AiChatRequest request, CancellationToken cancellationToken)
     {
-        if (request is null || string.IsNullOrWhiteSpace(request.Message))
-        {
-            return BadRequest("Message is required.");
-        }
+        if (request is null || string.IsNullOrWhiteSpace(request.Message)) return BadRequest("Message is required.");
 
         var response = await orchestrator.ProcessChatAsync(request, cancellationToken);
         return Ok(response);

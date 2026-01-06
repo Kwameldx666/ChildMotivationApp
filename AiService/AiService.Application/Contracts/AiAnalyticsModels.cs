@@ -7,8 +7,15 @@ public sealed class AiAnalyticsRequest
     public int? WindowDays { get; init; }
     public int? MaxInsights { get; init; }
 
-    public int ResolveWindow() => Math.Clamp(WindowDays ?? 7, 1, 30);
-    public int ResolveLimit() => Math.Clamp(MaxInsights ?? 3, 1, 6);
+    public int ResolveWindow()
+    {
+        return Math.Clamp(WindowDays ?? 7, 1, 30);
+    }
+
+    public int ResolveLimit()
+    {
+        return Math.Clamp(MaxInsights ?? 3, 1, 6);
+    }
 }
 
 public sealed record AiInsightCard(

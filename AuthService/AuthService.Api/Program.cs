@@ -1,212 +1,21 @@
 using System.Security.Claims;
-using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Claim;
 using AuthService.Application.Extensions;
 using AuthService.Domain.Enums;
 using AuthService.Extensions;
-using AuthService.Infrastructure.Common;
 using AuthService.Infrastructure.Extensions;
-using AuthService.Infrastructure.Options.External;
 using AuthService.Persistence.Context;
 using AuthService.Persistence.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-// Disable service provider validation during build to avoid premature activation errors while all registrations are still being composed.
-builder.Host.UseDefaultServiceProvider((ctx, spOptions) => { spOptions.ValidateOnBuild = false; });
-
-// NOTE: Early SimpleOAuthStateStore fallback removed — IOAuthStateStore now requires distributed (Redis) backing.
-
 
 builder.Services.AddPresentation();
 builder.Services.AddInfrastructure(builder.Configuration);
-var defaultConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? builder.Configuration["ConnectionStrings:DefaultConnection"];
-var redisConn = builder.Configuration.GetConnectionString("Redis") ?? builder.Configuration["Redis:Configuration"];
-var healthChecks = builder.Services.AddHealthChecks();
-
-if (!string.IsNullOrWhiteSpace(defaultConn))
-{
-    // healthChecks.AddNpgSql requires AspNetCore.HealthChecks.NpgSql package
-    // healthChecks.AddNpgSql(defaultConn, name: "postgres", tags: new[] { "ready" });
-    Console.WriteLine("HealthChecks: Postgres health check requires AspNetCore.HealthChecks.NpgSql package.");
-}
-else
-{
-    Console.WriteLine("HealthChecks: DefaultConnection not configured; skipping Postgres health check.");
-}
-
-if (!string.IsNullOrWhiteSpace(redisConn))
-{
-    // healthChecks.AddRedis requires AspNetCore.HealthChecks.Redis package
-    // healthChecks.AddRedis(redisConn, name: "redis", tags: new[] { "ready" });
-    Console.WriteLine("HealthChecks: Redis health check requires AspNetCore.HealthChecks.Redis package.");
-}
-else
-{
-    Console.WriteLine("HealthChecks: Redis connection not configured; skipping Redis health check.");
-}
-
-// NOTE: SimpleOAuthStateStore removed — IOAuthStateStore will be provided by Infrastructure only when distributed store is configured.
-
-// Immediate diagnostic: write current registered service types to a file so we can inspect
-// whether IOAuthStateStore and related entries are present at this early point.
-try
-{
-    var lines = builder.Services.Select(sd => sd.ServiceType?.FullName + " -> " + (sd.ImplementationType?.FullName ?? sd.ImplementationFactory?.GetType().FullName ?? "(factory)")).ToArray();
-    System.IO.File.WriteAllLines("/tmp/early-svcdiag.txt", lines);
-}
-catch
-{
-    // best effort only
-}
-
-// Diagnostic: whether distributed state store is enabled and Redis configuration
-var useDistributedState = builder.Configuration.GetValue<bool>("Authentication:UseDistributedStateStore");
-Console.WriteLine($"Startup diag: Authentication:UseDistributedStateStore={useDistributedState}");
-if (useDistributedState)
-{
-    var redisCfg = builder.Configuration.GetConnectionString("Redis") ?? builder.Configuration["Redis:Configuration"] ?? $"{builder.Configuration["Redis:Host"]}:{builder.Configuration["Redis:Port"]}";
-    Console.WriteLine($"Startup diag: Redis connection: {redisCfg}");
-}
-// Diagnostic: count IExternalAuthProvider descriptors and presence of Discord registration
-var iExternalDescriptors = builder.Services.Count(sd => sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProvider));
-Console.WriteLine($"Startup diag: IExternalAuthProvider descriptors count: {iExternalDescriptors}");
-var hasDiscordConcrete = builder.Services.Any(sd => sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.DiscordAuthProvider));
-Console.WriteLine($"Startup diag: DiscordAuthProvider concrete registration present: {hasDiscordConcrete}");
-var hasDiscordAsExternal = builder.Services.Any(sd => sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProvider) && sd.ImplementationType?.FullName?.Contains("Discord") == true);
-Console.WriteLine($"Startup diag: Discord registered as IExternalAuthProvider: {hasDiscordAsExternal}");
-
-// Defensive: ensure external auth factory is registered when AddProxies didn't run
-if (!builder.Services.Any(sd =>
-        sd.ServiceType ==
-        typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory)))
-{
-    Console.WriteLine("Program: registering IExternalAuthProviderFactory fallback");
-    // Register as scoped because factory consumes scoped IExternalAuthProvider implementations.
-    builder.Services
-        .AddScoped<AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory,
-            AuthService.Infrastructure.Services.Authentication.External.ExternalAuthProviderFactory>();
-}
-
-// Ensure concrete provider classes are resolvable (factory requires them)
-if (!builder.Services.Any(sd =>
-        sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.GoogleAuthProvider)))
-{
-    Console.WriteLine("Program: registering GoogleAuthProvider fallback");
-    builder.Services.AddScoped<AuthService.Infrastructure.Services.Authentication.External.GoogleAuthProvider>();
-}
-
-if (!builder.Services.Any(sd =>
-        sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.GitHubAuthProvider)))
-{
-    Console.WriteLine("Program: registering GitHubAuthProvider fallback");
-    builder.Services.AddScoped<AuthService.Infrastructure.Services.Authentication.External.GitHubAuthProvider>();
-}
-
-// Defensive: ensure Discord provider is registered too (some images may miss this registration)
-if (!builder.Services.Any(sd =>
-        sd.ServiceType == typeof(AuthService.Infrastructure.Services.Authentication.External.DiscordAuthProvider)))
-{
-    Console.WriteLine("Program: registering DiscordAuthProvider fallback");
-    builder.Services.AddScoped<AuthService.Infrastructure.Services.Authentication.External.DiscordAuthProvider>();
-}
-
-// Defensive: some historical interface duplicates and registration ordering caused the
-// concrete pending/session store to be present but the interface mapping to be missing
-// in some deployed images. Ensure the interface-to-concrete mappings exist explicitly
-// as a fallback so handlers that depend on the interface can be resolved.
-
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
-
-// MediatR handler diagnostics
-var handlerDescriptors = builder.Services.Where(sd => 
-    sd.ServiceType.IsGenericType && 
-    sd.ServiceType.GetGenericTypeDefinition().FullName?.Contains("IRequestHandler") == true).ToList();
-Console.WriteLine($"MediatR diagnostic: Found {handlerDescriptors.Count} IRequestHandler registrations");
-foreach (var hd in handlerDescriptors.Take(10))
-{
-    Console.WriteLine($"  Handler: {hd.ServiceType.GenericTypeArguments.FirstOrDefault()?.Name} -> {hd.ImplementationType?.Name}");
-}
-
-// Diagnostic: ensure required DI registrations are present before building the app.
-var hasPendingStore = builder.Services.Any(sd =>
-    sd.ServiceType == typeof(IOAuthPendingUserStore));
-var hasSessionStore = builder.Services.Any(sd =>
-    sd.ServiceType == typeof(IOAuthSessionStore));
-
-// Additional defensive diagnostics: check for concrete implementation descriptor names as some registrations may be using implementation-only registrations
-var hasPendingImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthPendingUserStore");
-var hasSessionImpl = builder.Services.Any(sd => sd.ImplementationType?.Name == "OAuthSessionStore");
-Console.WriteLine(
-    $"DI diagnostic impl: OAuthPendingUserStore present: {hasPendingImpl}, OAuthSessionStore present: {hasSessionImpl}");
-
-// Check whether IExternalAuthProviderFactory is registered and can be resolved
-var factoryDescriptors = builder.Services.Where(sd => sd.ServiceType == typeof(AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory)).ToList();
-Console.WriteLine($"DI diagnostic: IExternalAuthProviderFactory descriptors: {factoryDescriptors.Count}");
-foreach (var sd in factoryDescriptors)
-{
-    Console.WriteLine($"DI diagnostic descriptor: ServiceType={sd.ServiceType?.FullName}, Lifetime={sd.Lifetime}, ImplementationType={(sd.ImplementationType?.FullName ?? "(factory)")}");
-}
-try
-{
-    var spDiag = builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = false });
-    try
-    {
-        var factoryResolved = spDiag.GetService<AuthService.Application.Abstractions.Authentication.External.IExternalAuthProviderFactory>() is not null;
-        Console.WriteLine($"DI resolve IExternalAuthProviderFactory success: {factoryResolved}");
-    }
-    catch (Exception rex)
-    {
-        Console.WriteLine($"DI resolve IExternalAuthProviderFactory threw: {rex.GetType().Name} - {rex.Message}");
-    }
-
-        // Additional diagnostic: verify that IOAuthStateStore can be resolved and invoked.
-        try
-        {
-            var stateStore = spDiag.GetService<AuthService.Application.Abstractions.Authentication.External.IOAuthStateStore>();
-            if (stateStore is null)
-            {
-                Console.WriteLine("DI diagnostic: IOAuthStateStore is NOT registered.");
-            }
-            else
-            {
-                try
-                {
-                    var state = await stateStore.CreateStateAsync(AuthService.Application.Enums.ExternalProviderType.Google, CancellationToken.None);
-                    var ok = await stateStore.ValidateStateAsync(AuthService.Application.Enums.ExternalProviderType.Google, state, CancellationToken.None);
-                    Console.WriteLine($"DI diagnostic: IOAuthStateStore create/validate returned: {ok}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"DI diagnostic: IOAuthStateStore invocation threw: {ex.GetType().Name} - {ex.Message}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"DI diagnostic: IOAuthStateStore test failed to build/resolve: {ex.GetType().Name} - {ex.Message}");
-        }
-    
-    Console.WriteLine(
-        $"DI diagnostic: IOAuthPendingUserStore registered: {hasPendingStore}, IOAuthSessionStore registered: {hasSessionStore}");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"DI diagnostic write failed: {ex.Message}");
-}
-
-
-
-// Remove any registered startup option validators to avoid hard failure when some optional OAuth provider options are missing in certain environments.
-// This is a defensive measure for development and containers where some providers may be intentionally unconfigured.
-var validatorDescriptors = builder.Services.Where(sd =>
-    sd.ImplementationType?.Name == "StartupValidator" ||
-    (sd.ImplementationType?.FullName?.Contains("Options.StartupValidator") ?? false)).ToList();
-foreach (var sd in validatorDescriptors) builder.Services.Remove(sd);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 

@@ -14,4 +14,5 @@ public sealed record AiChatResponse(
     string ConversationId,
     string Reply,
     IReadOnlyCollection<string> FollowUpSuggestions,
+    IReadOnlyCollection<AiAction> Actions,
     DateTimeOffset GeneratedAt);

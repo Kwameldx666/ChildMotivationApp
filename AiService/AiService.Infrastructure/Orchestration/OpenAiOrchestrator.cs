@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using AiService.Application.Abstractions;
 using AiService.Application.Contracts;
 using AiService.Infrastructure.Clients;
@@ -17,8 +12,8 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly OpenAiClient _client;
     private readonly RuleBasedAiOrchestrator _fallback;
-    private readonly TimeProvider _timeProvider;
     private readonly ILogger<OpenAiOrchestrator> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public OpenAiOrchestrator(
         OpenAiClient client,
@@ -32,7 +27,8 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         _logger = logger;
     }
 
-    public async Task<TaskSuggestionsResponse> GenerateTaskSuggestionsAsync(TaskSuggestionsRequest request, CancellationToken cancellationToken)
+    public async Task<TaskSuggestionsResponse> GenerateTaskSuggestionsAsync(TaskSuggestionsRequest request,
+        CancellationToken cancellationToken)
     {
         var payload = await RequestPayloadAsync<TaskSuggestionsPayload>(BuildTaskMessages(request), cancellationToken);
         if (payload?.Suggestions is { Count: > 0 })
@@ -45,7 +41,8 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
 
             if (suggestions.Count > 0)
             {
-                var tips = payload.Tips?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ?? Array.Empty<string>();
+                var tips = payload.Tips?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ??
+                           Array.Empty<string>();
                 var summary = string.IsNullOrWhiteSpace(payload.StrategySummary)
                     ? $"Подготовлено {suggestions.Count} заданий."
                     : payload.StrategySummary.Trim();
@@ -57,9 +54,11 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         return await _fallback.GenerateTaskSuggestionsAsync(request, cancellationToken);
     }
 
-    public async Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request, CancellationToken cancellationToken)
+    public async Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,
+        CancellationToken cancellationToken)
     {
-        var payload = await RequestPayloadAsync<RewardSuggestionsPayload>(BuildRewardMessages(request), cancellationToken);
+        var payload =
+            await RequestPayloadAsync<RewardSuggestionsPayload>(BuildRewardMessages(request), cancellationToken);
         if (payload?.Suggestions is { Count: > 0 })
         {
             var suggestions = payload.Suggestions
@@ -87,19 +86,21 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         if (payload is { Reply: { Length: > 0 } reply })
         {
             var followUps = payload.FollowUps?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ??
-                            new[] { "Нужно ли уточнить длительность задания?", "Хочешь идеи по наградам?" };
+                            new[] { "Нужно ли уточнить детали?", "Хочешь изменить параметры?" };
             var conversationId = string.IsNullOrWhiteSpace(request.ConversationId)
                 ? Guid.NewGuid().ToString("N")
                 : request.ConversationId;
 
-            return new AiChatResponse(conversationId, reply.Trim(), followUps, _timeProvider.GetUtcNow());
+            var actions = ParseActions(payload.Actions);
+            return new AiChatResponse(conversationId, reply.Trim(), followUps, actions, _timeProvider.GetUtcNow());
         }
 
         _logger.LogInformation("Falling back to rule-based chat orchestrator.");
         return await _fallback.ProcessChatAsync(request, cancellationToken);
     }
 
-    public async Task<AiAnalyticsResponse> BuildAnalyticsAsync(AiAnalyticsRequest request, CancellationToken cancellationToken)
+    public async Task<AiAnalyticsResponse> BuildAnalyticsAsync(AiAnalyticsRequest request,
+        CancellationToken cancellationToken)
     {
         var payload = await RequestPayloadAsync<AnalyticsPayload>(BuildAnalyticsMessages(request), cancellationToken);
         if (payload?.Insights is { Count: > 0 })
@@ -129,13 +130,11 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         return await _fallback.BuildAnalyticsAsync(request, cancellationToken);
     }
 
-    private async Task<T?> RequestPayloadAsync<T>(IReadOnlyList<OpenAiMessage> messages, CancellationToken cancellationToken)
+    private async Task<T?> RequestPayloadAsync<T>(IReadOnlyList<OpenAiMessage> messages,
+        CancellationToken cancellationToken)
     {
         var raw = await SafeCallAsync(messages, cancellationToken);
-        if (TryDeserialize(raw, out T? payload))
-        {
-            return payload;
-        }
+        if (TryDeserialize(raw, out T? payload)) return payload;
 
         return default;
     }
@@ -165,11 +164,13 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         payload.AppendLine($"Предпочтительный тон: {request.Tone ?? "дружелюбный"}.");
         payload.AppendLine($"Язык ответа: {request.Language ?? "ru-RU"}.");
         payload.AppendLine();
-        payload.AppendLine("Верни строго JSON без комментариев в формате:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number 1-5, \"rewardXp\": number, \"rewardPoints\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}");
+        payload.AppendLine(
+            "Верни строго JSON без комментариев в формате:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number 1-5, \"rewardXp\": number, \"rewardPoints\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}");
 
         return new[]
         {
-            OpenAiMessage.System("Ты семейный ассистент для российских родителей. Отвечай лаконично, только JSON, без маркдауна."),
+            OpenAiMessage.System(
+                "Ты семейный ассистент для российских родителей. Отвечай лаконично, только JSON, без маркдауна."),
             OpenAiMessage.User(payload.ToString())
         };
     }
@@ -184,7 +185,8 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         builder.AppendLine($"Недавние награды: {FormatList(request.RecentlyPurchasedRewards)}.");
         builder.AppendLine($"Повод: {request.Occasion ?? "обычный день"}.");
         builder.AppendLine();
-        builder.AppendLine("Верни JSON вида:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"cost\": number, \"category\": string, \"icon\": string, \"motivationHint\": string}], \"budgetSummary\": string}");
+        builder.AppendLine(
+            "Верни JSON вида:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"cost\": number, \"category\": string, \"icon\": string, \"motivationHint\": string}], \"budgetSummary\": string}");
 
         return new[]
         {
@@ -195,9 +197,43 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
 
     private static IReadOnlyList<OpenAiMessage> BuildChatMessages(AiChatRequest request)
     {
+        const string systemPrompt = """
+            Ты семейный ментор-ассистент. Отвечай на русском, дружелюбно.
+            
+            ВАЖНО: Когда пользователь просит создать задачу, награду, отправить сообщение или выполнить действие — 
+            ты ДОЛЖЕН включить соответствующие actions в ответ. Не просто описывай что делать, а предоставь готовые данные для выполнения.
+            
+            Доступные типы действий (actions):
+            - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), rewardXp, rewardPoints, category, tags[]}
+            - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, rewardXp, rewardPoints, category, tags[]}]}
+            - CreateReward: создать награду. Payload: {title, description, cost, category, icon}
+            - CreateRewards: создать несколько наград. Payload: {rewards: [{title, description, cost, category, icon}]}
+            - CompleteTask: отметить задачу выполненной. Payload: {taskId}
+            - Navigate: перейти на страницу. Payload: {route, queryParams}
+            
+            Формат ответа (строго JSON):
+            {
+              "reply": "Текстовый ответ пользователю",
+              "followUps": ["Уточняющий вопрос 1", "Вопрос 2"],
+              "actions": [
+                {
+                  "type": "CreateTask",
+                  "label": "Создать задачу «Название»",
+                  "description": "Краткое описание действия",
+                  "variant": "primary",
+                  "priority": 1,
+                  "payload": { ... данные ... }
+                }
+              ]
+            }
+            
+            Если действия не нужны, верни пустой массив actions: [].
+            Отвечай ТОЛЬКО валидным JSON без markdown-блоков.
+            """;
+
         var messages = new List<OpenAiMessage>
         {
-            OpenAiMessage.System("Ты семейный ментор. Отвечай на русском, дружелюбно, JSON формата {\"reply\": string, \"followUps\": [string]}.")
+            OpenAiMessage.System(systemPrompt)
         };
 
         foreach (var turn in request.History)
@@ -213,13 +249,13 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
             : string.Join(Environment.NewLine, request.Context.Select(pair => $"{pair.Key}: {pair.Value}"));
 
         var prompt = new StringBuilder();
-        prompt.AppendLine("Новый вопрос:");
+        prompt.AppendLine("Запрос пользователя:");
         prompt.AppendLine(request.Message);
         prompt.AppendLine();
         prompt.AppendLine("Контекст:");
         prompt.AppendLine(contextLines);
         prompt.AppendLine();
-        prompt.AppendLine("Ответь JSON без markdown.");
+        prompt.AppendLine("Ответь JSON. Если нужно действие — обязательно включи actions.");
 
         messages.Add(OpenAiMessage.User(prompt.ToString()));
         return messages;
@@ -228,8 +264,10 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private static IReadOnlyList<OpenAiMessage> BuildAnalyticsMessages(AiAnalyticsRequest request)
     {
         var builder = new StringBuilder();
-        builder.AppendLine($"Проанализируй семью {request.FamilyId ?? "unknown"} с окном {request.ResolveWindow()} дней.");
-        builder.AppendLine("Верни JSON формата {\"insights\": [{\"type\": string, \"title\": string, \"message\": string, \"severity\": string, \"tags\": [string]}], \"summary\": { string: string }}");
+        builder.AppendLine(
+            $"Проанализируй семью {request.FamilyId ?? "unknown"} с окном {request.ResolveWindow()} дней.");
+        builder.AppendLine(
+            "Верни JSON формата {\"insights\": [{\"type\": string, \"title\": string, \"message\": string, \"severity\": string, \"tags\": [string]}], \"summary\": { string: string }}");
         builder.AppendLine($"Нужно до {request.ResolveLimit()} инсайтов.");
 
         return new[]
@@ -242,10 +280,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private bool TryDeserialize<T>(string raw, out T? payload)
     {
         payload = default;
-        if (string.IsNullOrWhiteSpace(raw))
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(raw)) return false;
 
         var candidate = ExtractJson(raw);
         try
@@ -264,16 +299,15 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     {
         var start = raw.IndexOf('{');
         var end = raw.LastIndexOf('}');
-        if (start >= 0 && end > start)
-        {
-            return raw[start..(end + 1)];
-        }
+        if (start >= 0 && end > start) return raw[start..(end + 1)];
 
         return raw;
     }
 
     private static string FormatList(IReadOnlyCollection<string> values)
-        => values.Count == 0 ? "нет" : string.Join(", ", values);
+    {
+        return values.Count == 0 ? "нет" : string.Join(", ", values);
+    }
 
     private sealed record TaskSuggestionsPayload(
         IReadOnlyCollection<TaskSuggestionPayload>? Suggestions,
@@ -292,12 +326,10 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     {
         public TaskSuggestion? ToModel()
         {
-            if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Description))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Description)) return null;
 
-            var tags = Tags?.Where(static tag => !string.IsNullOrWhiteSpace(tag)).Select(static tag => tag.Trim()).ToArray()
+            var tags = Tags?.Where(static tag => !string.IsNullOrWhiteSpace(tag)).Select(static tag => tag.Trim())
+                           .ToArray()
                        ?? Array.Empty<string>();
 
             return new TaskSuggestion(
@@ -326,10 +358,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     {
         public RewardSuggestion? ToModel()
         {
-            if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Description))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Description)) return null;
 
             return new RewardSuggestion(
                 Title.Trim(),
@@ -341,7 +370,72 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         }
     }
 
-    private sealed record ChatPayload(string? Reply, IReadOnlyCollection<string>? FollowUps);
+    private sealed record ChatPayload(
+        string? Reply, 
+        IReadOnlyCollection<string>? FollowUps,
+        IReadOnlyCollection<ActionPayload>? Actions);
+
+    private sealed record ActionPayload(
+        string? Type,
+        string? Label,
+        string? Description,
+        string? Variant,
+        int? Priority,
+        JsonElement? Payload);
+
+    private IReadOnlyCollection<AiAction> ParseActions(IReadOnlyCollection<ActionPayload>? actions)
+    {
+        if (actions is null || actions.Count == 0)
+            return Array.Empty<AiAction>();
+
+        var result = new List<AiAction>();
+        foreach (var action in actions)
+        {
+            if (string.IsNullOrWhiteSpace(action.Type) || string.IsNullOrWhiteSpace(action.Label))
+                continue;
+
+            if (!Enum.TryParse<AiActionType>(action.Type, ignoreCase: true, out var actionType))
+            {
+                _logger.LogWarning("Unknown action type: {Type}", action.Type);
+                continue;
+            }
+
+            object? payload = null;
+            if (action.Payload.HasValue && action.Payload.Value.ValueKind != JsonValueKind.Undefined)
+            {
+                try
+                {
+                    payload = actionType switch
+                    {
+                        AiActionType.CreateTask => action.Payload.Value.Deserialize<CreateTaskPayload>(SerializerOptions),
+                        AiActionType.CreateTasks => action.Payload.Value.Deserialize<CreateTasksPayload>(SerializerOptions),
+                        AiActionType.CreateReward => action.Payload.Value.Deserialize<CreateRewardPayload>(SerializerOptions),
+                        AiActionType.CreateRewards => action.Payload.Value.Deserialize<CreateRewardsPayload>(SerializerOptions),
+                        AiActionType.Navigate => action.Payload.Value.Deserialize<NavigatePayload>(SerializerOptions),
+                        AiActionType.SendFamilyMessage => action.Payload.Value.Deserialize<SendFamilyMessagePayload>(SerializerOptions),
+                        _ => action.Payload.Value.Deserialize<object>(SerializerOptions)
+                    };
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to deserialize action payload for type {Type}", action.Type);
+                    payload = null;
+                }
+            }
+
+            result.Add(new AiAction
+            {
+                Type = actionType,
+                Label = action.Label.Trim(),
+                Description = action.Description?.Trim(),
+                Variant = string.IsNullOrWhiteSpace(action.Variant) ? "primary" : action.Variant.Trim(),
+                Priority = action.Priority ?? 0,
+                Payload = payload
+            });
+        }
+
+        return result.OrderBy(a => a.Priority).ToList();
+    }
 
     private sealed record AnalyticsPayload(
         IReadOnlyCollection<InsightPayload>? Insights,
@@ -356,12 +450,12 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     {
         public AiInsightCard? ToModel()
         {
-            if (string.IsNullOrWhiteSpace(Type) || string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Message))
-            {
+            if (string.IsNullOrWhiteSpace(Type) || string.IsNullOrWhiteSpace(Title) ||
+                string.IsNullOrWhiteSpace(Message))
                 return null;
-            }
 
-            var tags = Tags?.Where(static tag => !string.IsNullOrWhiteSpace(tag)).Select(static tag => tag.Trim()).ToArray()
+            var tags = Tags?.Where(static tag => !string.IsNullOrWhiteSpace(tag)).Select(static tag => tag.Trim())
+                           .ToArray()
                        ?? Array.Empty<string>();
 
             return new AiInsightCard(

@@ -163,9 +163,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       AiProvider__Provider: OpenAI
-      AiProvider__BaseUrl: https://api.openai.com/
-      AiProvider__ChatEndpoint: v1/chat/completions
-      AiProvider__Model: gpt-4o-mini
+      AiProvider__BaseUrl: https://api.gptgod.online/v1/
+      AiProvider__ChatEndpoint: chat/completions
+      AiProvider__Model: gpt-3.5-turbo
       AiProvider__Temperature: 0.6
       AiProvider__MaxTokens: 700
       AiProvider__TimeoutSeconds: 45
