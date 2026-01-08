@@ -19,4 +19,12 @@ public sealed class TaskSuggestionsController(IAiOrchestrator orchestrator) : Co
         var response = await orchestrator.GenerateTaskSuggestionsAsync(request, cancellationToken);
         return Ok(response);
     }
+
+    [HttpPost("description")]
+    public async Task<IActionResult> GenerateTaskDescription([FromBody] TaskDescriptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await orchestrator.GenerateTaskDescriptionAsync(request, cancellationToken);
+        return Ok(response);
+    }
 }

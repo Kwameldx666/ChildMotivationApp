@@ -102,6 +102,22 @@ export interface ExecuteActionResponse {
   data?: unknown
 }
 
+// Task Suggestions types
+
+// Task Description types
+export interface AiTaskDescriptionRequest {
+  taskDescription?: string       // Описание задачи для расширения AI (чтобы ребёнку было понятно)
+  language?: string              // Язык ответа (по умолчанию 'ru')
+}
+
+export interface AiTaskDescription {
+  description: string  // Только улучшенное описание задачи
+}
+
+export interface AiTaskDescriptionResponse {
+  descriptions: AiTaskDescription[]
+}
+
 export const aiService = {
   sendChatMessage(payload: AiChatRequestPayload) {
     return httpClient.post<AiChatResponsePayload>('/api-gateway/ai/chat', payload)
@@ -109,5 +125,50 @@ export const aiService = {
 
   executeAction(payload: ExecuteActionRequest) {
     return httpClient.post<ExecuteActionResponse>('/api-gateway/ai/execute-action', payload)
+  },
+
+  async getTaskDescription(payload: AiTaskDescriptionRequest): Promise<string> {
+    // Call the Gateway endpoint for task-description
+    const response = await httpClient.post<any>('/api-gateway/ai/task-description', payload)
+
+    // Defensive extraction for different shapes the backend may return.
+    // Supported shapes:
+    // - { description: string }
+    // - { descriptions: string } or { descriptions: "string" }
+    // - { descriptions: [{ description: string }] }
+    // - { suggestions: [{ description: string, ... }] }
+    // - direct string response
+    const extractFromObject = (obj: any) => {
+      if (!obj) return undefined
+      if (typeof obj === 'string') return obj
+      if (typeof obj.description === 'string') return obj.description
+      return undefined
+    }
+
+    let result: string | undefined
+
+    // direct string
+    if (typeof response === 'string') {
+      result = response
+    }
+
+    // top-level description
+    result = result ?? (typeof response?.description === 'string' ? response.description : undefined)
+
+    // descriptions can be string or array
+    if (result == null && response?.descriptions != null) {
+      if (typeof response.descriptions === 'string') result = response.descriptions
+      else if (Array.isArray(response.descriptions)) result = extractFromObject(response.descriptions[0])
+      else result = extractFromObject(response.descriptions)
+    }
+
+    // suggestions array
+    if (result == null && Array.isArray(response?.suggestions)) {
+      result = extractFromObject(response.suggestions[0])
+    }
+
+    if (!result) throw new Error('AI response did not contain a description')
+
+    return result
   },
 }

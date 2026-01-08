@@ -77,6 +77,12 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         return Task.FromResult(new TaskSuggestionsResponse(ordered, summary, tips));
     }
 
+    //TODO Implement this service
+    public Task<TaskDescriptionResponse> GenerateTaskDescriptionAsync(TaskDescriptionRequest request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,
         CancellationToken cancellationToken)
     {

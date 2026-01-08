@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
-import type { CreateTaskPayload, TaskEvidenceRequirement } from "@/services/tasks-service"
-import { CalendarDays, Check, Flame, Plus, Sparkles, Star, Wand2 } from "lucide-react"
+import type { CreateTaskPayload } from "@/services/tasks-service"
+import { CalendarDays, Check, Loader2, Plus, Sparkles, Star, Wand2 } from "lucide-react"
 
 interface TaskCreationModalProps {
   open: boolean
@@ -20,75 +20,104 @@ interface TaskCreationModalProps {
   onSubmit: (payload: CreateTaskPayload) => Promise<void> | void
 }
 
-const CATEGORY_OPTIONS = [
-  { value: "home", label: "Дом" },
-  { value: "study", label: "Учёба" },
-  { value: "care", label: "Забота" },
-  { value: "sport", label: "Активность" },
-]
-
-const CONFIRM_OPTIONS: { value: TaskEvidenceRequirement; label: string }[] = [
-  { value: "none", label: "Без подтверждения" },
-  { value: "photo", label: "Фото" },
-  { value: "video", label: "Видео" },
-  { value: "document", label: "Документ" },
-]
-
 const QUICK_TEMPLATES: Array<{
   label: string
-  title: string
   description: string
-  category: string
-  confirmation: TaskEvidenceRequirement
-  difficulty: number
+  emoji: string
 }> = [
   {
     label: "Чистота",
-    title: "Навести порядок в комнате",
-    description: "Сложи одежду, собери игрушки и пройдиcь пылесосом по ковру.",
-    category: "home",
-    confirmation: "photo",
-    difficulty: 3,
+    description: "Навести порядок в комнате",
+    emoji: "🧹",
   },
   {
     label: "Учёба",
-    title: "30 минут чтения",
-    description: "Выбери книгу и расскажи 5 новых фактов, которые ты узнал.",
-    category: "study",
-    confirmation: "document",
-    difficulty: 2,
+    description: "Почитать книгу 30 минут",
+    emoji: "📚",
   },
   {
     label: "Забота",
-    title: "Помочь накрыть на стол",
-    description: "Подготовь стол перед ужином и убери после еды.",
-    category: "care",
-    confirmation: "photo",
-    difficulty: 1,
+    description: "Помочь накрыть на стол",
+    emoji: "🍽️",
+  },
+  {
+    label: "Активность",
+    description: "Сделать зарядку",
+    emoji: "🏃",
   },
 ]
 
+// Временная функция для генерации ИИ (потом будет через бэкенд)
+const generateAiSuggestion = async (description: string): Promise<{
+  title: string
+  fullDescription: string
+  difficulty: number
+  reward: number
+}> => {
+  // Имитация запроса к ИИ
+  await new Promise(resolve => setTimeout(resolve, 1500))
+  
+  const words = description.toLowerCase()
+  let difficulty = 2
+  let category = "Дом"
+  
+  if (words.includes("уборк") || words.includes("порядок") || words.includes("пылесос")) {
+    difficulty = 3
+    category = "Чистота"
+  } else if (words.includes("чита") || words.includes("книг") || words.includes("урок") || words.includes("учи")) {
+    difficulty = 2
+    category = "Учёба"
+  } else if (words.includes("помо") || words.includes("стол") || words.includes("посуд")) {
+    difficulty = 1
+    category = "Забота"
+  } else if (words.includes("зарядк") || words.includes("спорт") || words.includes("бег")) {
+    difficulty = 2
+    category = "Активность"
+  }
+  
+  // Формула XP: 60 + 20 × сложность
+  const reward = 60 + 20 * difficulty
+  
+  // Генерируем название из первых слов описания
+  const title = description.length > 30 
+    ? description.substring(0, 30).trim() + "..."
+    : description.trim()
+  
+  // Дополняем описание
+  const fullDescription = `${description}\n\n✨ Категория: ${category}`
+  
+  return {
+    title: title.charAt(0).toUpperCase() + title.slice(1),
+    fullDescription: description,
+    difficulty,
+    reward,
+  }
+}
+
 export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }: TaskCreationModalProps) {
-  const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [category, setCategory] = useState("home")
-  const [difficulty, setDifficulty] = useState(2)
   const [dueDate, setDueDate] = useState("")
-  const [confirmationType, setConfirmationType] = useState<TaskEvidenceRequirement>("photo")
-  const [rewardValue, setRewardValue] = useState("100")
+  const [requiresConfirmation, setRequiresConfirmation] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  
+  // ИИ-генерация
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [aiSuggestion, setAiSuggestion] = useState<{
+    title: string
+    fullDescription: string
+    difficulty: number
+    reward: number
+  } | null>(null)
 
   const resetForm = useCallback(() => {
-    setTitle("")
     setDescription("")
-    setCategory("home")
-    setDifficulty(2)
     setDueDate("")
-    setConfirmationType("photo")
-    setRewardValue("100")
+    setRequiresConfirmation(true)
     setSubmitError(null)
     setIsSubmitting(false)
+    setAiSuggestion(null)
+    setIsGenerating(false)
   }, [])
 
   useEffect(() => {
@@ -97,38 +126,69 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
     }
   }, [open, resetForm])
 
-  const summary = useMemo(
-    () => ({
-      title: title.trim() || "Новая задача",
-      description: description.trim() || "Добавьте описание, чтобы ребёнок понял задачу",
-      difficulty,
-      reward: Number.parseInt(rewardValue || "0", 10) || 0,
-    }),
-    [description, difficulty, rewardValue, title],
-  )
-
-  const handleTemplate = (template: (typeof QUICK_TEMPLATES)[number]) => {
-    setTitle(template.title)
-    setDescription(template.description)
-    setCategory(template.category)
-    setConfirmationType(template.confirmation)
-    setDifficulty(template.difficulty)
+  const handleAiAssist = async () => {
+    if (!description.trim() || isGenerating) return
+    
+    try {
+      setIsGenerating(true)
+      const suggestion = await generateAiSuggestion(description.trim())
+      setAiSuggestion(suggestion)
+    } catch (error) {
+      console.error("[task-creation-modal] AI generation failed", error)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
+  const handleTemplate = (template: (typeof QUICK_TEMPLATES)[number]) => {
+    setDescription(template.description)
+    setAiSuggestion(null)
+  }
+
+  const summary = useMemo(() => {
+    if (aiSuggestion) {
+      return {
+        title: aiSuggestion.title,
+        description: aiSuggestion.fullDescription || description.trim() || "Опишите задачу",
+        difficulty: aiSuggestion.difficulty,
+        reward: aiSuggestion.reward,
+      }
+    }
+    
+    // Значения по умолчанию до генерации ИИ
+    const defaultDifficulty = 2
+    return {
+      title: description.trim() ? (description.length > 30 ? description.substring(0, 30) + "..." : description) : "Новая задача",
+      description: description.trim() || "Опишите задачу, и ИИ поможет её оформить",
+      difficulty: defaultDifficulty,
+      reward: 60 + 20 * defaultDifficulty, // 100 XP по умолчанию
+    }
+  }, [description, aiSuggestion])
+
   const handleSubmit = async () => {
-    const trimmedTitle = title.trim()
-    if (!trimmedTitle) {
-      setSubmitError("Введите название задачи")
+    const trimmedDescription = description.trim()
+    if (!trimmedDescription) {
+      setSubmitError("Опишите, что нужно сделать")
       return
     }
 
     try {
       setIsSubmitting(true)
       setSubmitError(null)
+      
+      // Если ИИ не сгенерировал — генерируем перед отправкой
+      let finalSuggestion = aiSuggestion
+      if (!finalSuggestion) {
+        finalSuggestion = await generateAiSuggestion(trimmedDescription)
+      }
+      
       await _onSubmit({
-        title: trimmedTitle,
-        description: description.trim() ? description.trim() : undefined,
-        confirmationType,
+        title: finalSuggestion.title,
+        description: trimmedDescription,
+        confirmationType: requiresConfirmation ? "photo" : "none",
+        difficulty: finalSuggestion.difficulty,
+        reward: finalSuggestion.reward,
+        dueDate: dueDate || undefined,
       })
       resetForm()
       onClose()
@@ -142,7 +202,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl lg:max-w-6xl h-[88vh] overflow-hidden rounded-3xl border border-border/60 bg-background p-0 shadow-xl">
+      <DialogContent className="sm:max-w-3xl lg:max-w-4xl h-[80vh] overflow-hidden rounded-3xl border border-border/60 bg-background p-0 shadow-xl">
         <header className="flex items-center justify-between border-b border-border/60 px-5 py-4 bg-gradient-to-r from-background via-background to-muted/30">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -150,87 +210,50 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
             </div>
             <div>
               <DialogTitle className="text-lg font-semibold leading-tight">Новая семейная миссия</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">Заполните поля слева, результат — справа.</DialogDescription>
+              <DialogDescription className="text-sm text-muted-foreground">Просто опишите задачу — ИИ поможет с остальным</DialogDescription>
             </div>
           </div>
           <Badge variant="outline" className="rounded-full border-border px-3 py-1 text-[11px] uppercase tracking-wide">Quick</Badge>
         </header>
 
-        <div className="grid gap-3 lg:grid-cols-[1.35fr_0.65fr] h-[calc(88vh-150px)] px-5 pb-4 pt-3">
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr] h-[calc(80vh-150px)] px-5 pb-4 pt-3">
           <ScrollArea className="h-full rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
             <div className="space-y-5">
+              {/* Основное поле — описание задачи */}
               <section className="space-y-3">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Основное</p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Название</Label>
-                    <Input
-                      value={title}
-                      onChange={(event) => setTitle(event.target.value)}
-                      placeholder="Например: Подготовить портфель к школе"
-                      className="h-11 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">Категория</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {CATEGORY_OPTIONS.map((option) => (
-                        <Button
-                          key={option.value}
-                          type="button"
-                          size="sm"
-                          variant={option.value === category ? "default" : "outline"}
-                          className={cn(
-                            "rounded-full border px-4 text-xs",
-                            option.value === category && "shadow-sm",
-                          )}
-                          onClick={() => setCategory(option.value)}
-                        >
-                          {option.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Что нужно сделать?</p>
+                <div className="space-y-2">
+                  <Textarea
+                    value={description}
+                    onChange={(event) => {
+                      setDescription(event.target.value)
+                      setAiSuggestion(null) // Сбрасываем при изменении
+                    }}
+                    placeholder="Например: Убрать игрушки и застелить кровать"
+                    rows={4}
+                    className="resize-none text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={handleAiAssist}
+                    disabled={!description.trim() || isGenerating}
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Wand2 className="h-4 w-4" />
+                    )}
+                    {isGenerating ? "ИИ думает..." : "Помощь ИИ"}
+                  </Button>
                 </div>
               </section>
 
-              <section className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Описание</Label>
-                <Textarea
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Опишите шаги, материалы или критерии проверки"
-                  rows={4}
-                  className="resize-none text-sm"
-                />
-              </section>
-
+              {/* Опциональные настройки */}
               <section className="grid gap-3 md:grid-cols-2">
-                <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Сложность</span>
-                    <span className="font-semibold text-foreground">{difficulty}/5</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <button
-                        key={level}
-                        type="button"
-                        onClick={() => setDifficulty(level)}
-                        className="transition-transform hover:scale-110"
-                        aria-label={`Сложность ${level}`}
-                      >
-                        <Star
-                          className={cn(
-                            "h-5 w-5",
-                            level <= difficulty ? "text-amber-400 fill-amber-300" : "text-muted-foreground/30",
-                          )}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+                {/* Срок */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">Срок (необязательно)</Label>
                   <div className="relative">
@@ -243,63 +266,43 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                     />
                   </div>
                 </div>
-              </section>
 
-              <section className="grid gap-3 md:grid-cols-2">
+                {/* Подтверждение */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
-                  <Label className="text-xs text-muted-foreground">Тип подтверждения</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {CONFIRM_OPTIONS.map((option) => (
-                      <Button
-                        key={option.value}
-                        type="button"
-                        size="sm"
-                        variant={option.value === confirmationType ? "default" : "secondary"}
-                        className="rounded-full px-4 text-xs"
-                        onClick={() => setConfirmationType(option.value)}
-                      >
-                        {option.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
-                  <Label className="text-xs text-muted-foreground">Вознаграждение (XP)</Label>
-                  <div className="flex items-center gap-3 rounded-lg bg-card px-3 py-2">
-                    <Flame className="h-4 w-4 text-orange-500" />
-                    <Input
-                      type="number"
-                      min={0}
-                      step={10}
-                      value={rewardValue}
-                      onChange={(event) => setRewardValue(event.target.value)}
-                      className="w-28 text-sm"
+                  <Label className="text-xs text-muted-foreground">Подтверждение выполнения</Label>
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <span className="text-sm text-foreground">
+                      {requiresConfirmation ? "Ребёнок прикрепит фото/видео" : "Без подтверждения"}
+                    </span>
+                    <Switch
+                      checked={requiresConfirmation}
+                      onCheckedChange={setRequiresConfirmation}
                     />
-                    <span className="text-[11px] text-muted-foreground">Больше XP за сложные задачи</span>
                   </div>
                 </div>
               </section>
 
+              {/* Быстрые шаблоны */}
               <section className="space-y-3 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4">
                 <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-2"><Wand2 className="h-4 w-4 text-primary" /> Быстрые шаблоны</span>
-                  <span className="text-xs text-muted-foreground">1 клик — заполнено</span>
+                  <span className="flex items-center gap-2"><Wand2 className="h-4 w-4 text-primary" /> Быстрые идеи</span>
+                  <span className="text-xs text-muted-foreground">1 клик</span>
                 </div>
-                <div className="grid gap-2 md:grid-cols-2">
+                <div className="grid gap-2 grid-cols-2">
                   {QUICK_TEMPLATES.map((template) => (
                     <Button
                       key={template.label}
                       type="button"
                       variant="secondary"
-                      className="justify-between rounded-lg border border-border/60 bg-white/95 text-left text-sm hover:border-primary/40"
+                      size="sm"
+                      className={cn(
+                        "justify-start gap-2 rounded-lg border border-border/60 bg-white/95 text-left text-sm hover:border-primary/40",
+                        description === template.description && "border-primary bg-primary/5"
+                      )}
                       onClick={() => handleTemplate(template)}
                     >
-                      <span className="space-y-0.5">
-                        <span className="block font-semibold text-foreground">{template.title}</span>
-                        <span className="text-[12px] text-muted-foreground">{template.description}</span>
-                      </span>
-                      <Check className={cn("h-4 w-4", title === template.title ? "text-primary" : "text-muted-foreground/40")} />
+                      <span className="text-lg">{template.emoji}</span>
+                      <span className="truncate">{template.description}</span>
                     </Button>
                   ))}
                 </div>
@@ -307,39 +310,66 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
             </div>
           </ScrollArea>
 
+          {/* Превью справа */}
           <div className="flex flex-col gap-3 pr-1">
             <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sticky top-0">
               <div className="flex items-center justify-between text-[11px] uppercase text-muted-foreground">
-                <span>Превью</span>
+                <span>Превью задачи</span>
                 <Badge variant="outline" className="rounded-full border-primary/40 px-2 py-1 text-[11px]">
                   {dueDate ? "Есть срок" : "Свободно"}
                 </Badge>
               </div>
-              <h3 className="mt-2 text-lg font-semibold leading-snug">{summary.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{summary.description}</p>
-              <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <Wand2 className="h-4 w-4 text-primary" />
-                <span>Категория: {CATEGORY_OPTIONS.find((c) => c.value === category)?.label}</span>
-              </div>
-              <div className="mt-3 space-y-1.5">
+              
+              <h3 className="mt-3 text-lg font-semibold leading-snug">{summary.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">{summary.description}</p>
+              
+              {/* Сложность звёздами */}
+              <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span>Сложность</span>
-                  <span className="font-semibold">{summary.difficulty}/5</span>
+                  <span className="text-muted-foreground">Сложность</span>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <Star
+                        key={level}
+                        className={cn(
+                          "h-4 w-4",
+                          level <= summary.difficulty 
+                            ? "text-amber-400 fill-amber-400" 
+                            : "text-muted-foreground/20"
+                        )}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <Progress value={(summary.difficulty / 5) * 100} />
               </div>
+
+              {/* Награда */}
               <div className="mt-3 rounded-lg bg-primary/5 px-3 py-2 text-sm">
                 <p className="flex items-center gap-2 font-medium text-primary">
                   <Sparkles className="h-4 w-4" /> Награда: {summary.reward} XP
                 </p>
-                <p className="text-[12px] text-muted-foreground">XP добавится при подтверждении.</p>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Формула: 60 + 20 × сложность
+                </p>
+              </div>
+
+              {/* Подтверждение */}
+              <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <Check className={cn("h-4 w-4", requiresConfirmation ? "text-green-500" : "text-muted-foreground/40")} />
+                <span>{requiresConfirmation ? "Требуется подтверждение" : "Без подтверждения"}</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4 text-sm text-muted-foreground shadow-sm">
-              <p className="font-medium text-foreground">Подсказка</p>
-              <p className="text-[12px]">Слева есть скролл: проходите блоки по порядку, справа сразу видно итог.</p>
-            </div>
+            {aiSuggestion && (
+              <div className="rounded-2xl border border-green-200 bg-green-50 p-3 text-sm">
+                <p className="flex items-center gap-2 font-medium text-green-700">
+                  <Sparkles className="h-4 w-4" /> ИИ подготовил задачу
+                </p>
+                <p className="text-[12px] text-green-600 mt-1">
+                  Название, сложность и XP определены автоматически
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -349,7 +379,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
           <Button variant="ghost" onClick={onClose} className="flex-1">
             Отмена
           </Button>
-          <Button onClick={handleSubmit} className="flex-1 gap-2" disabled={isSubmitting}>
+          <Button onClick={handleSubmit} className="flex-1 gap-2" disabled={isSubmitting || !description.trim()}>
             <Plus className="h-4 w-4" />
             {isSubmitting ? "Создаём..." : "Создать задачу"}
           </Button>

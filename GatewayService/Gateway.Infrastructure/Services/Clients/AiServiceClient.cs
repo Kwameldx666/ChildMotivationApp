@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Common.HttpUrls;
 using Gateway.Infrastructure.Extensions;
 using Gateway.Infrastructure.Services.Constants;
@@ -15,6 +16,12 @@ public sealed class AiServiceClient(IHttpClientFactory clientFactory, IOptionsSn
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.AiService);
     private readonly AiEndpoints _endpoints = endpoints.Value;
+
+    public Task<HttpResponseMessage> GetTaskDescriptionAsync(AiTaskDescriptionRequest request, CancellationToken cancellationToken = default)
+    {
+        var uri = BuildPath(_endpoints.TaskDescription);
+        return _client.SendHttpRequestAsync(HttpMethod.Post, uri, request, SerializerOptions, cancellationToken);
+    }
 
     public Task<HttpResponseMessage> GetTaskSuggestionsAsync(object request,
         CancellationToken cancellationToken = default)
