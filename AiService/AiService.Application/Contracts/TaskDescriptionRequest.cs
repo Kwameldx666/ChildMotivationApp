@@ -1,8 +1,7 @@
 ﻿namespace AiService.Application.Contracts;
 
-public class AiTaskDescriptionRequest
+public class TaskDescriptionRequest
 {
-    string TaskDescription { get; set; } = string.Empty;
-    int MaxSuggestions { get; init; }
-    private string Language { get; init; } = string.Empty;
+    public string TaskDescription { get; set; } = string.Empty;
+    public string Language { get; init; } = string.Empty;
 }

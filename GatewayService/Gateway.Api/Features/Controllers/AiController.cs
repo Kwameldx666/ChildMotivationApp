@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Contracts.Ai;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -10,25 +11,37 @@ namespace Gateway.Features.Controllers;
 [ApiController]
 [Authorize]
 [Route("api-gateway/ai")]
-public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient taskClient, IShopServiceClient shopClient) : ControllerBase
+public sealed class AiController(
+    IAiServiceClient aiClient,
+    ITaskServiceClient taskClient,
+    IShopServiceClient shopClient) : ControllerBase
 {
+    [HttpPost("task-description")]
+    public async Task<IActionResult> GetTaskDescription([FromBody] AiTaskDescriptionRequest? payload,
+        CancellationToken cancellationToken)
+    {
+        if (payload is null) return BadRequest("Request body cannot be null.");
+        
+        using var response = await aiClient.GetTaskDescriptionAsync(payload, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     [HttpPost("task-suggestions")]
-    public async Task<IActionResult> GetTaskSuggestions([FromBody] AiTaskSuggestionsRequest payload,
+    public async Task<IActionResult> GetTaskSuggestions([FromBody] AiTaskSuggestionsRequest? payload,
         CancellationToken cancellationToken)
     {
         if (payload is null) return BadRequest("Request body cannot be null.");
 
         var userId = User.GetUserId();
-        if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         var upstreamPayload = new
         {
             requestedByUserId = userId,
             childId = string.IsNullOrWhiteSpace(payload.ChildId) ? userId : payload.ChildId,
             childAge = payload.ChildAge,
-            interests = payload.Interests ?? Array.Empty<string>(),
-            goals = payload.Goals ?? Array.Empty<string>(),
-            recentTasks = payload.RecentTasks ?? Array.Empty<string>(),
+            interests = payload.Interests,
+            goals = payload.Goals,
+            recentTasks = payload.RecentTasks,
             maxSuggestions = payload.MaxSuggestions,
             tone = payload.Tone,
             language = payload.Language
@@ -72,7 +85,7 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
 
         if (string.IsNullOrWhiteSpace(payload.Message)) return BadRequest("Message is required.");
 
-        var history = (payload.History ?? Array.Empty<AiChatHistoryEntry>())
+        var history = (payload.History)
             .Select(entry => new
             {
                 role = string.IsNullOrWhiteSpace(entry.Role) ? "user" : entry.Role,
@@ -120,12 +133,13 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
     public async Task<IActionResult> ExecuteAction([FromBody] ExecuteAiActionRequest request,
         CancellationToken cancellationToken)
     {
-        if (request?.Action is null) 
+        if (request?.Action is null)
             return BadRequest(new ExecuteAiActionResponse { Success = false, Message = "Action is required." });
 
         var userId = User.GetUserId();
-        if (string.IsNullOrWhiteSpace(userId)) 
-            return Unauthorized(new ExecuteAiActionResponse { Success = false, Message = "User identifier is missing." });
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized(
+                new ExecuteAiActionResponse { Success = false, Message = "User identifier is missing." });
 
         try
         {
@@ -136,10 +150,10 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
                 "CREATEREWARD" => await ExecuteCreateReward(request.Action, userId, cancellationToken),
                 "CREATEREWARDS" => await ExecuteCreateRewards(request.Action, userId, cancellationToken),
                 "COMPLETETASK" => await ExecuteCompleteTask(request.Action, cancellationToken),
-                _ => Ok(new ExecuteAiActionResponse 
-                { 
-                    Success = false, 
-                    Message = $"Action type '{request.Action.Type}' is not supported for direct execution." 
+                _ => Ok(new ExecuteAiActionResponse
+                {
+                    Success = false,
+                    Message = $"Action type '{request.Action.Type}' is not supported for direct execution."
                 })
             };
         }
@@ -153,7 +167,8 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         }
     }
 
-    private async Task<IActionResult> ExecuteCreateTask(AiActionDto action, string userId, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteCreateTask(AiActionDto action, string userId,
+        CancellationToken cancellationToken)
     {
         if (action.Payload is null)
             return Ok(new ExecuteAiActionResponse { Success = false, Message = "Task payload is missing." });
@@ -192,7 +207,8 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateTasks(AiActionDto action, string userId, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteCreateTasks(AiActionDto action, string userId,
+        CancellationToken cancellationToken)
     {
         if (action.Payload is null)
             return Ok(new ExecuteAiActionResponse { Success = false, Message = "Tasks payload is missing." });
@@ -225,13 +241,14 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         return Ok(new ExecuteAiActionResponse
         {
             Success = createdCount > 0,
-            Message = createdCount > 0 
-                ? $"Создано {createdCount} задач!" 
+            Message = createdCount > 0
+                ? $"Создано {createdCount} задач!"
                 : "Не удалось создать задачи."
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateReward(AiActionDto action, string userId, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteCreateReward(AiActionDto action, string userId,
+        CancellationToken cancellationToken)
     {
         if (action.Payload is null)
             return Ok(new ExecuteAiActionResponse { Success = false, Message = "Reward payload is missing." });
@@ -273,13 +290,15 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateRewards(AiActionDto action, string userId, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteCreateRewards(AiActionDto action, string userId,
+        CancellationToken cancellationToken)
     {
         if (action.Payload is null)
             return Ok(new ExecuteAiActionResponse { Success = false, Message = "Rewards payload is missing." });
 
         var payload = action.Payload.Value;
-        if (!payload.TryGetProperty("rewards", out var rewardsElement) || rewardsElement.ValueKind != JsonValueKind.Array)
+        if (!payload.TryGetProperty("rewards", out var rewardsElement) ||
+            rewardsElement.ValueKind != JsonValueKind.Array)
             return Ok(new ExecuteAiActionResponse { Success = false, Message = "Rewards array is required." });
 
         var createdCount = 0;
@@ -309,8 +328,8 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         return Ok(new ExecuteAiActionResponse
         {
             Success = createdCount > 0,
-            Message = createdCount > 0 
-                ? $"Создано {createdCount} наград!" 
+            Message = createdCount > 0
+                ? $"Создано {createdCount} наград!"
                 : "Не удалось создать награды."
         });
     }
@@ -332,8 +351,8 @@ public sealed class AiController(IAiServiceClient aiClient, ITaskServiceClient t
         return Ok(new ExecuteAiActionResponse
         {
             Success = response.IsSuccessStatusCode,
-            Message = response.IsSuccessStatusCode 
-                ? "Задача отмечена как выполненная!" 
+            Message = response.IsSuccessStatusCode
+                ? "Задача отмечена как выполненная!"
                 : "Не удалось завершить задачу."
         });
     }

@@ -1,4 +1,5 @@
 ﻿using Gateway.Common.ResultPattern;
+using Gateway.Exceptions;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -11,11 +12,12 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         var error = exception switch
         {
+            UnauthorizedException => DefaultErrors.Unauthorized(exception.Message),
             _ => DefaultErrors.InternalServerError(exception.Message)
         };
 
         httpContext.Response.StatusCode = error.ErrorCode;
         httpContext.Response.WriteAsJsonAsync(error.ToProblemDetails(), cancellationToken);
-        return new ValueTask<bool>(false);
+        return new ValueTask<bool>(true);
     }
 }

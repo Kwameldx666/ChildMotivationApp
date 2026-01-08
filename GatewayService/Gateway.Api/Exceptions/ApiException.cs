@@ -1,8 +1,8 @@
 namespace Gateway.Exceptions;
 
-public abstract class ApiExceptions : Exception
+public abstract class ApiException : Exception
 {
-    protected ApiExceptions(string message) : base(message)
+    protected ApiException(string message) : base(message)
     {
     }
 }

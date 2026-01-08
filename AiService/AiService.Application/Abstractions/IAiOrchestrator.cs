@@ -5,6 +5,9 @@ namespace AiService.Application.Abstractions;
 public interface IAiOrchestrator
 {
     Task<TaskSuggestionsResponse> GenerateTaskSuggestionsAsync(TaskSuggestionsRequest request,
+        CancellationToken cancellationToken);   
+    
+    Task<TaskDescriptionResponse> GenerateTaskDescriptionAsync(TaskDescriptionRequest request,
         CancellationToken cancellationToken);
 
     Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,

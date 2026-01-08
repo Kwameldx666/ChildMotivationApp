@@ -1,6 +1,3 @@
 ﻿namespace AiService.Application.Contracts;
 
-public class TaskDescriptionResponse
-{
-    
-}
+public record TaskDescriptionResponse(string Descriptions);

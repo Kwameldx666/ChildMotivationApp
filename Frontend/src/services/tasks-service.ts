@@ -27,6 +27,10 @@ export interface CreateTaskPayload {
   title: string
   description?: string
   confirmationType?: TaskEvidenceRequirement
+  difficulty?: number
+  reward?: number
+  dueDate?: string
+  assignedToUserId?: string  // ID ребёнка, которому назначена задача (необязательно)
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {

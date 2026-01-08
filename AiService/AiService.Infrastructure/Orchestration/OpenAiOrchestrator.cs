@@ -54,6 +54,18 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         return await _fallback.GenerateTaskSuggestionsAsync(request, cancellationToken);
     }
 
+    public async Task<TaskDescriptionResponse> GenerateTaskDescriptionAsync(TaskDescriptionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var payload =
+            await RequestPayloadAsync<TaskDescriptionPayload>(BuildDescriptionMessages(request), cancellationToken);
+
+        if (payload?.Description is null)
+            return await _fallback.GenerateTaskDescriptionAsync(request, cancellationToken);
+        
+        return new TaskDescriptionResponse(payload.Description);
+    }
+
     public async Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,
         CancellationToken cancellationToken)
     {
@@ -165,14 +177,14 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         payload.AppendLine($"Язык ответа: {request.Language ?? "ru-RU"}.");
         payload.AppendLine();
         payload.AppendLine(
-            "Верни строго JSON без комментариев в формате:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number 1-5, \"rewardXp\": number, \"rewardPoints\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}");
+            "Верни строго JSON без комментариев в формате:\n{\"descriptions\": [string]}");
 
-        return new[]
-        {
+        return
+        [
             OpenAiMessage.System(
-                "Ты семейный ассистент для российских родителей. Отвечай лаконично, только JSON, без маркдауна."),
+                "Ты семейный ассистент для родителей. Отвечай лаконично, только JSON, без маркдауна."),
             OpenAiMessage.User(payload.ToString())
-        };
+        ];
     }
 
     private static IReadOnlyList<OpenAiMessage> BuildRewardMessages(RewardSuggestionsRequest request)
@@ -195,41 +207,58 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         };
     }
 
+    private static IReadOnlyList<OpenAiMessage> BuildDescriptionMessages(TaskDescriptionRequest request)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine(
+            $"Опираясь на описание, которое написал пользователь {request.TaskDescription}.");
+        builder.AppendLine(
+            "Тебе нужно написать улучшенное описание в дружелюбном формате, что бы ребёнку было легко его читать");
+        builder.AppendLine(
+            "Верни JSON вида:\n{\"description\": string}");
+
+        return
+        [
+            OpenAiMessage.System("Ты придумываешь описание задачи для детей. Строго JSON, без поясняющего текста."),
+            OpenAiMessage.User(builder.ToString())
+        ];
+    }
+
     private static IReadOnlyList<OpenAiMessage> BuildChatMessages(AiChatRequest request)
     {
         const string systemPrompt = """
-            Ты семейный ментор-ассистент. Отвечай на русском, дружелюбно.
-            
-            ВАЖНО: Когда пользователь просит создать задачу, награду, отправить сообщение или выполнить действие — 
-            ты ДОЛЖЕН включить соответствующие actions в ответ. Не просто описывай что делать, а предоставь готовые данные для выполнения.
-            
-            Доступные типы действий (actions):
-            - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), rewardXp, rewardPoints, category, tags[]}
-            - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, rewardXp, rewardPoints, category, tags[]}]}
-            - CreateReward: создать награду. Payload: {title, description, cost, category, icon}
-            - CreateRewards: создать несколько наград. Payload: {rewards: [{title, description, cost, category, icon}]}
-            - CompleteTask: отметить задачу выполненной. Payload: {taskId}
-            - Navigate: перейти на страницу. Payload: {route, queryParams}
-            
-            Формат ответа (строго JSON):
-            {
-              "reply": "Текстовый ответ пользователю",
-              "followUps": ["Уточняющий вопрос 1", "Вопрос 2"],
-              "actions": [
-                {
-                  "type": "CreateTask",
-                  "label": "Создать задачу «Название»",
-                  "description": "Краткое описание действия",
-                  "variant": "primary",
-                  "priority": 1,
-                  "payload": { ... данные ... }
-                }
-              ]
-            }
-            
-            Если действия не нужны, верни пустой массив actions: [].
-            Отвечай ТОЛЬКО валидным JSON без markdown-блоков.
-            """;
+                                    Ты семейный ментор-ассистент. Отвечай на русском, дружелюбно.
+
+                                    ВАЖНО: Когда пользователь просит создать задачу, награду, отправить сообщение или выполнить действие — 
+                                    ты ДОЛЖЕН включить соответствующие actions в ответ. Не просто описывай что делать, а предоставь готовые данные для выполнения.
+
+                                    Доступные типы действий (actions):
+                                    - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), rewardXp, rewardPoints, category, tags[]}
+                                    - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, rewardXp, rewardPoints, category, tags[]}]}
+                                    - CreateReward: создать награду. Payload: {title, description, cost, category, icon}
+                                    - CreateRewards: создать несколько наград. Payload: {rewards: [{title, description, cost, category, icon}]}
+                                    - CompleteTask: отметить задачу выполненной. Payload: {taskId}
+                                    - Navigate: перейти на страницу. Payload: {route, queryParams}
+
+                                    Формат ответа (строго JSON):
+                                    {
+                                      "reply": "Текстовый ответ пользователю",
+                                      "followUps": ["Уточняющий вопрос 1", "Вопрос 2"],
+                                      "actions": [
+                                        {
+                                          "type": "CreateTask",
+                                          "label": "Создать задачу «Название»",
+                                          "description": "Краткое описание действия",
+                                          "variant": "primary",
+                                          "priority": 1,
+                                          "payload": { ... данные ... }
+                                        }
+                                      ]
+                                    }
+
+                                    Если действия не нужны, верни пустой массив actions: [].
+                                    Отвечай ТОЛЬКО валидным JSON без markdown-блоков.
+                                    """;
 
         var messages = new List<OpenAiMessage>
         {
@@ -348,6 +377,10 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         IReadOnlyCollection<RewardSuggestionPayload>? Suggestions,
         string? BudgetSummary);
 
+    private sealed record TaskDescriptionPayload(
+        string Description
+    );
+
     private sealed record RewardSuggestionPayload(
         string? Title,
         string? Description,
@@ -371,7 +404,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     }
 
     private sealed record ChatPayload(
-        string? Reply, 
+        string? Reply,
         IReadOnlyCollection<string>? FollowUps,
         IReadOnlyCollection<ActionPayload>? Actions);
 
@@ -407,12 +440,17 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                 {
                     payload = actionType switch
                     {
-                        AiActionType.CreateTask => action.Payload.Value.Deserialize<CreateTaskPayload>(SerializerOptions),
-                        AiActionType.CreateTasks => action.Payload.Value.Deserialize<CreateTasksPayload>(SerializerOptions),
-                        AiActionType.CreateReward => action.Payload.Value.Deserialize<CreateRewardPayload>(SerializerOptions),
-                        AiActionType.CreateRewards => action.Payload.Value.Deserialize<CreateRewardsPayload>(SerializerOptions),
+                        AiActionType.CreateTask => action.Payload.Value.Deserialize<CreateTaskPayload>(
+                            SerializerOptions),
+                        AiActionType.CreateTasks => action.Payload.Value.Deserialize<CreateTasksPayload>(
+                            SerializerOptions),
+                        AiActionType.CreateReward => action.Payload.Value.Deserialize<CreateRewardPayload>(
+                            SerializerOptions),
+                        AiActionType.CreateRewards => action.Payload.Value.Deserialize<CreateRewardsPayload>(
+                            SerializerOptions),
                         AiActionType.Navigate => action.Payload.Value.Deserialize<NavigatePayload>(SerializerOptions),
-                        AiActionType.SendFamilyMessage => action.Payload.Value.Deserialize<SendFamilyMessagePayload>(SerializerOptions),
+                        AiActionType.SendFamilyMessage => action.Payload.Value.Deserialize<SendFamilyMessagePayload>(
+                            SerializerOptions),
                         _ => action.Payload.Value.Deserialize<object>(SerializerOptions)
                     };
                 }
