@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useMemo, useState } from "react"
+import { FormEvent, useMemo, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -43,6 +43,15 @@ const QUICK_TEMPLATES = [
   },
 ]
 
+// Mapping: difficulty (1..5) -> reward points (очки). Parent can change difficulty only; points are derived.
+const DIFFICULTY_POINTS: Record<number, number> = {
+  1: 2,   // Очень легко
+  2: 5,   // Легко
+  3: 10,  // Средне
+  4: 20,  // Сложно
+  5: 50,  // Очень сложно
+}
+
 // Функция для генерации AI-описания задачи через API
 const generateAiDescription = async (userDescription: string): Promise<string> => {
   try {
@@ -64,19 +73,19 @@ export default function NewTaskPage() {
   const [dueDate, setDueDate] = useState("")
   const [requiresConfirmation, setRequiresConfirmation] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedChildId, setSelectedChildId] = useState<string | undefined>(undefined)
 
   // Получаем список детей в семье
   const { data: familyMembers = [] } = useFamilyMembers()
   const children = familyMembers.filter(member => member.role === 'child')
 
-  // ИИ-генерация
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [aiTaskDescription, setAiTaskDescription] = useState<string | null>(null)
+  // Выбор ребёнка (если детей больше одного — обязателен; если только один — выбираем автоматически)
+  const [selectedChild, setSelectedChild] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (children.length === 1) {
+      setSelectedChild(children[0].id)
+    }
+  }, [children])
 
-  // Диалоги: подтверждение замены и ошибка AI
-  const [showReplaceDialog, setShowReplaceDialog] = useState(false)
-  const [showAiErrorDialog, setShowAiErrorDialog] = useState(false)
 
   // Модальное окно подтверждения создания
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -84,57 +93,78 @@ export default function NewTaskPage() {
   const [editableDescription, setEditableDescription] = useState("")
   const [editableDifficulty, setEditableDifficulty] = useState(2)
   const [editableReward, setEditableReward] = useState(80)
+  const [editablePoints, setEditablePoints] = useState<number>(DIFFICULTY_POINTS[2])
 
-  const canSubmit = description.trim().length >= 5
+  // Keep reward XP and points in sync with difficulty
+  useEffect(() => {
+    setEditableReward(60 + 20 * editableDifficulty)
+    setEditablePoints(DIFFICULTY_POINTS[editableDifficulty] ?? 0)
+  }, [editableDifficulty])
 
-  const handleAiAssist = async () => {
-    if (!description.trim() || isGenerating) return
-    
-    try {
-      setIsGenerating(true)
-      const descriptionFromAi = await generateAiDescription(description.trim())
-      setAiTaskDescription(descriptionFromAi)
-      setShowReplaceDialog(true) // Показываем диалог замены
-    } catch (error) {
-      console.error("[new-task-page] AI generation failed", error)
-      toast({
-        title: "ИИ недоступен",
-        description: "Пожалуйста, попробуйте позже",
-        variant: "destructive",
-      })
-      setShowAiErrorDialog(true)
-    } finally {
-      setIsGenerating(false)
-    }
-  }
+  // Препятствие: если у родителя нет детей — нельзя создавать задачи
+  const canSubmit = description.trim().length >= 5 && children.length > 0 && (children.length <= 1 || Boolean(selectedChild))
 
   const handleTemplate = (template: (typeof QUICK_TEMPLATES)[number]) => {
     setDescription(template.description)
-    setAiTaskDescription(null)
   }
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (isSubmitting || !canSubmit) return
 
+    // Если детей больше одного — выбор обязателен
+    if (children.length > 1 && !selectedChild) {
+      toast({ title: "Выберите ребёнка", description: "Пожалуйста, выберите, кому назначить задачу", variant: "destructive" })
+      return
+    }
+
     try {
       setIsSubmitting(true)
-      // Генерируем AI-описание если ещё не было
-      let finalDescription = aiTaskDescription || description.trim()
-      if (!aiTaskDescription && description.trim()) {
-        finalDescription = await generateAiDescription(description.trim())
+
+      // Попробуем сначала получить предложения задач (task-suggestions). Если есть — используем первую подсказку.
+      const childInfo = children.find(c => c.id === selectedChild) ?? children[0]
+      try {
+        const suggestionsResp = await aiService.getTaskSuggestions({
+          childId: childInfo?.id,
+          childAge: (childInfo as any)?.age ?? undefined,
+          tone: 'дружелюбный',
+          language: 'ru',
+          taskDescription: description.trim() || undefined
+        })
+
+        const first = suggestionsResp?.suggestions?.[0]
+        if (first) {
+          const difficulty = Math.min(Math.max(first.difficulty ?? 2, 1), 5)
+          const title = first.title && first.title.length > 50 ? first.title.substring(0, 50) + "..." : (first.title ?? (description.trim().length > 50 ? description.trim().substring(0, 50) + "..." : description.trim()))
+
+          setEditableTitle(title)
+          setEditableDescription(first.description ?? description.trim())
+          setEditableDifficulty(difficulty)
+          setEditableReward(60 + 20 * difficulty)
+          setEditablePoints(DIFFICULTY_POINTS[difficulty])
+
+          setShowConfirmDialog(true)
+          return
+        }
+      } catch (err) {
+        // Fall back to description generation if suggestions fail
+        console.warn('[new-task-page] Task suggestions failed, falling back to description', err)
       }
-      
-      // Подготавливаем данные для редактирования
+
+      // Fallback: генерируем описание через task-description
+      const finalDescription = await generateAiDescription(description.trim())
+
+      // Подготавливаем данные для редактирования (fallback)
       const title = description.trim().length > 50 
         ? description.trim().substring(0, 50) + "..."
         : description.trim()
-      
+
       setEditableTitle(title)
       setEditableDescription(finalDescription)
       setEditableDifficulty(2)
-      setEditableReward(80)
-      
+      setEditableReward(60 + 20 * 2)
+      setEditablePoints(DIFFICULTY_POINTS[2])
+
       // Показываем модальное окно для подтверждения
       setShowConfirmDialog(true)
     } catch (error) {
@@ -156,9 +186,10 @@ export default function NewTaskPage() {
         description: editableDescription,
         confirmationType: requiresConfirmation ? "photo" : "none",
         difficulty: editableDifficulty,
-        reward: editableReward,
+        reward: editableReward, // XP
+        rewardPoints: editablePoints, // Очки (не редактируемые)
         dueDate: dueDate || undefined,
-        assignedToUserId: selectedChildId && selectedChildId !== 'all' ? selectedChildId : undefined,
+        assignedToUserId: selectedChild || undefined,
       })
       toast({ title: "Задача создана", description: "Она появится в вашем списке" })
       setShowConfirmDialog(false)
@@ -175,16 +206,6 @@ export default function NewTaskPage() {
   }
 
   // Принять или отклонить описание от ИИ
-  const handleAcceptAiDescription = () => {
-    if (aiTaskDescription) setDescription(aiTaskDescription)
-    setAiTaskDescription(null)
-    setShowReplaceDialog(false)
-  }
-
-  const handleDeclineAiDescription = () => {
-    setShowReplaceDialog(false)
-    setAiTaskDescription(null)
-  }
 
   return (
     <AppRoute requiredRoles={["parent"]} redirectTo={routeRecord[AppRouteId.Welcome].path}>
@@ -217,30 +238,12 @@ export default function NewTaskPage() {
                   <div className="space-y-2">
                     <Textarea
                       value={description}
-                      onChange={(event) => {
-                        setDescription(event.target.value)
-                        setAiTaskDescription(null) // Сбрасываем при изменении
-                      }}
+                      onChange={(event) => setDescription(event.target.value)}
                       placeholder="Например: Убрать игрушки и застелить кровать"
                       rows={4}
                       className="resize-none text-sm"
                     />
                     <div className="flex items-center justify-between">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={handleAiAssist}
-                        disabled={!description.trim() || isGenerating}
-                      >
-                        {isGenerating ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Wand2 className="h-4 w-4" />
-                        )}
-                        {isGenerating ? "ИИ обрабатывает..." : "Улучшить описание"}
-                      </Button>
                       <span className={cn(
                         "text-[11px]",
                         description.trim().length >= 5 ? "text-emerald-600" : "text-muted-foreground"
@@ -259,12 +262,11 @@ export default function NewTaskPage() {
                           <Users className="h-3.5 w-3.5" />
                           Назначить ребёнку (необязательно)
                         </Label>
-                        <Select value={selectedChildId} onValueChange={setSelectedChildId}>
-                          <SelectTrigger className="text-sm">
-                            <SelectValue placeholder="Доступно всем детям" />
+                        <Select value={selectedChild ?? ''} onValueChange={(v) => setSelectedChild(v || undefined)}>
+                          <SelectTrigger className="text-sm" disabled={children.length === 1}>
+                            <SelectValue placeholder={children.length === 1 ? `${children[0].name}` : "Выберите ребёнка"} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">Доступно всем детям</SelectItem>
                             {children.map((child) => (
                               <SelectItem key={child.id} value={child.id}>
                                 {child.name} {child.lastName || ''} 
@@ -273,9 +275,21 @@ export default function NewTaskPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <p className="text-xs text-muted-foreground">
-                          Если не выбрать, задача будет доступна всем детям в семье
-                        </p>
+                        {children.length > 1 ? (
+                          <p className="text-xs text-destructive">Обязательно выберите, кому назначить задачу</p>
+                        ) : children.length === 1 ? (
+                          <p className="text-xs text-muted-foreground">Единственный ребёнок — задача будет назначена автоматически</p>
+                        ) : (
+                          <p className="text-xs text-destructive">У вас ещё нет добавленных детей — создать задачу нельзя</p>
+                        )}
+
+                        {/* Явное отображение выбранного ребёнка, чтобы было видно */}
+                        {selectedChild && (
+                          <p className="text-xs text-muted-foreground mt-2">Выбрано: {(() => {
+                            const child = children.find(c => c.id === selectedChild)
+                            return child ? `${child.name} ${child.lastName || ''}` : 'Неизвестно'
+                          })()}</p>
+                        )}
                       </div>
                     )}
 
@@ -352,14 +366,19 @@ export default function NewTaskPage() {
                 <Button variant="ghost" type="button" onClick={() => router.back()}>
                   Отмена
                 </Button>
-                <Button type="submit" className="gap-2" disabled={!canSubmit || isSubmitting}>
-                  {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Plus className="h-4 w-4" />
+                <div className="flex items-center gap-3">
+                  {description.trim().length < 5 && (
+                    <p className="text-sm text-destructive mr-2">Описание должно быть не короче 5 символов</p>
                   )}
-                  {isSubmitting ? "Обрабатываем..." : "Продолжить"}
-                </Button>
+                  <Button type="submit" className="gap-2" disabled={!canSubmit || isSubmitting}>
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Plus className="h-4 w-4" />
+                    )}
+                    {isSubmitting ? "Обрабатываем..." : "Продолжить"}
+                  </Button>
+                </div>
               </div>
           </form>
 
@@ -424,21 +443,27 @@ export default function NewTaskPage() {
                   </Select>
                 </div>
 
-                {/* Награда */}
+                {/* Награда (XP + Очки). Очки нельзя редактировать, они вычисляются по сложности */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-reward">Награда (XP)</Label>
-                  <Input
-                    id="edit-reward"
-                    type="number"
-                    min="10"
-                    max="500"
-                    step="10"
-                    value={editableReward}
-                    onChange={(e) => setEditableReward(parseInt(e.target.value) || 80)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Рекомендуем: {60 + editableDifficulty * 20} XP для сложности {editableDifficulty}
-                  </p>
+                  <Label>Награда</Label>
+                  <div className="grid grid-cols-2 gap-3 items-center">
+                    <div>
+                      <Label className="text-xs">XP</Label>
+                      <Input
+                        id="edit-reward"
+                        type="number"
+                        value={editableReward}
+                        readOnly
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Формула: 60 + 20 × сложность</p>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Очки</Label>
+                      <Input id="edit-points" type="number" value={editablePoints} readOnly />
+                      <p className="text-xs text-muted-foreground mt-1">Очки зависят только от выбранной сложности</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Срок выполнения */}
@@ -456,7 +481,7 @@ export default function NewTaskPage() {
                 )}
 
                 {/* Назначено ребёнку */}
-                {selectedChildId && selectedChildId !== 'all' && (
+                {selectedChild && (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5" />
@@ -464,7 +489,7 @@ export default function NewTaskPage() {
                     </p>
                     <p className="text-sm font-medium">
                       {(() => {
-                        const child = children.find(c => c.id === selectedChildId)
+                        const child = children.find(c => c.id === selectedChild)
                         return child ? `${child.name} ${child.lastName || ''}` : 'Неизвестно'
                       })()}
                     </p>
@@ -494,65 +519,40 @@ export default function NewTaskPage() {
                 >
                   Отмена
                 </Button>
-                <Button
-                  onClick={handleConfirmCreate}
-                  disabled={isSubmitting || !editableTitle.trim() || !editableDescription.trim()}
-                  className="gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Создаём...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4" />
-                      Создать задачу
-                    </>
-                  )}
-                </Button>
+                <div className="flex items-center gap-3">
+                  {children.length === 0 ? (
+                    <p className="text-sm text-muted-foreground mr-2">У вас ещё нет детей — пригласите их по инвайт-коду</p>
+                  ) : children.length > 1 && !selectedChild ? (
+                    <p className="text-sm text-destructive mr-2">Выберите ребёнка прежде чем создать задачу</p>
+                  ) : null}
+                  <Button
+                    onClick={handleConfirmCreate}
+                    disabled={
+                      isSubmitting ||
+                      !editableTitle.trim() ||
+                      !editableDescription.trim() ||
+                      (children.length > 1 && !selectedChild)
+                    }
+                    className="gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Создаём...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Создать задачу
+                      </>
+                    )}
+                  </Button>
+                </div>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
-          {/* Диалог — ИИ: улучшенное описание задачи */}
-          <Dialog open={showReplaceDialog} onOpenChange={setShowReplaceDialog}>
-            <DialogContent className="max-w-xl">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  ИИ предлагает улучшенное описание
-                </DialogTitle>
-                <DialogDescription>
-                  ИИ подготовил улучшенное описание для ребёнка. Просмотрите текст и решите, заменить ли текущее описание.
-                </DialogDescription>
-              </DialogHeader>
 
-              <Card className="mt-4 border-border/60">
-                <CardContent className="text-sm leading-relaxed max-h-56 overflow-y-auto whitespace-pre-wrap">
-                  {aiTaskDescription ?? "(Пусто)"}
-                </CardContent>
-              </Card>
-
-              <div className="mt-4 flex justify-end gap-2">
-                <Button variant="outline" onClick={handleDeclineAiDescription}>Оставить как есть</Button>
-                <Button onClick={handleAcceptAiDescription}>Заменить</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* Диалог — ошибка AI */}
-          <Dialog open={showAiErrorDialog} onOpenChange={setShowAiErrorDialog}>
-            <DialogContent className="max-w-sm">
-              <DialogHeader>
-                <DialogTitle>ИИ недоступен</DialogTitle>
-                <DialogDescription>Пожалуйста, попробуйте позже или используйте своё описание.</DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button onClick={() => setShowAiErrorDialog(false)}>ОК</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </AppRoute>

@@ -54,18 +54,6 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         return await _fallback.GenerateTaskSuggestionsAsync(request, cancellationToken);
     }
 
-    public async Task<TaskDescriptionResponse> GenerateTaskDescriptionAsync(TaskDescriptionRequest request,
-        CancellationToken cancellationToken)
-    {
-        var payload =
-            await RequestPayloadAsync<TaskDescriptionPayload>(BuildDescriptionMessages(request), cancellationToken);
-
-        if (payload?.Description is null)
-            return await _fallback.GenerateTaskDescriptionAsync(request, cancellationToken);
-        
-        return new TaskDescriptionResponse(payload.Description);
-    }
-
     public async Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,
         CancellationToken cancellationToken)
     {
@@ -169,15 +157,27 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         var limit = request.ResolveLimit();
         var payload = new StringBuilder();
         payload.AppendLine($"Сформируй до {limit} новых заданий для ребёнка.");
+        payload.AppendLine($"Количество предложений: {limit}.");
         payload.AppendLine($"Возраст: {request.ChildAge?.ToString() ?? "не указан"} лет.");
-        payload.AppendLine($"Ключевые цели: {FormatList(request.Goals)}.");
-        payload.AppendLine($"Интересы: {FormatList(request.Interests)}.");
-        payload.AppendLine($"Недавние задания: {FormatList(request.RecentTasks)}.");
         payload.AppendLine($"Предпочтительный тон: {request.Tone ?? "дружелюбный"}.");
         payload.AppendLine($"Язык ответа: {request.Language ?? "ru-RU"}.");
+
+        if (!string.IsNullOrWhiteSpace(request.TaskDescription))
+        {
+            payload.AppendLine();
+            payload.AppendLine("Описание задачи (основной контекст для генерации):");
+            payload.AppendLine(request.TaskDescription!.Trim());
+            payload.AppendLine();
+            if (limit == 1)
+                payload.AppendLine("Если указано описание задачи — верни ровно 1 задачу, строго основанную на нём.");
+            else
+                payload.AppendLine($"Если указано описание задачи — верни ровно {limit} задач, строго основанных на нём.");
+        }
+
         payload.AppendLine();
         payload.AppendLine(
-            "Верни строго JSON без комментариев в формате:\n{\"descriptions\": [string]}");
+            "Верни JSON вида:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}"
+        );
 
         return
         [
@@ -206,24 +206,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
             OpenAiMessage.User(builder.ToString())
         };
     }
-
-    private static IReadOnlyList<OpenAiMessage> BuildDescriptionMessages(TaskDescriptionRequest request)
-    {
-        var builder = new StringBuilder();
-        builder.AppendLine(
-            $"Опираясь на описание, которое написал пользователь {request.TaskDescription}.");
-        builder.AppendLine(
-            "Тебе нужно написать улучшенное описание в дружелюбном формате, что бы ребёнку было легко его читать");
-        builder.AppendLine(
-            "Верни JSON вида:\n{\"description\": string}");
-
-        return
-        [
-            OpenAiMessage.System("Ты придумываешь описание задачи для детей. Строго JSON, без поясняющего текста."),
-            OpenAiMessage.User(builder.ToString())
-        ];
-    }
-
+    
     private static IReadOnlyList<OpenAiMessage> BuildChatMessages(AiChatRequest request)
     {
         const string systemPrompt = """
@@ -233,13 +216,12 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                                     ты ДОЛЖЕН включить соответствующие actions в ответ. Не просто описывай что делать, а предоставь готовые данные для выполнения.
 
                                     Доступные типы действий (actions):
-                                    - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), rewardXp, rewardPoints, category, tags[]}
-                                    - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, rewardXp, rewardPoints, category, tags[]}]}
+                                    - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), category, tags[]}
+                                    - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, category, tags[]}]}
                                     - CreateReward: создать награду. Payload: {title, description, cost, category, icon}
                                     - CreateRewards: создать несколько наград. Payload: {rewards: [{title, description, cost, category, icon}]}
                                     - CompleteTask: отметить задачу выполненной. Payload: {taskId}
                                     - Navigate: перейти на страницу. Payload: {route, queryParams}
-
                                     Формат ответа (строго JSON):
                                     {
                                       "reply": "Текстовый ответ пользователю",
@@ -347,8 +329,6 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         string? Title,
         string? Description,
         int? Difficulty,
-        int? RewardXp,
-        int? RewardPoints,
         IReadOnlyCollection<string>? Tags,
         string? Category,
         string? ImpactSummary)
@@ -365,8 +345,6 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                 Title.Trim(),
                 Description.Trim(),
                 Math.Clamp(Difficulty ?? 2, 1, 5),
-                Math.Clamp(RewardXp ?? 80, 10, 300),
-                Math.Clamp(RewardPoints ?? 20, 5, 400),
                 tags,
                 string.IsNullOrWhiteSpace(Category) ? "general" : Category.Trim(),
                 string.IsNullOrWhiteSpace(ImpactSummary) ? "Уточните вместе с ребёнком выгоду." : ImpactSummary.Trim());

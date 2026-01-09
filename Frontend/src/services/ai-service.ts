@@ -103,6 +103,29 @@ export interface ExecuteActionResponse {
 }
 
 // Task Suggestions types
+export interface TaskSuggestion {
+  title: string
+  description: string
+  difficulty: number
+  tags: string[]
+  category: string
+  impactSummary?: string
+}
+
+export interface TaskSuggestionsResponse {
+  suggestions: TaskSuggestion[]
+  strategySummary: string
+  tips: string[]
+}
+
+export interface TaskSuggestionsRequest {
+  childId?: string
+  childAge?: number
+  tone?: string
+  language?: string
+  taskDescription?: string
+  suggestionCount?: number
+}
 
 // Task Description types
 export interface AiTaskDescriptionRequest {
@@ -170,5 +193,11 @@ export const aiService = {
     if (!result) throw new Error('AI response did not contain a description')
 
     return result
+  },
+
+  async getTaskSuggestions(payload: TaskSuggestionsRequest): Promise<TaskSuggestionsResponse> {
+    // Call the Gateway endpoint for task suggestions
+    const response = await httpClient.post<TaskSuggestionsResponse>('/api-gateway/ai/task-suggestions', payload)
+    return response
   },
 }
