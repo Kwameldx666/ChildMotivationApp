@@ -30,6 +30,16 @@ export const computeTaskDifficulty = (task: TaskDto) => {
 
 export const computeTaskXp = (task: TaskDto) => 60 + computeTaskDifficulty(task) * 25
 
+export const DIFFICULTY_POINTS: Record<number, number> = {
+  1: 2,
+  2: 5,
+  3: 10,
+  4: 20,
+  5: 50,
+}
+
+export const computeTaskPoints = (task: TaskDto) => DIFFICULTY_POINTS[computeTaskDifficulty(task)] ?? 0
+
 export const calculateTaskStreak = (tasks: TaskDto[], now: Date = new Date()) => {
   if (!tasks.length) return 0
 

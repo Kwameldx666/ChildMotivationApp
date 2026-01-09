@@ -21,6 +21,7 @@ export interface TaskDto {
   completedAt?: string | null
   createdByUserId: string
   evidence: TaskEvidenceDto
+  assignedToUserId?: string // ID ребёнка, которому назначена задача (опционально)
 }
 
 export interface CreateTaskPayload {
@@ -29,6 +30,7 @@ export interface CreateTaskPayload {
   confirmationType?: TaskEvidenceRequirement
   difficulty?: number
   reward?: number
+  rewardPoints?: number
   dueDate?: string
   assignedToUserId?: string  // ID ребёнка, которому назначена задача (необязательно)
 }

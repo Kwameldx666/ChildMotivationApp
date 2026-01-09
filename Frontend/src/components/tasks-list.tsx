@@ -30,7 +30,7 @@ import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { AppRouteId, routeRecord } from "@/routes/config"
 import TaskSubmissionModal from "./task-submission-modal"
 import { useToast } from "@/hooks/use-toast"
-import { computeTaskDifficulty, computeTaskXp } from "@/lib/task-metrics"
+import { computeTaskDifficulty, computeTaskXp, computeTaskPoints } from "@/lib/task-metrics"
 
 interface TasksListProps {
 	userType: "parent" | "child"
@@ -42,6 +42,7 @@ type DecoratedTask = TaskDto & {
 	status: TaskStatus
 	difficulty: number
 	xpReward: number
+	pointsReward: number
 	accent: (typeof CARD_ACCENTS)[number]
 	createdLabel: string
 	dueLabel: string
@@ -55,8 +56,6 @@ const CARD_ACCENTS = [
 		highlight: "text-rose-700",
 	},
 	{
-		gradient: "from-sky-50 via-white to-indigo-50",
-		ring: "ring-sky-200/70",
 		gradient: "from-emerald-50 via-white to-teal-50",
 		ring: "ring-emerald-200/70",
 		highlight: "text-emerald-700",
@@ -195,6 +194,7 @@ export default function TasksList({ userType }: TasksListProps) {
 			const status = mapStatus(task)
 			const difficulty = computeTaskDifficulty(task)
 			const xpReward = computeTaskXp(task)
+			const pointsReward = computeTaskPoints(task)
 			const accent = CARD_ACCENTS[index % CARD_ACCENTS.length]
 			const dueDate = addDays(task.createdAt, difficulty + 2)
 
@@ -203,6 +203,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				status,
 				difficulty,
 				xpReward,
+				pointsReward,
 				accent,
 				createdLabel: formatDate(task.createdAt),
 				dueLabel: formatDate(dueDate),
@@ -348,6 +349,9 @@ export default function TasksList({ userType }: TasksListProps) {
 		)
 	}
 
+
+	const pendingRequirement = pendingEvidenceTask ? resolveEvidenceRequirement(pendingEvidenceTask.evidence?.requirement) : null
+
 	return (
 		<>
 			<div className="space-y-8">
@@ -463,8 +467,8 @@ export default function TasksList({ userType }: TasksListProps) {
 								<div className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card/95 shadow-xl">
 									<div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", task.accent.gradient)} />
 									<div className="absolute inset-0 bg-white/20" />
-									<div className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background text-sm font-semibold text-muted-foreground">
-										#{index + 1}
+											<div className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background text-sm font-semibold text-muted-foreground">
+										{userType === "child" && `#${index + 1}`}
 									</div>
 									<div className="relative z-10 flex flex-col gap-6 p-6 md:p-8">
 										<div className="flex flex-wrap items-start justify-between gap-6">
@@ -475,9 +479,9 @@ export default function TasksList({ userType }: TasksListProps) {
 														{statusMeta.label}
 													</Badge>
 													<span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-														{task.difficulty}/5 сложность
+														{renderDifficulty(task.difficulty)}
 													</span>
-													<span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{task.createdLabel}</span>
+					
 												</div>
 												<h3 className="text-2xl font-semibold leading-tight text-foreground">{task.title}</h3>
 												<p className="text-sm text-muted-foreground">
@@ -486,7 +490,7 @@ export default function TasksList({ userType }: TasksListProps) {
 											</div>
 											<div className="rounded-3xl border border-border/60 bg-background/80 px-5 py-4 text-right">
 												<p className="text-[11px] uppercase text-muted-foreground">Награда</p>
-												<p className="text-3xl font-semibold text-primary">{task.xpReward} XP</p>
+												<p className="mt-1 text-2xl font-semibold text-primary">{task.xpReward} XP <span className="text-sm text-muted-foreground ml-2">• {task.pointsReward} pts</span></p>
 												<div className="mt-3 text-xs text-muted-foreground">
 													<p>Ожидаем до {task.dueLabel}</p>
 													<div className="flex items-center justify-end gap-2">
@@ -606,10 +610,8 @@ export default function TasksList({ userType }: TasksListProps) {
 					})}
 				</div>
 			</div>
-
-			{(() => {
-				const pendingRequirement = pendingEvidenceTask ? resolveEvidenceRequirement(pendingEvidenceTask.evidence?.requirement) : null
-				return (
+		const pendingRequirement = pendingEvidenceTask ? resolveEvidenceRequirement(pendingEvidenceTask.evidence?.requirement) : null
+			{pendingEvidenceTask && (
 					<TaskSubmissionModal
 						open={Boolean(pendingEvidenceTask)}
 						onClose={() => setPendingEvidenceTask(null)}
@@ -619,8 +621,7 @@ export default function TasksList({ userType }: TasksListProps) {
 						isSubmitting={submitEvidence.isPending}
 						onSubmit={handleEvidenceSubmit}
 					/>
-				)
-			})()}
+			)}
 		</>
 	)
 }

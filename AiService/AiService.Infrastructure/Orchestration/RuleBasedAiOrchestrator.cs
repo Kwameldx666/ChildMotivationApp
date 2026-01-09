@@ -10,26 +10,26 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
     private static readonly TaskTemplate[] TaskTemplates =
     [
         new("Организуй рабочее место", "Разложи книги и тетради, протри стол, подготовь материалы на завтра.", "focus",
-            ["учёба", "чистота"], 2, 80, 15, "Формирует привычку готовиться заранее."),
+            ["учёба", "чистота"], 2, "Формирует привычку готовиться заранее."),
         new("Творческая пауза", "Создай мини-комикс о приключении семьи за 20 минут.", "creativity",
-            ["рисование", "творчество"], 3, 110, 25, "Развивает воображение и речь."),
+            ["рисование", "творчество"], 3, "Развивает воображение и речь."),
         new("Научный эксперимент", "Проведи маленький эксперимент: измерь, как быстро тает лёд в разных местах.",
-            "science", ["наука", "эксперимент"], 3, 130, 30, "Поддерживает интерес к исследованиям."),
+            "science", ["наука", "эксперимент"], 3, "Поддерживает интерес к исследованиям."),
         new("Спортивный вызов", "Сделай 3 подхода упражнений на выбор: планка, приседания или прыжки.", "health",
-            ["спорт", "здоровье"], 2, 90, 18, "Помогает выплеснуть энергию."),
+            ["спорт", "здоровье"], 2, "Помогает выплеснуть энергию."),
         new("Миссия заботы", "Покорми питомца, обнови воду и добавь заметку о настроении.", "responsibility",
-            ["дом", "уход"], 1, 60, 12, "Учит наблюдать и заботиться."),
+            ["дом", "уход"], 1, "Учит наблюдать и заботиться."),
         new("Математический блиц", "Реши 6 примеров на устный счёт или повтори таблицу умножения.", "learning",
-            ["математика", "учёба"], 2, 95, 20, "Поддерживает уверенность в счёте."),
+            ["математика", "учёба"], 2, "Поддерживает уверенность в счёте."),
         new("Семейный репортёр", "Возьми интервью у родственника: " +
                                  "задай 3 вопроса о его дне и запиши ответы.", "communication", ["общение", "семья"], 2,
-            85, 16, "Прокачивает эмпатию и слушание."),
+            "Прокачивает эмпатию и слушание."),
         new("Квест по дому", "Найди 5 предметов, которые лежат не на своих местах, и убери их.", "home",
-            ["дом", "организация"], 1, 70, 14, "Быстрый способ вернуть порядок."),
+            ["дом", "организация"], 1, "Быстрый способ вернуть порядок."),
         new("Мини-проект", "Составь список целей на неделю и укрась его наклейками.", "planning",
-            ["планирование", "организация"], 3, 120, 28, "Создаёт ощущение контроля."),
+            ["планирование", "организация"], 3, "Создаёт ощущение контроля."),
         new("Дневник успеха", "Запиши 3 достижения за день и придумай награду за них.", "reflection",
-            ["осознанность", "мотивация"], 1, 60, 10, "Формирует позитивный взгляд.")
+            ["осознанность", "мотивация"], 1, "Формирует позитивный взгляд.")
     ];
 
     private static readonly RewardTemplate[] RewardTemplates =
@@ -57,12 +57,28 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         cancellationToken.ThrowIfCancellationRequested();
         if (request is null) throw new ArgumentNullException(nameof(request));
 
+        // If a specific description is provided, generate a single focused suggestion based on it.
+        if (!string.IsNullOrWhiteSpace(request.TaskDescription))
+        {
+            var desc = request.TaskDescription!.Trim();
+            var title = desc.Length > 50 ? desc.Substring(0, 50) + "..." : desc;
+            var suggestion = new TaskSuggestion(
+                title,
+                desc,
+                2, // default difficulty when not inferred
+                Array.Empty<string>(),
+                "general",
+                "Уточните вместе с ребёнком выгоду.");
+
+            return Task.FromResult(new TaskSuggestionsResponse(new[] { suggestion }, "Сформирована задача на основе предоставленного описания.", BuildTips(request)));
+        }
+
         var limit = request.ResolveLimit();
         var ordered = TaskTemplates
             .Select(template => new
             {
                 Template = template,
-                Score = ScoreTemplate(template.Tags, request.Interests, request.Goals, request.RecentTasks)
+                Score = ScoreTemplate(template.Tags)
             })
             .OrderByDescending(x => x.Score)
             .ThenBy(_ => RandomNumberGenerator.GetInt32(0, 100))
@@ -75,12 +91,6 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         var summary = BuildTaskStrategySummary(request, ordered.Count);
         var tips = BuildTips(request);
         return Task.FromResult(new TaskSuggestionsResponse(ordered, summary, tips));
-    }
-
-    //TODO Implement this service
-    public Task<TaskDescriptionResponse> GenerateTaskDescriptionAsync(TaskDescriptionRequest request, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<RewardSuggestionsResponse> GenerateRewardSuggestionsAsync(RewardSuggestionsRequest request,
@@ -208,12 +218,7 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         if (request.ChildAge is >= 6 and <= 10)
             tips.Add("Используйте визуальные трекеры прогресса — они хорошо работают для младших детей.");
 
-        if (request.Interests.Count > 0)
-            tips.Add("Связывайте задания с интересами ребёнка, чтобы не терялась внутренняя мотивация.");
-
-        if (request.RecentTasks.Count > 0)
-            tips.Add("Перед выдачей новой задачи отметьте, что уже получилось — это усиливает уверенность.");
-
+        // General tip if no age-specific tip applies
         if (tips.Count == 0)
             tips.Add("Уточните настроение ребёнка перед началом — это помогает подобрать верный тон общения.");
 
@@ -222,7 +227,7 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
 
     private static string BuildTaskStrategySummary(TaskSuggestionsRequest request, int count)
     {
-        var focus = request.Goals.FirstOrDefault() ?? request.Interests.FirstOrDefault() ?? "баланс развития";
+        var focus = "баланс развития";
         return $"Сформирован набор из {count} заданий, ориентированных на {focus}. Меняйте сложность каждые 2-3 дня.";
     }
 
@@ -306,6 +311,13 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         return baseCards.Take(limit);
     }
 
+    // Overload used for task suggestions path (no interests/goals/recent tasks)
+    private static double ScoreTemplate(IReadOnlyCollection<string> templateTags)
+    {
+        // Simple rule: base score plus small random jitter so results vary
+        return 1.0 + RandomNumberGenerator.GetInt32(0, 100) / 100.0;
+    }
+
     private static double ScoreTemplate(
         IReadOnlyCollection<string> templateTags,
         IReadOnlyCollection<string> primary,
@@ -336,8 +348,6 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         string Category,
         IReadOnlyCollection<string> Tags,
         int Difficulty,
-        int RewardXp,
-        int RewardPoints,
         string ImpactSummary)
     {
         public TaskSuggestion ToSuggestion(TaskSuggestionsRequest request)
@@ -350,8 +360,6 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
                 Title,
                 personalizedDescription,
                 Difficulty,
-                RewardXp,
-                RewardPoints,
                 Tags,
                 Category,
                 ImpactSummary);

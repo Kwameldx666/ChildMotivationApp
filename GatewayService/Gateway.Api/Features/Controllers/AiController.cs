@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
-using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Contracts.Ai;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -16,38 +15,13 @@ public sealed class AiController(
     ITaskServiceClient taskClient,
     IShopServiceClient shopClient) : ControllerBase
 {
-    [HttpPost("task-description")]
-    public async Task<IActionResult> GetTaskDescription([FromBody] AiTaskDescriptionRequest? payload,
-        CancellationToken cancellationToken)
-    {
-        if (payload is null) return BadRequest("Request body cannot be null.");
-        
-        using var response = await aiClient.GetTaskDescriptionAsync(payload, cancellationToken);
-        return await response.ToActionResultAsync();
-    }
-
     [HttpPost("task-suggestions")]
     public async Task<IActionResult> GetTaskSuggestions([FromBody] AiTaskSuggestionsRequest? payload,
         CancellationToken cancellationToken)
     {
         if (payload is null) return BadRequest("Request body cannot be null.");
 
-        var userId = User.GetUserId();
-
-        var upstreamPayload = new
-        {
-            requestedByUserId = userId,
-            childId = string.IsNullOrWhiteSpace(payload.ChildId) ? userId : payload.ChildId,
-            childAge = payload.ChildAge,
-            interests = payload.Interests,
-            goals = payload.Goals,
-            recentTasks = payload.RecentTasks,
-            maxSuggestions = payload.MaxSuggestions,
-            tone = payload.Tone,
-            language = payload.Language
-        };
-
-        using var response = await aiClient.GetTaskSuggestionsAsync(upstreamPayload, cancellationToken);
+        using var response = await aiClient.GetTaskSuggestionsAsync(payload, cancellationToken);
         return await response.ToActionResultAsync();
     }
 

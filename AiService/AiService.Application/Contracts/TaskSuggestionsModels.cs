@@ -4,25 +4,28 @@ public sealed class TaskSuggestionsRequest
 {
     public string? ChildId { get; init; }
     public int? ChildAge { get; init; }
-    public IReadOnlyCollection<string> Interests { get; init; } = Array.Empty<string>();
-    public IReadOnlyCollection<string> Goals { get; init; } = Array.Empty<string>();
-    public IReadOnlyCollection<string> RecentTasks { get; init; } = Array.Empty<string>();
-    public int? MaxSuggestions { get; init; }
     public string? Tone { get; init; }
     public string? Language { get; init; }
+    public string? TaskDescription { get; init; }
+    public int? SuggestionCount { get; init; }
 
     public int ResolveLimit()
     {
-        return Math.Clamp(MaxSuggestions ?? 5, 1, 10);
+        // Honor explicit suggestion count if provided (clamp to reasonable range)
+        if (SuggestionCount.HasValue) return Math.Clamp(SuggestionCount.Value, 1, 10);
+
+        // If caller provided a concrete description, return a single focused suggestion.
+        if (!string.IsNullOrWhiteSpace(TaskDescription)) return 1;
+
+        // Fixed default limit for task suggestions
+        return 5;
     }
-}
+} 
 
 public sealed record TaskSuggestion(
     string Title,
     string Description,
     int Difficulty,
-    int RewardXp,
-    int RewardPoints,
     IReadOnlyCollection<string> Tags,
     string Category,
     string ImpactSummary);

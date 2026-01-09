@@ -12,7 +12,8 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import type { CreateTaskPayload } from "@/services/tasks-service"
-import { CalendarDays, Check, Loader2, Plus, Sparkles, Star, Wand2 } from "lucide-react"
+import { CalendarDays, Check, Plus, Sparkles, Star, Wand2, Users } from "lucide-react"
+import { useFamilyMembers } from "@/services/family-queries"
 
 interface TaskCreationModalProps {
   open: boolean
@@ -46,6 +47,15 @@ const QUICK_TEMPLATES: Array<{
     emoji: "🏃",
   },
 ]
+
+// Difficulty -> points mapping
+const DIFFICULTY_POINTS: Record<number, number> = {
+  1: 2,
+  2: 5,
+  3: 10,
+  4: 20,
+  5: 50,
+}
 
 // Временная функция для генерации ИИ (потом будет через бэкенд)
 const generateAiSuggestion = async (description: string): Promise<{
@@ -101,14 +111,21 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   
-  // ИИ-генерация
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [aiSuggestion, setAiSuggestion] = useState<{
-    title: string
-    fullDescription: string
-    difficulty: number
-    reward: number
-  } | null>(null)
+
+  // Родители могут назначать задачу ребёнку; если детей больше одного — выбор обязателен;
+  const { data: familyMembers = [] } = useFamilyMembers()
+  const children = familyMembers.filter(member => member.role === 'child')
+  const [selectedChildId, setSelectedChildId] = useState<string | undefined>(undefined)
+  useEffect(() => {
+    if (children.length === 1) setSelectedChildId(children[0].id)
+  }, [children])
+
+
+  // Selected difficulty and derived values (parent can change difficulty only)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<number>(2)
+  const [selectedReward, setSelectedReward] = useState<number>(60 + 20 * 2)
+  const [selectedPoints, setSelectedPoints] = useState<number>(DIFFICULTY_POINTS[2])
+
 
   const resetForm = useCallback(() => {
     setDescription("")
@@ -116,8 +133,6 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
     setRequiresConfirmation(true)
     setSubmitError(null)
     setIsSubmitting(false)
-    setAiSuggestion(null)
-    setIsGenerating(false)
   }, [])
 
   useEffect(() => {
@@ -126,44 +141,19 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
     }
   }, [open, resetForm])
 
-  const handleAiAssist = async () => {
-    if (!description.trim() || isGenerating) return
-    
-    try {
-      setIsGenerating(true)
-      const suggestion = await generateAiSuggestion(description.trim())
-      setAiSuggestion(suggestion)
-    } catch (error) {
-      console.error("[task-creation-modal] AI generation failed", error)
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
   const handleTemplate = (template: (typeof QUICK_TEMPLATES)[number]) => {
     setDescription(template.description)
-    setAiSuggestion(null)
   }
 
   const summary = useMemo(() => {
-    if (aiSuggestion) {
-      return {
-        title: aiSuggestion.title,
-        description: aiSuggestion.fullDescription || description.trim() || "Опишите задачу",
-        difficulty: aiSuggestion.difficulty,
-        reward: aiSuggestion.reward,
-      }
-    }
-    
-    // Значения по умолчанию до генерации ИИ
-    const defaultDifficulty = 2
+    const d = selectedDifficulty
     return {
       title: description.trim() ? (description.length > 30 ? description.substring(0, 30) + "..." : description) : "Новая задача",
       description: description.trim() || "Опишите задачу, и ИИ поможет её оформить",
-      difficulty: defaultDifficulty,
-      reward: 60 + 20 * defaultDifficulty, // 100 XP по умолчанию
+      difficulty: d,
+      reward: 60 + 20 * d,
     }
-  }, [description, aiSuggestion])
+  }, [description, selectedDifficulty])
 
   const handleSubmit = async () => {
     const trimmedDescription = description.trim()
@@ -176,19 +166,24 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       setIsSubmitting(true)
       setSubmitError(null)
       
-      // Если ИИ не сгенерировал — генерируем перед отправкой
-      let finalSuggestion = aiSuggestion
-      if (!finalSuggestion) {
-        finalSuggestion = await generateAiSuggestion(trimmedDescription)
+      // Генерируем описание задачи автоматически перед отправкой
+      const finalSuggestion = await generateAiSuggestion(trimmedDescription)
+
+      // Если детей больше одного — выбор обязателен
+      if (children.length > 1 && !selectedChildId) {
+        setSubmitError("Выберите, кому назначить задачу")
+        return
       }
       
       await _onSubmit({
         title: finalSuggestion.title,
         description: trimmedDescription,
         confirmationType: requiresConfirmation ? "photo" : "none",
-        difficulty: finalSuggestion.difficulty,
-        reward: finalSuggestion.reward,
+        difficulty: selectedDifficulty,
+        reward: 60 + 20 * selectedDifficulty, // XP derived from difficulty
+        rewardPoints: selectedPoints, // Points derived from difficulty (read-only)
         dueDate: dueDate || undefined,
+        assignedToUserId: selectedChildId || undefined,
       })
       resetForm()
       onClose()
@@ -225,34 +220,16 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 <div className="space-y-2">
                   <Textarea
                     value={description}
-                    onChange={(event) => {
-                      setDescription(event.target.value)
-                      setAiSuggestion(null) // Сбрасываем при изменении
-                    }}
+                    onChange={(event) => setDescription(event.target.value)}
                     placeholder="Например: Убрать игрушки и застелить кровать"
                     rows={4}
                     className="resize-none text-sm"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={handleAiAssist}
-                    disabled={!description.trim() || isGenerating}
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Wand2 className="h-4 w-4" />
-                    )}
-                    {isGenerating ? "ИИ думает..." : "Помощь ИИ"}
-                  </Button>
                 </div>
               </section>
 
               {/* Опциональные настройки */}
-              <section className="grid gap-3 md:grid-cols-2">
+              <section className="grid gap-3 md:grid-cols-3">
                 {/* Срок */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">Срок (необязательно)</Label>
@@ -279,6 +256,31 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                       onCheckedChange={setRequiresConfirmation}
                     />
                   </div>
+                </div>
+
+                {/* Назначение ребёнку */}
+                <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
+                  <Label className="text-xs text-muted-foreground">Назначить ребёнку</Label>
+                  {children.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">У вас ещё нет добавленных детей — пригласите их по инвайт-коду</p>
+                  ) : (
+                    <select
+                      value={selectedChildId ?? ''}
+                      onChange={(e) => setSelectedChildId(e.target.value || undefined)}
+                      disabled={children.length === 1}
+                      className="w-full border border-input rounded-md px-3 py-2 text-sm"
+                    >
+                      <option value="">Выберите ребёнка</option>
+                      {children.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name} {c.lastName || ''}{c.age ? ` (${c.age} лет)` : ''}</option>
+                      ))}
+                    </select>
+                  )}
+                  {children.length > 1 ? (
+                    <p className="text-xs text-destructive">Обязательно выберите, кому назначить задачу</p>
+                  ) : children.length === 1 ? (
+                    <p className="text-xs text-muted-foreground">Задача будет назначена: {children[0].name}</p>
+                  ) : null}
                 </div>
               </section>
 
@@ -332,25 +334,39 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                       <Star
                         key={level}
                         className={cn(
-                          "h-4 w-4",
-                          level <= summary.difficulty 
+                          "h-4 w-4 cursor-pointer",
+                          level <= selectedDifficulty 
                             ? "text-amber-400 fill-amber-400" 
                             : "text-muted-foreground/20"
                         )}
+                        onClick={() => setSelectedDifficulty(level)}
                       />
                     ))}
                   </div>
                 </div>
+                <div className="mt-2">
+                  <select
+                    value={selectedDifficulty}
+                    onChange={(e) => setSelectedDifficulty(parseInt(e.target.value))}
+                    className="w-full border border-input rounded-md px-3 py-2 text-sm"
+                  >
+                    <option value={1}>⭐ Очень легко</option>
+                    <option value={2}>⭐⭐ Легко</option>
+                    <option value={3}>⭐⭐⭐ Средне</option>
+                    <option value={4}>⭐⭐⭐⭐ Сложно</option>
+                    <option value={5}>⭐⭐⭐⭐⭐ Очень сложно</option>
+                  </select>
+                </div>
               </div>
 
-              {/* Награда */}
+              {/* Награда: показываем XP и очки (очки нельзя редактировать) */}
               <div className="mt-3 rounded-lg bg-primary/5 px-3 py-2 text-sm">
                 <p className="flex items-center gap-2 font-medium text-primary">
-                  <Sparkles className="h-4 w-4" /> Награда: {summary.reward} XP
+                  <Sparkles className="h-4 w-4" /> Награда: {selectedReward} XP
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  Формула: 60 + 20 × сложность
-                </p>
+                <p className="text-[11px] text-muted-foreground mt-1">Формула: 60 + 20 × сложность</p>
+                <p className="text-[13px] mt-2">Очки: <span className="font-semibold">{selectedPoints}</span></p>
+                <p className="text-[11px] text-muted-foreground mt-1">Очки зависят только от выбранной сложности и не редактируются отдельно</p>
               </div>
 
               {/* Подтверждение */}
@@ -358,18 +374,19 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 <Check className={cn("h-4 w-4", requiresConfirmation ? "text-green-500" : "text-muted-foreground/40")} />
                 <span>{requiresConfirmation ? "Требуется подтверждение" : "Без подтверждения"}</span>
               </div>
+
+              {selectedChildId && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span>Назначено: {(() => {
+                    const child = children.find(c => c.id === selectedChildId)
+                    return child ? `${child.name} ${child.lastName || ''}` : 'Неизвестно'
+                  })()}</span>
+                </div>
+              )}
             </div>
 
-            {aiSuggestion && (
-              <div className="rounded-2xl border border-green-200 bg-green-50 p-3 text-sm">
-                <p className="flex items-center gap-2 font-medium text-green-700">
-                  <Sparkles className="h-4 w-4" /> ИИ подготовил задачу
-                </p>
-                <p className="text-[12px] text-green-600 mt-1">
-                  Название, сложность и XP определены автоматически
-                </p>
-              </div>
-            )}
+
           </div>
         </div>
 
