@@ -452,6 +452,19 @@ namespace TaskService.Persistence.TaskService.TaskService.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<int>("Difficulty")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(2);
+
+                    b.Property<int>("RewardXp")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RewardPoints")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(5);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(256)
