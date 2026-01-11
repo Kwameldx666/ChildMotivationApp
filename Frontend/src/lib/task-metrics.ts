@@ -28,7 +28,7 @@ export const computeTaskDifficulty = (task: TaskDto) => {
   return Math.min(5, Math.max(1, base + 1))
 }
 
-export const computeTaskXp = (task: TaskDto) => 60 + computeTaskDifficulty(task) * 25
+export const computeTaskXp = (task: TaskDto) => 60 + computeTaskDifficulty(task) * 20
 
 export const DIFFICULTY_POINTS: Record<number, number> = {
   1: 2,

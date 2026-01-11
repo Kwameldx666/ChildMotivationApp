@@ -35,6 +35,11 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
             b.Property(x => x.EvidenceFileSize);
             b.Property(x => x.EvidenceUploadedAt);
             b.Property(x => x.EvidenceUploadedBy).HasMaxLength(64);
+
+            // New: Difficulty and computed rewards
+            b.Property(x => x.Difficulty).IsRequired().HasDefaultValue(2);
+            b.Property(x => x.RewardXp).IsRequired().HasDefaultValue(60 + 20 * 2);
+            b.Property(x => x.RewardPoints).IsRequired().HasDefaultValue(5);
         });
 
         modelBuilder.Entity<Mission>(b =>

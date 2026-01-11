@@ -12,6 +12,9 @@ public class UpdateTaskRequest
 
     public bool? Completed { get; init; }
 
+    [Range(1,5)]
+    public int? Difficulty { get; init; }
+
     [StringLength(16)]
     public string? ConfirmationType { get; init; }
 }

@@ -34,6 +34,11 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
             task.UpdateEvidenceRequirement(request.EvidenceRequirement.Value);
         }
 
+        if (request.Difficulty.HasValue)
+        {
+            task.UpdateDifficulty(request.Difficulty.Value);
+        }
+
         if (request.Completed.HasValue)
         {
             task.SetCompletion(request.Completed.Value, _dateTimeProvider.UtcNow);

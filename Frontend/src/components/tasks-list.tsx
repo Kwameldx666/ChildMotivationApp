@@ -610,18 +610,7 @@ export default function TasksList({ userType }: TasksListProps) {
 					})}
 				</div>
 			</div>
-		const pendingRequirement = pendingEvidenceTask ? resolveEvidenceRequirement(pendingEvidenceTask.evidence?.requirement) : null
-			{pendingEvidenceTask && (
-					<TaskSubmissionModal
-						open={Boolean(pendingEvidenceTask)}
-						onClose={() => setPendingEvidenceTask(null)}
-						taskTitle={coalesce(pendingEvidenceTask?.title, "")}
-						confirmationType={pendingRequirement ?? "photo"}
-						requirements={pendingRequirement ? EVIDENCE_META[pendingRequirement].hint : undefined}
-						isSubmitting={submitEvidence.isPending}
-						onSubmit={handleEvidenceSubmit}
-					/>
-			)}
+
 		</>
 	)
 }

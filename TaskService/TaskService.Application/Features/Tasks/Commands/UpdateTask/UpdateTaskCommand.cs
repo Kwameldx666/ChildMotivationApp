@@ -9,4 +9,5 @@ public record UpdateTaskCommand(
 	string? Title,
 	string? Description,
 	bool? Completed,
-	TaskEvidenceRequirement? EvidenceRequirement) : IRequest<TaskDto>;
+	TaskEvidenceRequirement? EvidenceRequirement,
+	int? Difficulty) : IRequest<TaskDto>; 

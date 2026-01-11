@@ -41,7 +41,9 @@ public class TasksController(IMediator mediator) : ControllerBase
             request.Title,
             request.Description,
             request.CreatedByUserId,
-            ResolveEvidenceRequirement(request.ConfirmationType));
+            ResolveEvidenceRequirement(request.ConfirmationType),
+            request.Difficulty);
+
         var created = await mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
@@ -56,7 +58,8 @@ public class TasksController(IMediator mediator) : ControllerBase
             request.Title,
             request.Description,
             request.Completed,
-            request.ConfirmationType is null ? null : ResolveEvidenceRequirement(request.ConfirmationType));
+            request.ConfirmationType is null ? null : ResolveEvidenceRequirement(request.ConfirmationType),
+            request.Difficulty);
         var updated = await mediator.Send(command, cancellationToken);
         return Ok(updated);
     }

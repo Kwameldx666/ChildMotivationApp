@@ -92,12 +92,11 @@ export default function NewTaskPage() {
   const [editableTitle, setEditableTitle] = useState("")
   const [editableDescription, setEditableDescription] = useState("")
   const [editableDifficulty, setEditableDifficulty] = useState(2)
-  const [editableReward, setEditableReward] = useState(80)
   const [editablePoints, setEditablePoints] = useState<number>(DIFFICULTY_POINTS[2])
+  const computedReward = 60 + 20 * editableDifficulty
 
   // Keep reward XP and points in sync with difficulty
   useEffect(() => {
-    setEditableReward(60 + 20 * editableDifficulty)
     setEditablePoints(DIFFICULTY_POINTS[editableDifficulty] ?? 0)
   }, [editableDifficulty])
 
@@ -140,7 +139,6 @@ export default function NewTaskPage() {
           setEditableTitle(title)
           setEditableDescription(first.description ?? description.trim())
           setEditableDifficulty(difficulty)
-          setEditableReward(60 + 20 * difficulty)
           setEditablePoints(DIFFICULTY_POINTS[difficulty])
 
           setShowConfirmDialog(true)
@@ -162,7 +160,6 @@ export default function NewTaskPage() {
       setEditableTitle(title)
       setEditableDescription(finalDescription)
       setEditableDifficulty(2)
-      setEditableReward(60 + 20 * 2)
       setEditablePoints(DIFFICULTY_POINTS[2])
 
       // Показываем модальное окно для подтверждения
@@ -186,8 +183,6 @@ export default function NewTaskPage() {
         description: editableDescription,
         confirmationType: requiresConfirmation ? "photo" : "none",
         difficulty: editableDifficulty,
-        reward: editableReward, // XP
-        rewardPoints: editablePoints, // Очки (не редактируемые)
         dueDate: dueDate || undefined,
         assignedToUserId: selectedChild || undefined,
       })
@@ -391,7 +386,7 @@ export default function NewTaskPage() {
                   Проверьте задачу перед созданием
                 </DialogTitle>
                 <DialogDescription>
-                  ИИ обработал ваше описание. Вы можете изменить любые параметры перед созданием задачи.
+                  ИИ обработал ваше описание. Измените название, описание или сложность — XP и очки вычисляются автоматически.
                 </DialogDescription>
               </DialogHeader>
 
@@ -449,12 +444,7 @@ export default function NewTaskPage() {
                   <div className="grid grid-cols-2 gap-3 items-center">
                     <div>
                       <Label className="text-xs">XP</Label>
-                      <Input
-                        id="edit-reward"
-                        type="number"
-                        value={editableReward}
-                        readOnly
-                      />
+                      <div className="rounded-md border border-border/30 px-3 py-2 text-sm">{computedReward} XP</div>
                       <p className="text-xs text-muted-foreground mt-1">Формула: 60 + 20 × сложность</p>
                     </div>
 

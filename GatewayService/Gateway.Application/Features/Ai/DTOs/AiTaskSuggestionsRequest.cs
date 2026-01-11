@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.Contracts.Ai;
+namespace Gateway.Application.Features.Ai.DTOs;
 
 public sealed class AiTaskSuggestionsRequest
 {

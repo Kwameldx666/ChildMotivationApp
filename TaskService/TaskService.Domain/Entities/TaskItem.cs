@@ -14,7 +14,10 @@ public class TaskItem
         string? description,
         string createdByUserId,
         DateTime createdAt,
-        TaskEvidenceRequirement evidenceRequirement)
+        TaskEvidenceRequirement evidenceRequirement,
+        int difficulty,
+        int rewardXp,
+        int rewardPoints)
     {
         Id = id;
         Title = title;
@@ -22,6 +25,9 @@ public class TaskItem
         CreatedByUserId = createdByUserId;
         CreatedAt = createdAt;
         EvidenceRequirement = evidenceRequirement;
+        Difficulty = difficulty;
+        RewardXp = rewardXp;
+        RewardPoints = rewardPoints;
     }
 
     public Guid Id { get; private set; }
@@ -39,6 +45,20 @@ public class TaskItem
     public DateTime? EvidenceUploadedAt { get; private set; }
     public string? EvidenceUploadedBy { get; private set; }
 
+    // Difficulty (1..5) and computed rewards (server-side)
+    public int Difficulty { get; private set; } = 2;
+    public int RewardXp { get; private set; } = 60 + 20 * 2;
+    public int RewardPoints { get; private set; } = 5;
+
+    private static readonly Dictionary<int, int> DIFFICULTY_POINTS = new()
+    {
+        { 1, 2 },
+        { 2, 5 },
+        { 3, 10 },
+        { 4, 20 },
+        { 5, 50 },
+    };
+
     public bool RequiresEvidence => EvidenceRequirement != TaskEvidenceRequirement.None;
     public bool EvidenceSubmitted => !string.IsNullOrWhiteSpace(EvidenceStoragePath);
 
@@ -47,12 +67,19 @@ public class TaskItem
         string? description,
         string createdByUserId,
         DateTime createdAt,
-        TaskEvidenceRequirement evidenceRequirement)
+        TaskEvidenceRequirement evidenceRequirement,
+        int? difficulty = null)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title is required", nameof(title));
         if (string.IsNullOrWhiteSpace(createdByUserId))
             throw new ArgumentException("CreatedByUserId is required", nameof(createdByUserId));
+
+        var d = difficulty ?? 2;
+        if (d < 1 || d > 5) throw new ArgumentOutOfRangeException(nameof(difficulty));
+
+        var rewardXp = 60 + 20 * d;
+        var rewardPoints = DIFFICULTY_POINTS.ContainsKey(d) ? DIFFICULTY_POINTS[d] : 0;
 
         return new TaskItem(
             Guid.NewGuid(),
@@ -60,7 +87,18 @@ public class TaskItem
             description?.Trim(),
             createdByUserId.Trim(),
             createdAt,
-            evidenceRequirement);
+            evidenceRequirement,
+            d,
+            rewardXp,
+            rewardPoints);
+    }
+
+    public void UpdateDifficulty(int difficulty)
+    {
+        if (difficulty < 1 || difficulty > 5) throw new ArgumentOutOfRangeException(nameof(difficulty));
+        Difficulty = difficulty;
+        RewardXp = 60 + 20 * difficulty;
+        RewardPoints = DIFFICULTY_POINTS.ContainsKey(difficulty) ? DIFFICULTY_POINTS[difficulty] : 0;
     }
 
     public void UpdateDetails(string? title, string? description)

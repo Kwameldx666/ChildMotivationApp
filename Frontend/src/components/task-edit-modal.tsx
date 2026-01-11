@@ -6,10 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react"
 
-type TaskReward = {
-  xp: number
-  points: number
-}
+import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 
 type EditableTask = {
   id: string
@@ -17,7 +14,7 @@ type EditableTask = {
   description: string
   difficulty: number
   category: string
-  reward: TaskReward
+  confirmationType?: TaskEvidenceRequirement
 }
 
 const EMPTY_TASK: EditableTask = {
@@ -26,7 +23,7 @@ const EMPTY_TASK: EditableTask = {
   description: "",
   difficulty: 1,
   category: "home",
-  reward: { xp: 0, points: 0 },
+  confirmationType: "none",
 }
 
 interface TaskEditModalProps {
@@ -107,35 +104,36 @@ export default function TaskEditModal({ open, onOpenChange, task, onSave }: Task
             </div>
           </div>
 
+          {/* Read-only computed rewards + confirmation toggle */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Опыт (XP)</label>
-              <Input
-                type="number"
-                value={formData.reward?.xp || 0}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    reward: { ...formData.reward, xp: Number(e.target.value) },
-                  })
-                }
-                placeholder="50"
-              />
+              <label className="text-sm font-medium">Награда</label>
+              <div className="rounded-md border px-3 py-2 text-sm">
+                {60 + formData.difficulty * 20} XP • {({
+                  1: 2,
+                  2: 5,
+                  3: 10,
+                  4: 20,
+                  5: 50,
+                } as Record<number, number>)[formData.difficulty] ?? 0} pts
+              </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium">Очки</label>
-              <Input
-                type="number"
-                value={formData.reward?.points || 0}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    reward: { ...formData.reward, points: Number(e.target.value) },
-                  })
-                }
-                placeholder="10"
-              />
+              <label className="text-sm font-medium">Требуется подтверждение</label>
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  id="requiresConfirmation"
+                  type="checkbox"
+                  checked={formData.confirmationType === "photo"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmationType: e.target.checked ? "photo" : "none" })
+                  }
+                />
+                <label htmlFor="requiresConfirmation" className="text-sm">
+                  {formData.confirmationType === "photo" ? "Фото/видео" : "Без подтверждения"}
+                </label>
+              </div>
             </div>
           </div>
         </div>

@@ -180,8 +180,6 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
         description: trimmedDescription,
         confirmationType: requiresConfirmation ? "photo" : "none",
         difficulty: selectedDifficulty,
-        reward: 60 + 20 * selectedDifficulty, // XP derived from difficulty
-        rewardPoints: selectedPoints, // Points derived from difficulty (read-only)
         dueDate: dueDate || undefined,
         assignedToUserId: selectedChildId || undefined,
       })

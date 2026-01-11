@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Contracts.Ai;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -55,11 +56,10 @@ public sealed class AiController(
         if (payload is null) return BadRequest("Request body cannot be null.");
 
         var userId = User.GetUserId();
-        if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         if (string.IsNullOrWhiteSpace(payload.Message)) return BadRequest("Message is required.");
 
-        var history = (payload.History)
+        var history = payload.History
             .Select(entry => new
             {
                 role = string.IsNullOrWhiteSpace(entry.Role) ? "user" : entry.Role,
