@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User, Sparkles } from "lucide-react"
+import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User, Sparkles, MessageCircle } from "lucide-react"
 import TasksList from "@/components/tasks-list"
 import RewardsShop from "@/components/rewards-shop"
 import AnalyticsDashboard from "@/components/analytics-dashboard"
@@ -15,6 +15,8 @@ import TaskTemplates from "@/components/task-templates"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
 import TaskCreationModal from "@/components/task-creation-modal"
+import FamilyChat from "@/components/family-chat"
+import ParentChatSelector from "@/components/parent-chat-selector"
 import { useCreateTask } from "@/services/tasks-queries"
 import { useCreateProduct } from "@/services/shop-queries"
 import type { CreateTaskPayload } from "@/services/tasks-service"
@@ -31,6 +33,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AppRouteId, routeRecord } from "@/routes/config"
 
 interface ParentDashboardProps {
+  userId?: string
   userProfile: {
     name: string
     avatar: string
@@ -43,6 +46,7 @@ interface ParentDashboardProps {
 }
 
 export default function ParentDashboard({
+  userId,
   userProfile,
   familyCode,
   familyName,
@@ -197,7 +201,7 @@ export default function ParentDashboard({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6 h-auto p-1 bg-muted">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">Задачи</span>
@@ -213,6 +217,10 @@ export default function ParentDashboard({
             <TabsTrigger value="children" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">Дети</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline text-xs">Чат</span>
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
@@ -295,6 +303,21 @@ export default function ParentDashboard({
               <p className="text-sm text-muted-foreground mb-4">Управляйте параметрами семьи и приложения</p>
             </div>
             <ParentSettings familyName={familyName} familyCode={safeFamilyCode} />
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-4">
+            {safeFamilyCode && safeFamilyCode !== "—" && userId ? (
+              <ParentChatSelector
+                familyId={safeFamilyCode}
+                currentUserId={userId}
+                currentUserName={userProfile.name}
+                currentUserAvatar={userProfile.avatar}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Создайте семью для использования чата</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </main>

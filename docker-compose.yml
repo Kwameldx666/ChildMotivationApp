@@ -178,6 +178,24 @@ services:
       retries: 5
       start_period: 10s
 
+  notification-service:
+    build:
+      context: .
+      dockerfile: NotificationService/NotificationService.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Cors__AllowedOrigins__0: http://localhost:4000
+      Cors__AllowedOrigins__1: http://localhost:3000
+      Cors__AllowedOrigins__2: http://frontend:3000
+    ports:
+      - "8090:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/notification-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
   gateway-service:
     build:
       context: .
@@ -192,6 +210,8 @@ services:
       shop-service:
         condition: service_started
       ai-service:
+        condition: service_started
+      notification-service:
         condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -211,6 +231,9 @@ services:
       Services__Ai__BaseUrl: http://ai-service:8080
       Services__Ai__TimeoutSeconds: 30
       Services__Ai__MaxRetries: 3
+      Services__Notification__BaseUrl: http://notification-service:8080
+      Services__Notification__TimeoutSeconds: 30
+      Services__Notification__MaxRetries: 3
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
@@ -223,11 +246,14 @@ services:
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8081
         INTERNAL_API_URL: http://gateway-service:8081
+        NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
     depends_on:
       - gateway-service
+      - notification-service
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8081
       INTERNAL_API_URL: http://gateway-service:8081
+      NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
     ports:
       - "4000:3000"
 

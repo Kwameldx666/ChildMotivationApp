@@ -107,6 +107,7 @@ public static class InfrastructureExtensions
         services.AddScoped<ITaskServiceClient, TaskServiceClient>();
         services.AddScoped<IShopServiceClient, ShopServiceClient>();
         services.AddScoped<IAiServiceClient, AiServiceClient>();
+        services.AddScoped<IFamilyChatClient, FamilyChatClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

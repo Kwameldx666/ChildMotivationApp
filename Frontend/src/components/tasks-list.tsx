@@ -1,14 +1,17 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
+import type { KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 import type { LucideIcon } from "lucide-react"
 import {
 	AlertCircle,
 	CheckCircle2,
+	ChevronDown,
 	Circle,
 	Clock,
 	Eye,
+	Pencil,
 	Plus,
 	Sparkles,
 	Star,
@@ -29,6 +32,7 @@ import {
 import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { AppRouteId, routeRecord } from "@/routes/config"
 import TaskSubmissionModal from "./task-submission-modal"
+import TaskEditModal, { type EditableTask } from "./task-edit-modal"
 import { useToast } from "@/hooks/use-toast"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints } from "@/lib/task-metrics"
 
@@ -139,12 +143,6 @@ function mapStatus(task: TaskDto): TaskStatus {
 	return "pending"
 }
 
-function computeDifficulty(task: TaskDto): number {
-	const titleLength = coalesce(task.title?.length, 6)
-	const base = titleLength % 5
-	return Math.min(5, Math.max(1, base + 1))
-}
-
 function formatDate(value?: string | Date): string {
 	if (!value) return "—"
 	const date = typeof value === "string" ? new Date(value) : value
@@ -178,6 +176,8 @@ export default function TasksList({ userType }: TasksListProps) {
 	const downloadEvidence = useDownloadTaskEvidence()
 	const { toast } = useToast()
 	const [pendingEvidenceTask, setPendingEvidenceTask] = useState<DecoratedTask | null>(null)
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+	const [editableTask, setEditableTask] = useState<EditableTask | null>(null)
 
 	const openTaskCreation = () => {
 		if (typeof window !== "undefined") {
@@ -185,6 +185,44 @@ export default function TasksList({ userType }: TasksListProps) {
 			return
 		}
 		router.push(routeRecord[AppRouteId.TaskCreate].path)
+	}
+
+	const openEditModal = (task: DecoratedTask) => {
+		setEditableTask({
+			id: task.id,
+			title: task.title,
+			description: task.description ?? "",
+			difficulty: task.difficulty,
+			category: "home",
+			confirmationType: resolveEvidenceRequirement(task.evidence?.requirement),
+		})
+		setIsEditModalOpen(true)
+	}
+
+	const handleTaskEditSave = async (updatedTask: EditableTask) => {
+		try {
+			await updateTask.mutateAsync({
+				id: updatedTask.id,
+				payload: {
+					title: updatedTask.title,
+					description: updatedTask.description,
+					difficulty: updatedTask.difficulty,
+					confirmationType: updatedTask.confirmationType,
+				},
+			})
+			toast({
+				title: "Задача обновлена",
+				description: "Изменения успешно сохранены.",
+			})
+			setIsEditModalOpen(false)
+			setEditableTask(null)
+		} catch (err) {
+			toast({
+				title: "Ошибка обновления",
+				description: err instanceof Error ? err.message : "Попробуйте ещё раз",
+				variant: "destructive",
+			})
+		}
 	}
 
 	const tasks = coalesce(data, [] as TaskDto[])
@@ -349,7 +387,6 @@ export default function TasksList({ userType }: TasksListProps) {
 		)
 	}
 
-
 	const pendingRequirement = pendingEvidenceTask ? resolveEvidenceRequirement(pendingEvidenceTask.evidence?.requirement) : null
 
 	return (
@@ -445,174 +482,410 @@ export default function TasksList({ userType }: TasksListProps) {
 					</p>
 				</div>
 
-				<div className="space-y-5">
-					{filteredTasks.map((task, index) => {
-						const statusMeta = STATUS_META[task.status]
-						const StatusIcon = statusMeta.icon
-						const evidence = coalesce(task.evidence, { requirement: "none", isSubmitted: false } as TaskDto["evidence"])
-						const evidenceRequirement = resolveEvidenceRequirement(evidence.requirement)
-						const evidenceMeta = EVIDENCE_META[evidenceRequirement]
-						const requiresEvidence = evidenceRequirement !== "none"
-						const evidenceReady = Boolean(evidence.isSubmitted)
-						const evidenceStatusText = requiresEvidence
-							? evidenceReady
-								? `Файл получен${evidence.uploadedAt ? ` · ${formatDate(evidence.uploadedAt)}` : ""}`
-								: "Ждём файл от ребёнка"
-							: "Можно завершить сразу"
-						const canParentConfirm = !requiresEvidence || evidenceReady
-						const canChildComplete = canParentConfirm
-
-						return (
-							<Card key={task.id} className="relative overflow-hidden border-none bg-transparent shadow-none">
-								<div className="relative overflow-hidden rounded-[30px] border border-border/70 bg-card/95 shadow-xl">
-									<div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", task.accent.gradient)} />
-									<div className="absolute inset-0 bg-white/20" />
-											<div className="absolute left-6 top-6 flex h-10 w-10 items-center justify-center rounded-2xl border border-border/70 bg-background text-sm font-semibold text-muted-foreground">
-										{userType === "child" && `#${index + 1}`}
-									</div>
-									<div className="relative z-10 flex flex-col gap-6 p-6 md:p-8">
-										<div className="flex flex-wrap items-start justify-between gap-6">
-											<div className="max-w-2xl space-y-3">
-												<div className="flex flex-wrap items-center gap-3">
-													<Badge className={cn("flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]", statusMeta.badge)}>
-														<StatusIcon className="h-3.5 w-3.5" />
-														{statusMeta.label}
-													</Badge>
-													<span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-														{renderDifficulty(task.difficulty)}
-													</span>
-					
-												</div>
-												<h3 className="text-2xl font-semibold leading-tight text-foreground">{task.title}</h3>
-												<p className="text-sm text-muted-foreground">
-													{task.description?.trim() || "Добавьте подробности, чтобы ребёнку было проще понять шаги."}
-												</p>
-											</div>
-											<div className="rounded-3xl border border-border/60 bg-background/80 px-5 py-4 text-right">
-												<p className="text-[11px] uppercase text-muted-foreground">Награда</p>
-												<p className="mt-1 text-2xl font-semibold text-primary">{task.xpReward} XP <span className="text-sm text-muted-foreground ml-2">• {task.pointsReward} pts</span></p>
-												<div className="mt-3 text-xs text-muted-foreground">
-													<p>Ожидаем до {task.dueLabel}</p>
-													<div className="flex items-center justify-end gap-2">
-														<span>Сложность</span>
-														{renderDifficulty(task.difficulty)}
-													</div>
-												</div>
-											</div>
-										</div>
-
-										<div className="rounded-3xl border border-dashed border-border/60 bg-background/70 p-5">
-											<div className="grid gap-3 sm:grid-cols-3">
-												<div className="rounded-2xl border border-border/60 bg-card/80 px-3 py-3">
-													<p className="text-[11px] uppercase text-muted-foreground">Создана</p>
-													<p className="mt-1 text-sm font-semibold text-foreground">{task.createdLabel}</p>
-												</div>
-												<div className="rounded-2xl border border-border/60 bg-card/80 px-3 py-3">
-													<p className="text-[11px] uppercase text-muted-foreground">План</p>
-													<p className="mt-1 text-sm font-semibold text-foreground">{task.dueLabel}</p>
-												</div>
-												<div className="rounded-2xl border border-primary/40 bg-primary/5 px-3 py-3">
-													<p className="text-[11px] uppercase text-primary">Контроль</p>
-													<p className="mt-1 text-sm font-semibold text-primary">{evidenceMeta.label}</p>
-													<p className="text-xs text-primary/80">{evidenceStatusText}</p>
-												</div>
-											</div>
-
-											<div className="mt-4">
-												<div className="flex items-center justify-between text-xs text-muted-foreground">
-													<span>Прогресс</span>
-													<span className="font-semibold text-foreground">{Math.round(task.progressValue)}%</span>
-												</div>
-												<Progress value={task.progressValue} className="mt-2 h-2" />
-											</div>
-
-											<div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-												<div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-													{JOURNEY_STEPS.map((step, stepIndex) => (
-														<div key={`${task.id}-${step}`} className="flex items-center gap-2">
-															<span
-																className={cn(
-																	"inline-flex h-6 w-6 items-center justify-center rounded-full border text-[10px]",
-																	stepIndex <= statusMeta.journeyIndex ? "border-slate-900 bg-slate-900 text-white" : "border-border/70 text-muted-foreground",
-																)}
-															>
-																{stepIndex + 1}
-															</span>
-															<span className="hidden sm:inline">{step}</span>
-															{stepIndex < JOURNEY_STEPS.length - 1 && <span className="hidden sm:inline h-px w-6 bg-border/60" />}
-														</div>
-													))}
-												</div>
-												<div className="flex flex-wrap justify-end gap-2">
-													{requiresEvidence && !task.completed && (
-														<Badge variant="outline" className="rounded-full border-dashed px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-primary">
-															Требуется подтверждение
-														</Badge>
-													)}
-
-													{userType === "parent" && !task.completed && (
-														<>
-															{requiresEvidence && evidenceReady && (
-																<Button variant="outline" size="sm" className="gap-2" onClick={() => handleViewEvidence(task)} disabled={downloadEvidence.isPending}>
-																	<Eye className="h-4 w-4" />
-																	Посмотреть файл
-																</Button>
-															)}
-															<Button variant="outline" size="sm" onClick={() => handleReject(task)} disabled={updateTask.isPending}>
-																Отклонить
-															</Button>
-															<Button
-																size="sm"
-																className="gap-2"
-																onClick={() => handleConfirm(task.id)}
-																disabled={!canParentConfirm || completeTask.isPending}
-																title={!canParentConfirm ? "Нужно дождаться подтверждения" : undefined}
-															>
-																<CheckCircle2 className="h-4 w-4" />
-																Подтвердить
-															</Button>
-														</>
-													)}
-
-													{userType === "child" && !task.completed && (
-														<>
-															{requiresEvidence && (
-																<Button variant="outline" size="sm" className="gap-2" onClick={() => setPendingEvidenceTask(task)}>
-																	<Upload className="h-4 w-4" />
-																	{evidenceReady ? "Заменить файл" : "Отправить файл"}
-																</Button>
-															)}
-															<Button
-																className="gap-2"
-																size="sm"
-																onClick={() => handleConfirm(task.id)}
-																disabled={!canChildComplete || completeTask.isPending}
-																title={!canChildComplete ? "Сначала прикрепи подтверждение" : undefined}
-															>
-																<CheckCircle2 className="h-4 w-4" />
-																Я сделал
-															</Button>
-														</>
-													)}
-
-													{task.completed && (
-														<Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
-															Задача закрыта
-														</Badge>
-													)}
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</Card>
-						)
-					})}
-				</div>
+				{filteredTasks.length > 0 ? (
+					<div className="space-y-5">
+						{filteredTasks.map((task) => (
+							<TaskRow
+								key={task.id}
+								task={task}
+								userType={userType}
+								onConfirm={() => handleConfirm(task.id)}
+								onReject={() => handleReject(task)}
+								onViewEvidence={() => handleViewEvidence(task)}
+								onUploadEvidence={() => setPendingEvidenceTask(task)}
+								onEdit={() => openEditModal(task)}
+								confirmLoading={completeTask.isPending}
+								updateLoading={updateTask.isPending}
+								downloadLoading={downloadEvidence.isPending}
+							/>
+						))}
+					</div>
+				) : (
+					<div className="rounded-3xl border border-dashed border-border/80 bg-muted/10 px-6 py-10 text-center shadow-sm">
+						<h3 className="text-lg font-semibold">В этом фильтре пока пусто</h3>
+						<p className="mt-2 text-sm text-muted-foreground">Попробуйте выбрать другой статус или создайте новую задачу.</p>
+						{userType === "parent" && (
+							<Button className="mt-4 gap-2" onClick={openTaskCreation}>
+								<Plus className="h-4 w-4" />
+								Создать задачу
+							</Button>
+						)}
+					</div>
+				)}
 			</div>
 
+			<TaskSubmissionModal
+				open={Boolean(pendingEvidenceTask)}
+				onClose={() => setPendingEvidenceTask(null)}
+				taskTitle={pendingEvidenceTask?.title ?? ""}
+				confirmationType={pendingRequirement ?? "none"}
+				requirements={pendingEvidenceTask?.description}
+				isSubmitting={submitEvidence.isPending}
+				onSubmit={handleEvidenceSubmit}
+			/>
+
+			<TaskEditModal
+				open={isEditModalOpen}
+				onOpenChange={(open) => {
+					setIsEditModalOpen(open)
+					if (!open) {
+						setEditableTask(null)
+					}
+				}}
+				task={editableTask}
+				onSave={handleTaskEditSave}
+			/>
 		</>
 	)
 }
 
-/* cspell:disable */
+interface TaskRowProps {
+	task: DecoratedTask
+	userType: "parent" | "child"
+	onConfirm: () => void
+	onReject: () => void
+	onViewEvidence: () => void
+	onUploadEvidence: () => void
+	onEdit: () => void
+	confirmLoading: boolean
+	updateLoading: boolean
+	downloadLoading: boolean
+}
+
+function TaskRow({
+	task,
+	userType,
+	onConfirm,
+	onReject,
+	onViewEvidence,
+	onUploadEvidence,
+	onEdit,
+	confirmLoading,
+	updateLoading,
+	downloadLoading,
+}: TaskRowProps) {
+	const [isOpen, setIsOpen] = useState(false)
+	const statusMeta = STATUS_META[task.status]
+	const StatusIcon = statusMeta.icon
+	const evidenceRequirement = resolveEvidenceRequirement(task.evidence?.requirement)
+	const evidenceMeta = EVIDENCE_META[evidenceRequirement]
+	const requiresEvidence = evidenceRequirement !== "none"
+	const evidenceReady = Boolean(task.evidence?.isSubmitted)
+	const evidenceStatusText = requiresEvidence
+		? evidenceReady
+			? `Файл получен${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
+			: "Ждём подтверждение"
+		: "Можно завершить сразу"
+	const canParentConfirm = !requiresEvidence || evidenceReady
+	const canChildComplete = canParentConfirm
+	const isCompleted = task.completed
+
+	const handleToggle = () => setIsOpen((prev) => !prev)
+	const handleSummaryKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault()
+			handleToggle()
+		}
+	}
+
+	return (
+		<div className={cn(
+			"group relative overflow-hidden rounded-3xl border transition-all duration-300",
+			isOpen ? "border-primary/30 shadow-xl shadow-primary/10" : "border-border/50 shadow-lg hover:shadow-xl hover:border-primary/20",
+			"bg-gradient-to-br from-white via-white to-slate-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50"
+		)}>
+			{/* Gradient overlay */}
+			<div className={cn(
+				"absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300",
+				task.status === "completed" && "from-emerald-500/5 to-teal-500/5",
+				task.status === "overdue" && "from-red-500/5 to-orange-500/5",
+				task.status === "in_progress" && "from-blue-500/5 to-indigo-500/5",
+				task.status === "pending" && "from-purple-500/5 to-pink-500/5",
+				isOpen && "opacity-100"
+			)} />
+			
+			{/* Main content */}
+			<div className="relative">
+				{/* Compact header */}
+				<div className="flex items-center gap-4 px-5 py-4">
+					<div
+						className="flex flex-1 cursor-pointer items-center gap-4"
+						role="button"
+						tabIndex={0}
+						onClick={handleToggle}
+						onKeyDown={handleSummaryKeyDown}
+					>
+						{/* Status badge */}
+						<div className={cn(
+							"flex items-center gap-2 rounded-2xl px-4 py-2 transition-all duration-300",
+							statusMeta.badge,
+							"shadow-sm hover:shadow-md"
+						)}>
+							<StatusIcon className="h-4 w-4" />
+							<span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
+								{statusMeta.label}
+							</span>
+						</div>
+
+						{/* Task info */}
+						<div className="min-w-0 flex-1">
+							<h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+								{task.title}
+							</h3>
+							<div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+								<span className="flex items-center gap-1">
+									<Clock className="h-3 w-3" />
+									До {task.dueLabel}
+								</span>
+								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+								<span className="font-semibold text-primary">
+									{task.xpReward} XP
+								</span>
+								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+								<span className="font-semibold text-amber-600">
+									{task.pointsReward} баллов
+								</span>
+							</div>
+						</div>
+
+						{/* Progress indicator */}
+						<div className="hidden lg:flex items-center gap-3">
+							<div className="w-32">
+								<div className="flex items-center justify-between text-xs mb-1">
+									<span className="text-muted-foreground">Прогресс</span>
+									<span className="font-bold text-foreground">{Math.round(task.progressValue)}%</span>
+								</div>
+								<Progress value={task.progressValue} className="h-2" />
+							</div>
+							<div className="flex items-center gap-1">
+								{renderDifficulty(task.difficulty)}
+							</div>
+						</div>
+					</div>
+
+					{/* Actions */}
+					<div className="flex items-center gap-2">
+						{userType === "parent" && (
+							<Button
+								variant="ghost"
+								size="icon"
+								className="hover:bg-primary/10 hover:text-primary transition-colors"
+								onClick={(event) => {
+									event.stopPropagation()
+									onEdit()
+								}}
+								aria-label="Редактировать задачу"
+							>
+								<Pencil className="h-4 w-4" />
+							</Button>
+						)}
+						<Button
+							variant="ghost"
+							size="icon"
+							className="hover:bg-primary/10 hover:text-primary transition-all"
+							onClick={(event) => {
+								event.stopPropagation()
+								handleToggle()
+							}}
+							aria-label={isOpen ? "Скрыть детали" : "Показать детали"}
+						>
+							<ChevronDown className={cn("h-5 w-5 transition-transform duration-300", isOpen && "rotate-180")} />
+						</Button>
+					</div>
+				</div>
+
+				{/* Expanded content */}
+				<div className={cn(
+					"border-t border-border/50 overflow-hidden transition-all duration-300",
+					isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+				)}>
+					<div className="px-5 py-6 space-y-6">
+						{/* Mobile progress */}
+						<div className="lg:hidden space-y-3">
+							<div className="flex items-center justify-between">
+								<span className="text-sm text-muted-foreground">Прогресс выполнения</span>
+								<span className="text-lg font-bold text-foreground">{Math.round(task.progressValue)}%</span>
+							</div>
+							<Progress value={task.progressValue} className="h-2.5" />
+							<div className="flex items-center gap-2">
+								<span className="text-sm text-muted-foreground">Сложность:</span>
+								{renderDifficulty(task.difficulty)}
+							</div>
+						</div>
+
+						{/* Description */}
+						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
+							<p className="text-sm font-medium text-muted-foreground mb-2">Описание задачи</p>
+							<p className="text-base text-foreground leading-relaxed">
+								{task.description?.trim() || "Добавьте подробности, чтобы ребёнку было проще понять шаги."}
+							</p>
+						</div>
+
+						{/* Info cards */}
+						<div className="grid gap-3 sm:grid-cols-3">
+							<div className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 p-4">
+								<p className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">Создана</p>
+								<p className="mt-2 text-2xl font-bold text-blue-900 dark:text-blue-300">{task.createdLabel}</p>
+							</div>
+							<div className="rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200/50 dark:border-purple-800/50 p-4">
+								<p className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">Дедлайн</p>
+								<p className="mt-2 text-2xl font-bold text-purple-900 dark:text-purple-300">{task.dueLabel}</p>
+							</div>
+							<div className={cn(
+								"rounded-2xl border p-4",
+								requiresEvidence
+									? "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200/50 dark:border-amber-800/50"
+									: "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200/50 dark:border-emerald-800/50"
+							)}>
+								<p className={cn(
+									"text-xs font-bold uppercase tracking-wider",
+									requiresEvidence ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
+								)}>
+									Подтверждение
+								</p>
+								<p className={cn(
+									"mt-2 text-lg font-bold",
+									requiresEvidence ? "text-amber-900 dark:text-amber-300" : "text-emerald-900 dark:text-emerald-300"
+								)}>
+									{evidenceMeta.label}
+								</p>
+								<p className="mt-1 text-xs text-muted-foreground">{evidenceStatusText}</p>
+							</div>
+						</div>
+
+						{/* Journey steps */}
+						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
+							<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Этапы выполнения</p>
+							<div className="flex items-center justify-between">
+								{JOURNEY_STEPS.map((step, stepIndex) => (
+									<div key={`${task.id}-${step}`} className="flex flex-col items-center gap-2 flex-1">
+										<div className={cn(
+											"relative flex h-12 w-12 items-center justify-center rounded-full border-2 font-bold text-sm transition-all duration-300",
+											stepIndex <= statusMeta.journeyIndex
+												? "border-primary bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/30 scale-110"
+												: "border-border/70 bg-background/80 text-muted-foreground"
+										)}>
+											{stepIndex <= statusMeta.journeyIndex && (
+												<div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+											)}
+											<span className="relative">{stepIndex + 1}</span>
+										</div>
+										<span className={cn(
+											"text-xs font-medium text-center transition-colors",
+											stepIndex <= statusMeta.journeyIndex ? "text-primary font-bold" : "text-muted-foreground"
+										)}>
+											{step}
+										</span>
+										{stepIndex < JOURNEY_STEPS.length - 1 && (
+											<div className="absolute top-6 left-[calc(50%+24px)] right-[calc(50%-24px)] h-0.5 -z-10 hidden sm:block">
+												<div className={cn(
+													"h-full transition-all duration-300",
+													stepIndex < statusMeta.journeyIndex
+														? "bg-gradient-to-r from-primary to-primary"
+														: "bg-border/50"
+												)} />
+											</div>
+										)}
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Actions */}
+						<div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border/50">
+							<div className="flex items-center gap-2">
+								{requiresEvidence && (
+									<Badge variant="outline" className="rounded-full">
+										{evidenceStatusText}
+									</Badge>
+								)}
+							</div>
+							<div className="flex flex-wrap justify-end gap-2">
+								{requiresEvidence && userType === "parent" && !isCompleted && evidenceReady && (
+									<Button 
+										variant="outline" 
+										size="sm" 
+										className="gap-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors" 
+										onClick={onViewEvidence} 
+										disabled={downloadLoading}
+									>
+										<Eye className="h-4 w-4" />
+										Посмотреть файл
+									</Button>
+								)}
+								{requiresEvidence && userType === "child" && !isCompleted && (
+									<Button 
+										variant="outline" 
+										size="sm" 
+										className="gap-2 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition-colors" 
+										onClick={onUploadEvidence}
+									>
+										<Upload className="h-4 w-4" />
+										{evidenceReady ? "Заменить файл" : "Отправить файл"}
+									</Button>
+								)}
+								{userType === "parent" && !isCompleted && (
+									<>
+										<Button 
+											variant="ghost" 
+											size="sm" 
+											className="hover:bg-red-50 hover:text-red-700 transition-colors"
+											onClick={onReject} 
+											disabled={updateLoading}
+										>
+											Отклонить
+										</Button>
+										<Button
+											size="sm"
+											className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl"
+											onClick={onConfirm}
+											disabled={!canParentConfirm || confirmLoading}
+											title={!canParentConfirm ? "Нужно дождаться подтверждения" : undefined}
+										>
+											<CheckCircle2 className="h-4 w-4" />
+											Подтвердить
+										</Button>
+									</>
+								)}
+								{userType === "child" && !isCompleted && (
+									<Button
+										className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl"
+										size="sm"
+										onClick={onConfirm}
+										disabled={!canChildComplete || confirmLoading}
+										title={!canChildComplete ? "Сначала прикрепи подтверждение" : undefined}
+									>
+										<CheckCircle2 className="h-4 w-4" />
+										Я сделал
+									</Button>
+								)}
+								{isCompleted && (
+									<Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 shadow-lg">
+										✓ Задача закрыта
+									</Badge>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+
+interface InfoTileProps {
+	label: string
+	value: string
+	hint?: string
+	accent?: boolean
+}
+
+function InfoTile({ label, value, hint, accent }: InfoTileProps) {
+	return (
+		<div className={cn("rounded-2xl border px-3 py-3", accent ? "border-primary/40 bg-primary/5" : "border-border/60 bg-background/80")}>
+			<p className={cn("text-[10px] uppercase tracking-[0.2em]", accent ? "text-primary" : "text-muted-foreground")}>{label}</p>
+			<p className={cn("mt-1 text-sm font-semibold", accent ? "text-primary" : "text-foreground")}>{value}</p>
+			{hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+		</div>
+	)
+}

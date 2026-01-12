@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 
 import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 
-type EditableTask = {
+export type EditableTask = {
   id: string
   title: string
   description: string

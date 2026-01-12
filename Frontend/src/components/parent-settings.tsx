@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Moon, Copy, AlertCircle } from "lucide-react"
+import { Bell, Moon, Copy, AlertCircle, Link2, Share2, QrCode } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -31,11 +31,38 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
   })
 
   const [copied, setCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  const inviteLink = typeof window !== 'undefined' 
+    ? `${window.location.origin}/join/${familyCode}`
+    : `https://yourapp.com/join/${familyCode}`
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(familyCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(inviteLink)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
+  }
+
+  const handleShareLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Присоединяйся к нашей семье!',
+          text: `Привет! Присоединяйся к нашей семье в приложении Family Tasks. Код семьи: ${familyCode}`,
+          url: inviteLink,
+        })
+      } catch (error) {
+        console.error('Error sharing:', error)
+      }
+    } else {
+      handleCopyLink()
+    }
   }
 
   const handleSettingChange = (key: string, value: any) => {
@@ -48,7 +75,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
       <Card>
         <CardHeader>
           <CardTitle>Информация о семье</CardTitle>
-          <CardDescription>Данные вашей семьи</CardDescription>
+          <CardDescription>Данные вашей семьи и приглашение детей</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -57,6 +84,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
               <p className="font-semibold">{familyName || "Семья"}</p>
             </div>
           </div>
+          
           <div>
             <Label htmlFor="familyCode" className="text-sm text-muted-foreground mb-2 block">
               Код для приглашения детей
@@ -67,7 +95,43 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
-            {copied && <p className="text-xs text-accent mt-1">Скопировано в буфер обмена!</p>}
+            {copied && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ Скопировано!</p>}
+          </div>
+
+          <div className="border-t pt-4">
+            <Label className="text-sm text-muted-foreground mb-2 block flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              Ссылка-приглашение
+            </Label>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input 
+                  value={inviteLink} 
+                  readOnly 
+                  className="text-sm bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 border-violet-200 dark:border-violet-800"
+                />
+                <Button onClick={handleCopyLink} variant="outline" size="sm" className="gap-2">
+                  <Copy className="w-4 h-4" />
+                  {linkCopied ? "✓" : ""}
+                </Button>
+              </div>
+              {linkCopied && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ Ссылка скопирована!</p>}
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleShareLink} 
+                  variant="default"
+                  className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Поделиться ссылкой
+                </Button>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mt-2">
+                💡 Отправьте эту ссылку ребёнку - он автоматически присоединится к семье при переходе
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

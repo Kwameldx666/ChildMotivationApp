@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ShoppingCart, Package, Loader2, AlertCircle, Truck, Edit2, Trash2 } from "lucide-react"
+import { ShoppingCart, Package, Loader2, AlertCircle, Truck, Edit2, Trash2, Gift, Star, Sparkles, CheckCircle, Clock, XCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import {
   useCreateOrder,
@@ -19,22 +19,23 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 
 interface RewardsShopProps {
   userType: "parent" | "child"
 }
 
-const statusStyles: Record<string, string> = {
-  Pending: "bg-amber-50 text-amber-700 border-amber-200",
-  Paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Shipped: "bg-sky-50 text-sky-700 border-sky-200",
-  Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Cancelled: "bg-rose-50 text-rose-700 border-rose-200",
-  "0": "bg-amber-50 text-amber-700 border-amber-200",
-  "1": "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "2": "bg-sky-50 text-sky-700 border-sky-200",
-  "3": "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "4": "bg-rose-50 text-rose-700 border-rose-200",
+const statusStyles: Record<string, { bg: string; text: string; border: string; icon: typeof Clock }> = {
+  Pending: { bg: "bg-amber-500/10", text: "text-amber-700", border: "border-amber-500/30", icon: Clock },
+  Paid: { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
+  Shipped: { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Truck },
+  Completed: { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
+  Cancelled: { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
+  "0": { bg: "bg-amber-500/10", text: "text-amber-700", border: "border-amber-500/30", icon: Clock },
+  "1": { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
+  "2": { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Truck },
+  "3": { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
+  "4": { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
 }
 
 const statusLabels: Record<string, string> = {
@@ -168,11 +169,14 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
   const renderProducts = () => {
     if (productsQuery.isLoading) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, index) => (
-            <Card key={index} className="border-dashed border-border/60 bg-muted/40 animate-pulse">
-              <CardContent className="pt-6 h-44" />
-            </Card>
+            <div key={index} className="rounded-3xl border border-border/50 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 animate-pulse">
+              <div className="h-8 w-3/4 bg-muted rounded-xl mb-3" />
+              <div className="h-4 w-full bg-muted rounded-lg mb-2" />
+              <div className="h-4 w-2/3 bg-muted rounded-lg mb-4" />
+              <div className="h-10 w-full bg-muted rounded-xl" />
+            </div>
           ))}
         </div>
       )
@@ -180,86 +184,170 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
 
     if (productsQuery.isError) {
       return (
-        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          <AlertCircle className="w-4 h-4" />
-          <span>Не удалось загрузить товары</span>
+        <div className="flex items-center gap-3 rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 px-6 py-4 text-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+          </div>
+          <div>
+            <p className="font-semibold text-red-700">Ошибка загрузки</p>
+            <p className="text-red-600">Не удалось загрузить товары магазина</p>
+          </div>
         </div>
       )
     }
 
     if (visibleProducts.length === 0) {
       return (
-        <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
-          Пока нет добавленных наград
+        <div className="rounded-3xl border-2 border-dashed border-border/60 bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800/50 px-6 py-12 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
+            <Gift className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Магазин пуст</h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            {isParent ? "Добавьте первую награду, чтобы начать мотивировать ребёнка" : "Пока нет доступных наград. Скоро появятся новые!"}
+          </p>
         </div>
       )
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleProducts.map((product) => (
-          <Card key={product.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-start justify-between gap-2 text-base">
-                <span className="text-balance">{product.name}</span>
-                <Badge variant="outline" className="rounded-full border-border px-2 py-0 text-[11px]">
-                  В наличии: {product.stock}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-4">
-              <p className="text-sm text-muted-foreground min-h-[48px]">{product.description || "Описание отсутствует"}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-semibold text-primary">{formatPoints(product.price)}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {visibleProducts.map((product, index) => {
+          const isLowStock = product.stock < 5
+          const isOutOfStock = product.stock === 0
+          
+          return (
+            <div 
+              key={product.id} 
+              className={cn(
+                "group relative overflow-hidden rounded-3xl border transition-all duration-300",
+                isOutOfStock 
+                  ? "border-border/30 bg-muted/20 opacity-60" 
+                  : "border-border/50 bg-gradient-to-br from-white via-white to-slate-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 hover:-translate-y-1"
+              )}
+            >
+              {/* Gradient overlay */}
+              <div className={cn(
+                "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+                index % 3 === 0 && "bg-gradient-to-br from-purple-500/5 to-pink-500/5",
+                index % 3 === 1 && "bg-gradient-to-br from-blue-500/5 to-cyan-500/5",
+                index % 3 === 2 && "bg-gradient-to-br from-amber-500/5 to-orange-500/5"
+              )} />
+              
+              {/* Sparkle icon */}
+              <div className="absolute top-4 right-4">
+                <div className={cn(
+                  "flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300",
+                  index % 3 === 0 && "bg-gradient-to-br from-purple-500/10 to-pink-500/10 group-hover:from-purple-500/20 group-hover:to-pink-500/20",
+                  index % 3 === 1 && "bg-gradient-to-br from-blue-500/10 to-cyan-500/10 group-hover:from-blue-500/20 group-hover:to-cyan-500/20",
+                  index % 3 === 2 && "bg-gradient-to-br from-amber-500/10 to-orange-500/10 group-hover:from-amber-500/20 group-hover:to-orange-500/20"
+                )}>
+                  <Sparkles className={cn(
+                    "h-6 w-6",
+                    index % 3 === 0 && "text-purple-600",
+                    index % 3 === 1 && "text-blue-600",
+                    index % 3 === 2 && "text-amber-600"
+                  )} />
+                </div>
+              </div>
+
+              <div className="relative p-6">
+                {/* Stock badge */}
+                <div className="mb-4 flex items-center gap-2">
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-bold",
+                      isOutOfStock && "bg-rose-500/10 text-rose-700 border-rose-500/30",
+                      isLowStock && !isOutOfStock && "bg-amber-500/10 text-amber-700 border-amber-500/30",
+                      !isLowStock && "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
+                    )}
+                  >
+                    {isOutOfStock ? "Нет в наличии" : `${product.stock} шт.`}
+                  </Badge>
+                  {!product.isActive && isParent && (
+                    <Badge variant="outline" className="rounded-full px-3 py-1 text-xs bg-slate-500/10 text-slate-700 border-slate-500/30">
+                      Скрыта
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Title */}
+                <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors pr-16">
+                  {product.name}
+                </h3>
+
+                {/* Description */}
+                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px]">
+                  {product.description || "Уникальная награда за достижения"}
+                </p>
+
+                {/* Price */}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2">
+                    <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
+                    <span className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                      {product.price.toLocaleString("ru-RU")}
+                    </span>
+                    <span className="text-sm text-muted-foreground font-medium">баллов</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
                 {userType === "child" ? (
                   <Button
-                    size="sm"
-                    className="gap-2"
+                    className={cn(
+                      "w-full gap-2 rounded-2xl h-12 text-base font-semibold shadow-lg transition-all",
+                      isOutOfStock 
+                        ? "bg-muted text-muted-foreground cursor-not-allowed" 
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40"
+                    )}
                     onClick={() => handlePurchase(product)}
-                    disabled={createOrder.isPending}
+                    disabled={createOrder.isPending || isOutOfStock}
                   >
-                    {createOrder.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-                    Купить
+                    {createOrder.isPending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <ShoppingCart className="h-5 w-5" />
+                    )}
+                    {isOutOfStock ? "Недоступно" : "Обменять баллы"}
                   </Button>
                 ) : (
                   <div className="flex gap-2">
                     <Button
-                      size="sm"
                       variant="outline"
-                      className="gap-1"
+                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors"
                       onClick={() => setSelectedProduct(product)}
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="h-4 w-4" />
                       Править
                     </Button>
                     <Button
-                      size="sm"
-                      variant="ghost"
-                      className="gap-1 text-destructive hover:text-destructive"
+                      variant="outline"
+                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
                       onClick={() => handleDeleteProduct(product)}
                       disabled={pendingDeletionId === product.id}
                     >
                       {pendingDeletionId === product.id ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       )}
                       Удалить
                     </Button>
                   </div>
                 )}
+
+                {/* Parent info */}
+                {isParent && (
+                  <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Создано {new Date(product.createdAt).toLocaleDateString("ru-RU")}</span>
+                  </div>
+                )}
               </div>
-              {isParent && (
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className={product.isActive ? "text-emerald-600" : "text-muted-foreground"}>
-                    {product.isActive ? "Активна" : "Скрыта"}
-                  </span>
-                  <span>Создано: {new Date(product.createdAt).toLocaleDateString("ru-RU")}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -267,11 +355,13 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
   const renderOrders = () => {
     if (ordersQuery.isLoading) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {Array.from({ length: 2 }).map((_, index) => (
-            <Card key={index} className="border-dashed border-border/60 bg-muted/40 animate-pulse">
-              <CardContent className="pt-6 h-36" />
-            </Card>
+            <div key={index} className="rounded-3xl border border-border/50 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 animate-pulse">
+              <div className="h-6 w-32 bg-muted rounded-xl mb-3" />
+              <div className="h-4 w-full bg-muted rounded-lg mb-2" />
+              <div className="h-20 w-full bg-muted rounded-xl" />
+            </div>
           ))}
         </div>
       )
@@ -279,72 +369,125 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
 
     if (ordersQuery.isError) {
       return (
-        <div className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          <AlertCircle className="w-4 h-4" />
-          <span>Не удалось загрузить заказы</span>
+        <div className="flex items-center gap-3 rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 px-6 py-4 text-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+          </div>
+          <div>
+            <p className="font-semibold text-red-700">Ошибка загрузки</p>
+            <p className="text-red-600">Не удалось загрузить заказы</p>
+          </div>
         </div>
       )
     }
 
     if (!ordersQuery.data || ordersQuery.data.length === 0) {
       return (
-        <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
-          У вас пока нет заказов
+        <div className="rounded-3xl border-2 border-dashed border-border/60 bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800/50 px-6 py-12 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
+            <Package className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Нет заказов</h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Обменивайте заработанные баллы на награды из каталога
+          </p>
         </div>
       )
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {ordersQuery.data.map((order) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {ordersQuery.data.map((order, index) => {
           const statusKey = resolveStatusKey(order.status)
-          const badgeStyle = statusStyles[statusKey] ?? "bg-muted text-foreground border-border"
+          const statusStyle = statusStyles[statusKey] ?? { bg: "bg-muted", text: "text-foreground", border: "border-border", icon: Clock }
+          const StatusIcon = statusStyle.icon
           const badgeLabel = statusLabels[statusKey] ?? "Статус неизвестен"
 
           return (
-            <Card key={order.id} className="border-border/70">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
+            <div 
+              key={order.id}
+              className={cn(
+                "group relative overflow-hidden rounded-3xl border transition-all duration-300",
+                "border-border/50 bg-gradient-to-br from-white via-white to-slate-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50",
+                "hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30"
+              )}
+            >
+              {/* Gradient overlay */}
+              <div className={cn(
+                "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+                index % 2 === 0 ? "bg-gradient-to-br from-blue-500/5 to-cyan-500/5" : "bg-gradient-to-br from-purple-500/5 to-pink-500/5"
+              )} />
+
+              <div className="relative p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <CardTitle className="text-base">Заказ #{order.id.slice(0, 8)}</CardTitle>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Package className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-bold">Заказ #{order.id.slice(0, 8)}</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-2">
+                      <Clock className="h-3 w-3" />
                       {new Date(order.createdAt).toLocaleString("ru-RU")}
                     </p>
                   </div>
-                  <Badge variant="outline" className={`border px-2 py-1 text-[11px] ${badgeStyle}`}>
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      "rounded-full px-3 py-1.5 text-xs font-bold border flex items-center gap-1.5",
+                      statusStyle.bg,
+                      statusStyle.text,
+                      statusStyle.border
+                    )}
+                  >
+                    <StatusIcon className="h-3.5 w-3.5" />
                     {badgeLabel}
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Package className="h-4 w-4" />
-                    <span>{order.items.length} поз.</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-semibold text-primary">
-                    <Truck className="h-4 w-4" />
-                    {formatPoints(order.totalAmount)}
+
+                {/* Summary */}
+                <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-border/50 p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Package className="h-4 w-4" />
+                      <span className="font-medium">{order.items.length} позиций</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
+                      <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                        {order.totalAmount.toLocaleString("ru-RU")}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-medium">баллов</span>
+                    </div>
                   </div>
                 </div>
 
-                <Separator />
-
-                <div className="space-y-2 text-sm">
+                {/* Items */}
+                <div className="space-y-2">
                   {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
-                      <div className="space-y-0.5">
-                        <p className="font-medium text-foreground">{item.productName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.quantity} шт. · {formatPoints(item.unitPrice)} за шт.
+                    <div 
+                      key={item.id} 
+                      className="flex items-center justify-between rounded-2xl border border-border/50 bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-900/50 px-4 py-3 transition-colors hover:border-primary/30"
+                    >
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm text-foreground mb-0.5">{item.productName}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-2">
+                          <span>{item.quantity} шт.</span>
+                          <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                          <span>{item.unitPrice.toLocaleString("ru-RU")} за шт.</span>
                         </p>
                       </div>
-                      <span className="text-sm font-semibold">{formatPoints(item.lineTotal)}</span>
+                      <div className="flex items-baseline gap-1 ml-4">
+                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
+                        <span className="text-base font-bold text-amber-600">
+                          {item.lineTotal.toLocaleString("ru-RU")}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )
         })}
       </div>
@@ -352,43 +495,107 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="space-y-10">
+      {/* Header Section */}
+      <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-gradient-to-br from-slate-950 via-purple-950 to-pink-950 px-8 py-10 text-white shadow-2xl">
+        <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-pink-500/20 blur-3xl" />
+        
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur">
+              <Gift className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/70">Магазин наград</p>
+              <h2 className="text-3xl font-bold">
+                {isParent ? "Управление каталогом" : "Обменяй баллы на награды"}
+              </h2>
+            </div>
+          </div>
+          
+          <p className="text-base text-white/80 max-w-2xl mb-6">
+            {isParent
+              ? "Редактируйте награды, управляйте запасами и мотивируйте детей достигать новых целей"
+              : "Выбирайте желанные награды и обменивайте заработанные баллы на реальные подарки"}
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-amber-400" />
+                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Доступно</p>
+              </div>
+              <p className="text-2xl font-bold">{visibleProducts.length}</p>
+              <p className="text-xs text-white/70">наград в каталоге</p>
+            </div>
+            {userType === "child" && (
+              <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Package className="h-4 w-4 text-blue-400" />
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/70">Заказы</p>
+                </div>
+                <p className="text-2xl font-bold">{ordersQuery.data?.length ?? 0}</p>
+                <p className="text-xs text-white/70">активных обменов</p>
+              </div>
+            )}
+            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-4 w-4 text-amber-400" />
+                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Информация</p>
+              </div>
+              <p className="text-sm text-white/90 font-medium">Обновлено</p>
+              <p className="text-xs text-white/70">{new Date().toLocaleDateString("ru-RU")}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Products Section */}
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold">Каталог наград</h3>
+            <h3 className="text-2xl font-bold mb-1">Каталог наград</h3>
             <p className="text-sm text-muted-foreground">
               {isParent
-                ? "Редактируйте награды и управляйте запасами в реальном времени"
-                : "Обменивайте заработанные очки на награды"}
+                ? "Редактируйте награды и управляйте запасами"
+                : "Выбирайте и обменивайте баллы на желанные подарки"}
             </p>
           </div>
         </div>
         {renderProducts()}
       </div>
 
+      {/* Orders Section */}
       {userType === "child" && (
-        <div className="space-y-2">
-          <div>
-            <h3 className="text-lg font-semibold">Мои обмены</h3>
-            <p className="text-sm text-muted-foreground">История списаний очков</p>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold mb-1">Мои обмены</h3>
+              <p className="text-sm text-muted-foreground">История обмена баллов на награды</p>
+            </div>
           </div>
           {renderOrders()}
         </div>
       )}
 
+      {/* Edit Dialog */}
       <Dialog open={Boolean(selectedProduct)} onOpenChange={(open) => (!open ? setSelectedProduct(null) : undefined)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Редактировать награду</DialogTitle>
-            <DialogDescription>Обновите название, описание, стоимость или статус награды</DialogDescription>
+            <DialogTitle className="text-2xl">Редактировать награду</DialogTitle>
+            <DialogDescription className="text-base">
+              Обновите информацию о награде, стоимость или доступность
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label htmlFor="reward-name">Название</Label>
+              <Label htmlFor="reward-name" className="text-sm font-semibold">Название награды</Label>
               <Input
                 id="reward-name"
+                className="h-12 rounded-xl"
+                placeholder="Например: Поход в кино"
                 value={productForm.name}
                 onChange={(event) => setProductForm((prev) => ({ ...prev, name: event.target.value }))}
                 disabled={updateProduct.isPending}
@@ -396,10 +603,12 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="reward-description">Описание</Label>
+              <Label htmlFor="reward-description" className="text-sm font-semibold">Описание</Label>
               <Textarea
                 id="reward-description"
-                rows={3}
+                className="rounded-xl resize-none"
+                rows={4}
+                placeholder="Опишите награду подробнее..."
                 value={productForm.description}
                 onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
                 disabled={updateProduct.isPending}
@@ -408,24 +617,34 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="reward-price">Стоимость (очки)</Label>
+                <Label htmlFor="reward-price" className="text-sm font-semibold flex items-center gap-2">
+                  <Star className="h-4 w-4 text-amber-500" />
+                  Стоимость (баллы)
+                </Label>
                 <Input
                   id="reward-price"
                   type="number"
                   min="0"
                   step="10"
+                  className="h-12 rounded-xl"
+                  placeholder="100"
                   value={productForm.price}
                   onChange={(event) => setProductForm((prev) => ({ ...prev, price: event.target.value }))}
                   disabled={updateProduct.isPending}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reward-stock">Количество</Label>
+                <Label htmlFor="reward-stock" className="text-sm font-semibold flex items-center gap-2">
+                  <Package className="h-4 w-4 text-blue-500" />
+                  Количество
+                </Label>
                 <Input
                   id="reward-stock"
                   type="number"
                   min="0"
                   step="1"
+                  className="h-12 rounded-xl"
+                  placeholder="10"
                   value={productForm.stock}
                   onChange={(event) => setProductForm((prev) => ({ ...prev, stock: event.target.value }))}
                   disabled={updateProduct.isPending}
@@ -433,29 +652,45 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               </div>
             </div>
 
-            <label className="flex items-center gap-3 text-sm font-medium">
-              <input
-                type="checkbox"
-                className="h-4 w-4"
-                checked={productForm.isActive}
-                onChange={(event) => setProductForm((prev) => ({ ...prev, isActive: event.target.checked }))}
-                disabled={updateProduct.isPending}
-              />
-              Отображать в магазине
-            </label>
+            <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                  checked={productForm.isActive}
+                  onChange={(event) => setProductForm((prev) => ({ ...prev, isActive: event.target.checked }))}
+                  disabled={updateProduct.isPending}
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">Отображать в магазине</p>
+                  <p className="text-xs text-muted-foreground">Награда будет видна в каталоге для детей</p>
+                </div>
+              </label>
+            </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-12 rounded-xl"
               onClick={() => setSelectedProduct(null)}
               disabled={updateProduct.isPending}
             >
               Отмена
             </Button>
-            <Button className="flex-1" onClick={handleSaveProduct} disabled={updateProduct.isPending}>
-              {updateProduct.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Сохранить"}
+            <Button 
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30" 
+              onClick={handleSaveProduct} 
+              disabled={updateProduct.isPending}
+            >
+              {updateProduct.isPending ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Сохранение...
+                </>
+              ) : (
+                "Сохранить изменения"
+              )}
             </Button>
           </div>
         </DialogContent>
