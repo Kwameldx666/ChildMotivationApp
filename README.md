@@ -5,7 +5,7 @@
 ## 🚀 Технологический стек
 
 ### Backend
-- **.NET 8.0** - ASP.NET Core Web API
+- **.NET 10.0** - ASP.NET Core Web API
 - **Clean Architecture** - разделение слоев (API, Application, Domain, Infrastructure, Persistence)
 - **PostgreSQL 15** - основная база данных
 - **Redis 7** - кэширование и распределенные сессии
