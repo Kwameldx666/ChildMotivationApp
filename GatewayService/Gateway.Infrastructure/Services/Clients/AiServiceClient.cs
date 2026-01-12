@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Common.HttpUrls;
-using Gateway.Contracts.Ai;
 using Gateway.Infrastructure.Extensions;
 using Gateway.Infrastructure.Services.Constants;
 using Microsoft.AspNetCore.WebUtilities;

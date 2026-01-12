@@ -7,13 +7,14 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard } from "lucide-react"
+import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard, MessageCircle } from "lucide-react"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
 import AchievementTree from "./achievement-tree"
 import DailyMissions from "./daily-missions"
 import StickerCollection from "./sticker-collection"
+import FamilyChat from "./family-chat"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -206,7 +207,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-96">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6 h-auto p-1 bg-muted">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">Задачи</span>
@@ -226,6 +227,10 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
             <TabsTrigger value="shop" className="flex items-center gap-1">
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">Магазин</span>
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center gap-1">
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline text-xs">Чат</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-1">
               <User className="w-4 h-4" />
@@ -282,7 +287,23 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               statsLoading={statsLoading}
             />
           </TabsContent>
-        </Tabs>
+          <TabsContent value="chat" className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold mb-1">Чат с семьёй</h2>
+                <p className="text-sm text-muted-foreground">Общайся с родителями и упоминай задачи</p>
+              </div>
+            </div>
+            <div className="max-w-4xl mx-auto">
+              <FamilyChat 
+                familyId={familyCode} 
+                currentUserId={userId}
+                currentUserName={userProfile.name}
+                currentUserAvatar={userProfile.avatar}
+                userRole="child"
+              />
+            </div>
+          </TabsContent>        </Tabs>
       </main>
 
       {/* CHANGE: AI Helper Modal */}

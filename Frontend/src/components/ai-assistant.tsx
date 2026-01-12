@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Send, Sparkles, Lightbulb } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Send, Sparkles, Lightbulb, Bot, User, Zap, TrendingUp, Target, Award } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 interface Message {
   id: string
@@ -15,24 +17,32 @@ interface Message {
 
 const SUGGESTIONS = [
   {
-    icon: "📋",
+    icon: Target,
+    color: "from-blue-500 to-cyan-500",
     title: "Какие задачи создать?",
     description: "Получи идеи для эффективных домашних дел",
+    prompt: "Подскажи идеи для домашних задач для ребёнка 8-12 лет",
   },
   {
-    icon: "🎯",
+    icon: Zap,
+    color: "from-orange-500 to-yellow-500",
     title: "Как мотивировать?",
     description: "Советы по повышению мотивации ребёнка",
+    prompt: "Как мотивировать ребёнка выполнять задачи?",
   },
   {
-    icon: "🏆",
+    icon: Award,
+    color: "from-purple-500 to-pink-500",
     title: "Система наград",
     description: "Рекомендации для справедливой системы",
+    prompt: "Помоги создать систему наград для семьи",
   },
   {
-    icon: "📊",
+    icon: TrendingUp,
+    color: "from-emerald-500 to-teal-500",
     title: "Анализ прогресса",
     description: "Советы по улучшению результатов",
+    prompt: "Как анализировать прогресс ребёнка?",
   },
 ]
 
@@ -42,21 +52,31 @@ export default function AIAssistant() {
       id: "welcome",
       role: "assistant",
       content:
-        "Привет! Я ваш ИИ помощник в управлении семьей. Я могу помочь вам с идеями задач, советами по мотивации, рекомендациями по системе наград и многим другим. Что вас интересует?",
+        "👋 Привет! Я ваш ИИ помощник в управлении семьей.\n\n✨ Я могу помочь вам:\n• Создать интересные задачи для детей\n• Дать советы по мотивации\n• Настроить систему наград\n• Проанализировать прогресс\n\nВыберите тему ниже или задайте свой вопрос!",
       timestamp: new Date(),
     },
   ])
 
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const handleSend = async () => {
-    if (!input.trim()) return
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSend = async (customInput?: string) => {
+    const messageText = customInput || input
+    if (!messageText.trim()) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: messageText,
       timestamp: new Date(),
     }
 
@@ -68,98 +88,175 @@ export default function AIAssistant() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `Спасибо за вопрос! На основе вашего вопроса "${input}", вот мои рекомендации:\n\n1. Начните с малого - создавайте 2-3 задачи в день\n2. Варьируйте сложность для интереса\n3. Проверяйте прогресс еженедельно\n4. Награждайте достижения незамедлительно\n\nХотели бы вы подробнее узнать о каком-то из этих пунктов?`,
+        content: `Спасибо за вопрос! 💡\n\nНа основе вашего запроса "${messageText}", вот мои рекомендации:\n\n✅ **Начните с малого**\nСоздавайте 2-3 задачи в день, чтобы не перегружать ребёнка\n\n🎯 **Варьируйте сложность**\nЧередуйте простые и сложные задачи для поддержания интереса\n\n📊 **Регулярная проверка**\nОтслеживайте прогресс еженедельно и корректируйте подход\n\n🏆 **Моментальное поощрение**\nНаграждайте достижения сразу для лучшей мотивации\n\nХотите узнать подробнее о каком-то из этих пунктов?`,
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, assistantMessage])
       setIsLoading(false)
-    }, 1000)
+    }, 1500)
   }
 
-  const handleSuggestion = (suggestion: string) => {
-    setInput(suggestion)
+  const handleSuggestion = (prompt: string) => {
+    setInput(prompt)
+    setTimeout(() => handleSend(prompt), 100)
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Sparkles className="w-8 h-8 text-accent" />
-          ИИ помощник
-        </h1>
-        <p className="text-muted-foreground">Получите рекомендации по управлению семейными задачами</p>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        {SUGGESTIONS.map((suggestion, idx) => (
-          <Card
-            key={idx}
-            className="cursor-pointer hover:shadow-md transition-all"
-            onClick={() => handleSuggestion(suggestion.title)}
-          >
-            <CardContent className="pt-4">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{suggestion.icon}</span>
-                <div>
-                  <p className="font-semibold text-sm">{suggestion.title}</p>
-                  <p className="text-xs text-muted-foreground">{suggestion.description}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="h-96 flex flex-col">
-        <CardHeader className="pb-3 border-b">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-accent" />
-            Диалог с ИИ
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex-1 overflow-y-auto py-4 space-y-4">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground rounded-br-none"
-                    : "bg-muted text-muted-foreground rounded-bl-none"
-                }`}
-              >
-                <p className="text-sm">{message.content}</p>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-muted text-muted-foreground px-4 py-2 rounded-lg rounded-bl-none">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce delay-100" />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce delay-200" />
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-
-        <div className="border-t p-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Задайте вопрос..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              disabled={isLoading}
-            />
-            <Button onClick={handleSend} disabled={isLoading || !input.trim()} size="icon">
-              <Send className="w-4 h-4" />
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-900">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/50 mb-4">
+            <Sparkles className="w-10 h-10 text-white" />
           </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+            ИИ Помощник
+          </h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Получите персональные рекомендации по управлению семейными задачами и мотивации детей
+          </p>
+          <Badge variant="outline" className="gap-1 bg-white/50 dark:bg-slate-900/50">
+            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            Онлайн и готов помочь
+          </Badge>
         </div>
-      </Card>
+
+        {/* Quick Suggestions */}
+        {messages.length === 1 && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {SUGGESTIONS.map((suggestion, idx) => {
+              const Icon = suggestion.icon
+              return (
+                <Card
+                  key={idx}
+                  className="group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-2 hover:border-violet-200 dark:hover:border-violet-800 overflow-hidden"
+                  onClick={() => handleSuggestion(suggestion.prompt)}
+                >
+                  <div className={`h-2 bg-gradient-to-r ${suggestion.color}`} />
+                  <CardContent className="pt-5 pb-4">
+                    <div className="space-y-3">
+                      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${suggestion.color} shadow-lg group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm mb-1 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                          {suggestion.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {suggestion.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Chat Container */}
+        <Card className="shadow-2xl border-2 overflow-hidden">
+          <div className="bg-gradient-to-r from-violet-500 to-purple-600 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 flex-1">
+                <Bot className="w-5 h-5 text-white" />
+                <h2 className="text-lg font-semibold text-white">Диалог с ИИ</h2>
+              </div>
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                {messages.length - 1} {messages.length === 2 ? 'сообщение' : 'сообщений'}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="h-[500px] overflow-y-auto bg-gradient-to-b from-white to-violet-50/30 dark:from-slate-900 dark:to-purple-950/30">
+            <div className="p-6 space-y-6">
+              {messages.map((message) => (
+                <div 
+                  key={message.id} 
+                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom duration-300`}
+                >
+                  {message.role === "assistant" && (
+                    <Avatar className="h-10 w-10 border-2 border-violet-200 shadow-lg">
+                      <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600">
+                        <Bot className="w-5 h-5 text-white" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  
+                  <div className={`max-w-[75%] ${message.role === "user" ? "order-first" : ""}`}>
+                    <div
+                      className={`px-4 py-3 rounded-2xl shadow-md ${
+                        message.role === "user"
+                          ? "bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-br-sm"
+                          : "bg-white dark:bg-slate-800 border border-violet-100 dark:border-violet-900 rounded-bl-sm"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-line leading-relaxed">
+                        {message.content}
+                      </p>
+                    </div>
+                    <p className={`text-[10px] text-muted-foreground mt-1 px-2 ${message.role === "user" ? "text-right" : "text-left"}`}>
+                      {message.timestamp.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+
+                  {message.role === "user" && (
+                    <Avatar className="h-10 w-10 border-2 border-violet-200 shadow-lg">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-500">
+                        <User className="w-5 h-5 text-white" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex gap-3 justify-start animate-in slide-in-from-bottom">
+                  <Avatar className="h-10 w-10 border-2 border-violet-200 shadow-lg">
+                    <AvatarFallback className="bg-gradient-to-br from-violet-500 to-purple-600">
+                      <Bot className="w-5 h-5 text-white" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="bg-white dark:bg-slate-800 border border-violet-100 dark:border-violet-900 px-5 py-3 rounded-2xl rounded-bl-sm shadow-md">
+                    <div className="flex gap-1.5">
+                      <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <div className="w-2 h-2 bg-fuchsia-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="border-t bg-white dark:bg-slate-900 p-4">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 relative">
+                <Input
+                  placeholder="Задайте вопрос ИИ помощнику..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                  disabled={isLoading}
+                  className="pr-12 py-6 text-base border-2 focus:border-violet-300 dark:focus:border-violet-700 rounded-xl"
+                />
+                <Lightbulb className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              </div>
+              <Button 
+                onClick={() => handleSend()} 
+                disabled={isLoading || !input.trim()} 
+                size="lg"
+                className="h-14 px-6 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-violet-500/50 transition-all hover:shadow-xl hover:shadow-violet-500/60"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

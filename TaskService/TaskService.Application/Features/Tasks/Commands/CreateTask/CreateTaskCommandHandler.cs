@@ -27,7 +27,8 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
             request.Description,
             request.CreatedByUserId,
             _dateTimeProvider.UtcNow,
-            request.EvidenceRequirement);
+            request.EvidenceRequirement,
+            request.Difficulty);
 
         await _repository.AddAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

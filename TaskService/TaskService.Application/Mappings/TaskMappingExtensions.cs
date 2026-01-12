@@ -15,6 +15,9 @@ public static class TaskMappingExtensions
             task.CreatedAt,
             task.CompletedAt,
             task.CreatedByUserId,
+            task.Difficulty,
+            task.RewardXp,
+            task.RewardPoints,
             new TaskEvidenceDto(
                 task.EvidenceRequirement,
                 task.EvidenceSubmitted,

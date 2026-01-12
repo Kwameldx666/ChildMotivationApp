@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import {
 	Dialog,
 	DialogContent,
@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Upload, Send } from "lucide-react"
+import { Send, Sparkles } from "lucide-react"
 import type { TaskEvidenceRequirement } from "@/services/tasks-service"
+import MediaUpload from "./media-upload"
 
 interface TaskSubmissionModalProps {
 	open: boolean
@@ -22,13 +23,6 @@ interface TaskSubmissionModalProps {
 	requirements?: string
 	isSubmitting?: boolean
 	onSubmit: (file: File) => Promise<void> | void
-}
-
-const ACCEPT_MAP: Record<TaskEvidenceRequirement, string> = {
-	none: '',
-	photo: 'image/*',
-	video: 'video/*',
-	document: '.pdf,.doc,.docx,.txt',
 }
 
 export default function TaskSubmissionModal({
@@ -41,26 +35,12 @@ export default function TaskSubmissionModal({
 	onSubmit,
 }: TaskSubmissionModalProps) {
 	const [file, setFile] = useState<File | null>(null)
-	const accept = ACCEPT_MAP[confirmationType]
+
 	useEffect(() => {
 		if (!open) {
 			setFile(null)
 		}
 	}, [open])
-
-
-	const instruction = useMemo(() => {
-		switch (confirmationType) {
-			case "photo":
-				return "Загрузите чёткое фото результата."
-			case "video":
-				return "Запишите короткое видео, показывающее выполненную работу."
-			case "document":
-				return "Прикрепите документ или заметку с подтверждением."
-			default:
-				return ""
-		}
-	}, [confirmationType])
 
 	const handleSubmit = async () => {
 		if (!file) return
@@ -68,48 +48,59 @@ export default function TaskSubmissionModal({
 		setFile(null)
 	}
 
+	const handleFileSelect = (selectedFile: File) => {
+		setFile(selectedFile)
+	}
+
+	const handleClear = () => {
+		setFile(null)
+	}
+
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-lg">
+			<DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Отправка подтверждения</DialogTitle>
-					<DialogDescription>Задача: {taskTitle}</DialogDescription>
+					<DialogTitle className="text-2xl flex items-center gap-2">
+						<Sparkles className="h-6 w-6 text-primary" />
+						Отправка доказательства
+					</DialogTitle>
+					<DialogDescription className="text-base">
+						<strong>{taskTitle}</strong>
+					</DialogDescription>
 				</DialogHeader>
 
-				<div className="space-y-4 py-4">
+				<div className="space-y-6 py-4">
 					{requirements && (
-						<Card className="p-3 bg-blue-50 border-blue-200">
-							<p className="text-sm font-medium text-blue-900">Требования родителя</p>
-							<p className="text-sm text-blue-800 mt-1">{requirements}</p>
+						<Card className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200">
+							<p className="text-sm font-bold text-violet-900 mb-2">📋 Требования родителя</p>
+							<p className="text-sm text-violet-800">{requirements}</p>
 						</Card>
 					)}
 
-					<div className="space-y-2">
-						<label className="text-sm font-medium flex items-center gap-2">
-							<Upload className="w-4 h-4" /> Выберите файл
-						</label>
-						<input
-							type="file"
-							accept={accept}
-							onChange={(event) => {
-								const next = event.target.files?.[0]
-								setFile(next ?? null)
-							}}
-							className="w-full text-sm"
-						/>
-						{instruction && <p className="text-xs text-muted-foreground">{instruction}</p>}
-						{file && <p className="text-xs text-foreground">Выбран файл: {file.name}</p>}
-					</div>
-
+					<MediaUpload
+						evidenceType={confirmationType}
+						onFileSelect={handleFileSelect}
+						selectedFile={file}
+						onClear={handleClear}
+					/>
 				</div>
 
-				<DialogFooter className="gap-2">
-					<Button variant="outline" onClick={onClose} className="bg-transparent">
+				<DialogFooter className="gap-2 sm:gap-2">
+					<Button 
+						variant="outline" 
+						onClick={onClose} 
+						className="flex-1 sm:flex-none"
+						disabled={isSubmitting}
+					>
 						Отмена
 					</Button>
-					<Button onClick={handleSubmit} disabled={!file || isSubmitting} className="gap-2">
+					<Button 
+						onClick={handleSubmit} 
+						disabled={!file || isSubmitting} 
+						className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+					>
 						<Send className="w-4 h-4" />
-						{isSubmitting ? "Отправляем..." : "Отправить"}
+						{isSubmitting ? "Отправляем..." : "Отправить родителю"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

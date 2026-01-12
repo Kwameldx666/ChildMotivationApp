@@ -44,6 +44,8 @@ export default function OAuthRedirectPage() {
   const tokenParam = searchParams.get("oauth_token")
   const errorParam = searchParams.get("oauth_error")
   const providerParam = (searchParams.get("oauth_provider") ?? "google").toLowerCase() as string
+  const familyCodeParam = searchParams.get("familyCode")
+  const modeParam = searchParams.get("mode") as UserRole | null
 
   const [isLoading, setIsLoading] = useState(true)
   const [fatalError, setFatalError] = useState<string | null>(null)
@@ -101,6 +103,22 @@ export default function OAuthRedirectPage() {
           setEmail(data.email ?? "")
           setName(defaultName)
           setLastName(defaultLastName)
+          
+          // Auto-fill family code from URL or localStorage
+          const storedFamilyCode = typeof window !== "undefined" ? localStorage.getItem("pendingFamilyCode") : null
+          const codeToUse = familyCodeParam || storedFamilyCode
+          
+          if (codeToUse) {
+            setFamilyCode(codeToUse.toUpperCase())
+            setRole("child")
+            // Clear from localStorage after using
+            if (storedFamilyCode) {
+              localStorage.removeItem("pendingFamilyCode")
+            }
+          } else if (modeParam === "child" || modeParam === "parent") {
+            setRole(modeParam)
+          }
+          
           setIsLoading(false)
         } catch (err) {
           setFatalError(mapApiError(err, "Не удалось получить данные профиля."))
@@ -327,6 +345,9 @@ export default function OAuthRedirectPage() {
                     onChange={(event) => setFamilyCode(event.target.value)}
                     placeholder="ABC123"
                   />
+                  {(familyCodeParam || localStorage.getItem("pendingFamilyCode")) && familyCode && (
+                    <p className="text-xs text-green-600 mt-1">✓ Код импортирован из приглашения</p>
+                  )}
                 </div>
                 <div>
                   <Label>Возраст</Label>

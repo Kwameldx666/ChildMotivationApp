@@ -1,25 +1,24 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Gateway.Contracts.Ai;
 
 /// <summary>
-/// Request to execute an AI-suggested action
+///     Request to execute an AI-suggested action
 /// </summary>
 public sealed class ExecuteAiActionRequest
 {
     /// <summary>The action to execute</summary>
     public required AiActionDto Action { get; init; }
-    
+
     /// <summary>User ID performing the action</summary>
     public string? UserId { get; init; }
-    
+
     /// <summary>Family ID context</summary>
     public string? FamilyId { get; init; }
 }
 
 /// <summary>
-/// AI action DTO from frontend
+///     AI action DTO from frontend
 /// </summary>
 public sealed class AiActionDto
 {
@@ -32,7 +31,7 @@ public sealed class AiActionDto
 }
 
 /// <summary>
-/// Response after executing an AI action
+///     Response after executing an AI action
 /// </summary>
 public sealed class ExecuteAiActionResponse
 {

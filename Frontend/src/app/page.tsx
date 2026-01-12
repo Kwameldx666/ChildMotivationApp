@@ -72,6 +72,7 @@ export default function Home() {
   if (screen === "parent-dashboard" && session) {
     return (
       <ParentDashboard
+        userId={session.user.id}
         userProfile={session.profile}
         familyCode={session.family?.code ?? null}
         familyName={session.family?.name ?? null}

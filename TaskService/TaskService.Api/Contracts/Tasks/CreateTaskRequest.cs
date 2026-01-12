@@ -15,6 +15,9 @@ public class CreateTaskRequest
     [StringLength(64)]
     public string CreatedByUserId { get; init; } = string.Empty;
 
+    [Range(1,5)]
+    public int? Difficulty { get; init; }
+
     [StringLength(16)]
     public string ConfirmationType { get; init; } = "none";
 }

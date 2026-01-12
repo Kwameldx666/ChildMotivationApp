@@ -10,6 +10,9 @@ public record TaskDto(
     DateTime CreatedAt,
     DateTime? CompletedAt,
     string CreatedByUserId,
+    int Difficulty,
+    int RewardXp,
+    int RewardPoints,
     TaskEvidenceDto Evidence);
 
 public record TaskEvidenceDto(

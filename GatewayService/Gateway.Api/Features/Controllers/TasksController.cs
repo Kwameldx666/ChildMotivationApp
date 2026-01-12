@@ -41,7 +41,9 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
             title = payload.Title,
             description = payload.Description,
             createdByUserId = userId,
-            confirmationType = payload.ConfirmationType
+            confirmationType = payload.ConfirmationType,
+            difficulty = payload.Difficulty,
+            assignedToUserId = payload.AssignedToUserId
         };
 
         using var response = await taskClient.CreateAsync(upstreamPayload, cancellationToken);

@@ -8,4 +8,5 @@ public record CreateTaskCommand(
 	string Title,
 	string? Description,
 	string CreatedByUserId,
-	TaskEvidenceRequirement EvidenceRequirement) : IRequest<TaskDto>;
+	TaskEvidenceRequirement EvidenceRequirement,
+	int? Difficulty) : IRequest<TaskDto>; 
