@@ -64,6 +64,12 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             RuleFor(x => x.Code)
                 .NotEmpty()
                 .WithMessage("Family code is required for child accounts.");
+
+            RuleFor(x => x.Age)
+                .NotNull()
+                .WithMessage("Age is required for child accounts.")
+                .InclusiveBetween(1, 120)
+                .WithMessage("Age must be between 1 and 120.");
         });
     }
 

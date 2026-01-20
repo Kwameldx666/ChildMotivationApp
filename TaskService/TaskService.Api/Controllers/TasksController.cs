@@ -19,9 +19,12 @@ namespace TaskService.Api.Controllers;
 public class TasksController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TaskDto>>> GetAll([FromQuery] string? createdByUserId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<TaskDto>>> GetAll(
+        [FromQuery] string? createdByUserId, 
+        [FromQuery] string? assignedToUserId,
+        CancellationToken cancellationToken)
     {
-        var items = await mediator.Send(new GetTasksQuery(createdByUserId), cancellationToken);
+        var items = await mediator.Send(new GetTasksQuery(createdByUserId, assignedToUserId), cancellationToken);
         return Ok(items);
     }
 
@@ -42,7 +45,8 @@ public class TasksController(IMediator mediator) : ControllerBase
             request.Description,
             request.CreatedByUserId,
             ResolveEvidenceRequirement(request.ConfirmationType),
-            request.Difficulty);
+            request.Difficulty,
+            request.AssignedToUserId);
 
         var created = await mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);

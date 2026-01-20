@@ -17,8 +17,7 @@ public class FamilyMessageConfiguration : IEntityTypeConfiguration<FamilyMessage
             .HasMaxLength(64);
 
         builder.Property(m => m.SenderId)
-            .IsRequired()
-            .HasMaxLength(64);
+            .IsRequired();
 
         builder.Property(m => m.Content)
             .IsRequired()
@@ -37,6 +36,13 @@ public class FamilyMessageConfiguration : IEntityTypeConfiguration<FamilyMessage
         builder.Property(m => m.ReplyToMessageId)
             .IsRequired(false)
             .HasMaxLength(64);
+
+        // Configure relationship with User
+        builder.HasOne(m => m.Sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(m => m.FamilyId);
         builder.HasIndex(m => new { m.FamilyId, m.CreatedAt });

@@ -9,4 +9,13 @@ public class Product
     public int Stock { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    // Premium поля
+    public bool IsPremium { get; set; } = false;                    // Требуется Premium подписка
+    public string? RequiredTier { get; set; }                       // basic, premium, family
+    public string? Category { get; set; }                           // electronics, books, toys, experiences, etc.
+    public string? ImageUrl { get; set; }                           // URL изображения награды
+    public int? RecommendedAge { get; set; }                        // Рекомендуемый возраст
+    public bool IsExclusive { get; set; } = false;                  // Эксклюзивная награда
 }
+

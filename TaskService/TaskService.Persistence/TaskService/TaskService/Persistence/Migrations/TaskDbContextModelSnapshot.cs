@@ -405,6 +405,10 @@ namespace TaskService.Persistence.TaskService.TaskService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AssignedToUserId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<bool>("Completed")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -424,6 +428,11 @@ namespace TaskService.Persistence.TaskService.TaskService.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("Difficulty")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(2);
 
                     b.Property<string>("EvidenceContentType")
                         .HasMaxLength(128)
@@ -452,18 +461,15 @@ namespace TaskService.Persistence.TaskService.TaskService.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<int>("Difficulty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(2);
-
-                    b.Property<int>("RewardXp")
-                        .HasColumnType("integer");
-
                     b.Property<int>("RewardPoints")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(5);
+
+                    b.Property<int>("RewardXp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(100);
 
                     b.Property<string>("Title")
                         .IsRequired()

@@ -1,6 +1,14 @@
 import { httpClient } from '@/services/api/http-client'
 
-export type OrderStatus = 'Pending' | 'Paid' | 'Shipped' | 'Completed' | 'Cancelled' | number
+export type OrderStatus = 
+  | 'Pending'          // 0 - Ожидает оплаты
+  | 'Paid'             // 1 - Оплачен
+  | 'AwaitingDelivery' // 2 - Ожидает выдачи награды
+  | 'Delivered'        // 3 - Награда выдана родителем
+  | 'Confirmed'        // 4 - Получение подтверждено ребёнком
+  | 'Completed'        // 5 - Завершён
+  | 'Cancelled'        // 6 - Отменён
+  | number
 
 export interface ProductDto {
   id: string
@@ -10,6 +18,12 @@ export interface ProductDto {
   stock: number
   isActive: boolean
   createdAt: string
+  isPremium?: boolean
+  requiredTier?: string | null
+  category?: string | null
+  imageUrl?: string | null
+  recommendedAge?: number | null
+  isExclusive?: boolean
 }
 
 export interface OrderItemDto {
@@ -29,6 +43,11 @@ export interface OrderDto {
   status: OrderStatus
   totalAmount: number
   items: OrderItemDto[]
+  deliveredAt?: string | null
+  deliveredByUserId?: string | null
+  confirmedAt?: string | null
+  confirmedByUserId?: string | null
+  deliveryNotes?: string | null
 }
 
 export interface CreateOrderPayload {
@@ -48,6 +67,15 @@ export interface UpsertProductPayload {
   price: number
   stock: number
   isActive?: boolean
+}
+
+export interface MarkOrderDeliveredPayload {
+  deliveredByUserId: string
+  notes?: string | null
+}
+
+export interface ConfirmOrderReceivedPayload {
+  confirmedByUserId: string
 }
 
 export const shopService = {
@@ -80,5 +108,11 @@ export const shopService = {
   },
   deleteProduct(productId: string) {
     return httpClient.delete<void>(`/api-gateway/shop/products/${productId}`)
+  },
+  markOrderAsDelivered(orderId: string, payload: MarkOrderDeliveredPayload) {
+    return httpClient.post<void>(`/api-gateway/shop/orders/${orderId}/mark-delivered`, payload)
+  },
+  confirmOrderReceived(orderId: string, payload: ConfirmOrderReceivedPayload) {
+    return httpClient.post<void>(`/api-gateway/shop/orders/${orderId}/confirm-received`, payload)
   },
 }

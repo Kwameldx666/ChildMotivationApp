@@ -2,7 +2,9 @@ namespace Gateway.Application.Abstractions.Infrastructure;
 
 public interface ITaskServiceClient
 {
-    Task<HttpResponseMessage> GetAllAsync(string? createdByUserId = null,
+    Task<HttpResponseMessage> GetAllAsync(
+        string? createdByUserId = null,
+        string? assignedToUserId = null,
         CancellationToken cancellationToken = default);
 
     Task<HttpResponseMessage> GetAsync(Guid id, CancellationToken cancellationToken = default);
@@ -10,6 +12,7 @@ public interface ITaskServiceClient
     Task<HttpResponseMessage> UpdateAsync(Guid id, object request, CancellationToken cancellationToken = default);
     Task<HttpResponseMessage> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<HttpResponseMessage> CompleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<HttpResponseMessage> GetAnalyticsAsync(string userId, int windowDays, CancellationToken cancellationToken = default);
 
     Task<HttpResponseMessage> UploadEvidenceAsync(
         Guid id,

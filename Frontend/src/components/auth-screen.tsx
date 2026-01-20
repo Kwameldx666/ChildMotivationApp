@@ -89,6 +89,7 @@ function GitHubIcon(props: { className?: string }) {
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [role, setRole] = useState<UserRole>("parent")
+  const [isJoiningByInvite, setIsJoiningByInvite] = useState(false) // Блокировка выбора роли
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -120,6 +121,26 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setInfo(null)
   }, [initialMode])
 
+  // Загружаем pendingFamilyCode и режим из localStorage (для приглашений)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pendingCode = localStorage.getItem("pendingFamilyCode")
+      const pendingMode = localStorage.getItem("pendingJoinMode")
+      
+      if (pendingCode) {
+        setChildFamilyCode(pendingCode)
+        localStorage.removeItem("pendingFamilyCode")
+      }
+      
+      if (pendingMode === "child") {
+        setRole("child")
+        setMode("register")
+        setIsJoiningByInvite(true) // Блокируем выбор роли
+        localStorage.removeItem("pendingJoinMode")
+      }
+    }
+  }, [])
+
 
 
   // Simple email validator (not fully RFC, but practical)
@@ -147,6 +168,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     if (!name.trim() || !lastName.trim()) return true
     if (role === "parent" && !familyName.trim()) return true
     if (role === "child" && !childFamilyCode.trim()) return true
+    if (role === "child" && !age.trim()) return true // Обязательное поле возраста
     if (role === "child" && age.trim()) {
       const parsed = Number(age)
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 120) return true
@@ -336,6 +358,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         type="button"
                         variant={role === "parent" ? "default" : "outline"}
                         onClick={() => setRole("parent")}
+                        disabled={isJoiningByInvite}
                       >
                         Родитель
                       </Button>
@@ -343,10 +366,17 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         type="button"
                         variant={role === "child" ? "default" : "outline"}
                         onClick={() => setRole("child")}
+                        disabled={isJoiningByInvite}
                       >
                         Ребёнок
                       </Button>
                     </div>
+                    
+                    {isJoiningByInvite && (
+                      <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded-lg">
+                        ⚠️ Вы присоединяетесь по ссылке-приглашению. Роль автоматически установлена как "Ребёнок"
+                      </p>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -364,10 +394,21 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     {role === "child" && (
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label>Возраст (опционально)</Label>
-                          <Input value={age} onChange={(e) => setAge(e.target.value)} onBlur={() => setAgeTouched(true)} inputMode="numeric" />
+                          <Label>Возраст *</Label>
+                          <Input 
+                            required
+                            value={age} 
+                            onChange={(e) => setAge(e.target.value)} 
+                            onBlur={() => setAgeTouched(true)} 
+                            inputMode="numeric"
+                            placeholder="Введите возраст"
+                            aria-invalid={(ageTouched || submitAttempted) && (!age.trim() || Number.isNaN(Number(age)) || Number(age) < 1 || Number(age) > 120)}
+                          />
+                          {(ageTouched || submitAttempted) && !age.trim() && (
+                            <p className="text-xs text-destructive mt-1">Обязательное поле</p>
+                          )}
                           {(ageTouched || submitAttempted) && age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
-                            <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
+                            <p className="text-xs text-destructive mt-1">Некорректный возраст (1-120)</p>
                           )} 
                         </div>
                         <div>

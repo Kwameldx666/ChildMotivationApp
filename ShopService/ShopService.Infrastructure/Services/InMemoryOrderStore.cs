@@ -93,4 +93,35 @@ public class InMemoryOrderStore : IOrderStore
             return Task.FromResult(_orders.Remove(id));
         }
     }
+
+    public Task<bool> MarkAsDeliveredAsync(Guid id, string deliveredByUserId, string? notes, CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            if (!_orders.TryGetValue(id, out var order)) return Task.FromResult(false);
+            
+            order.Status = OrderStatus.Delivered;
+            order.DeliveredAt = DateTime.UtcNow;
+            order.DeliveredByUserId = deliveredByUserId;
+            order.DeliveryNotes = notes;
+            
+            _orders[id] = order;
+            return Task.FromResult(true);
+        }
+    }
+
+    public Task<bool> ConfirmReceivedAsync(Guid id, string confirmedByUserId, CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            if (!_orders.TryGetValue(id, out var order)) return Task.FromResult(false);
+            
+            order.Status = OrderStatus.Confirmed;
+            order.ConfirmedAt = DateTime.UtcNow;
+            order.ConfirmedByUserId = confirmedByUserId;
+            
+            _orders[id] = order;
+            return Task.FromResult(true);
+        }
+    }
 }

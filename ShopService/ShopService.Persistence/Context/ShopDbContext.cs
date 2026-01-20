@@ -24,6 +24,14 @@ public class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(
             b.Property(x => x.Stock).HasDefaultValue(0);
             b.Property(x => x.IsActive).HasDefaultValue(true);
             b.Property(x => x.CreatedAt).IsRequired();
+            
+            // Premium поля
+            b.Property(x => x.IsPremium).HasDefaultValue(false);
+            b.Property(x => x.RequiredTier).HasMaxLength(50);
+            b.Property(x => x.Category).HasMaxLength(100);
+            b.Property(x => x.ImageUrl).HasMaxLength(500);
+            b.Property(x => x.RecommendedAge);
+            b.Property(x => x.IsExclusive).HasDefaultValue(false);
         });
 
         modelBuilder.Entity<Order>(b =>
@@ -34,6 +42,13 @@ public class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(
             b.Property(x => x.Status).HasConversion<int>().HasDefaultValue(OrderStatus.Pending);
             b.Property(x => x.CreatedAt).IsRequired();
             b.Property(x => x.TotalAmount).HasColumnType("numeric(12,2)").IsRequired();
+            
+            // Новые поля для подтверждения выдачи награды
+            b.Property(x => x.DeliveredAt);
+            b.Property(x => x.DeliveredByUserId).HasMaxLength(64);
+            b.Property(x => x.ConfirmedAt);
+            b.Property(x => x.ConfirmedByUserId).HasMaxLength(64);
+            b.Property(x => x.DeliveryNotes).HasMaxLength(1000);
 
             b.HasMany(o => o.Items)
                 .WithOne(i => i.Order)

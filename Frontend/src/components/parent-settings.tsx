@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Moon, Copy, AlertCircle, Link2, Share2, QrCode } from "lucide-react"
+import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode } from "lucide-react"
+import { useTheme } from "next-themes"
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import SubscriptionManager from "./subscription-manager"
 
 interface ParentSettingsProps {
   familyName?: string | null
@@ -22,9 +24,9 @@ interface ParentSettingsProps {
 }
 
 export default function ParentSettings({ familyName, familyCode }: ParentSettingsProps) {
+  const { theme, setTheme } = useTheme()
   const [settings, setSettings] = useState({
     notificationsEnabled: true,
-    darkMode: false,
     soundEnabled: true,
     nightModeStart: "22:00",
     nightModeEnd: "08:00",
@@ -71,6 +73,12 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
 
   return (
     <div className="space-y-6">
+      {/* Подписка */}
+      <SubscriptionManager 
+        currentTier="free" 
+        onUpgrade={(tier) => console.log("Upgrade to:", tier)}
+      />
+
       {/* Семья */}
       <Card>
         <CardHeader>
@@ -210,13 +218,36 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Moon className="w-4 h-4 text-muted-foreground" />
+              {theme === "dark" ? (
+                <Moon className="w-5 h-5 text-slate-400" />
+              ) : (
+                <Sun className="w-5 h-5 text-amber-500" />
+              )}
               <div>
-                <Label className="font-medium">Темная тема</Label>
-                <p className="text-xs text-muted-foreground">Переключиться на темный режим</p>
+                <Label className="font-medium">Тема оформления</Label>
+                <p className="text-xs text-muted-foreground">
+                  {theme === "dark" ? "Темная тема включена" : "Светлая тема включена"}
+                </p>
               </div>
             </div>
-            <Switch checked={settings.darkMode} onCheckedChange={(value) => handleSettingChange("darkMode", value)} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="gap-2"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-4 w-4" />
+                  Светлая
+                </>
+              ) : (
+                <>
+                  <Moon className="h-4 w-4" />
+                  Тёмная
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -6,6 +6,8 @@ import {
   ProductDto,
   UpdateOrderStatusPayload,
   UpsertProductPayload,
+  MarkOrderDeliveredPayload,
+  ConfirmOrderReceivedPayload,
 } from './shop-service'
 
 export function useShopProducts() {
@@ -84,6 +86,28 @@ export function useDeleteProduct() {
     mutationFn: (id: string) => shopService.deleteProduct(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['shop', 'products'] })
+    },
+  })
+}
+
+export function useMarkOrderAsDelivered() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: MarkOrderDeliveredPayload }) =>
+      shopService.markOrderAsDelivered(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
+    },
+  })
+}
+
+export function useConfirmOrderReceived() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ConfirmOrderReceivedPayload }) =>
+      shopService.confirmOrderReceived(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
     },
   })
 }

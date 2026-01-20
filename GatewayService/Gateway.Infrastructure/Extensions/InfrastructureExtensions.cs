@@ -20,6 +20,8 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddHttpContextAccessor();
+        services.AddTransient<AuthorizationForwardingHandler>();
         services.AddProxies();
         services.AddAuthentication(configuration);
         services.ConfigureHttpClients(configuration);

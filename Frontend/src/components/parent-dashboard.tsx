@@ -21,6 +21,7 @@ import { useCreateTask } from "@/services/tasks-queries"
 import { useCreateProduct } from "@/services/shop-queries"
 import type { CreateTaskPayload } from "@/services/tasks-service"
 import { useToast } from "@/hooks/use-toast"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -134,7 +135,7 @@ export default function ParentDashboard({
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-border">
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -146,6 +147,7 @@ export default function ParentDashboard({
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button
               className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
               onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}

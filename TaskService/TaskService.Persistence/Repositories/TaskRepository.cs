@@ -15,13 +15,21 @@ public class TaskRepository : ITaskRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<TaskItem>> GetAsync(string? createdByUserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TaskItem>> GetAsync(
+        string? createdByUserId, 
+        string? assignedToUserId = null, 
+        CancellationToken cancellationToken = default)
     {
         var query = _dbContext.Tasks.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(createdByUserId))
         {
             query = query.Where(task => task.CreatedByUserId == createdByUserId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(assignedToUserId))
+        {
+            query = query.Where(task => task.AssignedToUserId == assignedToUserId);
         }
 
         return await query

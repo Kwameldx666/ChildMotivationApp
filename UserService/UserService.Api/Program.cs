@@ -1,9 +1,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Api.Authorization;
 using UserService.Application.Extensions;
 using UserService.Infrastructure.Extensions;
+using UserService.Persistence.Context;
 using UserService.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,13 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Apply migrations automatically
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 // Serve static files (avatars, etc.) from wwwroot
 app.UseStaticFiles();

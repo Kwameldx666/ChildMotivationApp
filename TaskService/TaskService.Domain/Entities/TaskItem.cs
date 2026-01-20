@@ -17,7 +17,8 @@ public class TaskItem
         TaskEvidenceRequirement evidenceRequirement,
         int difficulty,
         int rewardXp,
-        int rewardPoints)
+        int rewardPoints,
+        string? assignedToUserId = null)
     {
         Id = id;
         Title = title;
@@ -28,6 +29,7 @@ public class TaskItem
         Difficulty = difficulty;
         RewardXp = rewardXp;
         RewardPoints = rewardPoints;
+        AssignedToUserId = assignedToUserId;
     }
 
     public Guid Id { get; private set; }
@@ -37,6 +39,7 @@ public class TaskItem
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; private set; }
     public string CreatedByUserId { get; private set; } = string.Empty;
+    public string? AssignedToUserId { get; private set; } // ID ребёнка, которому назначена задача
     public TaskEvidenceRequirement EvidenceRequirement { get; private set; } = TaskEvidenceRequirement.None;
     public string? EvidenceStoragePath { get; private set; }
     public string? EvidenceFileName { get; private set; }
@@ -68,7 +71,8 @@ public class TaskItem
         string createdByUserId,
         DateTime createdAt,
         TaskEvidenceRequirement evidenceRequirement,
-        int? difficulty = null)
+        int? difficulty = null,
+        string? assignedToUserId = null)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title is required", nameof(title));
@@ -90,7 +94,8 @@ public class TaskItem
             evidenceRequirement,
             d,
             rewardXp,
-            rewardPoints);
+            rewardPoints,
+            assignedToUserId?.Trim());
     }
 
     public void UpdateDifficulty(int difficulty)

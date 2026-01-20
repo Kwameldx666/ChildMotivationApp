@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { CssVarsProvider } from '@mui/joy/styles'
 import { Toaster } from 'sonner'
+import { ThemeProvider } from '@/components/theme-provider'
 import { appStore, persistor } from '@/store/appStore'
 import { theme } from '@/theme'
 
@@ -35,13 +36,20 @@ export function AppProviders({ children }: AppProvidersProps) {
     <Provider store={appStore}>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <CssVarsProvider theme={theme} defaultMode="light">
-            {children}
-            <Toaster position="top-right" richColors closeButton duration={4000} />
-            {process.env.NODE_ENV !== 'production' ? (
-              <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
-            ) : null}
-          </CssVarsProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <CssVarsProvider theme={theme} defaultMode="light">
+              {children}
+              <Toaster position="top-right" richColors closeButton duration={4000} />
+              {process.env.NODE_ENV !== 'production' ? (
+                <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+              ) : null}
+            </CssVarsProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </PersistGate>
     </Provider>

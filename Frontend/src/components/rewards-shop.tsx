@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ShoppingCart, Package, Loader2, AlertCircle, Truck, Edit2, Trash2, Gift, Star, Sparkles, CheckCircle, Clock, XCircle } from "lucide-react"
+import { ShoppingCart, Package, Loader2, AlertCircle, Truck, Edit2, Trash2, Gift, Star, Sparkles, CheckCircle, Clock, XCircle, Crown } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import {
   useCreateOrder,
@@ -13,6 +13,8 @@ import {
   useShopOrders,
   useShopProducts,
   useUpdateProduct,
+  useMarkOrderAsDelivered,
+  useConfirmOrderReceived,
 } from "@/services/shop-queries"
 import { OrderStatus, ProductDto } from "@/services/shop-service"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -28,27 +30,35 @@ interface RewardsShopProps {
 const statusStyles: Record<string, { bg: string; text: string; border: string; icon: typeof Clock }> = {
   Pending: { bg: "bg-amber-500/10", text: "text-amber-700", border: "border-amber-500/30", icon: Clock },
   Paid: { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
-  Shipped: { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Truck },
+  AwaitingDelivery: { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Package },
+  Delivered: { bg: "bg-purple-500/10", text: "text-purple-700", border: "border-purple-500/30", icon: Gift },
+  Confirmed: { bg: "bg-cyan-500/10", text: "text-cyan-700", border: "border-cyan-500/30", icon: CheckCircle },
   Completed: { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
   Cancelled: { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
   "0": { bg: "bg-amber-500/10", text: "text-amber-700", border: "border-amber-500/30", icon: Clock },
   "1": { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
-  "2": { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Truck },
-  "3": { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
-  "4": { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
+  "2": { bg: "bg-blue-500/10", text: "text-blue-700", border: "border-blue-500/30", icon: Package },
+  "3": { bg: "bg-purple-500/10", text: "text-purple-700", border: "border-purple-500/30", icon: Gift },
+  "4": { bg: "bg-cyan-500/10", text: "text-cyan-700", border: "border-cyan-500/30", icon: CheckCircle },
+  "5": { bg: "bg-emerald-500/10", text: "text-emerald-700", border: "border-emerald-500/30", icon: CheckCircle },
+  "6": { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
 }
 
 const statusLabels: Record<string, string> = {
   Pending: "Ожидает оплаты",
   Paid: "Оплачен",
-  Shipped: "Отгружен",
-  Completed: "Завершен",
-  Cancelled: "Отменен",
+  AwaitingDelivery: "Ожидает выдачи",
+  Delivered: "Награда выдана",
+  Confirmed: "Получение подтверждено",
+  Completed: "Завершён",
+  Cancelled: "Отменён",
   "0": "Ожидает оплаты",
   "1": "Оплачен",
-  "2": "Отгружен",
-  "3": "Завершен",
-  "4": "Отменен",
+  "2": "Ожидает выдачи",
+  "3": "Награда выдана",
+  "4": "Получение подтверждено",
+  "5": "Завершён",
+  "6": "Отменён",
 }
 
 const formatPoints = (value: number) => `${value.toLocaleString("ru-RU")} очков`
@@ -62,6 +72,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
   const createOrder = useCreateOrder()
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
+  const markAsDelivered = useMarkOrderAsDelivered()
+  const confirmReceived = useConfirmOrderReceived()
   const [selectedProduct, setSelectedProduct] = useState<ProductDto | null>(null)
   const [productForm, setProductForm] = useState({
     name: "",
@@ -253,7 +265,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
 
               <div className="relative p-6">
                 {/* Stock badge */}
-                <div className="mb-4 flex items-center gap-2">
+                <div className="mb-4 flex items-center gap-2 flex-wrap">
                   <Badge 
                     variant="outline" 
                     className={cn(
@@ -268,6 +280,18 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                   {!product.isActive && isParent && (
                     <Badge variant="outline" className="rounded-full px-3 py-1 text-xs bg-slate-500/10 text-slate-700 border-slate-500/30">
                       Скрыта
+                    </Badge>
+                  )}
+                  {product.isPremium && (
+                    <Badge className="rounded-full px-3 py-1 text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                      <Crown className="h-3 w-3 mr-1" />
+                      Premium
+                    </Badge>
+                  )}
+                  {product.isExclusive && (
+                    <Badge variant="outline" className="rounded-full px-3 py-1 text-xs bg-amber-500/10 text-amber-700 border-amber-500/30">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Эксклюзив
                     </Badge>
                   )}
                 </div>
@@ -486,6 +510,94 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                     </div>
                   ))}
                 </div>
+
+                {/* Action Buttons */}
+                {order.deliveryNotes && (
+                  <div className="mt-4 rounded-2xl border border-border/50 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 px-4 py-3">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">Комментарий родителя:</p>
+                    <p className="text-sm text-muted-foreground">{order.deliveryNotes}</p>
+                  </div>
+                )}
+
+                {isParent && statusKey === "1" && (
+                  <div className="mt-4">
+                    <Button
+                      size="sm"
+                      className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      onClick={async () => {
+                        try {
+                          await markAsDelivered.mutateAsync({
+                            id: order.id,
+                            payload: { deliveredByUserId: "parent-user-id", notes: "Награда выдана" }
+                          })
+                          toast({
+                            title: "Успешно!",
+                            description: "Вы отметили, что награда выдана",
+                          })
+                        } catch (error) {
+                          toast({
+                            title: "Ошибка",
+                            description: "Не удалось подтвердить выдачу награды",
+                            variant: "destructive",
+                          })
+                        }
+                      }}
+                      disabled={markAsDelivered.isPending}
+                    >
+                      {markAsDelivered.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Подтверждение...
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="mr-2 h-4 w-4" />
+                          Подтвердить выдачу награды
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {!isParent && statusKey === "3" && (
+                  <div className="mt-4">
+                    <Button
+                      size="sm"
+                      className="w-full rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
+                      onClick={async () => {
+                        try {
+                          await confirmReceived.mutateAsync({
+                            id: order.id,
+                            payload: { confirmedByUserId: "child-user-id" }
+                          })
+                          toast({
+                            title: "Успешно!",
+                            description: "Вы подтвердили получение награды",
+                          })
+                        } catch (error) {
+                          toast({
+                            title: "Ошибка",
+                            description: "Не удалось подтвердить получение награды",
+                            variant: "destructive",
+                          })
+                        }
+                      }}
+                      disabled={confirmReceived.isPending}
+                    >
+                      {confirmReceived.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Подтверждение...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Подтвердить получение
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )

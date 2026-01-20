@@ -25,6 +25,7 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
             b.Property(x => x.Completed).HasDefaultValue(false);
             b.Property(x => x.CreatedAt).IsRequired();
             b.Property(x => x.CreatedByUserId).HasMaxLength(64).IsRequired();
+            b.Property(x => x.AssignedToUserId).HasMaxLength(64);
             b.Property(x => x.EvidenceRequirement)
                 .HasConversion<int>()
                 .HasDefaultValue(TaskEvidenceRequirement.None)

@@ -1,102 +1,102 @@
-# Family Hub - Платформа для управления семьей
+# Family Hub - Family Management Platform
 
-Современная микросервисная платформа для организации семейной жизни с AI-помощником, чатом, задачами и магазином наград.
+Modern microservices platform for organizing family life with AI assistant, chat, tasks, and rewards shop.
 
-## 🚀 Технологический стек
+## 🚀 Technology Stack
 
 ### Backend
 - **.NET 8.0** - ASP.NET Core Web API
-- **Clean Architecture** - разделение слоев (API, Application, Domain, Infrastructure, Persistence)
-- **PostgreSQL 15** - основная база данных
-- **Redis 7** - кэширование и распределенные сессии
+- **Clean Architecture** - layered separation (API, Application, Domain, Infrastructure, Persistence)
+- **PostgreSQL 15** - primary database
+- **Redis 7** - caching and distributed sessions
 - **Entity Framework Core** - ORM
 
 ### Frontend
-- **Next.js 15** - React framework с App Router
-- **TypeScript** - типизированный JavaScript
-- **TanStack Query** - управление серверным состоянием
-- **shadcn/ui + Tailwind CSS** - современный UI
-- **Zustand** - глобальное состояние
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - typed JavaScript
+- **TanStack Query** - server state management
+- **shadcn/ui + Tailwind CSS** - modern UI
+- **Zustand** - global state management
 
-## 📦 Архитектура микросервисов
+## 📦 Microservices Architecture
 
-Проект состоит из 8 независимых сервисов:
+The project consists of 8 independent services:
 
-### 1. **AuthService** (порт 8081)
-- OAuth 2.0 авторизация (Google)
-- JWT токены
-- Управление ролями (Parent/Child)
-- Redis для распределенных сессий
+### 1. **AuthService** (port 8081)
+- OAuth 2.0 authentication (Google)
+- JWT tokens
+- Role management (Parent/Child)
+- Redis for distributed sessions
 
-### 2. **UserService** (порт 8082)
-- Профили пользователей
-- Управление семьями
-- Связь родитель-ребенок
+### 2. **UserService** (port 8082)
+- User profiles
+- Family management
+- Parent-child relationships
 
-### 3. **TaskService** (порт 8083)
-- Создание и назначение задач
-- Система вознаграждений (баллы)
-- Статусы выполнения
+### 3. **TaskService** (port 8083)
+- Task creation and assignment
+- Reward system (points)
+- Completion statuses
 
-### 4. **ShopService** (порт 8084)
-- Каталог наград
-- Покупка за баллы
-- История транзакций
+### 4. **ShopService** (port 8084)
+- Rewards catalog
+- Point-based purchases
+- Transaction history
 
-### 5. **NotificationService** (порт 8085)
-- Внутренние уведомления
-- Система событий
+### 5. **NotificationService** (port 8085)
+- Internal notifications
+- Event system
 
-### 6. **AiService** (порт 8086)
-- AI-помощник для детей
-- Персонализированные советы
-- Помощь с задачами
+### 6. **AiService** (port 8086)
+- AI assistant for children
+- Personalized advice
+- Task assistance
 
-### 7. **GatewayService** (порт 8080)
+### 7. **GatewayService** (port 8080)
 - API Gateway
-- Маршрутизация запросов
-- CORS и безопасность
+- Request routing
+- CORS and security
 
-### 8. **Frontend** (порт 3000)
-- Web-интерфейс
-- Дашборды для родителей и детей
-- Real-time чат с семьей
+### 8. **Frontend** (port 3000)
+- Web interface
+- Dashboards for parents and children
+- Real-time family chat
 
-## 🛠 Быстрый старт
+## 🛠 Quick Start
 
-### Предварительные требования
+### Prerequisites
 - Docker & Docker Compose
-- Node.js 20+ (для фронтенда)
-- .NET 8 SDK (для разработки бэкенда)
+- Node.js 20+ (for frontend)
+- .NET 8 SDK (for backend development)
 
-### Запуск всего проекта
+### Running the entire project
 
 ```bash
-# Запуск всех сервисов через Docker Compose
+# Start all services via Docker Compose
 docker-compose up --build
 
-# Запуск в фоновом режиме
+# Run in background mode
 docker-compose up -d --build
 ```
 
-После запуска доступны:
+After startup, available at:
 - **Frontend**: http://localhost:3000
 - **API Gateway**: http://localhost:8080
 - **PostgreSQL**: localhost:5433
 - **Redis**: localhost:6379
 
-### Остановка
+### Stopping
 
 ```bash
 docker-compose down
 
-# С удалением volumes (очистка БД)
+# With volume removal (database cleanup)
 docker-compose down -v
 ```
 
-## 🔑 Переменные окружения
+## 🔑 Environment Variables
 
-Основные переменные для настройки:
+Main configuration variables:
 
 ```env
 # Auth Service
@@ -112,53 +112,53 @@ AUTH_DB_CONNECTION=Host=postgres;Port=5432;Database=db_net;Username=app_owner_ne
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-## 📁 Структура проекта
+## 📁 Project Structure
 
 ```
 project code/
-├── docker-compose.yml          # Оркестрация всех сервисов
-├── .dockerignore              # Исключения для Docker
+├── docker-compose.yml          # Service orchestration
+├── .dockerignore              # Docker exclusions
 │
-├── Frontend/                   # Next.js приложение
+├── Frontend/                   # Next.js application
 │   ├── src/
-│   │   ├── app/               # App Router страницы
-│   │   ├── components/        # React компоненты
-│   │   ├── features/          # Фичи (auth, tasks, etc)
+│   │   ├── app/               # App Router pages
+│   │   ├── components/        # React components
+│   │   ├── features/          # Features (auth, tasks, etc)
 │   │   └── store/             # Zustand store
 │   └── Dockerfile
 │
-├── AuthService/               # Сервис авторизации
-│   ├── AuthService.Api/       # API слой
-│   ├── AuthService.Application/   # Бизнес-логика
-│   ├── AuthService.Domain/    # Доменные модели
+├── AuthService/               # Authentication service
+│   ├── AuthService.Api/       # API layer
+│   ├── AuthService.Application/   # Business logic
+│   ├── AuthService.Domain/    # Domain models
 │   └── AuthService.Infrastructure/ # OAuth, JWT
 │
-├── UserService/               # Сервис пользователей
-├── TaskService/               # Сервис задач
-├── ShopService/               # Сервис магазина
-├── NotificationService/       # Сервис уведомлений
-├── AiService/                 # AI-помощник
+├── UserService/               # User service
+├── TaskService/               # Task service
+├── ShopService/               # Shop service
+├── NotificationService/       # Notification service
+├── AiService/                 # AI assistant
 └── GatewayService/            # API Gateway
 ```
 
-## ✨ Основные возможности
+## ✨ Key Features
 
-### Для родителей
-- 👨‍👩‍👧‍👦 Создание семьи и приглашение детей по ссылке
-- 📋 Назначение задач с вознаграждениями
-- 💬 Групповой чат со всеми детьми
-- 💬 Приватные чаты с каждым ребенком
-- 🎁 Создание наград в магазине
-- 📊 Просмотр прогресса детей
+### For Parents
+- 👨‍👩‍👧‍👦 Create family and invite children via link
+- 📋 Assign tasks with rewards
+- 💬 Group chat with all children
+- 💬 Private chats with each child
+- 🎁 Create rewards in shop
+- 📊 View children's progress
 
-### Для детей
-- ✅ Выполнение задач и получение баллов
-- 🛍 Покупка наград за баллы
-- 💬 Общение с родителями
-- 🤖 AI-помощник для советов
-- 📈 Отслеживание своих достижений
+### For Children
+- ✅ Complete tasks and earn points
+- 🛍 Purchase rewards with points
+- 💬 Communicate with parents
+- 🤖 AI assistant for advice
+- 📈 Track achievements
 
-## 🔄 API Gateway маршруты
+## 🔄 API Gateway Routes
 
 ```
 /auth-service/*       → AuthService:8081
@@ -169,25 +169,25 @@ project code/
 /ai-service/*         → AiService:8086
 ```
 
-## 🎨 Дизайн-система
+## 🎨 Design System
 
-Frontend использует современный gradient-дизайн:
-- Фиолетово-синие градиенты
-- Glassmorphism эффекты
-- Анимации и микроинтеракции
-- Адаптивный дизайн
+Frontend uses modern gradient design:
+- Purple-blue gradients
+- Glassmorphism effects
+- Animations and micro-interactions
+- Responsive design
 
-## 🔐 Безопасность
+## 🔐 Security
 
-- JWT токены с истечением
+- JWT tokens with expiration
 - HTTP-only cookies
-- CORS настройка
+- CORS configuration
 - OAuth 2.0 flow
-- Role-based доступ (Parent/Child)
+- Role-based access (Parent/Child)
 
-## 📝 Разработка
+## 📝 Development
 
-### Backend (любой сервис)
+### Backend (any service)
 ```bash
 cd AuthService
 dotnet restore
@@ -202,29 +202,29 @@ npm install
 npm run dev
 ```
 
-## 🐛 Отладка
+## 🐛 Debugging
 
-### Логи Docker
+### Docker Logs
 ```bash
 docker-compose logs -f [service_name]
 docker-compose logs -f auth-service
 ```
 
-### Подключение к PostgreSQL
+### Connect to PostgreSQL
 ```bash
 docker exec -it postgres_db psql -U app_owner_net -d db_net
 ```
 
-### Подключение к Redis
+### Connect to Redis
 ```bash
 docker exec -it redis redis-cli
 ```
 
-## 📚 Дополнительная информация
+## 📚 Additional Information
 
-### Clean Architecture слои
+### Clean Architecture Layers
 
-Каждый .NET сервис следует Clean Architecture:
+Each .NET service follows Clean Architecture:
 
 1. **Domain** - Entities, Value Objects
 2. **Application** - Use Cases, DTOs, Interfaces
@@ -232,29 +232,29 @@ docker exec -it redis redis-cli
 4. **Persistence** - EF Core, Database
 5. **Api** - Controllers, Middleware
 
-### База данных
+### Database
 
-Миграции применяются автоматически при старте сервисов.
+Migrations are applied automatically on service startup.
 
 ```bash
-# Создание новой миграции
+# Create new migration
 cd AuthService/AuthService.Persistence
 dotnet ef migrations add MigrationName
 
-# Применение миграций
+# Apply migrations
 dotnet ef database update
 ```
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-Проект создан как дипломная работа. Структура поддерживает расширение новыми микросервисами.
+Project created as a thesis work. The structure supports extension with new microservices.
 
-## 📄 Лицензия
+## 📄 License
 
-Образовательный проект.
+Educational project.
 
 ---
 
-**Автор**: Kwameldx666  
-**Версия**: 1.0  
-**Дата**: Январь 2026
+**Author**: Kwameldx666  
+**Version**: 1.0  
+**Date**: January 2026
