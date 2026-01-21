@@ -99,8 +99,8 @@ public class TasksController(IMediator mediator) : ControllerBase
     [HttpGet("{id:guid}/evidence")]
     public async Task<IActionResult> DownloadEvidence(Guid id, CancellationToken cancellationToken)
     {
-        await using var evidence = await mediator.Send(new GetTaskEvidenceQuery(id), cancellationToken);
-        return File(evidence.Content, evidence.ContentType, evidence.FileName);
+        var evidence = await mediator.Send(new GetTaskEvidenceQuery(id), cancellationToken);
+        return File(evidence.Content, evidence.ContentType, evidence.FileName, enableRangeProcessing: true);
     }
 
     private static TaskEvidenceRequirement ResolveEvidenceRequirement(string? value)

@@ -1,6 +1,7 @@
 using AuthService.Middlewares;
 using Mapster;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AuthService.Extensions;
 
@@ -16,6 +17,8 @@ public static class PresentationExtensions
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                // Сериализация enum как строки вместо чисел
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();

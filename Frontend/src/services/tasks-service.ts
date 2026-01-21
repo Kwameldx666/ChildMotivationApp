@@ -2,8 +2,12 @@ import { httpClient } from '@/services/api/http-client'
 
 export type TaskEvidenceRequirement = 'none' | 'photo' | 'video' | 'document'
 
+// Backend может возвращать как enum-числа (0=None, 1=Photo, 2=Video, 3=Document),
+// так и строки после обновления конфигурации
+type TaskEvidenceRequirementBackend = 0 | 1 | 2 | 3 | TaskEvidenceRequirement
+
 export interface TaskEvidenceDto {
-  requirement: TaskEvidenceRequirement
+  requirement: TaskEvidenceRequirementBackend
   isSubmitted: boolean
   fileName?: string | null
   contentType?: string | null
@@ -18,6 +22,7 @@ export interface TaskDto {
   description?: string
   completed: boolean
   createdAt: string
+  updatedAt?: string | null
   completedAt?: string | null
   createdByUserId: string
   difficulty?: number

@@ -327,8 +327,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
           {(mode === "login" || mode === "register") && (
             <>
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold mb-2">{mode === "login" ? "Вход" : "Регистрация"}</h2>
-                <p className="text-sm text-muted-foreground">FamilyQuest</p>
+                <h2 className="text-2xl font-bold mb-2 text-gray-900">{mode === "login" ? "Вход" : "Регистрация"}</h2>
+                <p className="text-sm text-gray-700">FamilyQuest</p>
               </div>
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
@@ -350,7 +350,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 {mode === "register" && (
                   <>
                     <div className="text-center mb-2">
-                      <p className="text-sm text-muted-foreground">Выберите роль и заполните профиль</p>
+                      <p className="text-sm text-gray-700">Выберите роль и заполните профиль</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -467,7 +467,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                             ))}
                           </select>
                         </div>
-                        <p className="text-xs text-muted-foreground">Код семьи создастся автоматически после регистрации.</p>
+                        <p className="text-xs text-gray-600">Код семьи создастся автоматически после регистрации.</p>
                       </>
                     ) : (
                       <div>
@@ -505,10 +505,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   <>
                     <div className="relative my-2">
                       <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-muted" />
+                        <div className="w-full border-t border-gray-300" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-muted-foreground">или</span>
+                        <span className="bg-white px-2 text-gray-600">или</span>
                       </div>
                     </div>
 

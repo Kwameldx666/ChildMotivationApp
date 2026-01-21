@@ -8,6 +8,7 @@ public record TaskDto(
     string? Description,
     bool Completed,
     DateTime CreatedAt,
+    DateTime? UpdatedAt,
     DateTime? CompletedAt,
     string CreatedByUserId,
     int Difficulty,

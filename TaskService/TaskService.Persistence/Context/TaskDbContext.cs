@@ -7,6 +7,7 @@ namespace TaskService.Persistence.Context;
 public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(options)
 {
     public DbSet<TaskItem> Tasks { get; set; } = null!;
+    public DbSet<TaskComment> TaskComments { get; set; } = null!;
     public DbSet<Mission> Missions { get; set; } = null!;
     public DbSet<MissionProgress> MissionProgress { get; set; } = null!;
     public DbSet<Achievement> Achievements { get; set; } = null!;
@@ -24,6 +25,7 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
             b.Property(x => x.Description).HasMaxLength(2000);
             b.Property(x => x.Completed).HasDefaultValue(false);
             b.Property(x => x.CreatedAt).IsRequired();
+            b.Property(x => x.UpdatedAt);
             b.Property(x => x.CreatedByUserId).HasMaxLength(64).IsRequired();
             b.Property(x => x.AssignedToUserId).HasMaxLength(64);
             b.Property(x => x.EvidenceRequirement)
@@ -41,6 +43,20 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
             b.Property(x => x.Difficulty).IsRequired().HasDefaultValue(2);
             b.Property(x => x.RewardXp).IsRequired().HasDefaultValue(60 + 20 * 2);
             b.Property(x => x.RewardPoints).IsRequired().HasDefaultValue(5);
+        });
+
+        modelBuilder.Entity<TaskComment>(b =>
+        {
+            b.ToTable("task_comments");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.UserId).HasMaxLength(64).IsRequired();
+            b.Property(x => x.UserName).HasMaxLength(256).IsRequired();
+            b.Property(x => x.UserRole).HasMaxLength(32).IsRequired();
+            b.Property(x => x.Content).HasMaxLength(2000).IsRequired();
+            b.Property(x => x.CreatedAt).IsRequired();
+            b.Property(x => x.UpdatedAt);
+            b.HasIndex(x => x.TaskId);
+            b.HasIndex(x => x.CreatedAt);
         });
 
         modelBuilder.Entity<Mission>(b =>

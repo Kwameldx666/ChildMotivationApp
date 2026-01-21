@@ -37,6 +37,7 @@ public class TaskItem
     public string? Description { get; private set; }
     public bool Completed { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public string CreatedByUserId { get; private set; } = string.Empty;
     public string? AssignedToUserId { get; private set; } // ID ребёнка, которому назначена задача
@@ -104,6 +105,7 @@ public class TaskItem
         Difficulty = difficulty;
         RewardXp = 60 + 20 * difficulty;
         RewardPoints = DIFFICULTY_POINTS.ContainsKey(difficulty) ? DIFFICULTY_POINTS[difficulty] : 0;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateDetails(string? title, string? description)
@@ -113,6 +115,8 @@ public class TaskItem
 
         if (description is not null)
             Description = description.Trim();
+        
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateEvidenceRequirement(TaskEvidenceRequirement requirement)
@@ -122,12 +126,14 @@ public class TaskItem
         {
             ClearEvidence();
         }
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetCompletion(bool completed, DateTime when)
     {
         Completed = completed;
         CompletedAt = completed ? when : null;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void AttachEvidence(
@@ -152,11 +158,13 @@ public class TaskItem
             throw new ArgumentException("Uploader identifier is required", nameof(uploadedBy));
 
         EvidenceStoragePath = storagePath;
+        UpdatedAt = DateTime.UtcNow;
         EvidenceFileName = originalFileName;
         EvidenceContentType = contentType;
         EvidenceFileSize = fileSize;
         EvidenceUploadedAt = uploadedAt;
         EvidenceUploadedBy = uploadedBy;
+        // EvidenceSubmitted автоматически становится true когда EvidenceStoragePath установлен
     }
 
     public void ClearEvidence()

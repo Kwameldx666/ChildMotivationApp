@@ -112,6 +112,8 @@ services:
       ConnectionStrings__TaskService: ${TASKSERVICE_DB_CONNECTION:-Host=postgres-task;Port=5432;Database=task_db;Username=task_owner;Password=postgres}
     ports:
       - "8083:8080"
+    volumes:
+      - task_evidence:/app/evidence
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/task-service/health || exit 1"]
       timeout: 10s
@@ -262,3 +264,4 @@ volumes:
   auth_keys:
   postgres_task_data:
   postgres_shop_data:
+  task_evidence:

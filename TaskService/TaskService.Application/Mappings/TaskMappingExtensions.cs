@@ -13,6 +13,7 @@ public static class TaskMappingExtensions
             task.Description,
             task.Completed,
             task.CreatedAt,
+            task.UpdatedAt,
             task.CompletedAt,
             task.CreatedByUserId,
             task.Difficulty,

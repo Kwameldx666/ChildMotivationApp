@@ -49,9 +49,9 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
               <div className="w-20 h-20 bg-linear-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <UserPlus className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-center mb-3">Я новый пользователь</h3>
-              <p className="text-center text-muted-foreground mb-6">Создам новый аккаунт и присоединюсь к FamilyQuest</p>
-              <div className="space-y-2 text-sm text-muted-foreground mb-6">
+              <h3 className="text-2xl font-bold text-center mb-3 text-gray-900">Я новый пользователь</h3>
+              <p className="text-center text-gray-700 mb-6">Создам новый аккаунт и присоединюсь к FamilyQuest</p>
+              <div className="space-y-2 text-sm text-gray-700 mb-6">
                 <p>✓ Выберу роль (родитель или ребёнок)</p>
                 <p>✓ Заполню свой профиль</p>
                 <p>✓ Создам или присоединюсь к семье</p>
@@ -72,9 +72,9 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
               <div className="w-20 h-20 bg-linear-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <LogIn className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-center mb-3">У меня уже есть аккаунт</h3>
-              <p className="text-center text-muted-foreground mb-6">Войду в свой существующий аккаунт</p>
-              <div className="space-y-2 text-sm text-muted-foreground mb-6">
+              <h3 className="text-2xl font-bold text-center mb-3 text-gray-900">У меня уже есть аккаунт</h3>
+              <p className="text-center text-gray-700 mb-6">Войду в свой существующий аккаунт</p>
+              <div className="space-y-2 text-sm text-gray-700 mb-6">
                 <p>✓ Введу свой email и пароль</p>
                 <p>✓ Вернусь к своему профилю</p>
                 <p>✓ Продолжу с того же места</p>

@@ -363,8 +363,8 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
             </Button>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">{isLogin ? "Вход" : "Регистрация"}</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">{isLogin ? "Вход" : "Регистрация"}</h2>
+              <p className="text-sm text-gray-700">
                 {isLogin ? "Добро пожаловать обратно!" : "Начни своё приключение"}
               </p>
             </div>
@@ -393,7 +393,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground mt-1">{AI_SUGGESTIONS.password}</p>
+                <p className="text-xs text-gray-600 mt-1">{AI_SUGGESTIONS.password}</p>
               </div>
 
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
@@ -405,10 +405,10 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
+                <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Или</span>
+                <span className="bg-background px-2 text-gray-600">Или</span>
               </div>
             </div>
 
@@ -434,7 +434,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
             </Button>
 
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-700">
                 {isLogin ? "Нет аккаунта? " : "Уже есть аккаунт? "}
                 <button
                   onClick={() => {
@@ -465,7 +465,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
             </Button>
 
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Выбери свою роль</h2>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">Выбери свою роль</h2>
               <div className="bg-blue-50 p-3 rounded-lg mb-4 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-yellow-500 mt-1 flex-shrink-0" />
                 <p className="text-sm text-blue-900">{AI_SUGGESTIONS.role}</p>
@@ -481,8 +481,8 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 }`}
               >
                 <Users className="w-12 h-12 mx-auto mb-3 text-primary" />
-                <h3 className="font-bold mb-2">Родитель</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="font-bold mb-2 text-gray-900">Родитель</h3>
+                <p className="text-xs text-gray-700">
                   Создавай задания, управляй наградами и следи за прогрессом
                 </p>
               </button>
@@ -494,8 +494,8 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 }`}
               >
                 <UserCircle className="w-12 h-12 mx-auto mb-3 text-secondary" />
-                <h3 className="font-bold mb-2">Ребёнок</h3>
-                <p className="text-xs text-muted-foreground">Выполняй задания, получай награды и добивайся целей</p>
+                <h3 className="font-bold mb-2 text-gray-900">Ребёнок</h3>
+                <p className="text-xs text-gray-700">Выполняй задания, получай награды и добивайся целей</p>
               </button>
             </div>
 
@@ -523,8 +523,8 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
 
             <div className="text-center mb-6">
               <Home className="w-12 h-12 mx-auto mb-3 text-primary" />
-              <h2 className="text-2xl font-bold mb-2">Создай семью</h2>
-              <p className="text-sm text-muted-foreground">Дай ей название и выбери эмблему</p>
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">Создай семью</h2>
+              <p className="text-sm text-gray-700">Дай ей название и выбери эмблему</p>
             </div>
 
             <div className="space-y-4">

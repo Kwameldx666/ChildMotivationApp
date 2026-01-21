@@ -25,6 +25,7 @@ public static class PersistenceExtensions
         services.AddDbContext<TaskDbContext>(options => options.UseNpgsql(conn));
 
         services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<ITaskCommentRepository, TaskCommentRepository>();
         services.AddScoped<IMissionRepository, MissionRepository>();
         services.AddScoped<IMissionProgressRepository, MissionProgressRepository>();
         services.AddScoped<IAchievementRepository, AchievementRepository>();
