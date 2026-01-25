@@ -16,15 +16,20 @@ export function useShopProducts() {
     queryFn: () => shopService.listProducts(),
     staleTime: 60_000,
     gcTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 }
 
-export function useShopOrders() {
+export function useShopOrders(enabled: boolean = true) {
   return useQuery<OrderDto[]>({
     queryKey: ['shop', 'orders'],
     queryFn: () => shopService.listOrders(),
     staleTime: 30_000,
     gcTime: 1000 * 60 * 5,
+    enabled,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 }
 

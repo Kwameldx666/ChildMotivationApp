@@ -67,8 +67,10 @@ const resolveStatusKey = (status: OrderStatus) => (typeof status === "number" ? 
 
 export default function RewardsShop({ userType }: RewardsShopProps) {
   const { toast } = useToast()
+  const isParent = userType === "parent"
   const productsQuery = useShopProducts()
-  const ordersQuery = useShopOrders()
+  // Отложенная загрузка заказов для родителей - они нужны только детям
+  const ordersQuery = useShopOrders(!isParent)
   const createOrder = useCreateOrder()
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
@@ -83,7 +85,6 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
     isActive: true,
   })
   const [pendingDeletionId, setPendingDeletionId] = useState<string | null>(null)
-  const isParent = userType === "parent"
 
   const visibleProducts = useMemo(() => {
     if (!productsQuery.data) return []
@@ -183,11 +184,11 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="rounded-3xl border border-border/50 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 animate-pulse">
-              <div className="h-8 w-3/4 bg-muted rounded-xl mb-3" />
-              <div className="h-4 w-full bg-muted rounded-lg mb-2" />
-              <div className="h-4 w-2/3 bg-muted rounded-lg mb-4" />
-              <div className="h-10 w-full bg-muted rounded-xl" />
+            <div key={index} className="rounded-3xl border border-border/50 bg-muted/5 p-6 animate-pulse">
+              <div className="h-8 w-3/4 bg-muted/50 rounded-xl mb-3" />
+              <div className="h-4 w-full bg-muted/50 rounded-lg mb-2" />
+              <div className="h-4 w-2/3 bg-muted/50 rounded-lg mb-4" />
+              <div className="h-10 w-full bg-muted/50 rounded-xl" />
             </div>
           ))}
         </div>
@@ -232,88 +233,70 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
             <div 
               key={product.id} 
               className={cn(
-                "group relative overflow-hidden rounded-3xl border transition-all duration-300",
+                "group relative overflow-hidden rounded-3xl border-2 transition-all duration-500 transform",
                 isOutOfStock 
                   ? "border-border/30 bg-muted/20 opacity-60" 
-                  : "border-border/50 bg-gradient-to-br from-white via-white to-slate-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 hover:-translate-y-1"
+                  : "border-border/40 bg-gradient-to-br from-white via-slate-50/30 to-white dark:from-slate-900 dark:via-slate-800/30 dark:to-slate-900 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40 hover:-translate-y-2 hover:scale-[1.02]"
               )}
+              style={{
+                backgroundImage: !isOutOfStock ? 'radial-gradient(circle at top right, rgba(147, 51, 234, 0.05), transparent 50%)' : undefined
+              }}
             >
-              {/* Gradient overlay */}
-              <div className={cn(
-                "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                index % 3 === 0 && "bg-gradient-to-br from-purple-500/5 to-pink-500/5",
-                index % 3 === 1 && "bg-gradient-to-br from-blue-500/5 to-cyan-500/5",
-                index % 3 === 2 && "bg-gradient-to-br from-amber-500/5 to-orange-500/5"
-              )} />
-              
-              {/* Sparkle icon */}
-              <div className="absolute top-4 right-4">
-                <div className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-2xl transition-all duration-300",
-                  index % 3 === 0 && "bg-gradient-to-br from-purple-500/10 to-pink-500/10 group-hover:from-purple-500/20 group-hover:to-pink-500/20",
-                  index % 3 === 1 && "bg-gradient-to-br from-blue-500/10 to-cyan-500/10 group-hover:from-blue-500/20 group-hover:to-cyan-500/20",
-                  index % 3 === 2 && "bg-gradient-to-br from-amber-500/10 to-orange-500/10 group-hover:from-amber-500/20 group-hover:to-orange-500/20"
-                )}>
-                  <Sparkles className={cn(
-                    "h-6 w-6",
-                    index % 3 === 0 && "text-purple-600",
-                    index % 3 === 1 && "text-blue-600",
-                    index % 3 === 2 && "text-amber-600"
-                  )} />
-                </div>
-              </div>
+              {/* Декоративные элементы */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
 
-              <div className="relative p-6">
+              <div className="relative p-7 z-10">
                 {/* Stock badge */}
-                <div className="mb-4 flex items-center gap-2 flex-wrap">
+                <div className="mb-5 flex items-center gap-2 flex-wrap">
                   <Badge 
                     variant="outline" 
                     className={cn(
-                      "rounded-full px-3 py-1 text-xs font-bold",
-                      isOutOfStock && "bg-rose-500/10 text-rose-700 border-rose-500/30",
-                      isLowStock && !isOutOfStock && "bg-amber-500/10 text-amber-700 border-amber-500/30",
-                      !isLowStock && "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
+                      "rounded-full px-4 py-1.5 text-xs font-bold shadow-sm backdrop-blur-sm",
+                      isOutOfStock && "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40 shadow-rose-500/20",
+                      isLowStock && !isOutOfStock && "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-amber-500/20",
+                      !isLowStock && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-500/20"
                     )}
                   >
                     {isOutOfStock ? "Нет в наличии" : `${product.stock} шт.`}
                   </Badge>
                   {!product.isActive && isParent && (
-                    <Badge variant="outline" className="rounded-full px-3 py-1 text-xs bg-slate-500/10 text-slate-700 border-slate-500/30">
+                    <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/40 shadow-sm backdrop-blur-sm">
                       Скрыта
                     </Badge>
                   )}
                   {product.isPremium && (
-                    <Badge className="rounded-full px-3 py-1 text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                      <Crown className="h-3 w-3 mr-1" />
+                    <Badge className="rounded-full px-4 py-1.5 text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 backdrop-blur-sm">
+                      <Crown className="h-3.5 w-3.5 mr-1" />
                       Premium
                     </Badge>
                   )}
                   {product.isExclusive && (
-                    <Badge variant="outline" className="rounded-full px-3 py-1 text-xs bg-amber-500/10 text-amber-700 border-amber-500/30">
-                      <Sparkles className="h-3 w-3 mr-1" />
+                    <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-sm shadow-amber-500/20 backdrop-blur-sm">
                       Эксклюзив
                     </Badge>
                   )}
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors pr-16">
+                <h3 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors pr-20 leading-tight">
                   {product.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px]">
+                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px] leading-relaxed">
                   {product.description || "Уникальная награда за достижения"}
                 </p>
 
                 {/* Price */}
-                <div className="mb-6">
+                <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/50">
                   <div className="flex items-baseline gap-2">
-                    <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
-                    <span className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                    <Star className="h-6 w-6 text-amber-500 fill-amber-400 drop-shadow-lg" />
+                    <span className="text-4xl font-black bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow">
                       {product.price.toLocaleString("ru-RU")}
                     </span>
-                    <span className="text-sm text-muted-foreground font-medium">баллов</span>
+                    <span className="text-sm text-amber-700 dark:text-amber-400 font-bold">баллов</span>
                   </div>
                 </div>
 
@@ -321,13 +304,16 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                 {userType === "child" ? (
                   <Button
                     className={cn(
-                      "w-full gap-2 rounded-2xl h-12 text-base font-semibold shadow-lg transition-all",
+                      "w-full gap-2 rounded-2xl h-14 text-base font-bold shadow-xl transition-all transform hover:scale-105",
                       isOutOfStock 
                         ? "bg-muted text-muted-foreground cursor-not-allowed" 
-                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40"
+                        : "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/50 bg-size-200 bg-pos-0 hover:bg-pos-100 transition-all duration-500"
                     )}
                     onClick={() => handlePurchase(product)}
                     disabled={createOrder.isPending || isOutOfStock}
+                    style={{
+                      backgroundSize: '200% 100%',
+                    }}
                   >
                     {createOrder.isPending ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -337,10 +323,10 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                     {isOutOfStock ? "Недоступно" : "Обменять баллы"}
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors"
+                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-950/30 dark:hover:to-cyan-950/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-400 transition-all duration-300 font-semibold"
                       onClick={() => setSelectedProduct(product)}
                     >
                       <Edit2 className="h-4 w-4" />
@@ -381,10 +367,10 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {Array.from({ length: 2 }).map((_, index) => (
-            <div key={index} className="rounded-3xl border border-border/50 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 animate-pulse">
-              <div className="h-6 w-32 bg-muted rounded-xl mb-3" />
-              <div className="h-4 w-full bg-muted rounded-lg mb-2" />
-              <div className="h-20 w-full bg-muted rounded-xl" />
+            <div key={index} className="rounded-3xl border border-border/50 bg-muted/5 p-6 animate-pulse">
+              <div className="h-6 w-32 bg-muted/50 rounded-xl mb-3" />
+              <div className="h-4 w-full bg-muted/50 rounded-lg mb-2" />
+              <div className="h-20 w-full bg-muted/50 rounded-xl" />
             </div>
           ))}
         </div>

@@ -192,10 +192,6 @@ export default function TasksList({ userType }: TasksListProps) {
 	const [viewingEvidence, setViewingEvidence] = useState<{ task: DecoratedTask; url: string; type: string } | null>(null)
 
 	const openTaskCreation = () => {
-		if (typeof window !== "undefined") {
-			window.dispatchEvent(new Event("open-task-create"))
-			return
-		}
 		router.push(routeRecord[AppRouteId.TaskCreate].path)
 	}
 
@@ -528,8 +524,8 @@ export default function TasksList({ userType }: TasksListProps) {
 						))}
 					</div>
 				) : (
-					<div className="rounded-3xl border border-dashed border-border/80 bg-muted/10 px-6 py-10 text-center shadow-sm">
-						<h3 className="text-lg font-semibold">В этом фильтре пока пусто</h3>
+					<div className="rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 px-6 py-10 text-center shadow-sm backdrop-blur-sm">
+						<h3 className="text-lg font-semibold text-foreground">В этом фильтре пока пусто</h3>
 						<p className="mt-2 text-sm text-muted-foreground">Попробуйте выбрать другой статус или создайте новую задачу.</p>
 						{userType === "parent" && (
 							<Button className="mt-4 gap-2" onClick={openTaskCreation}>

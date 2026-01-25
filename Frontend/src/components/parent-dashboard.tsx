@@ -257,16 +257,10 @@ export default function ParentDashboard({
                 <h2 className="text-xl font-bold">Магазин наград</h2>
                 <p className="text-sm text-muted-foreground">Создавайте награды или используйте ИИ для генерации</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="gap-2 bg-transparent" onClick={() => setIsRewardModalOpen(true)}>
-                  <Plus className="w-4 h-4" />
-                  ИИ генератор
-                </Button>
-                <Button className="gap-2" onClick={() => setIsRewardModalOpen(true)}>
-                  <Plus className="w-4 h-4" />
-                  Новая награда
-                </Button>
-              </div>
+              <Button className="gap-2" onClick={() => setIsRewardModalOpen(true)}>
+                <Plus className="w-4 h-4" />
+                Новая награда
+              </Button>
             </div>
             <RewardsShop userType="parent" />
           </TabsContent>

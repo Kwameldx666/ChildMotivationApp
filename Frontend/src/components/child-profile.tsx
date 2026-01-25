@@ -12,6 +12,7 @@ import type { AchievementDto } from "@/services/gamification-service"
 import type { ChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { useTheme } from "next-themes"
 import { useColorTheme } from "@/hooks/use-color-theme"
+import ActivityHeatmap from "./activity-heatmap"
 import {
   Select,
   SelectContent,
@@ -264,6 +265,13 @@ export default function ChildProfile({
           </div>
         </CardContent>
       </Card>
+
+      {/* Activity Heatmap - GitHub Style */}
+      <ActivityHeatmap 
+        data={[]} 
+        isLoading={statsLoading}
+        title="Активность за год"
+      />
 
       <Card>
         <CardHeader>

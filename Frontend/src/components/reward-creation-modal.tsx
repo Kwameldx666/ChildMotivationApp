@@ -1,58 +1,103 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus, Sparkles } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
+import { aiService } from "@/services/ai-service"
+import { useToast } from "@/hooks/use-toast"
+import { useFamilyMembers } from "@/services/family-queries"
+import { useShopProducts } from "@/services/shop-queries"
 
 interface RewardCreationModalProps {
   open: boolean
   onClose: () => void
-  onSubmit: (reward: { title: string; description: string; cost: number; icon: string; stock: number }) => void | Promise<void>
+  onSubmit: (reward: { title: string; description: string; cost: number; stock: number }) => void | Promise<void>
   isSubmitting?: boolean
 }
 
-const ICON_OPTIONS = [
-  "🎮",
-  "🍕",
-  "🎬",
-  "🎡",
-  "📚",
-  "😎",
-  "🎨",
-  "🏀",
-  "🎸",
-  "🎭",
-  "🚴",
-  "🍦",
-  "🎯",
-  "🎪",
-  "🎤",
-  "🏊",
-]
-
 export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitting = false }: RewardCreationModalProps) {
+  const { toast } = useToast()
+  const { data: familyMembers = [] } = useFamilyMembers()
+  const { data: existingProducts = [] } = useShopProducts()
+  
+  const children = familyMembers.filter(m => m.role === 'child')
+  
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [cost, setCost] = useState("")
   const [stock, setStock] = useState("1")
-  const [selectedIcon, setSelectedIcon] = useState("🎁")
   const [isAiGenerating, setIsAiGenerating] = useState(false)
+  const [selectedChildId, setSelectedChildId] = useState<string>("")
+  const [customPrompt, setCustomPrompt] = useState("")
 
-  const handleAiGenerate = () => {
+  const handleAiGenerate = async () => {
     setIsAiGenerating(true)
-    setTimeout(() => {
-      setTitle("Поход в кино")
-      setDescription("Выбери фильм и иди всей семьёй в кинотеатр")
-      setCost("800")
-      setStock("1")
-      setSelectedIcon("🎬")
+    try {
+      const selectedChild = selectedChildId ? children.find(c => c.id === selectedChildId) : children[0]
+      const childInterests = (selectedChild as any)?.interests || []
+      const recentlyPurchasedRewards = existingProducts.slice(0, 5).map(p => p.name)
+      
+      // Создаем параметры запроса
+      const requestParams: any = {
+        maxSuggestions: 1,
+        childId: selectedChild?.id,
+        interests: childInterests,
+        recentlyPurchasedRewards,
+      }
+      
+      // Добавляем кастомный промпт если есть
+      if (customPrompt.trim()) {
+        requestParams.occasion = customPrompt.trim()
+      }
+      
+      const response = await aiService.getRewardSuggestions(requestParams)
+      // Бэкенд возвращает Suggestions с заглавной буквы
+      const suggestions = response.suggestions || (response as any).Suggestions || []
+      if (suggestions && suggestions.length > 0) {
+        const suggestion = suggestions[0]
+        setTitle(suggestion.title || (suggestion as any).Title)
+        setDescription(suggestion.description || (suggestion as any).Description)
+        setCost(String(suggestion.cost || (suggestion as any).Cost))
+        setStock("1")
+        toast({
+          title: "ИИ сгенерировал награду",
+          description: `${suggestion.title || (suggestion as any).Title} - ${suggestion.cost || (suggestion as any).Cost} баллов`,
+        })
+      }
+    } catch (error: any) {
+      console.error('[reward-creation-modal] AI generation failed', error)
+      
+      // Определяем тип ошибки для более понятного сообщения
+      let errorMessage = "Не удалось сгенерировать награду. Попробуйте еще раз."
+      
+      if (error?.message?.includes('Timeout') || error?.message?.includes('timeout')) {
+        errorMessage = "ИИ долго обрабатывает запрос. Попробуйте упростить подсказку или попробовать позже."
+      } else if (error?.code === 500 || error?.description?.includes('Timeout')) {
+        errorMessage = "Сервер ИИ перегружен. Попробуйте через несколько секунд."
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      
+      toast({
+        title: "Ошибка генерации",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
       setIsAiGenerating(false)
-    }, 2000)
+    }
   }
+
+  // Убрана автоматическая генерация при открытии модала
+  // useEffect(() => {
+  //   if (open && !title && !description) {
+  //     handleAiGenerate()
+  //   }
+  // }, [open])
 
   const handleSubmit = async () => {
     if (!title || !description || !cost || !stock) return
@@ -62,7 +107,6 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
         title,
         description,
         cost: Number.parseInt(cost, 10),
-        icon: selectedIcon,
         stock: Math.max(1, Number.parseInt(stock, 10) || 1),
       })
 
@@ -70,7 +114,6 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
       setDescription("")
       setCost("")
       setStock("1")
-      setSelectedIcon("🎁")
       onClose()
     } catch (error) {
       console.error("[reward-creation-modal] Failed to submit reward", error)
@@ -81,53 +124,76 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Создать новую награду</DialogTitle>
           <DialogDescription>Добавьте награду вручную или используйте ИИ для генерации идей</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1 px-1">
+          {/* Выбор ребенка для персонализации */}
+          {children.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="child-select">Для кого награда?</Label>
+              <select
+                id="child-select"
+                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                value={selectedChildId}
+                onChange={(e) => setSelectedChildId(e.target.value)}
+                disabled={disabled}
+              >
+                <option value="">Для всех детей</option>
+                {children.map((child) => (
+                  <option key={child.id} value={child.id}>
+                    {child.name} {child.lastName}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                ИИ учтет увлечения выбранного ребенка при генерации
+              </p>
+            </div>
+          )}
+
+          {/* Дополнительный промпт */}
+          <div className="space-y-2">
+            <Label htmlFor="custom-prompt">Подсказка для ИИ (необязательно)</Label>
+            <Textarea
+              id="custom-prompt"
+              placeholder="Например: Ребенок хочет что-то связанное с динозаврами, или Награда для особого случая..."
+              rows={2}
+              value={customPrompt}
+              onChange={(e) => setCustomPrompt(e.target.value)}
+              disabled={disabled}
+              className="resize-none break-words overflow-wrap-anywhere w-full"
+            />
+          </div>
+
           <Button
             type="button"
             variant="outline"
-            className="w-full gap-2 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 hover:from-purple-100 hover:to-pink-100"
+            className="w-full gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
             onClick={handleAiGenerate}
             disabled={disabled}
           >
             {isAiGenerating ? (
               <>
-                <Sparkles className="w-4 h-4 animate-spin" />
-                Генерируем идею...
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Генерируем награду...</span>
+                <span className="text-xs opacity-75">(может занять до минуты)</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
                 Сгенерировать с помощью ИИ
               </>
             )}
           </Button>
 
-          <div className="space-y-2">
-            <Label>Иконка награды</Label>
-            <div className="grid grid-cols-8 gap-2">
-              {ICON_OPTIONS.map((icon) => (
-                <button
-                  key={icon}
-                  type="button"
-                  className={`text-2xl p-2 rounded-lg border-2 transition-all hover:scale-110 ${
-                    selectedIcon === icon
-                      ? "border-primary bg-primary/10 scale-110"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => setSelectedIcon(icon)}
-                  disabled={isSubmitting}
-                >
-                  {icon}
-                </button>
-              ))}
+          {isAiGenerating && (
+            <div className="text-center text-xs text-muted-foreground animate-pulse">
+              ИИ анализирует интересы и придумывает идеальную награду...
             </div>
-          </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="reward-title">Название награды</Label>
@@ -180,7 +246,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0 pt-4 border-t">
           <Button
             type="button"
             variant="outline"
