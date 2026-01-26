@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,8 +9,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
   AreaChart,
   Area,
   XAxis,
@@ -20,124 +18,76 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react"
-
-const activityData = [
-  { day: "Пн", tasks: 4, points: 320 },
-  { day: "Вт", tasks: 6, points: 480 },
-  { day: "Ср", tasks: 3, points: 240 },
-  { day: "Чт", tasks: 5, points: 400 },
-  { day: "Пт", tasks: 7, points: 560 },
-  { day: "Сб", tasks: 2, points: 160 },
-  { day: "Вс", tasks: 4, points: 320 },
-]
-
-const childrenStats = [
-  { name: "Мария", value: 2450, fill: "#f59e0b", tasks: 45, rewards: 12 },
-  { name: "Иван", value: 1980, fill: "#8b5cf6", tasks: 38, rewards: 9 },
-  { name: "Анна", value: 1650, fill: "#ec4899", tasks: 32, rewards: 7 },
-]
-
-const categoryData = [
-  { name: "Дом", value: 35, fill: "#10b981" },
-  { name: "Учёба", value: 28, fill: "#3b82f6" },
-  { name: "Питомцы", value: 18, fill: "#f59e0b" },
-  { name: "Помощь", value: 19, fill: "#ef4444" },
-]
-
-const hourlyData = [
-  { hour: "08:00", activity: 2 },
-  { hour: "10:00", activity: 5 },
-  { hour: "12:00", activity: 8 },
-  { hour: "14:00", activity: 12 },
-  { hour: "16:00", activity: 15 },
-  { hour: "18:00", activity: 10 },
-  { hour: "20:00", activity: 7 },
-]
-
-const progressData = [
-  { week: "Нед 1", completed: 18, total: 25 },
-  { week: "Нед 2", completed: 21, total: 28 },
-  { week: "Нед 3", completed: 24, total: 30 },
-  { week: "Нед 4", completed: 28, total: 32 },
-]
-
-const rewardCostsData = [
-  { name: "🍕 Пицца", cost: 800 },
-  { name: "🎬 Кино", cost: 600 },
-  { name: "🎮 Игра", cost: 1200 },
-  { name: "🎪 Парк", cost: 950 },
-  { name: "📱 Наушники", cost: 1500 },
-]
-
-const earnRateData = [
-  { day: "Пн", rate: 45 },
-  { day: "Вт", rate: 80 },
-  { day: "Ср", rate: 35 },
-  { day: "Чт", rate: 60 },
-  { day: "Пт", rate: 95 },
-  { day: "Сб", rate: 20 },
-  { day: "Вс", rate: 55 },
-]
-
-const taskStatusData = [
-  { name: "Выполнено", value: 87, fill: "#10b981" },
-  { name: "В работе", value: 18, fill: "#f59e0b" },
-  { name: "Просрочено", value: 15, fill: "#ef4444" },
-]
-
-const trendData = [
-  { date: "1 дек", points: 450 },
-  { date: "8 дек", points: 720 },
-  { date: "15 дек", points: 1050 },
-  { date: "22 дек", points: 1380 },
-  { date: "29 дек", points: 1850 },
-]
-
-const monthlyDistribution = [
-  { type: "Выполнено", Мария: 45, Иван: 38, Анна: 32 },
-  { type: "На проверке", Мария: 3, Иван: 2, Анна: 4 },
-  { type: "Пропущено", Мария: 2, Иван: 3, Анна: 1 },
-]
-
-const topRewards = [
-  { name: "🎮 Видеоигра", purchases: 12 },
-  { name: "🍕 Пицца", purchases: 18 },
-  { name: "🎬 Кино", purchases: 8 },
-  { name: "🎪 Парк", purchases: 6 },
-]
-
-const chartsConfig = [
-  { id: 0, title: "Активность в неделю", type: "bar" },
-  { id: 1, title: "Опыт по детям", type: "pie" },
-  { id: 2, title: "Задачи по категориям", type: "pie" },
-  { id: 3, title: "Активность по часам", type: "line" },
-  { id: 4, title: "Прогресс выполнения", type: "area" },
-  { id: 5, title: "Стоимость наград", type: "bar" },
-  { id: 6, title: "Темп заработка", type: "line" },
-  { id: 7, title: "Статус задач", type: "pie" },
-  { id: 8, title: "Тренд очков", type: "area" },
-  { id: 9, title: "Распределение по детям", type: "bar" },
-  { id: 10, title: "Популярные награды", type: "bar" },
-]
+import { ChevronLeft, ChevronRight, Filter, Loader2 } from "lucide-react"
+import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
 
 export default function AnalyticsDashboard() {
   const [currentChart, setCurrentChart] = useState(0)
   const [selectedChild, setSelectedChild] = useState("all")
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [windowDays, setWindowDays] = useState(30)
+
+  useEffect(() => {
+    loadAnalytics()
+  }, [windowDays])
+
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await getTaskAnalytics(windowDays)
+      setAnalytics(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки аналитики')
+      console.error('Analytics error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="ml-2">Загрузка аналитики...</span>
+      </div>
+    )
+  }
+
+  if (error || !analytics) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-red-500 mb-4">{error || 'Нет данных'}</p>
+        <Button onClick={loadAnalytics}>Попробовать снова</Button>
+      </div>
+    )
+  }
+
+  // Конфигурация графиков
+  const chartsConfig = [
+    { id: 0, title: "Активность в неделю", type: "bar" },
+    { id: 1, title: "Очки по детям", type: "pie" },
+    { id: 2, title: "Сложность задач", type: "pie" },
+    { id: 3, title: "Прогресс по неделям", type: "area" },
+    { id: 4, title: "Статус задач", type: "pie" },
+    { id: 5, title: "Тренд накопления очков", type: "area" },
+  ]
 
   const renderChart = (chartId: number) => {
     switch (chartId) {
       case 0:
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={activityData}>
+            <BarChart data={analytics.weeklyActivity}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="tasks" fill="#8b5cf6" name="Задачи" />
-              <Bar dataKey="points" fill="#f59e0b" name="Очки" />
+              <Bar dataKey="tasksCompleted" fill="#8b5cf6" name="Задачи" />
+              <Bar dataKey="pointsEarned" fill="#f59e0b" name="Очки" />
             </BarChart>
           </ResponsiveContainer>
         )
@@ -146,7 +96,7 @@ export default function AnalyticsDashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={childrenStats}
+                data={analytics.childrenStats.map(c => ({ name: c.childName, value: c.totalPoints, fill: c.color }))}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -155,8 +105,8 @@ export default function AnalyticsDashboard() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {childrenStats.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                {analytics.childrenStats.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip />
@@ -168,7 +118,7 @@ export default function AnalyticsDashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={categoryData}
+                data={analytics.difficultyDistribution}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -177,8 +127,8 @@ export default function AnalyticsDashboard() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                {analytics.difficultyDistribution.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip />
@@ -188,53 +138,23 @@ export default function AnalyticsDashboard() {
       case 3:
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={hourlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="hour" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="activity" stroke="#8b5cf6" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        )
-      case 4:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={progressData}>
+            <AreaChart data={analytics.weeklyProgress}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="completed" stackId="1" stroke="#10b981" fill="#10b981" />
-              <Area type="monotone" dataKey="total" stackId="1" stroke="#e5e7eb" fill="#e5e7eb" />
+              <Legend />
+              <Area type="monotone" dataKey="completed" stackId="1" stroke="#10b981" fill="#10b981" name="Выполнено" />
+              <Area type="monotone" dataKey="total" stackId="1" stroke="#3b82f6" fill="#3b82f6" name="Всего" />
             </AreaChart>
           </ResponsiveContainer>
         )
-      case 5:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={rewardCostsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="cost" fill="#ec4899" />
-            </BarChart>
-          </ResponsiveContainer>
-        )
-      case 6:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={earnRateData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="rate" stroke="#f59e0b" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        )
-      case 7:
+      case 4:
+        const taskStatusData = [
+          { name: "Выполнено", value: analytics.taskStatus.completed, fill: "#10b981" },
+          { name: "В работе", value: analytics.taskStatus.inProgress, fill: "#f59e0b" },
+          { name: "Просрочено", value: analytics.taskStatus.overdue, fill: "#ef4444" },
+        ]
         return (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -256,43 +176,16 @@ export default function AnalyticsDashboard() {
             </PieChart>
           </ResponsiveContainer>
         )
-      case 8:
+      case 5:
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={trendData}>
+            <AreaChart data={analytics.pointsTrend}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="points" stroke="#8b5cf6" fill="#8b5cf6" />
+              <Area type="monotone" dataKey="points" stroke="#8b5cf6" fill="#8b5cf6" name="Очки" />
             </AreaChart>
-          </ResponsiveContainer>
-        )
-      case 9:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={monthlyDistribution}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="type" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="Мария" fill="#f59e0b" />
-              <Bar dataKey="Иван" fill="#8b5cf6" />
-              <Bar dataKey="Анна" fill="#ec4899" />
-            </BarChart>
-          </ResponsiveContainer>
-        )
-      case 10:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topRewards} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={150} />
-              <Tooltip />
-              <Bar dataKey="purchases" fill="#10b981" />
-            </BarChart>
           </ResponsiveContainer>
         )
       default:
@@ -310,14 +203,39 @@ export default function AnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Выбор периода */}
+      <div className="flex gap-2 justify-end">
+        <Button
+          variant={windowDays === 7 ? "default" : "outline"}
+          size="sm"
+          onClick={() => setWindowDays(7)}
+        >
+          7 дней
+        </Button>
+        <Button
+          variant={windowDays === 30 ? "default" : "outline"}
+          size="sm"
+          onClick={() => setWindowDays(30)}
+        >
+          30 дней
+        </Button>
+        <Button
+          variant={windowDays === 90 ? "default" : "outline"}
+          size="sm"
+          onClick={() => setWindowDays(90)}
+        >
+          90 дней
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Всего очков заработано</CardTitle>
+            <CardTitle className="text-sm font-medium">Всего очков</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-primary">12,480</p>
-            <p className="text-xs text-muted-foreground mt-1">+15% от прошлой недели</p>
+            <p className="text-3xl font-bold text-primary">{analytics.totalPoints.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground mt-1">Заработано за период</p>
           </CardContent>
         </Card>
 
@@ -326,8 +244,18 @@ export default function AnalyticsDashboard() {
             <CardTitle className="text-sm font-medium">Завершённые задачи</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-accent">87</p>
-            <p className="text-xs text-muted-foreground mt-1">Из 120 всего</p>
+            <p className="text-3xl font-bold text-accent">{analytics.completedTasks}</p>
+            <p className="text-xs text-muted-foreground mt-1">Из {analytics.totalTasks} всего</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Процент выполнения</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold text-green-600">{analytics.completionRate.toFixed(1)}%</p>
+            <p className="text-xs text-muted-foreground mt-1">Успешность</p>
           </CardContent>
         </Card>
 
@@ -336,8 +264,8 @@ export default function AnalyticsDashboard() {
             <CardTitle className="text-sm font-medium">Активные дети</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-secondary">3</p>
-            <p className="text-xs text-muted-foreground mt-1">Все в сети</p>
+            <p className="text-3xl font-bold text-secondary">{analytics.activeChildren}</p>
+            <p className="text-xs text-muted-foreground mt-1">Участвуют в задачах</p>
           </CardContent>
         </Card>
       </div>
@@ -361,36 +289,38 @@ export default function AnalyticsDashboard() {
         </CardHeader>
         <CardContent>
           {/* Фильтр по детям */}
-          <div className="flex gap-2 mb-4 flex-wrap">
-            <Filter className="w-4 h-4 mt-2 text-muted-foreground" />
-            <Button
-              variant={selectedChild === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedChild("all")}
-            >
-              Вся семья
-            </Button>
-            {childrenStats.map((child) => (
+          {analytics.childrenStats.length > 0 && (
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <Filter className="w-4 h-4 mt-2 text-muted-foreground" />
               <Button
-                key={child.name}
-                variant={selectedChild === child.name ? "default" : "outline"}
+                variant={selectedChild === "all" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSelectedChild(child.name)}
+                onClick={() => setSelectedChild("all")}
               >
-                {child.name}
+                Вся семья
               </Button>
-            ))}
-          </div>
+              {analytics.childrenStats.map((child) => (
+                <Button
+                  key={child.childId}
+                  variant={selectedChild === "child.childId"}
+                  size="sm"
+                  onClick={() => setSelectedChild(child.childId)}
+                >
+                  {child.childName}
+                </Button>
+              ))}
+            </div>
+          )}
           {renderChart(currentChart)}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Быстрые графики</CardTitle>
+          <CardTitle className="text-base">Быстрое переключение</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {chartsConfig.map((chart, idx) => (
               <Button
                 key={chart.id}
@@ -399,7 +329,7 @@ export default function AnalyticsDashboard() {
                 className="text-xs"
                 onClick={() => setCurrentChart(idx)}
               >
-                {idx + 1}. {chart.title.slice(0, 12)}...
+                {idx + 1}. {chart.title}
               </Button>
             ))}
           </div>

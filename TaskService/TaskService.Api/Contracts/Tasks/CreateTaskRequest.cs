@@ -20,4 +20,7 @@ public class CreateTaskRequest
 
     [StringLength(16)]
     public string ConfirmationType { get; init; } = "none";
+
+    [StringLength(64)]
+    public string? AssignedToUserId { get; init; } // ID ребёнка, которому назначается задача
 }

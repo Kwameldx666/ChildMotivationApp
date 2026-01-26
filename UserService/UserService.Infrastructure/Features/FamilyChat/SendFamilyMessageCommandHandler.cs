@@ -18,8 +18,9 @@ public class SendFamilyMessageCommandHandler : IRequestHandler<SendFamilyMessage
 
     public async Task<FamilyMessageDto> Handle(SendFamilyMessageCommand request, CancellationToken cancellationToken)
     {
+        var senderId = Guid.Parse(request.SenderId);
         var sender = await _context.Users
-            .FirstOrDefaultAsync(u => u.Id.ToString() == request.SenderId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.Id == senderId, cancellationToken);
 
         if (sender == null)
         {
@@ -30,7 +31,7 @@ public class SendFamilyMessageCommandHandler : IRequestHandler<SendFamilyMessage
         {
             Id = Guid.NewGuid(),
             FamilyId = request.FamilyId,
-            SenderId = request.SenderId,
+            SenderId = senderId,
             Content = request.Content,
             CreatedAt = DateTime.UtcNow,
             IsRead = false,
@@ -44,7 +45,7 @@ public class SendFamilyMessageCommandHandler : IRequestHandler<SendFamilyMessage
         return new FamilyMessageDto(
             message.Id,
             message.FamilyId,
-            message.SenderId,
+            message.SenderId.ToString(),
             sender.UserName ?? "Unknown",
             sender.Avatar ?? "",
             message.Content,

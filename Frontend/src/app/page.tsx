@@ -31,6 +31,17 @@ export default function Home() {
     }
   }, [bootstrap])
 
+  // Проверяем, есть ли pending приглашение в семью
+  useEffect(() => {
+    if (typeof window !== "undefined" && screen === "welcome") {
+      const pendingCode = localStorage.getItem("pendingFamilyCode")
+      if (pendingCode) {
+        // Если есть код приглашения, сразу показываем регистрацию
+        startAuthFlow("register")
+      }
+    }
+  }, [screen, startAuthFlow])
+
   const handleSplashComplete = () => {
     setScreen((current) => (current === "splash" ? "welcome" : current))
   }

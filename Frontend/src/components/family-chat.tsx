@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo } from "react"
-import { Send, ArrowLeft, Paperclip, Hash, X } from "lucide-react"
+import { Send, ArrowLeft, Hash, Circle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -138,22 +138,29 @@ export default function FamilyChat({
 
   // Получаем уникальных участников чата
   const chatParticipants = useMemo(() => {
-    const participants = new Map<string, { id: string; name: string; avatar?: string }>()
+    const participants = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean }>()
     
     // Добавляем текущего пользователя
     participants.set(currentUserId, {
       id: currentUserId,
       name: currentUserName,
       avatar: currentUserAvatar,
+      isOnline: true,
     })
     
     // Добавляем отправителей из сообщений
     messages.forEach(msg => {
       if (!participants.has(msg.senderId)) {
+        // Симулируем онлайн статус - если сообщение было в последние 5 минут
+        const lastMessageTime = new Date(msg.createdAt).getTime()
+        const now = Date.now()
+        const isOnline = (now - lastMessageTime) < 5 * 60 * 1000
+        
         participants.set(msg.senderId, {
           id: msg.senderId,
           name: msg.senderName,
           avatar: msg.senderAvatar,
+          isOnline,
         })
       }
     })
@@ -165,63 +172,65 @@ export default function FamilyChat({
   if (isLoading && !messages.length) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-400"></div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-slate-900">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-slate-950 dark:to-slate-900">
       {/* Header */}
-      <div className="border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg px-4 py-3">
+      <div className="border-b border-rose-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg px-4 py-3 shadow-sm">
         <div className="flex items-center gap-3">
           {onBack && (
-            <Button variant="ghost" size="icon" onClick={onBack}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={onBack} className="h-9 w-9">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">Семейный чат</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-xs text-muted-foreground">
-                Участники:
-              </p>
-              <div className="flex -space-x-2">
-                {chatParticipants.slice(0, 5).map((participant) => (
-                  <Avatar 
-                    key={participant.id} 
-                    className="h-6 w-6 border-2 border-background"
-                    title={participant.name}
-                  >
-                    <AvatarImage src={participant.avatar} />
-                    <AvatarFallback className="text-[10px]">
-                      {participant.name[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {chatParticipants.map(p => p.name).join(", ")}
-              </span>
+            <h1 className="text-sm font-medium text-muted-foreground mb-2">
+              Семейный чат
+            </h1>
+            {/* Список участников */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {chatParticipants.filter(p => p.id !== currentUserId).map((participant) => (
+                <div key={participant.id} className="flex items-center gap-2">
+                  <div className="relative">
+                    <Avatar className="h-9 w-9 border-2 border-rose-200 dark:border-slate-700">
+                      <AvatarImage src={participant.avatar} />
+                      <AvatarFallback className="text-sm bg-gradient-to-br from-rose-400 to-pink-400 text-white">
+                        {participant.name[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {participant.isOnline && (
+                      <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-emerald-500 text-emerald-500 stroke-white dark:stroke-slate-900" strokeWidth={2} />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                      {participant.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {participant.isOnline ? "онлайн" : "не в сети"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {chatParticipants.filter(p => p.id !== currentUserId).length === 0 && (
+                <span className="text-sm text-muted-foreground">Нет других участников</span>
+              )}
             </div>
           </div>
-          <Badge variant="outline" className="gap-1">
-            <div className={cn(
-              "h-2 w-2 rounded-full transition-all",
-              isFetching ? "bg-yellow-500 animate-pulse" : "bg-emerald-500"
-            )} />
-            {isFetching ? "Обновление..." : "Онлайн"}
-          </Badge>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p-3 space-y-4">
         {groupedMessages.map((group, groupIdx) => (
-          <div key={groupIdx} className="space-y-4">
+          <div key={groupIdx} className="space-y-2">
             {/* Date Separator */}
             <div className="flex items-center justify-center">
-              <Badge variant="secondary" className="rounded-full px-4 py-1">
+              <Badge variant="secondary" className="rounded-full px-3 py-0.5 text-xs">
                 {formatDate(group.date)}
               </Badge>
             </div>
@@ -232,69 +241,73 @@ export default function FamilyChat({
               const mentionedTaskInMsg = msg.mentionedTaskId 
                 ? tasks.find(t => t.id === msg.mentionedTaskId)
                 : null
+              const senderInfo = chatParticipants.find(p => p.id === msg.senderId)
 
               return (
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex gap-3",
+                    "flex gap-2 items-end",
                     isOwnMessage ? "flex-row-reverse" : "flex-row"
                   )}
                 >
                   {!isOwnMessage && (
-                    <Avatar className="h-10 w-10 flex-shrink-0">
-                      <AvatarImage src={msg.senderAvatar} />
-                      <AvatarFallback>{msg.senderName[0]?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative flex-shrink-0">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={msg.senderAvatar} />
+                        <AvatarFallback className="text-xs bg-gradient-to-br from-rose-400 to-pink-400 text-white">
+                          {msg.senderName[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {senderInfo?.isOnline && (
+                        <Circle className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 fill-emerald-500 text-emerald-500 stroke-white dark:stroke-slate-900" strokeWidth={2} />
+                      )}
+                    </div>
                   )}
 
                   <div className={cn(
-                    "flex flex-col gap-1 max-w-[70%]",
+                    "flex flex-col max-w-[75%]",
                     isOwnMessage ? "items-end" : "items-start"
                   )}>
                     {!isOwnMessage && (
-                      <span className="text-xs font-medium text-muted-foreground px-3">
+                      <span className="text-[11px] font-medium text-rose-600 dark:text-rose-400 px-2 mb-1">
                         {msg.senderName}
                       </span>
                     )}
 
-                    <Card className={cn(
-                      "p-3",
+                    <div className={cn(
+                      "rounded-2xl px-3 py-2 shadow-sm",
                       isOwnMessage
-                        ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground"
-                        : "bg-white dark:bg-slate-800"
+                        ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white"
+                        : "bg-white dark:bg-slate-800 border border-rose-100 dark:border-slate-700"
                     )}>
                       {mentionedTaskInMsg && (
                         <div className={cn(
                           "mb-2 rounded-lg border p-2 text-xs",
                           isOwnMessage
-                            ? "border-primary-foreground/20 bg-primary-foreground/10"
-                            : "border-border bg-muted"
+                            ? "border-white/20 bg-white/10"
+                            : "border-rose-200 dark:border-slate-600 bg-rose-50 dark:bg-slate-700"
                         )}>
                           <div className="flex items-center gap-1">
                             <Hash className="h-3 w-3" />
-                            <span className="font-semibold">Задача:</span>
+                            <span className="font-medium">{mentionedTaskInMsg.title}</span>
                           </div>
-                          <p className="mt-1">{mentionedTaskInMsg.title}</p>
                         </div>
                       )}
 
-                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-
-                      <span className={cn(
-                        "text-[10px] mt-2 block",
-                        isOwnMessage ? "text-primary-foreground/70" : "text-muted-foreground"
-                      )}>
-                        {formatTime(msg.createdAt)}
-                      </span>
-                    </Card>
+                      <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
+                    </div>
+                    
+                    <span className={cn(
+                      "text-[10px] mt-1 px-2",
+                      isOwnMessage ? "text-rose-400 dark:text-rose-500" : "text-slate-500 dark:text-slate-400"
+                    )}>
+                      {formatTime(msg.createdAt)}
+                    </span>
                   </div>
 
                   {isOwnMessage && (
-                    <Avatar className="h-10 w-10 flex-shrink-0">
-                      <AvatarImage src={currentUserAvatar} />
-                      <AvatarFallback>{currentUserName[0]?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    <div className="h-8 w-8 flex-shrink-0" />
                   )}
                 </div>
               )
@@ -305,27 +318,27 @@ export default function FamilyChat({
       </div>
 
       {/* Input Area */}
-      <div className="border-t bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg p-4">
+      <div className="border-t border-rose-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg p-4">
         {mentionedTask && (
-          <Card className="mb-3 p-3 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+          <div className="mb-3 p-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-xl">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
-                <div className="flex items-center gap-1 text-xs font-semibold text-blue-900 dark:text-blue-400">
+                <div className="flex items-center gap-1 text-xs font-semibold text-rose-900 dark:text-rose-400">
                   <Hash className="h-3 w-3" />
                   <span>Прикреплена задача:</span>
                 </div>
-                <p className="mt-1 text-sm text-blue-800 dark:text-blue-300">{mentionedTask.title}</p>
+                <p className="mt-1 text-sm text-rose-800 dark:text-rose-300">{mentionedTask.title}</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="h-6 w-6 hover:bg-rose-200 dark:hover:bg-rose-900"
                 onClick={() => setMentionedTaskId(null)}
               >
-                <X className="h-4 w-4" />
+                <Hash className="h-4 w-4 rotate-45" />
               </Button>
             </div>
-          </Card>
+          </div>
         )}
 
         <div className="flex gap-2">
@@ -334,7 +347,7 @@ export default function FamilyChat({
               <Button
                 variant="outline"
                 size="icon"
-                className="flex-shrink-0"
+                className="flex-shrink-0 border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:border-slate-700 dark:hover:bg-slate-800"
               >
                 <Hash className="h-5 w-5" />
               </Button>
@@ -374,14 +387,14 @@ export default function FamilyChat({
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Напишите сообщение..."
-            className="min-h-[44px] max-h-32 resize-none"
+            className="min-h-[44px] max-h-32 resize-none border-rose-200 focus-visible:ring-rose-400 dark:border-slate-700"
             rows={1}
           />
 
           <Button
             onClick={handleSend}
             disabled={!message.trim() || sendMessage.isPending}
-            className="flex-shrink-0 gap-2"
+            className="flex-shrink-0 gap-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-md"
           >
             <Send className="h-4 w-4" />
             {sendMessage.isPending ? "..." : ""}

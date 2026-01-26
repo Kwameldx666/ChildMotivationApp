@@ -6,6 +6,8 @@ import {
   ProductDto,
   UpdateOrderStatusPayload,
   UpsertProductPayload,
+  MarkOrderDeliveredPayload,
+  ConfirmOrderReceivedPayload,
 } from './shop-service'
 
 export function useShopProducts() {
@@ -14,15 +16,20 @@ export function useShopProducts() {
     queryFn: () => shopService.listProducts(),
     staleTime: 60_000,
     gcTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 }
 
-export function useShopOrders() {
+export function useShopOrders(enabled: boolean = true) {
   return useQuery<OrderDto[]>({
     queryKey: ['shop', 'orders'],
     queryFn: () => shopService.listOrders(),
     staleTime: 30_000,
     gcTime: 1000 * 60 * 5,
+    enabled,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 }
 
@@ -84,6 +91,28 @@ export function useDeleteProduct() {
     mutationFn: (id: string) => shopService.deleteProduct(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['shop', 'products'] })
+    },
+  })
+}
+
+export function useMarkOrderAsDelivered() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: MarkOrderDeliveredPayload }) =>
+      shopService.markOrderAsDelivered(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
+    },
+  })
+}
+
+export function useConfirmOrderReceived() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ConfirmOrderReceivedPayload }) =>
+      shopService.confirmOrderReceived(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
     },
   })
 }

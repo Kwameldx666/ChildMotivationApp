@@ -5,6 +5,7 @@ using Gateway.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 namespace Gateway.Extensions;
 
@@ -14,7 +15,12 @@ internal static class PresentationExtension
 
     public static void AddPresentation(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Сериализация enum как строки вместо чисел
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();

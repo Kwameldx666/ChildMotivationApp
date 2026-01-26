@@ -207,8 +207,8 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                   <Card className="bg-gradient-to-br from-white/75 via-white/65 to-white/55 backdrop-blur-md shadow-none w-full rounded-none border border-white/35">
                     <CardContent className="py-5 sm:py-6 text-center">
                       <div className="text-4xl sm:text-5xl mb-2.5 drop-shadow-sm">{slide.icon}</div>
-                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-foreground">{slide.title}</h3>
-                      <p className="text-sm text-muted-foreground/75 leading-relaxed max-w-md mx-auto">
+                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-900">{slide.title}</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed max-w-md mx-auto">
                         {slide.description}
                       </p>
                     </CardContent>

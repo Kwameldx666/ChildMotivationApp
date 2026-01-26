@@ -125,6 +125,37 @@ public class EfOrderStore : IOrderStore
         return true;
     }
 
+    public async Task<bool> MarkAsDeliveredAsync(Guid id, string deliveredByUserId, string? notes, CancellationToken cancellationToken = default)
+    {
+        var order = await _db.Orders.FindAsync(new object[] { id }, cancellationToken);
+        if (order is null) return false;
+        
+        order.Status = OrderStatus.Delivered;
+        order.DeliveredAt = DateTime.UtcNow;
+        order.DeliveredByUserId = deliveredByUserId;
+        order.DeliveryNotes = notes;
+        
+        _db.Orders.Update(order);
+        await _db.SaveChangesAsync(cancellationToken);
+        InvalidateCache(order.Id, order.UserId);
+        return true;
+    }
+
+    public async Task<bool> ConfirmReceivedAsync(Guid id, string confirmedByUserId, CancellationToken cancellationToken = default)
+    {
+        var order = await _db.Orders.FindAsync(new object[] { id }, cancellationToken);
+        if (order is null) return false;
+        
+        order.Status = OrderStatus.Confirmed;
+        order.ConfirmedAt = DateTime.UtcNow;
+        order.ConfirmedByUserId = confirmedByUserId;
+        
+        _db.Orders.Update(order);
+        await _db.SaveChangesAsync(cancellationToken);
+        InvalidateCache(order.Id, order.UserId);
+        return true;
+    }
+
     private void InvalidateCache(Guid orderId, string userId)
     {
         _cache.Remove($"shop_order_{orderId}");

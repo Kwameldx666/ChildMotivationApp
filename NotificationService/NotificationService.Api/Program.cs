@@ -1,10 +1,16 @@
+using System.Text.Json.Serialization;
 using NotificationService.Application.Extensions;
 using NotificationService.Infrastructure.Extensions;
 using NotificationService.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Сериализация enum как строки вместо чисел
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

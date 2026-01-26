@@ -27,9 +27,10 @@ export default function JoinFamilyPage() {
     // Сохраняем код в localStorage для автозаполнения на странице регистрации
     if (typeof window !== "undefined") {
       localStorage.setItem("pendingFamilyCode", familyCode)
+      localStorage.setItem("pendingJoinMode", "child")
     }
-    // Перенаправляем на страницу авторизации
-    router.push("/auth?mode=child&familyCode=" + familyCode)
+    // Перенаправляем на главную страницу, которая покажет экран регистрации
+    router.push("/")
   }
 
   const handleCancel = () => {

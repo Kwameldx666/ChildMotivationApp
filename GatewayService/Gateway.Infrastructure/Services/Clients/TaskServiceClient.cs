@@ -16,12 +16,16 @@ public class TaskServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     private readonly HttpClient _client = clientFactory.CreateClient(DefaultHttpClientNames.TaskService);
     private readonly TaskEndpoints _endpoints = endpoints.Value;
 
-    public Task<HttpResponseMessage> GetAllAsync(string? createdByUserId = null,
+    public Task<HttpResponseMessage> GetAllAsync(
+        string? createdByUserId = null,
+        string? assignedToUserId = null,
         CancellationToken cancellationToken = default)
     {
         var requestUri = BuildTasksPath();
         if (!string.IsNullOrWhiteSpace(createdByUserId))
             requestUri = QueryHelpers.AddQueryString(requestUri, "createdByUserId", createdByUserId);
+        if (!string.IsNullOrWhiteSpace(assignedToUserId))
+            requestUri = QueryHelpers.AddQueryString(requestUri, "assignedToUserId", assignedToUserId);
         return _client.SendHttpRequestAsync<object>(HttpMethod.Get, requestUri, null, SerializerOptions,
             cancellationToken);
     }
@@ -128,6 +132,16 @@ public class TaskServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     {
         var requestUri = BuildAchievementsPath() + $"/{achievementId}/progress";
         return _client.SendHttpRequestAsync(HttpMethod.Post, requestUri, request, SerializerOptions, cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetAnalyticsAsync(string userId, int windowDays,
+        CancellationToken cancellationToken = default)
+    {
+        var requestUri = "task-service/analytics";
+        requestUri = QueryHelpers.AddQueryString(requestUri, "userId", userId);
+        requestUri = QueryHelpers.AddQueryString(requestUri, "windowDays", windowDays.ToString());
+        return _client.SendHttpRequestAsync<object>(HttpMethod.Get, requestUri, null, SerializerOptions,
+            cancellationToken);
     }
 
     private string BuildTasksPath()

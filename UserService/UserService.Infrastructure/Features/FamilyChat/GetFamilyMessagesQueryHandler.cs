@@ -32,7 +32,7 @@ public class GetFamilyMessagesQueryHandler : IRequestHandler<GetFamilyMessagesQu
             .Select(m => new FamilyMessageDto(
                 m.Id,
                 m.FamilyId,
-                m.SenderId,
+                m.SenderId.ToString(),
                 m.Sender.UserName ?? "Unknown",
                 m.Sender.Avatar ?? "",
                 m.Content,

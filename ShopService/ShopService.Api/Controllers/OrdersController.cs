@@ -61,4 +61,30 @@ public class OrdersController(IOrderStore orderStore) : ControllerBase
         if (!ok) return NotFound();
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/mark-delivered")]
+    public async Task<IActionResult> MarkAsDelivered(
+        Guid id, 
+        [FromBody] MarkOrderDeliveredRequest request, 
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+        var ok = await orderStore.MarkAsDeliveredAsync(id, request.DeliveredByUserId, request.Notes, cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/confirm-received")]
+    public async Task<IActionResult> ConfirmReceived(
+        Guid id, 
+        [FromBody] ConfirmOrderReceivedRequest request, 
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+        var ok = await orderStore.ConfirmReceivedAsync(id, request.ConfirmedByUserId, cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
 }

@@ -200,4 +200,35 @@ export const aiService = {
     const response = await httpClient.post<TaskSuggestionsResponse>('/api-gateway/ai/task-suggestions', payload)
     return response
   },
+
+  async getRewardSuggestions(payload?: { 
+    childId?: string; 
+    interests?: string[]; 
+    availablePoints?: number; 
+    occasion?: string; 
+    maxSuggestions?: number;
+    recentlyPurchasedRewards?: string[];
+  }): Promise<{ suggestions: Array<{ title: string; description: string; cost: number; icon: string }> }> {
+    // Call the Gateway endpoint for reward suggestions
+    try {
+      // Создаем контроллер для отмены запроса с таймаутом 60 секунд (вместо стандартных 30)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000)
+      
+      const response = await httpClient.post<any>('/api-gateway/ai/reward-suggestions', {
+        childId: payload?.childId,
+        interests: payload?.interests ?? [],
+        availablePoints: payload?.availablePoints,
+        occasion: payload?.occasion,
+        maxSuggestions: payload?.maxSuggestions ?? 1,
+        recentlyPurchasedRewards: payload?.recentlyPurchasedRewards ?? [],
+      }, { signal: controller.signal })
+      
+      clearTimeout(timeoutId)
+      return response
+    } catch (error) {
+      console.error('[aiService] Failed to get reward suggestions', error)
+      throw error
+    }
+  },
 }

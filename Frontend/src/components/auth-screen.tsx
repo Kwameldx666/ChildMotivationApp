@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Plus } from "lucide-react"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 
 
@@ -21,7 +21,18 @@ interface AuthScreenProps {
 
 const AVATARS = ["🙂", "😎", "🤖", "🦊", "🐻", "🐼", "🐯", "🦁", "🐸", "🐵"] as const
 const FAMILY_EMBLEMS = ["🏠", "🌟", "🍀", "🔥", "🎯", "💎", "🧩", "🚀"] as const
-
+const INTERESTS = [
+  { id: 'sports', label: 'Спорт', emoji: '⚽' },
+  { id: 'music', label: 'Музыка', emoji: '🎵' },
+  { id: 'art', label: 'Рисование', emoji: '🎨' },
+  { id: 'gaming', label: 'Игры', emoji: '🎮' },
+  { id: 'reading', label: 'Чтение', emoji: '📚' },
+  { id: 'science', label: 'Наука', emoji: '🔬' },
+  { id: 'cooking', label: 'Кулинария', emoji: '🍳' },
+  { id: 'nature', label: 'Природа', emoji: '🌳' },
+  { id: 'movies', label: 'Кино', emoji: '🎬' },
+  { id: 'dancing', label: 'Танцы', emoji: '💃' },
+] as const
 function GoogleIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={props.className} aria-hidden="true">
@@ -89,6 +100,7 @@ function GitHubIcon(props: { className?: string }) {
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [role, setRole] = useState<UserRole>("parent")
+  const [isJoiningByInvite, setIsJoiningByInvite] = useState(false) // Блокировка выбора роли
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -97,6 +109,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [lastName, setLastName] = useState("")
   const [age, setAge] = useState<string>("")
   const [avatar, setAvatar] = useState<string>(AVATARS[0])
+  const [interests, setInterests] = useState<string[]>([])
+  const [customInterest, setCustomInterest] = useState("")
 
   const [familyName, setFamilyName] = useState("")
   const [familyEmblem, setFamilyEmblem] = useState<(typeof FAMILY_EMBLEMS)[number]>(FAMILY_EMBLEMS[0])
@@ -119,6 +133,26 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setMode(initialMode)
     setInfo(null)
   }, [initialMode])
+
+  // Загружаем pendingFamilyCode и режим из localStorage (для приглашений)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pendingCode = localStorage.getItem("pendingFamilyCode")
+      const pendingMode = localStorage.getItem("pendingJoinMode")
+      
+      if (pendingCode) {
+        setChildFamilyCode(pendingCode)
+        localStorage.removeItem("pendingFamilyCode")
+      }
+      
+      if (pendingMode === "child") {
+        setRole("child")
+        setMode("register")
+        setIsJoiningByInvite(true) // Блокируем выбор роли
+        localStorage.removeItem("pendingJoinMode")
+      }
+    }
+  }, [])
 
 
 
@@ -147,6 +181,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     if (!name.trim() || !lastName.trim()) return true
     if (role === "parent" && !familyName.trim()) return true
     if (role === "child" && !childFamilyCode.trim()) return true
+    if (role === "child" && !age.trim()) return true // Обязательное поле возраста
     if (role === "child" && age.trim()) {
       const parsed = Number(age)
       if (Number.isNaN(parsed) || parsed < 1 || parsed > 120) return true
@@ -250,6 +285,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       lastName: lastName.trim(),
       avatar,
       ...(role === "child" && parsedAge ? { age: parsedAge } : {}),
+      ...(role === "child" && interests.length > 0 ? { interests } : {}),
     }
 
     setIsLoading(true)
@@ -305,8 +341,8 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
           {(mode === "login" || mode === "register") && (
             <>
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold mb-2">{mode === "login" ? "Вход" : "Регистрация"}</h2>
-                <p className="text-sm text-muted-foreground">FamilyQuest</p>
+                <h2 className="text-2xl font-bold mb-2 text-gray-900">{mode === "login" ? "Вход" : "Регистрация"}</h2>
+                <p className="text-sm text-gray-700">FamilyQuest</p>
               </div>
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
@@ -328,7 +364,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 {mode === "register" && (
                   <>
                     <div className="text-center mb-2">
-                      <p className="text-sm text-muted-foreground">Выберите роль и заполните профиль</p>
+                      <p className="text-sm text-gray-700">Выберите роль и заполните профиль</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -336,6 +372,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         type="button"
                         variant={role === "parent" ? "default" : "outline"}
                         onClick={() => setRole("parent")}
+                        disabled={isJoiningByInvite}
                       >
                         Родитель
                       </Button>
@@ -343,10 +380,17 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         type="button"
                         variant={role === "child" ? "default" : "outline"}
                         onClick={() => setRole("child")}
+                        disabled={isJoiningByInvite}
                       >
                         Ребёнок
                       </Button>
                     </div>
+                    
+                    {isJoiningByInvite && (
+                      <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded-lg">
+                        ⚠️ Вы присоединяетесь по ссылке-приглашению. Роль автоматически установлена как "Ребёнок"
+                      </p>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -362,47 +406,150 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     </div>
 
                     {role === "child" && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>Возраст (опционально)</Label>
-                          <Input value={age} onChange={(e) => setAge(e.target.value)} onBlur={() => setAgeTouched(true)} inputMode="numeric" />
-                          {(ageTouched || submitAttempted) && age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
-                            <p className="text-xs text-destructive mt-1">Некорректный возраст</p>
-                          )} 
-                        </div>
-                        <div>
-                          <Label>Аватар</Label>
-                          <div className="flex gap-2">
-                            <select
-                              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                              value={avatar}
-                              onChange={(e) => setAvatar(e.target.value)}
-                            >
-                              {AVATARS.map((item) => (
-                                <option key={item} value={item}>
-                                  {item}
-                                </option>
-                              ))}
-                            </select>
-
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="text-sm"
-                              onChange={async (e) => {
-                                const f = e.target.files?.[0]
-                                if (!f) return
-                                const reader = new FileReader()
-                                reader.onload = () => {
-                                  const result = reader.result as string | null
-                                  if (result) setAvatar(result)
-                                }
-                                reader.readAsDataURL(f)
-                              }}
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label>Возраст *</Label>
+                            <Input 
+                              required
+                              value={age} 
+                              onChange={(e) => setAge(e.target.value)} 
+                              onBlur={() => setAgeTouched(true)} 
+                              inputMode="numeric"
+                              placeholder="Введите возраст"
+                              aria-invalid={(ageTouched || submitAttempted) && (!age.trim() || Number.isNaN(Number(age)) || Number(age) < 1 || Number(age) > 120)}
                             />
+                            {(ageTouched || submitAttempted) && !age.trim() && (
+                              <p className="text-xs text-destructive mt-1">Обязательное поле</p>
+                            )}
+                            {(ageTouched || submitAttempted) && age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
+                              <p className="text-xs text-destructive mt-1">Некорректный возраст (1-120)</p>
+                            )} 
+                          </div>
+                          <div>
+                            <Label>Аватар</Label>
+                            <div className="flex gap-2">
+                              <select
+                                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                                value={avatar}
+                                onChange={(e) => setAvatar(e.target.value)}
+                              >
+                                {AVATARS.map((item) => (
+                                  <option key={item} value={item}>
+                                    {item}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="text-sm"
+                                onChange={async (e) => {
+                                  const f = e.target.files?.[0]
+                                  if (!f) return
+                                  const reader = new FileReader()
+                                  reader.onload = () => {
+                                    const result = reader.result as string | null
+                                    if (result) setAvatar(result)
+                                  }
+                                  reader.readAsDataURL(f)
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
+
+                        <div>
+                          <Label>Что тебе нравится? (необязательно)</Label>
+                          <p className="text-xs text-muted-foreground mb-2">Выбери готовые или добавь свои увлечения</p>
+                          
+                          {/* Отображение выбранных интересов как тегов */}
+                          {interests.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3 p-3 bg-muted/50 rounded-lg">
+                              {interests.map((interestId) => {
+                                const predefined = INTERESTS.find(i => i.id === interestId)
+                                return (
+                                  <div
+                                    key={interestId}
+                                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm"
+                                  >
+                                    {predefined && <span>{predefined.emoji}</span>}
+                                    <span>{predefined?.label || interestId}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setInterests(prev => prev.filter(i => i !== interestId))}
+                                      className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5"
+                                    >
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+
+                          {/* Быстрый выбор из предложенных */}
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            {INTERESTS.map((interest) => (
+                              <Button
+                                key={interest.id}
+                                type="button"
+                                variant={interests.includes(interest.id) ? "default" : "outline"}
+                                className="justify-start gap-2 h-auto py-2"
+                                onClick={() => {
+                                  setInterests(prev => 
+                                    prev.includes(interest.id) 
+                                      ? prev.filter(i => i !== interest.id)
+                                      : [...prev, interest.id]
+                                  )
+                                }}
+                              >
+                                <span className="text-lg">{interest.emoji}</span>
+                                <span className="text-sm">{interest.label}</span>
+                              </Button>
+                            ))}
+                          </div>
+
+                          {/* Поле для добавления своего интереса */}
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Добавь свой интерес..."
+                              value={customInterest}
+                              onChange={(e) => setCustomInterest(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault()
+                                  const trimmed = customInterest.trim()
+                                  if (trimmed && !interests.includes(trimmed)) {
+                                    setInterests(prev => [...prev, trimmed])
+                                    setCustomInterest("")
+                                  }
+                                }
+                              }}
+                              disabled={isSubmitting}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const trimmed = customInterest.trim()
+                                if (trimmed && !interests.includes(trimmed)) {
+                                  setInterests(prev => [...prev, trimmed])
+                                  setCustomInterest("")
+                                }
+                              }}
+                              disabled={!customInterest.trim() || isSubmitting}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">Нажми Enter или + чтобы добавить</p>
+                        </div>
+                      </>
                     )}
 
                     {role === "parent" ? (
@@ -426,7 +573,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                             ))}
                           </select>
                         </div>
-                        <p className="text-xs text-muted-foreground">Код семьи создастся автоматически после регистрации.</p>
+                        <p className="text-xs text-gray-600">Код семьи создастся автоматически после регистрации.</p>
                       </>
                     ) : (
                       <div>
@@ -464,10 +611,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   <>
                     <div className="relative my-2">
                       <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-muted" />
+                        <div className="w-full border-t border-gray-300" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-muted-foreground">или</span>
+                        <span className="bg-white px-2 text-gray-600">или</span>
                       </div>
                     </div>
 

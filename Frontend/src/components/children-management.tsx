@@ -3,9 +3,12 @@
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Copy, RefreshCw, Users } from "lucide-react"
+import { Check, Copy, RefreshCw, Users, Eye } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import type { FamilyMember } from "@/services/family-service"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import ChildProfile from "./child-profile"
+import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 
 interface ChildrenManagementProps {
   familyCode?: string | null
@@ -35,6 +38,8 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
     enabled: Boolean(normalizedFamilyCode),
   })
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [selectedChild, setSelectedChild] = useState<FamilyMember | null>(null)
+  const { stats, isLoading: statsLoading } = useChildProgressStats(selectedChild?.id)
 
   const children = useMemo(() => {
     if (!data) return []
@@ -161,11 +166,40 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                     </div>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setSelectedChild(child)}
+                >
+                  <Eye className="w-4 h-4" />
+                  Профиль
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+      
+      {/* Модальное окно с профилем ребёнка */}
+      <Dialog open={!!selectedChild} onOpenChange={(open) => !open && setSelectedChild(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Профиль ребёнка</DialogTitle>
+          </DialogHeader>
+          {selectedChild && (
+            <ChildProfile
+              childId={selectedChild.id}
+              name={formatMemberName(selectedChild)}
+              avatarSymbol={resolveAvatar(selectedChild, children.findIndex(c => c.id === selectedChild.id))}
+              avatarImageUrl={selectedChild.avatarImageUrl}
+              familyCode={normalizedFamilyCode ?? undefined}
+              stats={stats}
+              statsLoading={statsLoading}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

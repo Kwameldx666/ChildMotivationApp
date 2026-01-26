@@ -49,6 +49,6 @@ public sealed class AiProviderOptions
 
     public TimeSpan ResolveTimeout()
     {
-        return TimeSpan.FromSeconds(TimeoutSeconds is > 0 ? TimeoutSeconds!.Value : 45);
+        return TimeSpan.FromSeconds(TimeoutSeconds is > 0 ? TimeoutSeconds!.Value : 90);
     }
 }

@@ -5,11 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Award, Flame, Copy, Check, Crown, Zap, Trophy, Star, Target } from "lucide-react"
+import { Award, Flame, Copy, Check, Crown, Zap, Trophy, Star, Target, Moon, Sun, Palette } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useAchievements } from "@/services/gamification-queries"
 import type { AchievementDto } from "@/services/gamification-service"
 import type { ChildProgressStats } from "@/hooks/use-child-progress-stats"
+import { useTheme } from "next-themes"
+import { useColorTheme } from "@/hooks/use-color-theme"
+import ActivityHeatmap from "./activity-heatmap"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ChildProfileProps {
   childId: string
@@ -68,6 +78,8 @@ export default function ChildProfile({
   statsLoading,
 }: ChildProfileProps) {
   const [copied, setCopied] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const { colorTheme, setColorTheme, themes } = useColorTheme()
   const { data: achievementsData, isLoading: achievementsLoading, isError: achievementsError } = useAchievements()
   const metrics = stats ?? defaultStats
   const rank = resolveRank(metrics.level)
@@ -115,6 +127,67 @@ export default function ChildProfile({
                 </p>
               )}
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Theme Toggle */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">Настройки оформления</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Светлая/Тёмная тема */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {theme === "dark" ? (
+                <Moon className="w-5 h-5 text-slate-400" />
+              ) : (
+                <Sun className="w-5 h-5 text-amber-500" />
+              )}
+              <span className="text-sm">Режим</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="gap-2"
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-4 w-4" />
+                  Светлая
+                </>
+              ) : (
+                <>
+                  <Moon className="h-4 w-4" />
+                  Тёмная
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Выбор цветовой темы */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-primary" />
+              <span className="text-sm">Цветовая тема</span>
+            </div>
+            <Select value={colorTheme} onValueChange={(value: any) => setColorTheme(value)}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {themes.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    <div className="flex items-center gap-2">
+                      <div className={`h-4 w-4 rounded-full ${t.color}`} />
+                      {t.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -192,6 +265,13 @@ export default function ChildProfile({
           </div>
         </CardContent>
       </Card>
+
+      {/* Activity Heatmap - GitHub Style */}
+      <ActivityHeatmap 
+        data={[]} 
+        isLoading={statsLoading}
+        title="Активность за год"
+      />
 
       <Card>
         <CardHeader>

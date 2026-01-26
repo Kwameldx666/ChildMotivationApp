@@ -16,6 +16,7 @@ import {
 	Sparkles,
 	Star,
 	Upload,
+	X,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -162,7 +163,17 @@ function coalesce<T>(value: T | null | undefined, fallback: T): T {
 	return value === null || value === undefined ? fallback : value
 }
 
-function resolveEvidenceRequirement(value?: string | null): TaskEvidenceRequirement {
+function resolveEvidenceRequirement(value?: string | number | null): TaskEvidenceRequirement {
+	// Handle numeric enum values from backend (0=None, 1=Photo, 2=Video, 3=Document)
+	if (typeof value === "number") {
+		switch (value) {
+			case 1: return "photo"
+			case 2: return "video"
+			case 3: return "document"
+			default: return "none"
+		}
+	}
+	
 	const normalized = typeof value === "string" ? value.toLowerCase() : "none"
 	return normalized in EVIDENCE_META ? (normalized as TaskEvidenceRequirement) : "none"
 }
@@ -178,12 +189,9 @@ export default function TasksList({ userType }: TasksListProps) {
 	const [pendingEvidenceTask, setPendingEvidenceTask] = useState<DecoratedTask | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [editableTask, setEditableTask] = useState<EditableTask | null>(null)
+	const [viewingEvidence, setViewingEvidence] = useState<{ task: DecoratedTask; url: string; type: string } | null>(null)
 
 	const openTaskCreation = () => {
-		if (typeof window !== "undefined") {
-			window.dispatchEvent(new Event("open-task-create"))
-			return
-		}
 		router.push(routeRecord[AppRouteId.TaskCreate].path)
 	}
 
@@ -319,13 +327,21 @@ export default function TasksList({ userType }: TasksListProps) {
 			try {
 				const blob = await downloadEvidence.mutateAsync(task.id)
 				const url = URL.createObjectURL(blob)
-				const link = document.createElement("a")
-				link.href = url
-				link.download = coalesce(task.evidence?.fileName, `evidence-${task.id}`)
-				document.body.appendChild(link)
-				link.click()
-				link.remove()
-				URL.revokeObjectURL(url)
+				const contentType = task.evidence?.contentType || blob.type
+				
+				// Если это изображение или видео, показываем во встроенном просмотрщике
+				if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
+					setViewingEvidence({ task, url, type: contentType })
+				} else {
+					// Для других файлов скачиваем
+					const link = document.createElement("a")
+					link.href = url
+					link.download = coalesce(task.evidence?.fileName, `evidence-${task.id}`)
+					document.body.appendChild(link)
+					link.click()
+					link.remove()
+					URL.revokeObjectURL(url)
+				}
 			} catch (err) {
 				console.error(err)
 				toast({
@@ -337,6 +353,13 @@ export default function TasksList({ userType }: TasksListProps) {
 		},
 		[downloadEvidence, toast],
 	)
+
+	const handleCloseViewer = useCallback(() => {
+		if (viewingEvidence) {
+			URL.revokeObjectURL(viewingEvidence.url)
+			setViewingEvidence(null)
+		}
+	}, [viewingEvidence])
 
 	if (isLoading) {
 		return (
@@ -501,8 +524,8 @@ export default function TasksList({ userType }: TasksListProps) {
 						))}
 					</div>
 				) : (
-					<div className="rounded-3xl border border-dashed border-border/80 bg-muted/10 px-6 py-10 text-center shadow-sm">
-						<h3 className="text-lg font-semibold">В этом фильтре пока пусто</h3>
+					<div className="rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 px-6 py-10 text-center shadow-sm backdrop-blur-sm">
+						<h3 className="text-lg font-semibold text-foreground">В этом фильтре пока пусто</h3>
 						<p className="mt-2 text-sm text-muted-foreground">Попробуйте выбрать другой статус или создайте новую задачу.</p>
 						{userType === "parent" && (
 							<Button className="mt-4 gap-2" onClick={openTaskCreation}>
@@ -535,6 +558,65 @@ export default function TasksList({ userType }: TasksListProps) {
 				task={editableTask}
 				onSave={handleTaskEditSave}
 			/>
+
+			{/* Модальное окно просмотра медиа */}
+			{viewingEvidence && (
+				<div 
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+					onClick={handleCloseViewer}
+				>
+					<div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+						<button
+							onClick={handleCloseViewer}
+							className="absolute -top-12 right-0 text-white hover:text-gray-300 flex items-center gap-2 text-lg"
+						>
+							<X className="h-8 w-8" />
+							Закрыть
+						</button>
+						
+						<div className="bg-white rounded-lg overflow-hidden">
+							<div className="p-4 bg-gradient-to-r from-primary to-secondary text-white">
+								<h3 className="font-bold text-lg">{viewingEvidence.task.title}</h3>
+								<p className="text-sm opacity-90">Подтверждение выполнения</p>
+							</div>
+							
+							<div className="bg-black flex items-center justify-center" style={{ maxHeight: '70vh' }}>
+								{viewingEvidence.type.startsWith('image/') ? (
+									<img
+										src={viewingEvidence.url}
+										alt="Подтверждение"
+										className="max-w-full max-h-[70vh] object-contain"
+									/>
+								) : viewingEvidence.type.startsWith('video/') ? (
+									<video
+										src={viewingEvidence.url}
+										controls
+										autoPlay
+										className="max-w-full max-h-[70vh] object-contain"
+									/>
+								) : null}
+							</div>
+							
+							<div className="p-4 flex gap-2 justify-end bg-gray-50">
+								<Button
+									variant="outline"
+									onClick={() => {
+										const link = document.createElement('a')
+										link.href = viewingEvidence.url
+										link.download = viewingEvidence.task.evidence?.fileName || 'evidence'
+										link.click()
+									}}
+								>
+									Скачать
+								</Button>
+								<Button onClick={handleCloseViewer}>
+									Закрыть
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	)
 }
@@ -571,6 +653,18 @@ function TaskRow({
 	const evidenceMeta = EVIDENCE_META[evidenceRequirement]
 	const requiresEvidence = evidenceRequirement !== "none"
 	const evidenceReady = Boolean(task.evidence?.isSubmitted)
+	
+	// Отладочный вывод для проверки данных о доказательстве
+	if (requiresEvidence && typeof window !== 'undefined' && window.location.search.includes('debug')) {
+		console.log('Task evidence debug:', {
+			taskId: task.id,
+			taskTitle: task.title,
+			evidenceRequirement,
+			evidenceReady,
+			evidenceData: task.evidence
+		})
+	}
+	
 	const evidenceStatusText = requiresEvidence
 		? evidenceReady
 			? `Файл получен${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
@@ -801,7 +895,7 @@ function TaskRow({
 								)}
 							</div>
 							<div className="flex flex-wrap justify-end gap-2">
-								{requiresEvidence && userType === "parent" && !isCompleted && evidenceReady && (
+							{requiresEvidence && userType === "parent" && evidenceReady && (
 									<Button 
 										variant="outline" 
 										size="sm" 

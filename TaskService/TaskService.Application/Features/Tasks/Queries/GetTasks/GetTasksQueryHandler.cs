@@ -16,7 +16,10 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IReadOnlyList
 
     public async Task<IReadOnlyList<TaskDto>> Handle(GetTasksQuery request, CancellationToken cancellationToken)
     {
-        var tasks = await _repository.GetAsync(request.CreatedByUserId, cancellationToken);
+        var tasks = await _repository.GetAsync(
+            request.CreatedByUserId, 
+            request.AssignedToUserId, 
+            cancellationToken);
         return tasks.ToDtoList();
     }
 }

@@ -15,7 +15,10 @@ public class TaskRepository : ITaskRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<TaskItem>> GetAsync(string? createdByUserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<TaskItem>> GetAsync(
+        string? createdByUserId, 
+        string? assignedToUserId = null, 
+        CancellationToken cancellationToken = default)
     {
         var query = _dbContext.Tasks.AsNoTracking().AsQueryable();
 
@@ -24,8 +27,17 @@ public class TaskRepository : ITaskRepository
             query = query.Where(task => task.CreatedByUserId == createdByUserId);
         }
 
+        if (!string.IsNullOrWhiteSpace(assignedToUserId))
+        {
+            query = query.Where(task => task.AssignedToUserId == assignedToUserId);
+        }
+
+        // Сортировка: 
+        // 1. Невыполненные задачи сверху, выполненные снизу
+        // 2. Внутри каждой группы - по дате обновления (или создания) по убыванию
         return await query
-            .OrderByDescending(task => task.CreatedAt)
+            .OrderBy(task => task.Completed) // false (0) идут первыми, true (1) - ниже
+            .ThenByDescending(task => task.UpdatedAt ?? task.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
