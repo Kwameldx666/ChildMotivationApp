@@ -1,9 +1,11 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface ActivityDay {
   date: string
@@ -19,15 +21,18 @@ interface ActivityHeatmapProps {
 const MONTHS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
-// Генерируем последние 365 дней
-const generateYearDays = (): Date[] => {
+// Генерируем 365 дней для конкретного года
+const generateYearDays = (year: number): Date[] => {
   const days: Date[] = []
-  const today = new Date()
-  for (let i = 364; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    days.push(date)
+  const startDate = new Date(year, 0, 1)
+  const endDate = new Date(year, 11, 31)
+  
+  const current = new Date(startDate)
+  while (current <= endDate) {
+    days.push(new Date(current))
+    current.setDate(current.getDate() + 1)
   }
+  
   return days
 }
 
@@ -41,17 +46,24 @@ const getIntensityClass = (count: number): string => {
 }
 
 export default function ActivityHeatmap({ data = [], isLoading = false, title = "Активность за год" }: ActivityHeatmapProps) {
-  const yearDays = useMemo(() => generateYearDays(), [])
+  const currentYear = new Date().getFullYear()
+  const [selectedYear, setSelectedYear] = useState(currentYear)
+  
+  const yearDays = useMemo(() => generateYearDays(selectedYear), [selectedYear])
   
   // Создаем карту даты -> количество задач
   const activityMap = useMemo(() => {
     const map = new Map<string, number>()
     data.forEach(day => {
       const dateStr = day.date.split('T')[0] // Берем только дату без времени
-      map.set(dateStr, day.count)
+      const dayDate = new Date(dateStr)
+      // Фильтруем данные только для выбранного года
+      if (dayDate.getFullYear() === selectedYear) {
+        map.set(dateStr, day.count)
+      }
     })
     return map
-  }, [data])
+  }, [data, selectedYear])
 
   // Группируем дни по неделям
   const weeks = useMemo(() => {
@@ -84,22 +96,39 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
 
   // Определяем какие месяцы показывать
   const monthLabels = useMemo(() => {
-    const labels: { label: string; weekIndex: number }[] = []
-    let currentMonth = -1
+    const labels: { label: string; weekIndex: number; month: number }[] = []
+    let lastMonth = -1
     
     weeks.forEach((week, weekIndex) => {
-      const firstDay = week.find(d => d.getTime() !== 0)
-      if (firstDay) {
-        const month = firstDay.getMonth()
-        if (month !== currentMonth && weekIndex % 4 === 0) {
-          currentMonth = month
-          labels.push({ label: MONTHS[month], weekIndex })
+      const firstValidDay = week.find(d => d.getTime() !== 0)
+      if (firstValidDay) {
+        const month = firstValidDay.getMonth()
+        // Добавляем метку только если месяц изменился
+        if (month !== lastMonth) {
+          labels.push({ 
+            label: MONTHS[month], 
+            weekIndex,
+            month 
+          })
+          lastMonth = month
         }
       }
     })
     
     return labels
   }, [weeks])
+  
+  const totalTasks = useMemo(() => {
+    return data
+      .filter(day => new Date(day.date).getFullYear() === selectedYear)
+      .reduce((sum, day) => sum + day.count, 0)
+  }, [data, selectedYear])
+  
+  const activeDays = useMemo(() => {
+    return data
+      .filter(day => new Date(day.date).getFullYear() === selectedYear && day.count > 0)
+      .length
+  }, [data, selectedYear])
 
   if (isLoading) {
     return (
@@ -114,36 +143,73 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
     )
   }
 
-  const totalTasks = data.reduce((sum, day) => sum + day.count, 0)
-  const activeDays = data.filter(day => day.count > 0).length
+  // Форматирование даты для тултипа
+  const formatTooltipDate = (date: Date): string => {
+    const day = date.getDate()
+    const month = MONTHS[date.getMonth()]
+    const year = date.getFullYear()
+    return `${day} ${month} ${year}`
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{title}</span>
-          <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
-            <span>{totalTasks} задач</span>
-            <span>{activeDays} активных дней</span>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-4">
+            <span>{title}</span>
+            <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
+              <span>{totalTasks} задач</span>
+              <span>{activeDays} активных дней</span>
+            </div>
+          </CardTitle>
+          
+          {/* Переключатель годов */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedYear(prev => prev - 1)}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm font-semibold min-w-[60px] text-center">
+              {selectedYear}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedYear(prev => prev + 1)}
+              disabled={selectedYear >= currentYear}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-        </CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full">
             {/* Месяцы */}
             <div className="flex gap-[3px] mb-2 ml-8">
-              {monthLabels.map(({ label, weekIndex }) => (
-                <div 
-                  key={`${label}-${weekIndex}`}
-                  className="text-xs text-muted-foreground"
-                  style={{ 
-                    marginLeft: weekIndex === 0 ? 0 : `${(weekIndex - (monthLabels.findIndex(m => m.weekIndex === weekIndex) === 0 ? 0 : monthLabels[monthLabels.findIndex(m => m.weekIndex === weekIndex) - 1].weekIndex + 1)) * 13}px` 
-                  }}
-                >
-                  {label}
-                </div>
-              ))}
+              {monthLabels.map(({ label, weekIndex }, idx) => {
+                const nextWeekIndex = idx < monthLabels.length - 1 ? monthLabels[idx + 1].weekIndex : weeks.length
+                const width = (nextWeekIndex - weekIndex) * 13 - 3
+                
+                return (
+                  <div 
+                    key={`${label}-${weekIndex}`}
+                    className="text-xs text-muted-foreground"
+                    style={{ 
+                      width: `${width}px`,
+                      minWidth: `${width}px`
+                    }}
+                  >
+                    {label}
+                  </div>
+                )
+              })}
             </div>
             
             <div className="flex gap-1">
@@ -168,6 +234,7 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
                       const dateStr = day.toISOString().split('T')[0]
                       const count = activityMap.get(dateStr) || 0
                       const intensityClass = getIntensityClass(count)
+                      const tooltipText = `${formatTooltipDate(day)}: ${count} ${count === 1 ? 'задача' : count > 1 && count < 5 ? 'задачи' : 'задач'}`
                       
                       return (
                         <div
@@ -176,7 +243,7 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
                             "w-[10px] h-[10px] rounded-sm transition-all hover:ring-2 hover:ring-primary cursor-pointer",
                             intensityClass
                           )}
-                          title={`${dateStr}: ${count} ${count === 1 ? 'задача' : count > 1 && count < 5 ? 'задачи' : 'задач'}`}
+                          title={tooltipText}
                         />
                       )
                     })}

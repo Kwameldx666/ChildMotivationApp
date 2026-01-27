@@ -35,15 +35,15 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
         </button>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4 text-balance">Добро пожаловать!</h1>
-        <p className="text-xl text-white/90 text-center mb-12 text-balance">Выберите, что вас привело сюда</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4 text-balance drop-shadow-lg">Добро пожаловать!</h1>
+        <p className="text-xl text-white text-center mb-12 text-balance drop-shadow-md">Выберите, что вас привело сюда</p>
 
         {/* Choice cards */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* New user */}
           <Card
             onClick={onNewUser}
-            className="bg-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white"
+            className="bg-white/95 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white border-2 border-white/50"
           >
             <CardContent className="pt-8">
               <div className="w-20 h-20 bg-linear-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -66,7 +66,7 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
           {/* Existing user */}
           <Card
             onClick={onExisting}
-            className="bg-white/90 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white"
+            className="bg-white/95 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white border-2 border-white/50"
           >
             <CardContent className="pt-8">
               <div className="w-20 h-20 bg-linear-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">

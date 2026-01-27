@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 
 function splitName(fullName: string): [string, string] {
   if (!fullName) {
@@ -46,6 +47,7 @@ export default function OAuthRedirectPage() {
   const providerParam = (searchParams.get("oauth_provider") ?? "google").toLowerCase() as string
   const familyCodeParam = searchParams.get("familyCode")
   const modeParam = searchParams.get("mode") as UserRole | null
+  const isPopup = window.opener !== null
 
   const [isLoading, setIsLoading] = useState(true)
   const [fatalError, setFatalError] = useState<string | null>(null)
@@ -60,6 +62,7 @@ export default function OAuthRedirectPage() {
   const [familyCode, setFamilyCode] = useState("")
   const [age, setAge] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [hasInviteCode, setHasInviteCode] = useState(false)
 
   useEffect(() => {
     const processStatus = async () => {
@@ -71,6 +74,20 @@ export default function OAuthRedirectPage() {
 
       if (statusParam === "error") {
         const mappedError = mapOAuthError(errorParam)
+        
+        if (isPopup && window.opener) {
+          window.opener.postMessage({
+            type: 'OAUTH_RESULT',
+            payload: {
+              status: 'error',
+              error: mappedError,
+              provider: providerParam
+            }
+          }, window.location.origin)
+          window.close()
+          return
+        }
+        
         setFatalError(mappedError)
         setIsLoading(false)
         return
@@ -85,6 +102,21 @@ export default function OAuthRedirectPage() {
       if (statusParam === "authenticated") {
         try {
           const session = await authApi.fetchProviderSession(providerParam, tokenParam)
+          
+          if (isPopup && window.opener) {
+            // Отправляем сессию в родительское окно
+            window.opener.postMessage({
+              type: 'OAUTH_RESULT',
+              payload: {
+                status: 'authenticated',
+                session: session,
+                provider: providerParam
+              }
+            }, window.location.origin)
+            window.close()
+            return
+          }
+          
           dispatch(setSession(session))
           router.replace("/")
         } catch (err) {
@@ -97,6 +129,22 @@ export default function OAuthRedirectPage() {
       if (statusParam === "pending") {
         try {
           const data = await authApi.fetchProviderPendingUser(providerParam, tokenParam)
+          
+          if (isPopup && window.opener) {
+            // Отправляем pending статус в родительское окно для завершения регистрации
+            window.opener.postMessage({
+              type: 'OAUTH_RESULT',
+              payload: {
+                status: 'pending',
+                token: tokenParam,
+                provider: providerParam,
+                pendingUser: data
+              }
+            }, window.location.origin)
+            window.close()
+            return
+          }
+          
           const [defaultName, defaultLastName] = splitName(data.name)
           setPendingToken(tokenParam)
           setPendingUser(data)
@@ -110,6 +158,7 @@ export default function OAuthRedirectPage() {
           
           if (codeToUse) {
             setFamilyCode(codeToUse.toUpperCase())
+            setHasInviteCode(true)
             setRole("child")
             // Clear from localStorage after using
             if (storedFamilyCode) {
@@ -184,8 +233,8 @@ export default function OAuthRedirectPage() {
 
       if (age.trim()) {
         const numericAge = Number(age.trim())
-        if (Number.isNaN(numericAge) || numericAge < 1 || numericAge > 120) {
-          setFormError("Возраст должен быть числом от 1 до 120.")
+        if (Number.isNaN(numericAge) || numericAge < 5 || numericAge > 16) {
+          setFormError("Возраст должен быть от 5 до 16 лет.")
           return
         }
         parsedAge = numericAge
@@ -211,6 +260,21 @@ export default function OAuthRedirectPage() {
     try {
       setIsSubmitting(true)
       const session = await authApi.completeProviderSignIn(providerParam, payload)
+      
+      if (isPopup && window.opener) {
+        // Отправляем сессию в родительское окно
+        window.opener.postMessage({
+          type: 'OAUTH_RESULT',
+          payload: {
+            status: 'authenticated',
+            session: session,
+            provider: providerParam
+          }
+        }, window.location.origin)
+        window.close()
+        return
+      }
+      
       dispatch(setSession(session))
       router.replace("/")
     } catch (err) {
@@ -316,15 +380,22 @@ export default function OAuthRedirectPage() {
                 >
                   Родитель
                 </Button>
-                <Button
-                  type="button"
-                  variant={role === "child" ? "default" : "outline"}
-                  onClick={() => setRole("child")}
-                  disabled={isSubmitting}
-                >
-                  Ребёнок
-                </Button>
+                {hasInviteCode && (
+                  <Button
+                    type="button"
+                    variant={role === "child" ? "default" : "outline"}
+                    onClick={() => setRole("child")}
+                    disabled={isSubmitting}
+                  >
+                    Ребёнок
+                  </Button>
+                )}
               </div>
+              {!hasInviteCode && (
+                <p className="text-xs text-muted-foreground">
+                  Чтобы присоединиться к существующей семье как ребёнок, используйте ссылку-приглашение от родителя
+                </p>
+              )}
             </div>
 
             {role === "parent" ? (
@@ -350,8 +421,25 @@ export default function OAuthRedirectPage() {
                   )}
                 </div>
                 <div>
-                  <Label>Возраст</Label>
-                  <Input value={age} onChange={(event) => setAge(event.target.value)} placeholder="10" />
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                  <div className="pt-2 pb-1">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-2xl font-bold text-purple-600">{age || '5'}</span>
+                      <span className="text-xs text-gray-500">лет</span>
+                    </div>
+                    <Slider
+                      min={5}
+                      max={16}
+                      step={1}
+                      value={[Number(age) || 5]}
+                      onValueChange={(vals) => setAge(String(vals[0]))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-500">5</span>
+                      <span className="text-xs text-gray-500">16</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

@@ -16,12 +16,9 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
     {
         var userId = User.GetUserId();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
-
-        // Получаем роль пользователя из токена
-        var role = User.FindFirst("role")?.Value?.ToLowerInvariant();
         
-        // Родитель видит задачи, которые он создал
-        // Ребёнок видит задачи, которые ему назначены
+        var role = User.FindFirst("role")?.Value?.ToLowerInvariant();
+   
         string? createdBy = role == "parent" ? userId : null;
         string? assignedTo = role == "child" ? userId : null;
 

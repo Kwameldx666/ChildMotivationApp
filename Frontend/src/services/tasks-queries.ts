@@ -13,8 +13,8 @@ export function useTasks() {
     queryKey: ['tasks', ...scopedKey],
     queryFn: () => tasksService.list(),
     enabled: Boolean(session),
-    staleTime: 60_000, // 1 minute
-    gcTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes - данные остаются свежими дольше
+    gcTime: 1000 * 60 * 10, // 10 minutes - хранятся в памяти дольше
   })
 }
 
