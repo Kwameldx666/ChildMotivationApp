@@ -5,10 +5,10 @@ Modern microservices platform for organizing family life with AI assistant, chat
 ## 🚀 Technology Stack
 
 ### Backend
-- **.NET 8.0** - ASP.NET Core Web API
-- **Clean Architecture** - layered separation (API, Application, Domain, Infrastructure, Persistence)
-- **PostgreSQL 15** - primary database
-- **Redis 7** - caching and distributed sessions
+- **.NET 10.0** - ASP.NET Core Web API
+- **Clean Architecture** - разделение слоев (API, Application, Domain, Infrastructure, Persistence)
+- **PostgreSQL 15** - основная база данных
+- **Redis 7** - кэширование и распределенные сессии
 - **Entity Framework Core** - ORM
 
 ### Frontend
