@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import { ArrowLeft, Plus } from "lucide-react"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
+import { openOAuthPopup } from "@/utils/oauth-popup"
 
 
 
@@ -232,9 +234,28 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       if (!authorizationUrl) {
         throw new Error('Authorization URL not provided')
       }
-      window.location.href = authorizationUrl
-    } catch (serviceError) {
-      setError(mapApiError(serviceError, "Не удалось начать вход через провайдера."))
+      
+      // Открываем popup вместо редиректа
+      const result = await openOAuthPopup(authorizationUrl)
+      
+      if (result.status === 'authenticated' && result.session) {
+        // Используем полученную сессию напрямую
+        onAuth(result.session)
+      } else if (result.status === 'pending') {
+        // Для pending показываем сообщение что нужно завершить регистрацию
+        setError("Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.")
+      } else if (result.status === 'error') {
+        setError(result.error || 'Ошибка авторизации')
+      }
+    } catch (serviceError: any) {
+      if (serviceError.message?.includes('всплывающие окна')) {
+        setError("Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.")
+      } else if (serviceError.message?.includes('закрыто')) {
+        setError("Авторизация отменена")
+      } else {
+        setError(mapApiError(serviceError, "Не удалось начать вход через провайдера."))
+      }
+    } finally {
       setIsLoading(false)
     }
   }
@@ -270,6 +291,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     } else {
       if (!childFamilyCode.trim()) {
         setError("Введите код семьи.")
+        return
+      }
+      if (interests.length === 0) {
+        setError("Выбери хотя бы один интерес.")
         return
       }
     }
@@ -330,10 +355,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl">
+    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Декоративный фон */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+      </div>
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-md shadow-2xl border-2 border-white/50 relative z-10">
         <CardContent className="pt-6">
-          <Button variant="ghost" onClick={handleBack} className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={handleBack} 
+            className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Назад
           </Button>
@@ -341,30 +375,39 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
           {(mode === "login" || mode === "register") && (
             <>
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold mb-2 text-gray-900">{mode === "login" ? "Вход" : "Регистрация"}</h2>
-                <p className="text-sm text-gray-700">FamilyQuest</p>
+                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{mode === "login" ? "Вход" : "Регистрация"}</h2>
+                <p className="text-sm text-gray-600 font-medium">FamilyQuest</p>
               </div>
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
                 <div>
-                  <Label>Email</Label>
-                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => setEmailTouched(true)} placeholder="you@example.com" aria-invalid={(emailTouched || submitAttempted) && !isValidEmail(email)} />
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Email</Label>
+                  <Input 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    onBlur={() => setEmailTouched(true)} 
+                    placeholder="you@example.com" 
+                    aria-invalid={(emailTouched || submitAttempted) && !isValidEmail(email)}
+                    className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                  />
                   {(emailTouched || submitAttempted) && !isValidEmail(email) && <p className="text-xs text-destructive mt-1">Введите корректный email</p>}
                 </div>
                 <div>
-                  <Label>Пароль</Label>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Пароль</Label>
                   <Input
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     type="password"
                     placeholder="••••••"
+                    className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
 
                 {mode === "register" && (
                   <>
                     <div className="text-center mb-2">
-                      <p className="text-sm text-gray-700">Выберите роль и заполните профиль</p>
+                      <p className="text-sm font-semibold text-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg">Выберите роль и заполните профиль</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -394,13 +437,27 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label>Имя</Label>
-                        <Input required aria-invalid={(nameTouched || submitAttempted) && !name.trim()} value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setNameTouched(true)} />
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Имя</Label>
+                        <Input 
+                          required 
+                          aria-invalid={(nameTouched || submitAttempted) && !name.trim()} 
+                          value={name} 
+                          onChange={(e) => setName(e.target.value)} 
+                          onBlur={() => setNameTouched(true)}
+                          className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                        />
                         {(nameTouched || submitAttempted) && !name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>
                       <div>
-                        <Label>Фамилия</Label>
-                        <Input required aria-invalid={(lastNameTouched || submitAttempted) && !lastName.trim()} value={lastName} onChange={(e) => setLastName(e.target.value)} onBlur={() => setLastNameTouched(true)} />
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Фамилия</Label>
+                        <Input 
+                          required 
+                          aria-invalid={(lastNameTouched || submitAttempted) && !lastName.trim()} 
+                          value={lastName} 
+                          onChange={(e) => setLastName(e.target.value)} 
+                          onBlur={() => setLastNameTouched(true)}
+                          className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                        />
                         {(lastNameTouched || submitAttempted) && !lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>
                     </div>
@@ -409,145 +466,107 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label>Возраст *</Label>
-                            <Input 
-                              required
-                              value={age} 
-                              onChange={(e) => setAge(e.target.value)} 
-                              onBlur={() => setAgeTouched(true)} 
-                              inputMode="numeric"
-                              placeholder="Введите возраст"
-                              aria-invalid={(ageTouched || submitAttempted) && (!age.trim() || Number.isNaN(Number(age)) || Number(age) < 1 || Number(age) > 120)}
+                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                            <div className="pt-2 pb-1">
+                              <div className="flex justify-between items-center mb-3">
+                                <span className="text-2xl font-bold text-purple-600">{age || '5'}</span>
+                                <span className="text-xs text-gray-500">лет</span>
+                              </div>
+                              <Slider
+                                min={5}
+                              max={16}
+                              step={1}
+                              value={[Number(age) || 5]}
+                              onValueChange={(vals) => {
+                                setAge(String(vals[0]))
+                                setAgeTouched(true)
+                              }}
+                              className="w-full"
                             />
-                            {(ageTouched || submitAttempted) && !age.trim() && (
-                              <p className="text-xs text-destructive mt-1">Обязательное поле</p>
-                            )}
-                            {(ageTouched || submitAttempted) && age.trim() && (Number.isNaN(Number(age)) || Number(Number(age)) < 1 || Number(Number(age)) > 120) && (
-                              <p className="text-xs text-destructive mt-1">Некорректный возраст (1-120)</p>
-                            )} 
+                            <div className="flex justify-between mt-1">
+                              <span className="text-xs text-gray-500">5</span>
+                              <span className="text-xs text-gray-500">16</span>
+                              </div>
+                            </div>
                           </div>
                           <div>
-                            <Label>Аватар</Label>
-                            <div className="flex gap-2">
-                              <select
-                                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                                value={avatar}
-                                onChange={(e) => setAvatar(e.target.value)}
-                              >
-                                {AVATARS.map((item) => (
-                                  <option key={item} value={item}>
-                                    {item}
-                                  </option>
-                                ))}
-                              </select>
-
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="text-sm"
-                                onChange={async (e) => {
-                                  const f = e.target.files?.[0]
-                                  if (!f) return
-                                  const reader = new FileReader()
-                                  reader.onload = () => {
-                                    const result = reader.result as string | null
-                                    if (result) setAvatar(result)
-                                  }
-                                  reader.readAsDataURL(f)
-                                }}
-                              />
+                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                            <div className="flex items-center gap-3">
+                              {/* Превью аватара */}
+                              <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
+                                {avatar.startsWith('data:') ? (
+                                  <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="text-3xl">{avatar}</span>
+                                )}
+                              </div>
+                              
+                              {/* Кнопка загрузки */}
+                              <div className="flex-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  id="avatar-upload"
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const f = e.target.files?.[0]
+                                    if (!f) return
+                                    const reader = new FileReader()
+                                    reader.onload = () => {
+                                      const result = reader.result as string | null
+                                      if (result) setAvatar(result)
+                                    }
+                                    reader.readAsDataURL(f)
+                                  }}
+                                />
+                                <label
+                                  htmlFor="avatar-upload"
+                                  className="w-full h-10 px-4 py-2 bg-white border-2 border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 font-semibold rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-sm">Загрузить фото</span>
+                                </label>
+                              </div>
                             </div>
                           </div>
                         </div>
 
+                        {/* Минималистичный выбор интересов */}
                         <div>
-                          <Label>Что тебе нравится? (необязательно)</Label>
-                          <p className="text-xs text-muted-foreground mb-2">Выбери готовые или добавь свои увлечения</p>
-                          
-                          {/* Отображение выбранных интересов как тегов */}
-                          {interests.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-3 p-3 bg-muted/50 rounded-lg">
-                              {interests.map((interestId) => {
-                                const predefined = INTERESTS.find(i => i.id === interestId)
-                                return (
-                                  <div
-                                    key={interestId}
-                                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm"
-                                  >
-                                    {predefined && <span>{predefined.emoji}</span>}
-                                    <span>{predefined?.label || interestId}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => setInterests(prev => prev.filter(i => i !== interestId))}
-                                      className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5"
-                                    >
-                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-
-                          {/* Быстрый выбор из предложенных */}
-                          <div className="grid grid-cols-2 gap-2 mb-3">
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Что тебе нравится? *</Label>
+                          <p className="text-xs text-gray-600 mb-2">Выбери минимум один интерес</p>
+                          <div className="grid grid-cols-2 gap-2">
                             {INTERESTS.map((interest) => (
-                              <Button
+                              <label
                                 key={interest.id}
-                                type="button"
-                                variant={interests.includes(interest.id) ? "default" : "outline"}
-                                className="justify-start gap-2 h-auto py-2"
-                                onClick={() => {
-                                  setInterests(prev => 
-                                    prev.includes(interest.id) 
-                                      ? prev.filter(i => i !== interest.id)
-                                      : [...prev, interest.id]
-                                  )
-                                }}
+                                className={`flex items-center gap-2 p-2 rounded-lg border-2 cursor-pointer transition-all ${
+                                  interests.includes(interest.id)
+                                    ? 'border-purple-500 bg-purple-50'
+                                    : 'border-gray-300 bg-white hover:border-purple-300'
+                                }`}
                               >
+                                <input
+                                  type="checkbox"
+                                  checked={interests.includes(interest.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setInterests(prev => [...prev, interest.id])
+                                    } else {
+                                      setInterests(prev => prev.filter(i => i !== interest.id))
+                                    }
+                                  }}
+                                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                />
                                 <span className="text-lg">{interest.emoji}</span>
-                                <span className="text-sm">{interest.label}</span>
-                              </Button>
+                                <span className="text-sm text-gray-800">{interest.label}</span>
+                              </label>
                             ))}
                           </div>
-
-                          {/* Поле для добавления своего интереса */}
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="Добавь свой интерес..."
-                              value={customInterest}
-                              onChange={(e) => setCustomInterest(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault()
-                                  const trimmed = customInterest.trim()
-                                  if (trimmed && !interests.includes(trimmed)) {
-                                    setInterests(prev => [...prev, trimmed])
-                                    setCustomInterest("")
-                                  }
-                                }
-                              }}
-                              disabled={isSubmitting}
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const trimmed = customInterest.trim()
-                                if (trimmed && !interests.includes(trimmed)) {
-                                  setInterests(prev => [...prev, trimmed])
-                                  setCustomInterest("")
-                                }
-                              }}
-                              disabled={!customInterest.trim() || isSubmitting}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">Нажми Enter или + чтобы добавить</p>
+                          {(submitAttempted) && interests.length === 0 && (
+                            <p className="text-xs text-destructive mt-1">Выбери хотя бы один интерес</p>
+                          )}
                         </div>
                       </>
                     )}
@@ -555,29 +574,22 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     {role === "parent" ? (
                       <>
                         <div>
-                          <Label>Название семьи</Label>
-                          <Input required aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} value={familyName} onChange={(e) => setFamilyName(e.target.value)} onBlur={() => setFamilyNameTouched(true)} />
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Название семьи</Label>
+                          <Input 
+                            required 
+                            aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} 
+                            value={familyName} 
+                            onChange={(e) => setFamilyName(e.target.value)} 
+                            onBlur={() => setFamilyNameTouched(true)}
+                            className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                          />
                           {(familyNameTouched || submitAttempted) && !familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
-                        </div>
-                        <div>
-                          <Label>Эмблема</Label>
-                          <select
-                            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                            value={familyEmblem}
-                            onChange={(e) => setFamilyEmblem(e.target.value as (typeof FAMILY_EMBLEMS)[number])}
-                          >
-                            {FAMILY_EMBLEMS.map((item) => (
-                              <option key={item} value={item}>
-                                {item}
-                              </option>
-                            ))}
-                          </select>
                         </div>
                         <p className="text-xs text-gray-600">Код семьи создастся автоматически после регистрации.</p>
                       </>
                     ) : (
                       <div>
-                        <Label>Код семьи</Label>
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Код семьи</Label>
                         <Input
                           required
                           aria-invalid={(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim()}
@@ -585,6 +597,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
                           onBlur={() => setChildFamilyCodeTouched(true)}
                           placeholder="ABC123"
+                          className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                         />
                         {(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                       </div>

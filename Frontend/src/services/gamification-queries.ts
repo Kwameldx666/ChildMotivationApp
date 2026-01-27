@@ -11,7 +11,8 @@ export function useMissions(recurrence?: MissionRecurrence) {
     queryKey: ['missions', session?.user.id, recurrenceKey],
     queryFn: () => gamificationService.listMissions(recurrence),
     enabled: Boolean(session),
-    staleTime: 60_000,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   })
 }
 
@@ -33,7 +34,8 @@ export function useAchievements() {
     queryKey: ['achievements', session?.user.id],
     queryFn: () => gamificationService.listAchievements(),
     enabled: Boolean(session),
-    staleTime: 120_000,
+    staleTime: 1000 * 60 * 10, // 10 minutes - достижения меняются редко
+    gcTime: 1000 * 60 * 15, // 15 minutes
   })
 }
 

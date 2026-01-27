@@ -14,8 +14,8 @@ export function useShopProducts() {
   return useQuery<ProductDto[]>({
     queryKey: ['shop', 'products'],
     queryFn: () => shopService.listProducts(),
-    staleTime: 60_000,
-    gcTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   })
@@ -25,8 +25,8 @@ export function useShopOrders(enabled: boolean = true) {
   return useQuery<OrderDto[]>({
     queryKey: ['shop', 'orders'],
     queryFn: () => shopService.listOrders(),
-    staleTime: 30_000,
-    gcTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 3, // 3 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
     enabled,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

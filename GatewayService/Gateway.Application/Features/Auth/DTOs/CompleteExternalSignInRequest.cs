@@ -2,9 +2,14 @@
 
 public record CompleteExternalSignInRequest
 {
-    public required string Token { get; init; }
-    public required string Email { get; init; }
-    public required string FirstName { get; init; }
-    public string? LastName { get; init; }
-    public string? AvatarUrl { get; init; }
+    public required string PendingToken { get; init; }
+    public required string Role { get; init; }
+    public required string Name { get; init; }
+    public required string LastName { get; init; }
+    public string? Email { get; init; }
+    public string? Avatar { get; init; }
+    public int? Age { get; init; }
+    public string? FamilyCode { get; init; }
+    public string? FamilyName { get; init; }
+    public string? FamilyEmblem { get; init; }
 }

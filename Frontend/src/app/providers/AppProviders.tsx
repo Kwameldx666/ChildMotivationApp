@@ -21,9 +21,12 @@ export function AppProviders({ children }: AppProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60,
+            staleTime: 1000 * 60 * 5, // 5 минут - данные считаются свежими дольше
+            gcTime: 1000 * 60 * 10, // 10 минут - храним в памяти дольше
             retry: 1,
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: false, // не перезагружать при фокусе на окне
+            refetchOnMount: false, // не перезагружать при монтировании если данные свежие
+            refetchOnReconnect: false, // не перезагружать при восстановлении соединения
           },
           mutations: {
             retry: 1,

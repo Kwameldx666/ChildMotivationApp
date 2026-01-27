@@ -13,7 +13,7 @@ export function useFamilyMembers(options: UseFamilyMembersOptions = {}) {
     queryKey: ['family-members', userId ?? 'me'],
     queryFn: () => familyService.getMembers(userId),
     enabled,
-    staleTime: 30_000,
-    gcTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
   })
 }

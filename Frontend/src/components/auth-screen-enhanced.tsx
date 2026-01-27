@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import { ArrowLeft, Sparkles, Users, UserCircle, Home, Zap } from "lucide-react"
 import { authApi } from "@/features/auth/api/authApi"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
+import { openOAuthPopup } from "@/utils/oauth-popup"
 
 function GoogleIcon(props: { className?: string }) {
   return (
@@ -146,11 +148,31 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     setIsLoading(true)
 
     try {
-      const { authorizationUrl } = await authApi.getOAuthAuthorization(resolveProvider(provider))
+      const resolvedProvider = resolveProvider(provider)
+      const { authorizationUrl } = await authApi.getOAuthAuthorization(resolvedProvider)
       if (!authorizationUrl) throw new Error('Authorization URL not provided')
-      window.location.href = authorizationUrl
-    } catch (err) {
-      setError(mapApiError(err, 'Не удалось начать OAuth-процесс.'))
+      
+      // Открываем popup вместо редиректа
+      const result = await openOAuthPopup(authorizationUrl)
+      
+      if (result.status === 'authenticated' && result.session) {
+        // Используем полученную сессию напрямую
+        onAuth(result.session)
+      } else if (result.status === 'pending') {
+        // Для pending показываем сообщение что нужно завершить регистрацию
+        setError("Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.")
+      } else if (result.status === 'error') {
+        setError(result.error || 'Ошибка авторизации')
+      }
+    } catch (err: any) {
+      if (err.message?.includes('всплывающие окна')) {
+        setError("Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.")
+      } else if (err.message?.includes('закрыто')) {
+        setError("Авторизация отменена")
+      } else {
+        setError(mapApiError(err, 'Не удалось начать OAuth-процесс.'))
+      }
+    } finally {
       setIsLoading(false)
     }
   }
@@ -354,36 +376,46 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   // CHANGE: Credentials step with demo button
   if (step === "credentials") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Декоративный фон */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <Card className="w-full max-w-md bg-white/95 backdrop-blur-md shadow-2xl border-2 border-white/50 relative z-10">
           <CardContent className="pt-6">
-            <Button variant="ghost" onClick={onBack} className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={onBack} 
+              className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">{isLogin ? "Вход" : "Регистрация"}</h2>
-              <p className="text-sm text-gray-700">
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{isLogin ? "Вход" : "Регистрация"}</h2>
+              <p className="text-sm font-medium text-gray-700">
                 {isLogin ? "Добро пожаловать обратно!" : "Начни своё приключение"}
               </p>
             </div>
 
             <form onSubmit={handleCredentialsSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-semibold text-gray-800 mb-1.5 block">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="password">Пароль</Label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label htmlFor="password" className="text-sm font-semibold text-gray-800">Пароль</Label>
                   <Sparkles className="w-4 h-4 text-yellow-500" />
                 </div>
                 <Input
@@ -392,6 +424,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                   placeholder="Минимум 6 символов"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
                 <p className="text-xs text-gray-600 mt-1">{AI_SUGGESTIONS.password}</p>
               </div>
@@ -456,21 +489,30 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   // CHANGE: Role selection with AI suggestion
   if (step === "role") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Декоративный фон */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-md shadow-2xl border-2 border-white/50 relative z-10">
           <CardContent className="pt-6">
-            <Button variant="ghost" onClick={() => setStep("credentials")} className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setStep("credentials")} 
+              className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
 
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">Выбери свою роль</h2>
-              <div className="bg-blue-50 p-3 rounded-lg mb-4 flex items-start gap-2">
+              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Выбери свою роль</h2>
+              <div className="bg-blue-100 p-3 rounded-lg mb-4 flex items-start gap-2 border border-blue-200">
                 <Sparkles className="w-4 h-4 text-yellow-500 mt-1 flex-shrink-0" />
-                <p className="text-sm text-blue-900">{AI_SUGGESTIONS.role}</p>
+                <p className="text-sm text-blue-900 font-medium">{AI_SUGGESTIONS.role}</p>
               </div>
-              <p className="text-sm text-red-600 font-semibold">⚠️ Роль нельзя изменить позже, выбери внимательно!</p>
+              <p className="text-sm text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-200">⚠️ Роль нельзя изменить позже, выбери внимательно!</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-6">
@@ -513,24 +555,35 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   // CHANGE: Parent family creation with AI name suggestions
   if (step === "parent-family") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Декоративный фон */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <Card className="w-full max-w-md bg-white/95 backdrop-blur-md shadow-2xl border-2 border-white/50 relative z-10">
           <CardContent className="pt-6">
-            <Button variant="ghost" onClick={() => setStep("role")} className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setStep("credentials")} 
+              className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
 
             <div className="text-center mb-6">
-              <Home className="w-12 h-12 mx-auto mb-3 text-primary" />
-              <h2 className="text-2xl font-bold mb-2 text-gray-900">Создай семью</h2>
-              <p className="text-sm text-gray-700">Дай ей название и выбери эмблему</p>
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <Home className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Создай семью</h2>
+              <p className="text-sm font-medium text-gray-700">Дай ей название и выбери эмблему</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Название семьи</Label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-sm font-semibold text-gray-800">Название семьи</Label>
                   <Button
                     type="button"
                     size="sm"
@@ -541,7 +594,14 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                     <Sparkles className="w-4 h-4 text-yellow-500" />
                   </Button>
                 </div>
-                <Input required aria-invalid={!familyName.trim()} placeholder="Семья Иванова" value={familyName} onChange={(e) => setFamilyName(e.target.value)} />
+                <Input 
+                  required 
+                  aria-invalid={!familyName.trim()} 
+                  placeholder="Семья Иванова" 
+                  value={familyName} 
+                  onChange={(e) => setFamilyName(e.target.value)}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                />
                 {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
 
                 {showAINames && (
@@ -560,25 +620,6 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                     ))}
                   </div>
                 )}
-              </div>
-
-              <div>
-                <Label className="mb-3 block">Эмблема семьи</Label>
-                <div className="grid grid-cols-5 gap-2">
-                  {FAMILY_EMBLEMS.map((emblem) => (
-                    <button
-                      key={emblem}
-                      onClick={() => setSelectedEmblem(emblem)}
-                      className={`p-3 rounded-lg border-2 text-2xl transition-all ${
-                        selectedEmblem === emblem
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {emblem}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
@@ -600,65 +641,122 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
   // CHANGE: Child profile with age wheel selector
   if (step === "child-profile") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Декоративный фон */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <Card className="w-full max-w-md bg-white/95 backdrop-blur-md shadow-2xl border-2 border-white/50 relative z-10">
           <CardContent className="pt-6">
-            <Button variant="ghost" onClick={() => setStep("role")} className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setStep("role")} 
+              className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Назад
             </Button>
 
             <div className="text-center mb-6">
-              <div className="text-5xl mb-3">{selectedAvatar}</div>
-              <h2 className="text-2xl font-bold mb-2">Создай профиль</h2>
-              <p className="text-sm text-muted-foreground">Заполни информацию о себе</p>
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg border-2 border-purple-200">
+                <div className="text-5xl">{selectedAvatar}</div>
+              </div>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Создай профиль</h2>
+              <p className="text-sm font-medium text-gray-700">Заполни информацию о себе</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label>Имя</Label>
-                <Input required aria-invalid={!childName.trim()} placeholder="Иван" value={childName} onChange={(e) => setChildName(e.target.value)} />
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Имя</Label>
+                <Input 
+                  required 
+                  aria-invalid={!childName.trim()} 
+                  placeholder="Иван" 
+                  value={childName} 
+                  onChange={(e) => setChildName(e.target.value)}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                />
                 {!childName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
               </div>
 
               <div>
-                <Label>Фамилия</Label>
-                <Input placeholder="Иванов" value={childLastName} onChange={(e) => setChildLastName(e.target.value)} />
-              </div>
-
-              <div>
-                <Label>Возраст: {childAge}</Label>
-                <input
-                  type="range"
-                  min="6"
-                  max="18"
-                  value={childAge}
-                  onChange={(e) => setChildAge(Number(e.target.value))}
-                  className="w-full"
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Фамилия</Label>
+                <Input 
+                  placeholder="Иванов" 
+                  value={childLastName} 
+                  onChange={(e) => setChildLastName(e.target.value)}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
 
               <div>
-                <Label className="mb-3 block">Выбери аватар</Label>
-                <div className="grid grid-cols-5 gap-2">
-                  {AVATARS.map((avatar) => (
-                    <button
-                      key={avatar}
-                      onClick={() => setSelectedAvatar(avatar)}
-                      className={`p-2 rounded-lg border-2 text-2xl transition-all ${
-                        selectedAvatar === avatar
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {avatar}
-                    </button>
-                  ))}
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                <div className="pt-2 pb-1">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-2xl font-bold text-purple-600">{childAge}</span>
+                    <span className="text-xs text-gray-500">лет</span>
+                  </div>
+                  <Slider
+                    min={5}
+                    max={16}
+                    step={1}
+                    value={[childAge]}
+                    onValueChange={(vals) => setChildAge(vals[0])}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-gray-500">5</span>
+                    <span className="text-xs text-gray-500">16</span>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <Label>Код семьи</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                <div className="flex items-center gap-3">
+                  {/* Превью аватара */}
+                  <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
+                    {selectedAvatar.startsWith('data:') ? (
+                      <img src={selectedAvatar} alt="Аватар" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl">{selectedAvatar}</span>
+                    )}
+                  </div>
+                  
+                  {/* Кнопка загрузки */}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="avatar-upload-child"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                          const result = reader.result as string | null
+                          if (result) setSelectedAvatar(result)
+                        }
+                        reader.readAsDataURL(f)
+                      }}
+                    />
+                    <label
+                      htmlFor="avatar-upload-child"
+                      className="w-full h-10 px-4 py-2 bg-white border-2 border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 font-semibold rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm">Загрузить фото</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Код семьи</Label>
                 <Input
                   required
                   aria-invalid={!childFamilyCode.trim()}
@@ -666,6 +764,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                   value={childFamilyCode}
                   onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
                   maxLength={6}
+                  className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
                 {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
               </div>
