@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 import type { LucideIcon } from "lucide-react"
@@ -8,6 +8,8 @@ import {
 	AlertCircle,
 	CheckCircle2,
 	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
 	Circle,
 	Clock,
 	Eye,
@@ -15,6 +17,7 @@ import {
 	Plus,
 	Sparkles,
 	Star,
+	Trash2,
 	Upload,
 	X,
 } from "lucide-react"
@@ -27,6 +30,7 @@ import {
 	useTasks,
 	useCompleteTask,
 	useUpdateTask,
+	useDeleteTask,
 	useSubmitTaskEvidence,
 	useDownloadTaskEvidence,
 } from "@/services/tasks-queries"
@@ -34,8 +38,10 @@ import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { AppRouteId, routeRecord } from "@/routes/config"
 import TaskSubmissionModal from "./task-submission-modal"
 import TaskEditModal, { type EditableTask } from "./task-edit-modal"
+import { CreateTaskDialog } from "./create-task-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { computeTaskDifficulty, computeTaskXp, computeTaskPoints } from "@/lib/task-metrics"
+import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
+import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 
 interface TasksListProps {
 	userType: "parent" | "child"
@@ -181,8 +187,12 @@ function resolveEvidenceRequirement(value?: string | number | null): TaskEvidenc
 export default function TasksList({ userType }: TasksListProps) {
 	const router = useRouter()
 	const { data, isLoading, isError, error } = useTasks()
+	const { stats: progressStats } = useChildProgressStats()
+	const currentStreak = progressStats?.streak ?? 0
+	const streakMultiplier = progressStats?.streakMultiplier ?? 1
 	const completeTask = useCompleteTask()
 	const updateTask = useUpdateTask()
+	const deleteTask = useDeleteTask()
 	const submitEvidence = useSubmitTaskEvidence()
 	const downloadEvidence = useDownloadTaskEvidence()
 	const { toast } = useToast()
@@ -190,9 +200,10 @@ export default function TasksList({ userType }: TasksListProps) {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [editableTask, setEditableTask] = useState<EditableTask | null>(null)
 	const [viewingEvidence, setViewingEvidence] = useState<{ task: DecoratedTask; url: string; type: string } | null>(null)
+	const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
 
 	const openTaskCreation = () => {
-		router.push(routeRecord[AppRouteId.TaskCreate].path)
+		setIsCreateTaskOpen(true)
 	}
 
 	const openEditModal = (task: DecoratedTask) => {
@@ -275,11 +286,25 @@ export default function TasksList({ userType }: TasksListProps) {
 	const heroStats = useMemo(() => HERO_STATS.map((stat) => ({ ...stat, value: stat.compute(summary) })), [summary])
 
 	const [activeFilter, setActiveFilter] = useState<TaskStatus | "all">("all")
+	const [currentPage, setCurrentPage] = useState(1)
+	const [pageSize, setPageSize] = useState(10)
 
 	const filteredTasks: DecoratedTask[] = useMemo(
 		() => (activeFilter === "all" ? decoratedTasks : decoratedTasks.filter((task) => task.status === activeFilter)),
 		[decoratedTasks, activeFilter],
 	)
+
+	// Пагинация
+	const totalPages = Math.ceil(filteredTasks.length / pageSize)
+	const paginatedTasks = useMemo(
+		() => filteredTasks.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+		[filteredTasks, currentPage, pageSize],
+	)
+
+	// Сброс на первую страницу при смене фильтра или размера страницы
+	useEffect(() => {
+		setCurrentPage(1)
+	}, [activeFilter, pageSize])
 
 	const highlighted: DecoratedTask[] = useMemo(() => decoratedTasks.slice(0, 3), [decoratedTasks])
 
@@ -354,6 +379,27 @@ export default function TasksList({ userType }: TasksListProps) {
 		[downloadEvidence, toast],
 	)
 
+	const handleDeleteTask = useCallback(
+		async (taskId: string) => {
+			if (!confirm("Вы уверены, что хотите удалить эту задачу?")) return
+			try {
+				await deleteTask.mutateAsync(taskId)
+				toast({
+					title: "Задача удалена",
+					description: "Задача успешно удалена.",
+				})
+			} catch (err) {
+				console.error(err)
+				toast({
+					title: "Не удалось удалить задачу",
+					description: err instanceof Error ? err.message : "Попробуйте ещё раз",
+					variant: "destructive",
+				})
+			}
+		},
+		[deleteTask, toast],
+	)
+
 	const handleCloseViewer = useCallback(() => {
 		if (viewingEvidence) {
 			URL.revokeObjectURL(viewingEvidence.url)
@@ -415,70 +461,6 @@ export default function TasksList({ userType }: TasksListProps) {
 	return (
 		<>
 			<div className="space-y-8">
-				<section className="relative overflow-hidden rounded-[32px] border border-border/60 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 px-6 py-8 text-white shadow-2xl">
-					<div className="pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
-					<div className="grid gap-8 lg:grid-cols-[2fr,1fr]">
-						<div className="space-y-6">
-							<p className="text-xs uppercase tracking-[0.4em] text-white/70">панель задач</p>
-							<h2 className="text-3xl font-semibold leading-snug">
-								Ваш семейный ритм задач — {summary.pending + summary.in_progress} активных прямо сейчас
-							</h2>
-							<p className="max-w-2xl text-sm text-white/80">
-								Следите за прогрессом ребёнка, подтверждайте результаты и мягко напоминайте о важных задачах.
-							</p>
-							<div className="flex flex-wrap items-center gap-3">
-								{userType === "parent" ? (
-									<Button
-										variant="secondary"
-										className="border border-white/50 bg-white/10 text-white hover:bg-white/20"
-										onClick={openTaskCreation}
-									>
-										<Plus className="mr-1 h-4 w-4" />
-										Новая задача
-									</Button>
-								) : (
-									<span className="rounded-full border border-white/30 px-4 py-1 text-xs uppercase tracking-[0.3em] text-white/80">
-										Режим ребёнка
-									</span>
-								)}
-								<Badge variant="secondary" className="rounded-full border border-white/20 bg-transparent text-white">
-									Последнее обновление • {formatDate(new Date())}
-								</Badge>
-							</div>
-							<div className="grid gap-4 sm:grid-cols-3">
-								{heroStats.map((stat) => (
-									<div key={stat.id} className="rounded-2xl border border-white/20 bg-white/5 px-4 py-4">
-										<p className="text-[10px] uppercase tracking-[0.3em] text-white/60">{stat.label}</p>
-										<p className="mt-2 text-3xl font-bold">{stat.value}</p>
-										<p className="text-xs text-white/70">{stat.hint}</p>
-									</div>
-								))}
-							</div>
-						</div>
-						<div className="rounded-3xl border border-white/20 bg-white/5 p-6 backdrop-blur">
-							<p className="text-xs uppercase tracking-[0.3em] text-white/70">ближайшие задачи</p>
-							<div className="mt-4 space-y-4">
-								{highlighted.map((task) => (
-									<div
-										key={`highlight-${task.id}`}
-										className="flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm"
-									>
-										<div>
-											<p className="font-medium text-white">{task.title}</p>
-											<p className="text-xs text-white/70">До {task.dueLabel}</p>
-										</div>
-										<Badge className="rounded-full bg-white/90 text-slate-900">{STATUS_META[task.status].label}</Badge>
-									</div>
-								))}
-								{highlighted.length === 0 && <p className="text-sm text-white/70">Добавьте задачи, чтобы видеть подсказки.</p>}
-							</div>
-							<div className="mt-5 rounded-2xl border border-dashed border-white/30 px-4 py-3 text-xs text-white/70">
-								Совет: держите в фокусе до 5 активных задач, так ребёнку легче сохранять темп.
-							</div>
-						</div>
-					</div>
-				</section>
-
 				<div className="flex flex-wrap items-center justify-between gap-4">
 					<div className="flex flex-wrap gap-2">
 						{FILTERS.map((filter) => {
@@ -499,34 +481,110 @@ export default function TasksList({ userType }: TasksListProps) {
 								</button>
 							)
 						})}
+				</div>
+					<div className="flex items-center gap-4">
+						<div className="flex items-center gap-2">
+							<span className="text-xs text-muted-foreground">Показывать:</span>
+							<div className="flex rounded-lg border border-border/50 overflow-hidden">
+								{[10, 15, 20].map((size) => (
+									<button
+										key={size}
+										type="button"
+										onClick={() => setPageSize(size)}
+										className={cn(
+											"px-3 py-1.5 text-xs font-medium transition-colors",
+											pageSize === size
+												? "bg-primary text-primary-foreground"
+												: "bg-background hover:bg-muted text-muted-foreground"
+										)}
+									>
+										{size}
+									</button>
+								))}
+							</div>
+						</div>
+						<p className="text-sm text-muted-foreground">
+							{filteredTasks.length} из {decoratedTasks.length} задач
+						</p>
 					</div>
-					<p className="text-sm text-muted-foreground">
-						{filteredTasks.length} из {decoratedTasks.length} задач на экране
-					</p>
 				</div>
 
-				{filteredTasks.length > 0 ? (
-					<div className="space-y-5">
-						{filteredTasks.map((task) => (
-							<TaskRow
-								key={task.id}
-								task={task}
-								userType={userType}
-								onConfirm={() => handleConfirm(task.id)}
-								onReject={() => handleReject(task)}
-								onViewEvidence={() => handleViewEvidence(task)}
-								onUploadEvidence={() => setPendingEvidenceTask(task)}
-								onEdit={() => openEditModal(task)}
-								confirmLoading={completeTask.isPending}
-								updateLoading={updateTask.isPending}
-								downloadLoading={downloadEvidence.isPending}
-							/>
-						))}
+				{paginatedTasks.length > 0 ? (
+					<>
+						<div className="space-y-5">
+							{paginatedTasks.map((task) => (
+								<TaskRow
+									key={task.id}
+									task={task}
+									userType={userType}
+									streakMultiplier={streakMultiplier}
+									onConfirm={() => handleConfirm(task.id)}
+									onReject={() => handleReject(task)}
+									onViewEvidence={() => handleViewEvidence(task)}
+									onUploadEvidence={() => setPendingEvidenceTask(task)}
+									onEdit={() => openEditModal(task)}
+									onDelete={() => handleDeleteTask(task.id)}
+									confirmLoading={completeTask.isPending}
+									updateLoading={updateTask.isPending}
+									downloadLoading={downloadEvidence.isPending}
+									deleteLoading={deleteTask.isPending}
+								/>
+							))}
+						</div>
+
+						{/* Пагинация */}
+						{totalPages > 1 && (
+							<div className="flex items-center justify-center gap-2 pt-6">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+									disabled={currentPage === 1}
+									className="gap-1"
+								>
+									<ChevronLeft className="h-4 w-4" />
+									Назад
+								</Button>
+								
+								<div className="flex items-center gap-1">
+									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+										<button
+											key={page}
+											type="button"
+											onClick={() => setCurrentPage(page)}
+											className={cn(
+												"h-9 w-9 rounded-lg text-sm font-medium transition-all",
+												currentPage === page
+													? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+													: "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+											)}
+										>
+											{page}
+										</button>
+									))}
+								</div>
+
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+									disabled={currentPage === totalPages}
+									className="gap-1"
+								>
+									Вперёд
+									<ChevronRight className="h-4 w-4" />
+								</Button>
+							</div>
+						)}
+					</>
+				) : decoratedTasks.length > 0 ? (
+					<div className="rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 px-6 py-8 text-center">
+						<p className="text-sm text-muted-foreground">Задачи с таким статусом не найдены</p>
 					</div>
 				) : (
 					<div className="rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 px-6 py-10 text-center shadow-sm backdrop-blur-sm">
-						<h3 className="text-lg font-semibold text-foreground">В этом фильтре пока пусто</h3>
-						<p className="mt-2 text-sm text-muted-foreground">Попробуйте выбрать другой статус или создайте новую задачу.</p>
+						<h3 className="text-lg font-semibold text-foreground">Пока задач нет</h3>
+						<p className="mt-2 text-sm text-muted-foreground">Создайте первую задачу — ребёнок увидит её сразу после сохранения.</p>
 						{userType === "parent" && (
 							<Button className="mt-4 gap-2" onClick={openTaskCreation}>
 								<Plus className="h-4 w-4" />
@@ -557,6 +615,11 @@ export default function TasksList({ userType }: TasksListProps) {
 				}}
 				task={editableTask}
 				onSave={handleTaskEditSave}
+			/>
+
+			<CreateTaskDialog
+				open={isCreateTaskOpen}
+				onOpenChange={setIsCreateTaskOpen}
 			/>
 
 			{/* Модальное окно просмотра медиа */}
@@ -624,27 +687,33 @@ export default function TasksList({ userType }: TasksListProps) {
 interface TaskRowProps {
 	task: DecoratedTask
 	userType: "parent" | "child"
+	streakMultiplier: number
 	onConfirm: () => void
 	onReject: () => void
 	onViewEvidence: () => void
 	onUploadEvidence: () => void
 	onEdit: () => void
+	onDelete: () => void
 	confirmLoading: boolean
 	updateLoading: boolean
 	downloadLoading: boolean
+	deleteLoading: boolean
 }
 
 function TaskRow({
 	task,
 	userType,
+	streakMultiplier,
 	onConfirm,
 	onReject,
 	onViewEvidence,
 	onUploadEvidence,
 	onEdit,
+	onDelete,
 	confirmLoading,
 	updateLoading,
 	downloadLoading,
+	deleteLoading,
 }: TaskRowProps) {
 	const [isOpen, setIsOpen] = useState(false)
 	const statusMeta = STATUS_META[task.status]
@@ -738,18 +807,37 @@ function TaskRow({
 								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
 								<span className="font-semibold text-amber-600">
 									{task.pointsReward} баллов
+									{streakMultiplier > 1 && !task.completed && (
+										<span className="text-green-500 ml-1">
+											(+{Math.round(task.pointsReward * (streakMultiplier - 1))} 🔥)
+										</span>
+									)}
 								</span>
 							</div>
 						</div>
 
-						{/* Progress indicator */}
-						<div className="hidden lg:flex items-center gap-3">
-							<div className="w-32">
-								<div className="flex items-center justify-between text-xs mb-1">
-									<span className="text-muted-foreground">Прогресс</span>
-									<span className="font-bold text-foreground">{Math.round(task.progressValue)}%</span>
+						{/* Progress indicator (steps instead of %) */}
+						<div className="hidden lg:flex items-center gap-4">
+							<div className="flex flex-col gap-1">
+								<span className="text-xs text-muted-foreground">Стадия</span>
+								<div className="flex items-center gap-2">
+									{JOURNEY_STEPS.map((step, index) => (
+										<div key={`step-${task.id}-${step}`} className="flex items-center gap-1">
+											<span
+												className={cn(
+													"h-2.5 w-2.5 rounded-full",
+													index <= statusMeta.journeyIndex ? "bg-primary" : "bg-muted"
+												)}
+											/>
+											<span className={cn(
+												"text-[10px]",
+												index <= statusMeta.journeyIndex ? "text-foreground" : "text-muted-foreground"
+											)}>
+												{step}
+											</span>
+										</div>
+									))}
 								</div>
-								<Progress value={task.progressValue} className="h-2" />
 							</div>
 							<div className="flex items-center gap-1">
 								{renderDifficulty(task.difficulty)}
@@ -760,18 +848,33 @@ function TaskRow({
 					{/* Actions */}
 					<div className="flex items-center gap-2">
 						{userType === "parent" && (
-							<Button
-								variant="ghost"
-								size="icon"
-								className="hover:bg-primary/10 hover:text-primary transition-colors"
-								onClick={(event) => {
-									event.stopPropagation()
-									onEdit()
-								}}
-								aria-label="Редактировать задачу"
-							>
-								<Pencil className="h-4 w-4" />
-							</Button>
+							<>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:bg-primary/10 hover:text-primary transition-colors"
+									onClick={(event) => {
+										event.stopPropagation()
+										onEdit()
+									}}
+									aria-label="Редактировать задачу"
+								>
+									<Pencil className="h-4 w-4" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:bg-red-50 hover:text-red-600 transition-colors"
+									onClick={(event) => {
+										event.stopPropagation()
+										onDelete()
+									}}
+									disabled={deleteLoading}
+									aria-label="Удалить задачу"
+								>
+									<Trash2 className="h-4 w-4" />
+								</Button>
+							</>
 						)}
 						<Button
 							variant="ghost"

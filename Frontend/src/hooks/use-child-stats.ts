@@ -10,7 +10,7 @@ import {
   type RewardProgress
 } from '@/lib/task-metrics'
 
-export interface ChildProgressStats {
+export interface ChildStats {
   xp: number
   level: number
   points: number
@@ -22,9 +22,13 @@ export interface ChildProgressStats {
   totalPointsEarned: number
   averagePointsPerTask: number
   rewardProgress: RewardProgress
+  // Дополнительные метрики
+  pendingTasks: number
+  totalTasks: number
+  completionRate: number
 }
 
-const DEFAULT_STATS: ChildProgressStats = {
+const DEFAULT_STATS: ChildStats = {
   xp: 0,
   level: 1,
   points: 0,
@@ -40,15 +44,30 @@ const DEFAULT_STATS: ChildProgressStats = {
     mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: "Игрушка, вечер кино" },
     bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: "Поездка, большой подарок" },
   },
+  pendingTasks: 0,
+  totalTasks: 0,
+  completionRate: 0,
 }
 
-export const useChildProgressStats = () => {
+interface UseChildStatsOptions {
+  childId: string
+  enabled?: boolean
+}
+
+export const useChildStats = ({ childId, enabled = true }: UseChildStatsOptions) => {
   const tasksQuery = useTasks()
   const ordersQuery = useShopOrders()
 
-  const stats = useMemo<ChildProgressStats>(() => {
-    const tasks = tasksQuery.data ?? []
-    const completedTasks = tasks.filter((task) => task.completed)
+  const stats = useMemo<ChildStats>(() => {
+    if (!enabled || !childId) return DEFAULT_STATS
+
+    const allTasks = tasksQuery.data ?? []
+    
+    // Фильтруем задачи, назначенные этому ребёнку
+    const childTasks = allTasks.filter((task) => task.assignedToUserId === childId)
+    const completedTasks = childTasks.filter((task) => task.completed)
+    const pendingTasks = childTasks.filter((task) => !task.completed).length
+    
     const streak = calculateTaskStreak(completedTasks)
     const streakMultiplier = getStreakMultiplier(streak)
     
@@ -66,6 +85,7 @@ export const useChildProgressStats = () => {
       ? Math.round(totalPointsEarned / completedTasks.length) 
       : 0
 
+    // TODO: Когда API будет поддерживать фильтрацию заказов по ребёнку
     const orders = ordersQuery.data ?? []
     const totalPointsSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0)
     const points = Math.max(0, totalPointsEarned - totalPointsSpent)
@@ -73,9 +93,14 @@ export const useChildProgressStats = () => {
 
     // Рассчитываем прогресс до наград
     const averagePointsPerDay = completedTasks.length > 0 
-      ? Math.round(totalPointsEarned / Math.max(1, streak || 7) * 7 / 7) // Примерно за неделю
-      : 15 // По умолчанию
+      ? Math.round(totalPointsEarned / Math.max(1, streak || 7) * 7 / 7)
+      : 15
     const rewardProgress = calculateRewardProgress(points, averagePointsPerDay)
+
+    // Процент завершения
+    const completionRate = childTasks.length > 0 
+      ? Math.round((completedTasks.length / childTasks.length) * 100)
+      : 0
 
     return {
       xp,
@@ -89,8 +114,11 @@ export const useChildProgressStats = () => {
       totalPointsEarned,
       averagePointsPerTask,
       rewardProgress,
+      pendingTasks,
+      totalTasks: childTasks.length,
+      completionRate,
     }
-  }, [tasksQuery.data, ordersQuery.data])
+  }, [tasksQuery.data, ordersQuery.data, childId, enabled])
 
   return {
     stats: stats ?? DEFAULT_STATS,

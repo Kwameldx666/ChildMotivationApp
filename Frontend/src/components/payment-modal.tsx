@@ -144,53 +144,53 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
           <form onSubmit={handleSubmit} className="space-y-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 text-foreground">
                   <CreditCard className="h-4 w-4" />
                   Данные карты
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs text-foreground/60">
                   Ваши данные защищены и не сохраняются
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cardNumber">Номер карты</Label>
+                  <Label htmlFor="cardNumber" className="text-foreground">Номер карты</Label>
                   <Input
                     id="cardNumber"
                     placeholder="1234 5678 9012 3456"
                     value={cardNumber}
                     onChange={handleCardNumberChange}
                     disabled={isProcessing}
-                    className="font-mono"
+                    className="font-mono bg-background text-foreground"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cardName">Имя владельца</Label>
+                  <Label htmlFor="cardName" className="text-foreground">Имя владельца</Label>
                   <Input
                     id="cardName"
                     placeholder="IVAN IVANOV"
                     value={cardName}
                     onChange={(e) => setCardName(e.target.value.toUpperCase())}
                     disabled={isProcessing}
-                    className="uppercase"
+                    className="uppercase bg-background text-foreground"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="cardExpiry">Срок действия</Label>
+                    <Label htmlFor="cardExpiry" className="text-foreground">Срок действия</Label>
                     <Input
                       id="cardExpiry"
                       placeholder="MM/YY"
                       value={cardExpiry}
                       onChange={handleExpiryChange}
                       disabled={isProcessing}
-                      className="font-mono"
+                      className="font-mono bg-background text-foreground"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cardCvv">CVV</Label>
+                    <Label htmlFor="cardCvv" className="text-foreground">CVV</Label>
                     <Input
                       id="cardCvv"
                       type="password"
@@ -198,7 +198,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
                       value={cardCvv}
                       onChange={handleCvvChange}
                       disabled={isProcessing}
-                      className="font-mono"
+                      className="font-mono bg-background text-foreground"
                       maxLength={3}
                     />
                   </div>
@@ -206,9 +206,9 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
               </CardContent>
             </Card>
 
-            <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
-              <span className="text-sm font-medium">Итого к оплате:</span>
-              <span className="text-lg font-bold">${price.toFixed(2)}</span>
+            <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
+              <span className="text-sm font-medium text-foreground">Итого к оплате:</span>
+              <span className="text-lg font-bold text-foreground">${price.toFixed(2)}</span>
             </div>
 
             <div className="flex gap-2">

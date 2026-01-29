@@ -188,17 +188,15 @@ export default function SubscriptionManager({ currentTier = "free", onUpgrade }:
       </Card>
 
       <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
-        <DialogContent className="max-w-[95vw] sm:max-w-6xl h-[85vh] p-0 gap-0 top-[10%] translate-y-0">
-          <div className="flex flex-col h-full">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-              <DialogTitle>Выберите тарифный план</DialogTitle>
-              <DialogDescription>
-                Улучшите свою подписку и получите доступ к расширенным функциям
-              </DialogDescription>
-            </DialogHeader>
-            <div className="overflow-y-auto flex-1 px-6 py-4">
-              <PremiumPricing currentTier={currentTier} onSelectTier={handleSelectTier} />
-            </div>
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-xl">Выберите план</DialogTitle>
+            <DialogDescription className="text-sm">
+              Улучшите подписку для доступа к расширенным функциям
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-6">
+            <PremiumPricing currentTier={currentTier} onSelectTier={handleSelectTier} />
           </div>
         </DialogContent>
       </Dialog>

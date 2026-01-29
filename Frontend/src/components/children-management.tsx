@@ -1,14 +1,12 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Copy, RefreshCw, Users, Eye } from "lucide-react"
+import { Check, Copy, RefreshCw, Users, ChevronRight } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import type { FamilyMember } from "@/services/family-service"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import ChildProfile from "./child-profile"
-import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 
 interface ChildrenManagementProps {
   familyCode?: string | null
@@ -32,21 +30,25 @@ const formatMemberName = (member: FamilyMember) => {
 const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
+  const router = useRouter()
   const normalizedFamilyCode =
     familyCode && familyCode.trim() && familyCode !== "—" ? familyCode.trim() : null
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
     enabled: Boolean(normalizedFamilyCode),
   })
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [selectedChild, setSelectedChild] = useState<FamilyMember | null>(null)
-  const { stats, isLoading: statsLoading } = useChildProgressStats(selectedChild?.id)
 
   const children = useMemo(() => {
     if (!data) return []
     return data.filter((member) => member.role?.toLowerCase() === "child")
   }, [data])
 
-  const handleCopyId = async (source?: string | null) => {
+  const handleChildClick = (childId: string) => {
+    router.push(`/dashboard/child/${childId}`)
+  }
+
+  const handleCopyId = async (e: React.MouseEvent, source?: string | null) => {
+    e.stopPropagation() // Prevent card click
     if (!source) return
     try {
       await navigator.clipboard.writeText(source)
@@ -121,7 +123,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
             <span className="text-base font-semibold tracking-wide font-mono bg-secondary/40 px-3 py-2 rounded">
               {normalizedFamilyCode}
             </span>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => handleCopyId(normalizedFamilyCode)}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={(e) => handleCopyId(e, normalizedFamilyCode)}>
               {copiedId === normalizedFamilyCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
               {copiedId === normalizedFamilyCode ? "Скопировано" : "Скопировать код"}
             </Button>
@@ -131,7 +133,11 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
 
       <div className="grid gap-4">
         {children.map((child, index) => (
-          <Card key={child.id}>
+          <Card 
+            key={child.id} 
+            className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-200"
+            onClick={() => handleChildClick(child.id)}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4 flex-1">
@@ -153,7 +159,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                         ID: {formatShortId(child.id)}
                       </span>
                       <button
-                        onClick={() => handleCopyId(child.id)}
+                        onClick={(e) => handleCopyId(e, child.id)}
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                         title="Скопировать ID"
                       >
@@ -166,40 +172,12 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => setSelectedChild(child)}
-                >
-                  <Eye className="w-4 h-4" />
-                  Профиль
-                </Button>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
-      
-      {/* Модальное окно с профилем ребёнка */}
-      <Dialog open={!!selectedChild} onOpenChange={(open) => !open && setSelectedChild(null)}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Профиль ребёнка</DialogTitle>
-          </DialogHeader>
-          {selectedChild && (
-            <ChildProfile
-              childId={selectedChild.id}
-              name={formatMemberName(selectedChild)}
-              avatarSymbol={resolveAvatar(selectedChild, children.findIndex(c => c.id === selectedChild.id))}
-              avatarImageUrl={selectedChild.avatarImageUrl}
-              familyCode={normalizedFamilyCode ?? undefined}
-              stats={stats}
-              statsLoading={statsLoading}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

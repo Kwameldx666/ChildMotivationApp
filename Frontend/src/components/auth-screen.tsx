@@ -585,6 +585,69 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           />
                           {(familyNameTouched || submitAttempted) && !familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
                         </div>
+                        
+                        {/* Аватар для родителя */}
+                        <div>
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                          <div className="flex items-center gap-3">
+                            {/* Превью аватара */}
+                            <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
+                              {avatar.startsWith('data:') ? (
+                                <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-3xl">{avatar}</span>
+                              )}
+                            </div>
+                            
+                            {/* Кнопка загрузки и выбор эмодзи */}
+                            <div className="flex-1 space-y-2">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                id="parent-avatar-upload"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const f = e.target.files?.[0]
+                                  if (!f) return
+                                  const reader = new FileReader()
+                                  reader.onload = () => {
+                                    const result = reader.result as string | null
+                                    if (result) setAvatar(result)
+                                  }
+                                  reader.readAsDataURL(f)
+                                }}
+                              />
+                              <label
+                                htmlFor="parent-avatar-upload"
+                                className="w-full h-10 px-4 py-2 bg-white border-2 border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 font-semibold rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="text-sm">Загрузить фото</span>
+                              </label>
+                              
+                              {/* Эмодзи аватары */}
+                              <div className="flex flex-wrap gap-1">
+                                {AVATARS.slice(0, 6).map((a) => (
+                                  <button
+                                    key={a}
+                                    type="button"
+                                    onClick={() => setAvatar(a)}
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-lg transition-all ${
+                                      avatar === a 
+                                        ? 'bg-purple-100 ring-2 ring-purple-500' 
+                                        : 'bg-gray-100 hover:bg-purple-50'
+                                    }`}
+                                  >
+                                    {a}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
                         <p className="text-xs text-gray-600">Код семьи создастся автоматически после регистрации.</p>
                       </>
                     ) : (

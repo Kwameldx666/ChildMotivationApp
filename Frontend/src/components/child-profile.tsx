@@ -10,6 +10,7 @@ import type { LucideIcon } from "lucide-react"
 import { useAchievements } from "@/services/gamification-queries"
 import type { AchievementDto } from "@/services/gamification-service"
 import type { ChildProgressStats } from "@/hooks/use-child-progress-stats"
+import type { ChildStats } from "@/hooks/use-child-stats"
 import { useTheme } from "next-themes"
 import { useColorTheme } from "@/hooks/use-color-theme"
 import ActivityHeatmap from "./activity-heatmap"
@@ -27,7 +28,7 @@ interface ChildProfileProps {
   avatarSymbol: string
   avatarImageUrl?: string | null
   familyCode?: string
-  stats?: ChildProgressStats
+  stats?: ChildProgressStats | ChildStats
   statsLoading?: boolean
 }
 
@@ -45,9 +46,17 @@ const defaultStats: ChildProgressStats = {
   level: 1,
   points: 0,
   streak: 0,
+  streakMultiplier: 1.0,
   tasksCompleted: 0,
   rewardsPurchased: 0,
   totalPointsSpent: 0,
+  totalPointsEarned: 0,
+  averagePointsPerTask: 0,
+  rewardProgress: {
+    instantReward: { pointsNeeded: 30, tasksNeeded: 3, description: "Стикеры" },
+    mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: "Игрушка" },
+    bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: "Большой подарок" },
+  },
 }
 
 const rankLadder: Array<{ threshold: number; label: string }> = [

@@ -13,6 +13,9 @@ public static class ApplicationExtensions
         services.AddSingleton<IConnectionManager, ConnectionManager>();
         services.AddScoped<INotificationService, Services.NotificationService>();
         
+        // Хранилище уведомлений (Singleton для In-Memory, заменить на Scoped для БД)
+        services.AddSingleton<INotificationStorageService, InMemoryNotificationStorageService>();
+        
         return services;
     }
 }
