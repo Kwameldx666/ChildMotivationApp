@@ -9,6 +9,7 @@ namespace UserService.Persistence.Context;
 public class UserDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public DbSet<FamilyMessage> FamilyMessages { get; set; } = default!;
+    public DbSet<UserSubscription> Subscriptions { get; set; } = default!;
 
     public UserDbContext(DbContextOptions<UserDbContext> options)
         : base(options)

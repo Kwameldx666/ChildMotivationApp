@@ -44,6 +44,8 @@ builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy(AuthorizationConstants.UserReadPolicy,
 		policy => policy.RequireClaim(AuthorizationConstants.ScopeClaimType, AuthorizationConstants.UserReadPolicy));
+	options.AddPolicy(AuthorizationConstants.UserWritePolicy,
+		policy => policy.RequireClaim(AuthorizationConstants.ScopeClaimType, AuthorizationConstants.UserWritePolicy));
 });
 
 var app = builder.Build();

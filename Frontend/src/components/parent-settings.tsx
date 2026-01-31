@@ -75,7 +75,6 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
     <div className="space-y-6">
       {/* Подписка */}
       <SubscriptionManager 
-        currentTier="free" 
         onUpgrade={(tier) => console.log("Upgrade to:", tier)}
       />
 

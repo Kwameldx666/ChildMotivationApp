@@ -149,7 +149,11 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
               disabled={isCurrentTier}
               onClick={() => onSelectTier?.(tier.id)}
             >
-              {isCurrentTier ? "Текущий план" : isFree ? "Текущий" : "Выбрать"}
+              {isCurrentTier 
+                ? "Текущий план" 
+                : isFree 
+                  ? "Перейти на бесплатный" 
+                  : "Выбрать"}
             </Button>
           </div>
         )

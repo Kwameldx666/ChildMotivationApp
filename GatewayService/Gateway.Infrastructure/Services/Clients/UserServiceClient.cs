@@ -127,4 +127,63 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
 
         return $"{BuildProfileMePath()}/family-members";
     }
+
+    // Subscription methods
+    public Task<HttpResponseMessage> GetCurrentSubscriptionAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = _endpoints.SubscriptionMe ?? "user-service/subscription/me";
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var basePath = _endpoints.Subscription ?? "user-service/subscription";
+        var requestUri = basePath.Contains("{userId}")
+            ? basePath.Replace("{userId}", userId.ToString())
+            : $"{basePath.TrimEnd('/')}/{userId}";
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> ChangeSubscriptionAsync(ChangeSubscriptionRequest request, CancellationToken cancellationToken)
+    {
+        var requestUri = _endpoints.SubscriptionChange ?? "user-service/subscription/change";
+        return _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            requestUri,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> CancelSubscriptionAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = _endpoints.SubscriptionCancel ?? "user-service/subscription/cancel";
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Post,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetSubscriptionTiersAsync(CancellationToken cancellationToken)
+    {
+        var requestUri = _endpoints.SubscriptionTiers ?? "user-service/subscription/tiers";
+        return _client.SendHttpRequestAsync<object>(
+            HttpMethod.Get,
+            requestUri,
+            null,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

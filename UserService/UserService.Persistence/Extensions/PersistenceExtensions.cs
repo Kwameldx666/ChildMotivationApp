@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UserService.Application.Interfaces;
 using UserService.Persistence.Context;
+using UserService.Persistence.Repositories;
 
 namespace UserService.Persistence.Extensions;
 
@@ -16,6 +18,9 @@ public static class PersistenceExtensions
         {
             options.UseNpgsql(connectionString);
         });
+
+        // Repositories
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 
         return services;
     }
