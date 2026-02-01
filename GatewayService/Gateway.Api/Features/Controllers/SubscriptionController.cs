@@ -12,7 +12,7 @@ namespace Gateway.Features.Controllers;
 public class SubscriptionController(IUserServiceClient userServiceClient) : ControllerBase
 {
     /// <summary>
-    /// Получить подписку текущего пользователя
+    /// Get current user's subscription
     /// </summary>
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentSubscriptionAsync(CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Получить подписку по userId
+    /// Get subscription by userId
     /// </summary>
     [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Изменить подписку (upgrade/downgrade)
+    /// Change subscription (upgrade/downgrade)
     /// </summary>
     [HttpPost("change")]
     public async Task<IActionResult> ChangeSubscriptionAsync([FromBody] ChangeSubscriptionRequest request, CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Отменить подписку (переход на Free)
+    /// Cancel subscription (downgrade to Free)
     /// </summary>
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelSubscriptionAsync(CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Получить доступные тарифы подписок
+    /// Get available subscription tiers
     /// </summary>
     [AllowAnonymous]
     [HttpGet("tiers")]

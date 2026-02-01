@@ -8,6 +8,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { CssVarsProvider } from '@mui/joy/styles'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
+import { I18nProvider } from '@/i18n/provider'
 import { appStore, persistor } from '@/store/appStore'
 import { theme } from '@/theme'
 
@@ -21,12 +22,12 @@ export function AppProviders({ children }: AppProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 5, // 5 минут - данные считаются свежими дольше
-            gcTime: 1000 * 60 * 10, // 10 минут - храним в памяти дольше
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 10,
             retry: 1,
-            refetchOnWindowFocus: false, // не перезагружать при фокусе на окне
-            refetchOnMount: false, // не перезагружать при монтировании если данные свежие
-            refetchOnReconnect: false, // не перезагружать при восстановлении соединения
+            refetchOnWindowFocus: false,
+            refetchOnMount: false,
+            refetchOnReconnect: false,
           },
           mutations: {
             retry: 1,
@@ -39,20 +40,22 @@ export function AppProviders({ children }: AppProvidersProps) {
     <Provider store={appStore}>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <CssVarsProvider theme={theme} defaultMode="light">
-              {children}
-              <Toaster position="top-right" richColors closeButton duration={4000} />
-              {process.env.NODE_ENV !== 'production' ? (
-                <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
-              ) : null}
-            </CssVarsProvider>
-          </ThemeProvider>
+          <I18nProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <CssVarsProvider theme={theme} defaultMode="light">
+                {children}
+                <Toaster position="top-right" richColors closeButton duration={4000} />
+                {process.env.NODE_ENV !== 'production' ? (
+                  <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+                ) : null}
+              </CssVarsProvider>
+            </ThemeProvider>
+          </I18nProvider>
         </QueryClientProvider>
       </PersistGate>
     </Provider>

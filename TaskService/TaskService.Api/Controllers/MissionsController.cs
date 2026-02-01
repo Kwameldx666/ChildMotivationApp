@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskService.Api.Contracts.Missions;
 using TaskService.Application.Dto.Missions;
@@ -9,6 +10,7 @@ using TaskService.Domain.Enums;
 namespace TaskService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("task-service/[controller]")]
 public class MissionsController(IMediator mediator) : ControllerBase
 {

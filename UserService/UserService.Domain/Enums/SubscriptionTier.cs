@@ -1,12 +1,12 @@
 namespace UserService.Domain.Enums;
 
 /// <summary>
-/// Тип премиум подписки
+/// Premium subscription type
 /// </summary>
 public enum SubscriptionTier
 {
-    Free = 0,           // Бесплатный тариф
-    Basic = 1,          // Базовый - 299 руб/мес
-    Premium = 2,        // Премиум - 599 руб/мес
-    Family = 3          // Семейный - 899 руб/мес
+    Free = 0,           // Free tier
+    Basic = 1,          // Basic - 299 RUB/month
+    Premium = 2,        // Premium - 599 RUB/month
+    Family = 3          // Family - 899 RUB/month
 }

@@ -3,68 +3,68 @@ using System.Text.Json.Serialization;
 namespace AiService.Application.Contracts;
 
 /// <summary>
-/// Тип действия, которое AI может предложить пользователю выполнить
+/// Type of action that AI can suggest to the user
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AiActionType
 {
-    /// <summary>Создать новую задачу</summary>
+    /// <summary>Create a new task</summary>
     CreateTask,
     
-    /// <summary>Создать несколько задач</summary>
+    /// <summary>Create multiple tasks</summary>
     CreateTasks,
     
-    /// <summary>Создать награду</summary>
+    /// <summary>Create a reward</summary>
     CreateReward,
     
-    /// <summary>Создать несколько наград</summary>
+    /// <summary>Create multiple rewards</summary>
     CreateRewards,
     
-    /// <summary>Обновить существующую задачу</summary>
+    /// <summary>Update an existing task</summary>
     UpdateTask,
     
-    /// <summary>Завершить задачу</summary>
+    /// <summary>Complete a task</summary>
     CompleteTask,
     
-    /// <summary>Отправить сообщение в семейный чат</summary>
+    /// <summary>Send a message to family chat</summary>
     SendFamilyMessage,
     
-    /// <summary>Показать аналитику</summary>
+    /// <summary>Show analytics</summary>
     ShowAnalytics,
     
-    /// <summary>Перейти на страницу</summary>
+    /// <summary>Navigate to a page</summary>
     Navigate
 }
 
 /// <summary>
-/// Действие, которое AI предлагает выполнить
+/// Action that AI suggests to perform
 /// </summary>
 public sealed record AiAction
 {
-    /// <summary>Тип действия</summary>
+    /// <summary>Action type</summary>
     public AiActionType Type { get; init; }
     
-    /// <summary>Название действия для отображения пользователю</summary>
+    /// <summary>Action name for display to user</summary>
     public string Label { get; init; } = string.Empty;
     
-    /// <summary>Краткое описание что произойдёт</summary>
+    /// <summary>Brief description of what will happen</summary>
     public string? Description { get; init; }
     
     /// <summary>
-    /// Данные для выполнения действия (JSON payload)
-    /// Структура зависит от Type
+    /// Data for action execution (JSON payload)
+    /// Structure depends on Type
     /// </summary>
     public object? Payload { get; init; }
     
-    /// <summary>Приоритет действия (для сортировки)</summary>
+    /// <summary>Action priority (for sorting)</summary>
     public int Priority { get; init; }
     
-    /// <summary>Стиль кнопки: primary, secondary, destructive</summary>
+    /// <summary>Button style: primary, secondary, destructive</summary>
     public string Variant { get; init; } = "primary";
 }
 
 /// <summary>
-/// Payload для CreateTask action
+/// Payload for CreateTask action
 /// </summary>
 public sealed record CreateTaskPayload
 {
@@ -78,7 +78,7 @@ public sealed record CreateTaskPayload
 }
 
 /// <summary>
-/// Payload для CreateTasks action (множественное создание)
+/// Payload for CreateTasks action (batch creation)
 /// </summary>
 public sealed record CreateTasksPayload
 {
@@ -86,7 +86,7 @@ public sealed record CreateTasksPayload
 }
 
 /// <summary>
-/// Payload для CreateReward action
+/// Payload for CreateRewards action (batch creation)
 /// </summary>
 public sealed record CreateRewardPayload
 {
@@ -98,7 +98,7 @@ public sealed record CreateRewardPayload
 }
 
 /// <summary>
-/// Payload для CreateRewards action (множественное создание)
+/// Payload for CreateRewards action (batch creation)
 /// </summary>
 public sealed record CreateRewardsPayload
 {
@@ -106,7 +106,7 @@ public sealed record CreateRewardsPayload
 }
 
 /// <summary>
-/// Payload для Navigate action
+/// Payload for Navigate action
 /// </summary>
 public sealed record NavigatePayload
 {
@@ -115,7 +115,7 @@ public sealed record NavigatePayload
 }
 
 /// <summary>
-/// Payload для SendFamilyMessage action
+/// Payload for SendFamilyMessage action
 /// </summary>
 public sealed record SendFamilyMessagePayload
 {

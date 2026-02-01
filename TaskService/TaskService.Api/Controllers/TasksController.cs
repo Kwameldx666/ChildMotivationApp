@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskService.Api.Contracts.Tasks;
 using TaskService.Application.Dto.Tasks;
@@ -15,6 +16,7 @@ using TaskService.Domain.Enums;
 namespace TaskService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("task-service/[controller]")]
 public class TasksController(IMediator mediator) : ControllerBase
 {
@@ -80,7 +82,7 @@ public class TasksController(IMediator mediator) : ControllerBase
     {
         if (request?.File is null || request.File.Length == 0)
         {
-            return BadRequest("Необходимо прикрепить файл подтверждения.");
+            return BadRequest("A confirmation file must be attached.");
         }
 
         await using var buffer = new MemoryStream();

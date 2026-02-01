@@ -3,32 +3,32 @@ namespace Gateway.Application.Abstractions.Infrastructure;
 public interface INotificationServiceClient
 {
     /// <summary>
-    /// Получить все уведомления пользователя
+    /// Get all user notifications
     /// </summary>
     Task<HttpResponseMessage> GetAllAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Получить непрочитанные уведомления пользователя
+    /// Get unread user notifications
     /// </summary>
     Task<HttpResponseMessage> GetUnreadAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Получить количество непрочитанных уведомлений
+    /// Get count of unread notifications
     /// </summary>
     Task<HttpResponseMessage> GetUnreadCountAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Отметить уведомления как прочитанные
+    /// Mark notifications as read
     /// </summary>
     Task<HttpResponseMessage> MarkAsReadAsync(string userId, List<string> notificationIds, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Отметить все уведомления пользователя как прочитанные
+    /// Mark all user notifications as read
     /// </summary>
     Task<HttpResponseMessage> MarkAllAsReadAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Удалить уведомление
+    /// Delete notification
     /// </summary>
     Task<HttpResponseMessage> DeleteAsync(string userId, Guid notificationId, CancellationToken cancellationToken = default);
 }

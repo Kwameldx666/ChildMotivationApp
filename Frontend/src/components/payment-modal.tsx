@@ -81,7 +81,11 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
 
     setIsProcessing(true)
 
-    // Симуляция обработки платежа
+    // TODO: Интеграция с реальной платёжной системой (Stripe, YooKassa)
+    // В продакшне здесь должен быть вызов API платёжного провайдера
+    // После успешной оплаты - вызов onSuccess() который активирует подписку через API
+    
+    // Симуляция обработки платежа (для демонстрации)
     setTimeout(() => {
       setIsProcessing(false)
       setIsSuccess(true)
@@ -122,7 +126,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
             Оплата подписки
           </DialogTitle>
           <DialogDescription>
-            Оформление подписки "{tierName}" - ${price}/месяц
+            Оформление подписки "{tierName}" - {price} ₽/месяц
           </DialogDescription>
         </DialogHeader>
 

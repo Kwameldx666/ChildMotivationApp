@@ -20,7 +20,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Получить все уведомления пользователя
+    /// Get all user notifications
     /// </summary>
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetAll(string userId)
@@ -38,7 +38,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Получить непрочитанные уведомления
+    /// Get unread notifications
     /// </summary>
     [HttpGet("{userId}/unread")]
     public async Task<IActionResult> GetUnread(string userId)
@@ -56,7 +56,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Получить количество непрочитанных уведомлений
+    /// Get count of unread notifications
     /// </summary>
     [HttpGet("{userId}/unread/count")]
     public async Task<IActionResult> GetUnreadCount(string userId)
@@ -74,7 +74,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Отметить уведомления как прочитанные
+    /// Mark notifications as read
     /// </summary>
     [HttpPost("{userId}/mark-read")]
     public async Task<IActionResult> MarkAsRead(string userId, [FromBody] MarkReadRequest request)
@@ -100,7 +100,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Отметить все уведомления как прочитанные
+    /// Mark all notifications as read
     /// </summary>
     [HttpPost("{userId}/mark-all-read")]
     public async Task<IActionResult> MarkAllAsRead(string userId)
@@ -118,7 +118,7 @@ public class UserNotificationsController : ControllerBase
     }
 
     /// <summary>
-    /// Удалить уведомление
+    /// Delete notification
     /// </summary>
     [HttpDelete("{userId}/{notificationId:guid}")]
     public async Task<IActionResult> Delete(string userId, Guid notificationId)

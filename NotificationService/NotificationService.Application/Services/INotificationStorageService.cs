@@ -3,7 +3,7 @@ using NotificationService.Domain.Models;
 namespace NotificationService.Application.Services;
 
 /// <summary>
-/// Сервис хранения уведомлений
+/// Notification storage service
 /// </summary>
 public interface INotificationStorageService
 {
@@ -17,8 +17,8 @@ public interface INotificationStorageService
 }
 
 /// <summary>
-/// In-memory реализация хранилища уведомлений (для демонстрации)
-/// В продакшене заменить на PostgreSQL/Redis
+/// In-memory notification storage implementation (for demonstration)
+/// Replace with PostgreSQL/Redis in production
 /// </summary>
 public class InMemoryNotificationStorageService : INotificationStorageService
 {

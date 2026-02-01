@@ -101,7 +101,7 @@ public class GoogleSignInCommandHandler(
                     "Google did not return access_token or id_token."));
         }
 
-        // 3️⃣ Пользователь уже существует
+        // 3️⃣ User already exists
         var existingUser =
             await userManager.FindByEmailAsync(userInfo.Email);
 

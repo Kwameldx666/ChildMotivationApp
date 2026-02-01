@@ -16,7 +16,7 @@ namespace UserService.Api.Controllers;
 public class SubscriptionController(IMediator mediator) : ControllerBase
 {
     /// <summary>
-    /// Получить подписку текущего пользователя
+    /// Get subscription of the current user
     /// </summary>
     [Authorize(Policy = AuthorizationConstants.UserReadPolicy)]
     [HttpGet("me")]
@@ -32,7 +32,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Получить подписку по userId
+    /// Get subscription by userId
     /// </summary>
     [Authorize(Policy = AuthorizationConstants.UserReadPolicy)]
     [HttpGet("{userId:guid}")]
@@ -43,7 +43,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Изменить подписку (upgrade/downgrade)
+    /// Change subscription (upgrade/downgrade)
     /// </summary>
     [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
     [HttpPost("change")]
@@ -68,7 +68,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Отменить подписку (переход на Free)
+    /// Cancel subscription (downgrade to Free)
     /// </summary>
     [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
     [HttpPost("cancel")]
@@ -84,17 +84,17 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Получить доступные тарифы подписок
+    /// Get available subscription tiers
     /// </summary>
     [HttpGet("tiers")]
     public IActionResult GetAvailableTiers()
     {
         var tiers = new[]
         {
-            new { Name = "Free", DisplayName = "Бесплатный", Price = 0, MaxChildren = 2, MaxTasksPerDay = 10 },
-            new { Name = "Basic", DisplayName = "Базовый", Price = 299, MaxChildren = 5, MaxTasksPerDay = 30 },
-            new { Name = "Premium", DisplayName = "Премиум", Price = 599, MaxChildren = 10, MaxTasksPerDay = 100 },
-            new { Name = "Family", DisplayName = "Семейный", Price = 999, MaxChildren = 20, MaxTasksPerDay = 1000 }
+            new { Name = "Free", DisplayName = "Free", Price = 0, MaxChildren = 2, MaxTasksPerDay = 10 },
+            new { Name = "Basic", DisplayName = "Basic", Price = 299, MaxChildren = 5, MaxTasksPerDay = 30 },
+            new { Name = "Premium", DisplayName = "Premium", Price = 599, MaxChildren = 10, MaxTasksPerDay = 100 },
+            new { Name = "Family", DisplayName = "Family", Price = 999, MaxChildren = 20, MaxTasksPerDay = 1000 }
         };
 
         return Ok(tiers);

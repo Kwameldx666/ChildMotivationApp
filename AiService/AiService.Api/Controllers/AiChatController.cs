@@ -1,10 +1,12 @@
 using AiService.Application.Abstractions;
 using AiService.Application.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("ai-service/chat")]
 public sealed class AiChatController(IAiOrchestrator orchestrator) : ControllerBase
 {

@@ -9,46 +9,46 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
 {
     private static readonly TaskTemplate[] TaskTemplates =
     [
-        new("Организуй рабочее место", "Разложи книги и тетради, протри стол, подготовь материалы на завтра.", "focus",
-            ["учёба", "чистота"], 2, "Формирует привычку готовиться заранее."),
-        new("Творческая пауза", "Создай мини-комикс о приключении семьи за 20 минут.", "creativity",
-            ["рисование", "творчество"], 3, "Развивает воображение и речь."),
-        new("Научный эксперимент", "Проведи маленький эксперимент: измерь, как быстро тает лёд в разных местах.",
-            "science", ["наука", "эксперимент"], 3, "Поддерживает интерес к исследованиям."),
-        new("Спортивный вызов", "Сделай 3 подхода упражнений на выбор: планка, приседания или прыжки.", "health",
-            ["спорт", "здоровье"], 2, "Помогает выплеснуть энергию."),
-        new("Миссия заботы", "Покорми питомца, обнови воду и добавь заметку о настроении.", "responsibility",
-            ["дом", "уход"], 1, "Учит наблюдать и заботиться."),
-        new("Математический блиц", "Реши 6 примеров на устный счёт или повтори таблицу умножения.", "learning",
-            ["математика", "учёба"], 2, "Поддерживает уверенность в счёте."),
-        new("Семейный репортёр", "Возьми интервью у родственника: " +
-                                 "задай 3 вопроса о его дне и запиши ответы.", "communication", ["общение", "семья"], 2,
-            "Прокачивает эмпатию и слушание."),
-        new("Квест по дому", "Найди 5 предметов, которые лежат не на своих местах, и убери их.", "home",
-            ["дом", "организация"], 1, "Быстрый способ вернуть порядок."),
-        new("Мини-проект", "Составь список целей на неделю и укрась его наклейками.", "planning",
-            ["планирование", "организация"], 3, "Создаёт ощущение контроля."),
-        new("Дневник успеха", "Запиши 3 достижения за день и придумай награду за них.", "reflection",
-            ["осознанность", "мотивация"], 1, "Формирует позитивный взгляд.")
+        new("Organize workspace", "Sort books and notebooks, wipe the desk, prepare materials for tomorrow.", "focus",
+            ["study", "cleanliness"], 2, "Builds habit of preparing in advance."),
+        new("Creative break", "Create a mini-comic about a family adventure in 20 minutes.", "creativity",
+            ["drawing", "creativity"], 3, "Develops imagination and speech."),
+        new("Science experiment", "Conduct a small experiment: measure how fast ice melts in different places.",
+            "science", ["science", "experiment"], 3, "Supports interest in research."),
+        new("Sports challenge", "Do 3 sets of exercises of your choice: plank, squats, or jumps.", "health",
+            ["sports", "health"], 2, "Helps release energy."),
+        new("Care mission", "Feed the pet, refresh the water, and add a note about its mood.", "responsibility",
+            ["home", "care"], 1, "Teaches observation and caring."),
+        new("Math blitz", "Solve 6 mental math problems or review the multiplication table.", "learning",
+            ["math", "study"], 2, "Builds confidence in calculations."),
+        new("Family reporter", "Interview a family member: " +
+                                 "ask 3 questions about their day and write down the answers.", "communication", ["communication", "family"], 2,
+            "Improves empathy and listening."),
+        new("House quest", "Find 5 items that are not in their proper place and put them away.", "home",
+            ["home", "organization"], 1, "Quick way to restore order."),
+        new("Mini-project", "Make a list of goals for the week and decorate it with stickers.", "planning",
+            ["planning", "organization"], 3, "Creates sense of control."),
+        new("Success diary", "Write down 3 achievements of the day and think of a reward for them.", "reflection",
+            ["mindfulness", "motivation"], 1, "Forms a positive outlook.")
     ];
 
     private static readonly RewardTemplate[] RewardTemplates =
     [
-        new("Пикник в гостиной", "Импровизированный пикник с пледом и любимым десертом.", 320, "family", "🍓",
-            "Подходит для выходного вечера."),
-        new("Дополнительное время на творчество", "30 минут для творчества или конструктора.", 250, "creativity", "🎨",
-            "Даёт пространство для самовыражения."),
-        new("Совместная игра", "Родитель выбирает настольную игру вместе с ребёнком.", 280, "connection", "🎲",
-            "Укрепляет семейную связь."),
-        new("Приватный плейлист", "Ребёнок выбирает музыку на дорогу или обед.", 180, "music", "🎧",
-            "Маленькая, но приятная привилегия."),
-        new("Билет на мини-кино", "Выбор мультфильма с попкорном.", 420, "relax", "🎬", "Создаёт атмосферу праздника."),
-        new("Карта добрых дел", "Сертификат на помощь от родителя: уборка, готовка или проект.", 350, "support", "🤝",
-            "Показывает взаимную заботу."),
-        new("Ночной фонарик", "Чтение сказки или фонарик для палатки под столом.", 200, "imagination", "🔦",
-            "Подходит для младших детей."),
-        new("Мини-шопинг", "Онлайн-выбор наклеек или аксессуара в условном бюджете.", 500, "shopping", "🛍️",
-            "Учит управлять ресурсами.")
+        new("Living room picnic", "Impromptu picnic with blanket and favorite dessert.", 320, "family", "🍓",
+            "Perfect for a weekend evening."),
+        new("Extra creative time", "30 minutes for creativity or building with construction sets.", 250, "creativity", "🎨",
+            "Gives space for self-expression."),
+        new("Board game together", "Parent chooses a board game with the child.", 280, "connection", "🎲",
+            "Strengthens family bonds."),
+        new("Private playlist", "Child chooses music for the car ride or lunch.", 180, "music", "🎧",
+            "Small but pleasant privilege."),
+        new("Mini-cinema ticket", "Choice of cartoon with popcorn.", 420, "relax", "🎬", "Creates festive atmosphere."),
+        new("Good deeds card", "Certificate for parent's help: cleaning, cooking, or a project.", 350, "support", "🤝",
+            "Shows mutual care."),
+        new("Night flashlight", "Reading a fairy tale or flashlight for a tent under the table.", 200, "imagination", "🔦",
+            "Perfect for younger kids."),
+        new("Mini-shopping", "Online choice of stickers or accessory within budget.", 500, "shopping", "🛍️",
+            "Teaches resource management.")
     ];
 
     public Task<TaskSuggestionsResponse> GenerateTaskSuggestionsAsync(TaskSuggestionsRequest request,
@@ -68,9 +68,9 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
                 2, // default difficulty when not inferred
                 Array.Empty<string>(),
                 "general",
-                "Уточните вместе с ребёнком выгоду.");
+                "Discuss the benefits with the child together.");
 
-            return Task.FromResult(new TaskSuggestionsResponse(new[] { suggestion }, "Сформирована задача на основе предоставленного описания.", BuildTips(request)));
+            return Task.FromResult(new TaskSuggestionsResponse(new[] { suggestion }, "Task generated based on the provided description.", BuildTips(request)));
         }
 
         var limit = request.ResolveLimit();
@@ -124,7 +124,7 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         cancellationToken.ThrowIfCancellationRequested();
         if (request is null) throw new ArgumentNullException(nameof(request));
         if (string.IsNullOrWhiteSpace(request.Message))
-            throw new ArgumentException("Сообщение не может быть пустым.", nameof(request));
+            throw new ArgumentException("Message cannot be empty.", nameof(request));
 
         var conversationId = string.IsNullOrWhiteSpace(request.ConversationId)
             ? Guid.NewGuid().ToString("N")
@@ -134,7 +134,7 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         var reply = new StringBuilder();
         reply.AppendLine(contextHint);
         reply.AppendLine();
-        reply.AppendLine($"Вот что можно сделать: {BuildAnswerCore(request.Message)}");
+        reply.AppendLine($"Here's what you can do: {BuildAnswerCore(request.Message)}");
 
         var followUps = BuildFollowUps(request.Message, request.Context);
         var actions = BuildActionsForMessage(request.Message);
@@ -152,14 +152,14 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
             actions.Add(new AiAction
             {
                 Type = AiActionType.CreateTask,
-                Label = "Создать задачу",
-                Description = "Создать новую задачу по вашему запросу",
+                Label = "Create task",
+                Description = "Create a new task based on your request",
                 Variant = "primary",
                 Priority = 1,
                 Payload = new CreateTaskPayload
                 {
-                    Title = "Новая задача",
-                    Description = "Описание задачи на основе вашего запроса",
+                    Title = "New task",
+                    Description = "Task description based on your request",
                     Difficulty = 2,
                     RewardXp = 80,
                     RewardPoints = 20,
@@ -173,14 +173,14 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
             actions.Add(new AiAction
             {
                 Type = AiActionType.CreateReward,
-                Label = "Создать награду",
-                Description = "Добавить новую награду в магазин",
+                Label = "Create reward",
+                Description = "Add a new reward to the shop",
                 Variant = "secondary",
                 Priority = 2,
                 Payload = new CreateRewardPayload
                 {
-                    Title = "Новая награда",
-                    Description = "Награда за достижения",
+                    Title = "New reward",
+                    Description = "Reward for achievements",
                     Cost = 200,
                     Category = "general",
                     Icon = "🎁"
@@ -204,9 +204,9 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         var insights = GenerateInsights(window, limit).ToList();
         var summary = new Dictionary<string, string>
         {
-            ["window"] = $"Последние {window} дн.",
-            ["focus"] = insights.Any(i => i.Type == "progress") ? "Прогресс стабилен" : "Есть точки роста",
-            ["recommendation"] = "Поддерживайте короткие циклы обратной связи и обновляйте награды раз в 2 недели."
+            ["window"] = $"Last {window} days",
+            ["focus"] = insights.Any(i => i.Type == "progress") ? "Progress is stable" : "There are growth opportunities",
+            ["recommendation"] = "Maintain short feedback cycles and update rewards every 2 weeks."
         };
 
         return Task.FromResult(new AiAnalyticsResponse(insights, summary));
@@ -216,61 +216,61 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
     {
         var tips = new List<string>();
         if (request.ChildAge is >= 6 and <= 10)
-            tips.Add("Используйте визуальные трекеры прогресса — они хорошо работают для младших детей.");
+            tips.Add("Use visual progress trackers — they work well for younger children.");
 
         // General tip if no age-specific tip applies
         if (tips.Count == 0)
-            tips.Add("Уточните настроение ребёнка перед началом — это помогает подобрать верный тон общения.");
+            tips.Add("Check the child's mood before starting — it helps set the right tone for communication.");
 
         return tips;
     }
 
     private static string BuildTaskStrategySummary(TaskSuggestionsRequest request, int count)
     {
-        var focus = "баланс развития";
-        return $"Сформирован набор из {count} заданий, ориентированных на {focus}. Меняйте сложность каждые 2-3 дня.";
+        var focus = "balanced development";
+        return $"Prepared a set of {count} tasks focused on {focus}. Adjust difficulty every 2-3 days.";
     }
 
     private static string BuildBudgetSummary(int availablePoints, int count, string? occasion)
     {
         var occasionPart = string.IsNullOrWhiteSpace(occasion)
             ? ""
-            : $" к событию \"{occasion}\"";
-        return $"Подобрано {count} наград{occasionPart}. Рекомендуемый резерв: {availablePoints} очков.";
+            : $" for the event \"{occasion}\"";
+        return $"Selected {count} rewards{occasionPart}. Recommended reserve: {availablePoints} points.";
     }
 
     private static string ResolveContextHint(IReadOnlyDictionary<string, string> context)
     {
         if (context.TryGetValue("childName", out var name) && !string.IsNullOrWhiteSpace(name))
-            return $"{name}, давай разберёмся вместе!";
+            return $"{name}, let's figure this out together!";
 
         if (context.TryGetValue("audience", out var audience))
             return audience switch
             {
-                "parent" => "Собрала рекомендации для родителя:",
-                "child" => "Привет! Вот что можно сделать:",
-                _ => "Вот план действий:"
+                "parent" => "I've gathered recommendations for the parent:",
+                "child" => "Hi! Here's what you can do:",
+                _ => "Here's the action plan:"
             };
 
-        return "Вот план действий:";
+        return "Here's the action plan:";
     }
 
     private static string BuildAnswerCore(string message)
     {
         if (message.Contains("мотива", StringComparison.OrdinalIgnoreCase))
             return
-                "разбейте цель на короткие шаги, добавьте мгновенную награду и проговорите, какая выгода будет завтра.";
+                "break down the goal into short steps, add an instant reward, and explain what benefit will come tomorrow.";
 
         if (message.Contains("награ", StringComparison.OrdinalIgnoreCase))
             return
-                "смешайте быстрые микро-награды (наклейки, выбор музыки) и долгосрочные призы, чтобы видеть прогресс ежедневно.";
+                "mix quick micro-rewards (stickers, music choice) with long-term prizes to see progress daily.";
 
         if (message.Contains("задач", StringComparison.OrdinalIgnoreCase))
             return
-                "задачи лучше объединять в тематические блоки и закрывать один блок за вечер, чтобы видеть результат.";
+                "tasks are best grouped into themed blocks and complete one block per evening to see results.";
 
         return
-            "разбейте запрос на 3 шага: обсудите ожидания, договоритесь о правилах и закрепите итог коротким ритуалом.";
+            "break down the request into 3 steps: discuss expectations, agree on rules, and reinforce with a short ritual.";
     }
 
     private static IReadOnlyCollection<string> BuildFollowUps(string message,
@@ -278,15 +278,15 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
     {
         var followUps = new List<string>
         {
-            "Нужно ли уточнить длительность или сложность задания?",
-            "Хотите получить идеи по системе наград?"
+            "Would you like to clarify duration or difficulty of the task?",
+            "Would you like ideas for a reward system?"
         };
 
         if (context.ContainsKey("childName"))
-            followUps.Add("Расскажи, что больше всего нравится ребёнку — так рекомендации будут точнее.");
+            followUps.Add("Tell me what the child likes most — this will make recommendations more accurate.");
 
         if (message.Contains("учёб", StringComparison.OrdinalIgnoreCase))
-            followUps.Add("Нужен ли план подготовки к урокам на неделю?");
+            followUps.Add("Do you need a homework preparation plan for the week?");
 
         return followUps;
     }
@@ -295,16 +295,16 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
     {
         var baseCards = new List<AiInsightCard>
         {
-            new("warning", "Нужна пауза",
-                "Ребёнок снижает активность к вечеру. Запланируйте лёгкие задания после 19:00.", "medium",
+            new("warning", "Need a break",
+                "The child's activity decreases in the evening. Schedule light tasks after 7 PM.", "medium",
                 ["routine", "energy"]),
-            new("progress", "Сильная сторона", "Уровень вовлечения в учебные задания вырос на 18% за последние недели.",
+            new("progress", "Strong point", "Engagement level in learning tasks increased by 18% over recent weeks.",
                 "success", ["learning", "focus"]),
-            new("insight", "Экономика наград",
-                "Средняя стоимость наград выросла. Добавьте больше бонусов до 200 очков.", "info",
+            new("insight", "Reward economy",
+                "Average reward cost increased. Add more bonuses under 200 points.", "info",
                 ["rewards", "budget"]),
-            new("tip", "Командная цель",
-                "Попробуйте семейную миссию на {windowDays} дней, чтобы закрепить новую привычку.", "info",
+            new("tip", "Team goal",
+                "Try a family mission for {windowDays} days to reinforce a new habit.", "info",
                 ["family", "habits"])
         };
 
@@ -354,7 +354,7 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         {
             var personalizedDescription = Description;
             if (!string.IsNullOrWhiteSpace(request.ChildId))
-                personalizedDescription = Description + " Поделись результатом в общем чате семьи.";
+                personalizedDescription = Description + " Share the result in the family chat.";
 
             return new TaskSuggestion(
                 Title,

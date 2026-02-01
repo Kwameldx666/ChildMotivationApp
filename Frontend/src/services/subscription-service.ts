@@ -33,35 +33,35 @@ export interface SubscriptionTierInfo {
 
 export const subscriptionService = {
   /**
-   * Получить текущую подписку пользователя
+   * Get current user subscription
    */
   async getCurrentSubscription(): Promise<SubscriptionDto> {
     return httpClient.get<SubscriptionDto>('/api-gateway/user-service/subscription/me')
   },
 
   /**
-   * Получить подписку по userId
+   * Get subscription by userId
    */
   async getSubscription(userId: string): Promise<SubscriptionDto> {
     return httpClient.get<SubscriptionDto>(`/api-gateway/user-service/subscription/${userId}`)
   },
 
   /**
-   * Изменить подписку (upgrade/downgrade)
+   * Change subscription (upgrade/downgrade)
    */
   async changeSubscription(request: ChangeSubscriptionRequest): Promise<SubscriptionDto> {
     return httpClient.post<SubscriptionDto>('/api-gateway/user-service/subscription/change', request)
   },
 
   /**
-   * Отменить подписку (переход на Free)
+   * Cancel subscription (downgrade to Free)
    */
   async cancelSubscription(): Promise<SubscriptionDto> {
     return httpClient.post<SubscriptionDto>('/api-gateway/user-service/subscription/cancel', {})
   },
 
   /**
-   * Получить список доступных тарифов
+   * Get available subscription tiers
    */
   async getAvailableTiers(): Promise<SubscriptionTierInfo[]> {
     return httpClient.get<SubscriptionTierInfo[]>('/api-gateway/user-service/subscription/tiers', { auth: false })

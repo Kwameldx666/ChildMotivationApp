@@ -1,7 +1,7 @@
 namespace NotificationService.Domain.Models;
 
 /// <summary>
-/// Сохранённое уведомление пользователя
+/// Stored user notification
 /// </summary>
 public class StoredNotification
 {

@@ -32,11 +32,11 @@ public class TaskRepository : ITaskRepository
             query = query.Where(task => task.AssignedToUserId == assignedToUserId);
         }
 
-        // Сортировка: 
-        // 1. Невыполненные задачи сверху, выполненные снизу
-        // 2. Внутри каждой группы - по дате обновления (или создания) по убыванию
+        // Sorting: 
+        // 1. Incomplete tasks at top, completed at bottom
+        // 2. Within each group - by update date (or creation date) descending
         return await query
-            .OrderBy(task => task.Completed) // false (0) идут первыми, true (1) - ниже
+            .OrderBy(task => task.Completed) // false (0) comes first, true (1) - below
             .ThenByDescending(task => task.UpdatedAt ?? task.CreatedAt)
             .ToListAsync(cancellationToken);
     }

@@ -1,8 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSubscriptionTiers } from "@/services/subscription-queries"
 
 interface PricingTier {
   id: string
@@ -13,57 +14,49 @@ interface PricingTier {
   highlighted?: boolean
 }
 
-const pricingTiers: PricingTier[] = [
-  {
-    id: "free",
-    name: "Бесплатный",
-    price: 0,
+// Дополнительные данные для тарифов (features и descriptions)
+const tierExtras: Record<string, { description: string; features: string[]; highlighted?: boolean }> = {
+  free: {
     description: "Для начала",
     features: [
-      "Базовые задачи и награды",
+      "До 2 детей",
+      "До 10 задач в день",
       "Семейный чат",
-      "Статистика за неделю",
+      "Базовые награды",
     ],
   },
-  {
-    id: "basic",
-    name: "Базовый",
-    price: 4.99,
+  basic: {
     description: "Для активных семей",
     features: [
+      "До 5 детей",
+      "До 30 задач в день",
       "AI генерация задач",
-      "Персональные рекомендации",
       "Расширенные награды",
-      "Статистика за месяц",
     ],
   },
-  {
-    id: "premium",
-    name: "Премиум",
-    price: 9.99,
+  premium: {
     description: "Максимум возможностей",
     highlighted: true,
     features: [
+      "До 10 детей",
+      "До 100 задач в день",
       "Продвинутый AI помощник",
-      "Детальная аналитика прогресса",
-      "Эксклюзивные награды",
-      "Поддержка 24/7",
+      "Детальная аналитика",
+      "Приоритетная поддержка",
       "Офлайн режим",
     ],
   },
-  {
-    id: "family",
-    name: "Семейный",
-    price: 14.99,
+  family: {
     description: "Для больших семей",
     features: [
+      "Без ограничений детей",
+      "Без ограничений задач",
       "Все функции Premium",
-      "Несколько родителей",
+      "Семейный доступ",
       "Персональный менеджер",
-      "Без ограничений",
     ],
   }
-]
+}
 
 interface PremiumPricingProps {
   currentTier?: string
@@ -71,10 +64,40 @@ interface PremiumPricingProps {
 }
 
 export default function PremiumPricing({ currentTier = "free", onSelectTier }: PremiumPricingProps) {
+  const { data: apiTiers, isLoading } = useSubscriptionTiers()
+  
+  // Формируем тарифы на основе данных API
+  const pricingTiers: PricingTier[] = apiTiers?.map(tier => {
+    const tierId = tier.name.toLowerCase()
+    const extras = tierExtras[tierId] || { description: "", features: [] }
+    return {
+      id: tierId,
+      name: tier.displayName,
+      price: tier.price,
+      description: extras.description,
+      features: extras.features,
+      highlighted: extras.highlighted
+    }
+  }) || [
+    // Fallback тарифы если API недоступен
+    { id: "free", name: "Бесплатный", price: 0, description: "Для начала", features: tierExtras.free.features },
+    { id: "basic", name: "Базовый", price: 299, description: "Для активных семей", features: tierExtras.basic.features },
+    { id: "premium", name: "Премиум", price: 599, description: "Максимум возможностей", features: tierExtras.premium.features, highlighted: true },
+    { id: "family", name: "Семейный", price: 999, description: "Для больших семей", features: tierExtras.family.features },
+  ]
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {pricingTiers.map((tier) => {
-        const isCurrentTier = currentTier === tier.id
+        const isCurrentTier = currentTier.toLowerCase() === tier.id
         const isFree = tier.price === 0
 
         return (
@@ -116,12 +139,12 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             {/* Price */}
             <div className="mb-5">
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-foreground">${tier.price}</span>
-                <span className="text-sm text-muted-foreground">/мес</span>
+                <span className="text-3xl font-bold text-foreground">{tier.price === 0 ? "Бесплатно" : `${tier.price} ₽`}</span>
+                {tier.price > 0 && <span className="text-sm text-muted-foreground">/мес</span>}
               </div>
               {!isFree && (
                 <p className="text-xs text-muted-foreground/70 mt-0.5">
-                  ${(tier.price * 12 * 0.85).toFixed(0)}/год (-15%)
+                  {Math.floor(tier.price * 12 * 0.85)} ₽/год (-15%)
                 </p>
               )}
             </div>

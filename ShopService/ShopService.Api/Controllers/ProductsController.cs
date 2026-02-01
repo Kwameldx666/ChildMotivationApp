@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShopService.Api.Contracts.Products;
 using ShopService.Domain.Entities;
@@ -6,6 +7,7 @@ using ShopService.Infrastructure.Abstractions;
 namespace ShopService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("shop-service/[controller]")]
 public class ProductsController(IProductStore store) : ControllerBase
 {

@@ -89,7 +89,7 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
             .HasColumnName("updated_at")
             .HasDefaultValueSql("NOW()");
 
-        // Индекс по user_id для быстрого поиска
+        // Index by user_id for fast lookup
         builder.HasIndex(s => s.UserId)
             .IsUnique()
             .HasDatabaseName("ix_subscriptions_user_id");

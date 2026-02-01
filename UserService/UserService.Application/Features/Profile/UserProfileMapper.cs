@@ -6,7 +6,7 @@ namespace UserService.Application.Features.Profile;
 
 public static class UserProfileMapper
 {
-    public static UserProfileResponse Map(User user)
+    public static UserProfileResponse Map(User user, SubscriptionDto? subscription = null)
     {
         var userDto = new UserDto(
             user.Id.ToString(),
@@ -25,6 +25,6 @@ public static class UserProfileMapper
             ? null
             : new FamilyDto(user.FamilyCode, user.FamilyName, user.FamilyEmblem);
 
-        return new UserProfileResponse(userDto, profile, family);
+        return new UserProfileResponse(userDto, profile, family, subscription);
     }
 }

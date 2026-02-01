@@ -64,11 +64,15 @@ function persistSession(payload: AuthPayload) {
 
 function clearSession() {
   if (!isBrowser) return
-  const currentUserRaw = localStorage.getItem(CURRENT_USER_KEY)
-  if (currentUserRaw) {
-    const currentUser: AuthUser = JSON.parse(currentUserRaw)
-    localStorage.removeItem(`${PROFILE_KEY_PREFIX}${currentUser.id}`)
-    localStorage.removeItem(`${FAMILY_KEY_PREFIX}${currentUser.id}`)
+  try {
+    const currentUserRaw = localStorage.getItem(CURRENT_USER_KEY)
+    if (currentUserRaw) {
+      const currentUser: AuthUser = JSON.parse(currentUserRaw)
+      localStorage.removeItem(`${PROFILE_KEY_PREFIX}${currentUser.id}`)
+      localStorage.removeItem(`${FAMILY_KEY_PREFIX}${currentUser.id}`)
+    }
+  } catch (error) {
+    console.error('[auth-service] Failed to parse user for cleanup:', error)
   }
   localStorage.removeItem(CURRENT_USER_KEY)
   localStorage.removeItem(STORAGE_TOKEN_KEY)
@@ -132,27 +136,35 @@ export const authService = {
 
   getCachedSession(): AuthSession | null {
     if (!isBrowser) return null
-    const accessToken = getAccessToken()
-    const refreshToken = getStoredRefreshToken()
-    if (!accessToken || !refreshToken) return null
+    
+    try {
+      const accessToken = getAccessToken()
+      const refreshToken = getStoredRefreshToken()
+      if (!accessToken || !refreshToken) return null
 
-    const userRaw = localStorage.getItem(CURRENT_USER_KEY)
-    if (!userRaw) return null
+      const userRaw = localStorage.getItem(CURRENT_USER_KEY)
+      if (!userRaw) return null
 
-    const user: AuthUser = JSON.parse(userRaw)
-    const profileRaw = localStorage.getItem(`${PROFILE_KEY_PREFIX}${user.id}`)
-    if (!profileRaw) return null
+      const user: AuthUser = JSON.parse(userRaw)
+      const profileRaw = localStorage.getItem(`${PROFILE_KEY_PREFIX}${user.id}`)
+      if (!profileRaw) return null
 
-    const profile: UserProfile = JSON.parse(profileRaw)
-    const familyRaw = localStorage.getItem(`${FAMILY_KEY_PREFIX}${user.id}`)
-    const family = familyRaw ? (JSON.parse(familyRaw) as FamilyContext) : undefined
+      const profile: UserProfile = JSON.parse(profileRaw)
+      const familyRaw = localStorage.getItem(`${FAMILY_KEY_PREFIX}${user.id}`)
+      const family = familyRaw ? (JSON.parse(familyRaw) as FamilyContext) : undefined
 
-    return {
-      accessToken,
-      refreshToken,
-      user,
-      profile,
-      family,
+      return {
+        accessToken,
+        refreshToken,
+        user,
+        profile,
+        family,
+      }
+    } catch (error) {
+      // Если данные в localStorage повреждены, очищаем сессию
+      console.error('[auth-service] Failed to parse cached session:', error)
+      clearSession()
+      return null
     }
   },
 }

@@ -19,7 +19,7 @@ public class GetSubscriptionQueryHandler : IRequestHandler<GetSubscriptionQuery,
     {
         var subscription = await _subscriptionRepository.GetByUserIdAsync(request.UserId, cancellationToken);
 
-        // Если подписки нет, возвращаем бесплатную по умолчанию
+        // If subscription doesn't exist, return free tier by default
         if (subscription is null)
         {
             return new SubscriptionDto(

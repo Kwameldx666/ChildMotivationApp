@@ -6,7 +6,7 @@ public sealed class AiTaskSuggestionsRequest
 {
     [StringLength(64)] public string? ChildId { get; init; }
 
-    [Range(4, 18, ErrorMessage = "Возраст указывается в диапазоне 4-18 лет.")]
+    [Range(4, 18, ErrorMessage = "Age must be in the range of 4-18 years.")]
     public int? ChildAge { get; init; }
 
     [StringLength(32)] public string? Tone { get; init; }

@@ -22,25 +22,25 @@ public class NotificationService : INotificationService
 
     public async Task SendTaskCreatedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_created", "Новая задача", $"Создана задача: {notification.Title}");
+        await SaveNotificationAsync(userId, "task_created", "New Task", $"Task created: {notification.Title}");
         await SendToUserAsync(userId, "TaskCreated", notification);
     }
 
     public async Task SendTaskUpdatedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_updated", "Задача обновлена", $"Обновлена задача: {notification.Title}");
+        await SaveNotificationAsync(userId, "task_updated", "Task Updated", $"Task updated: {notification.Title}");
         await SendToUserAsync(userId, "TaskUpdated", notification);
     }
 
     public async Task SendTaskCompletedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_completed", "Задача выполнена!", $"Выполнена задача: {notification.Title}");
+        await SaveNotificationAsync(userId, "task_completed", "Task Completed!", $"Task completed: {notification.Title}");
         await SendToUserAsync(userId, "TaskCompleted", notification);
     }
 
     public async Task SendTaskAssignedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_assigned", "Новая задача назначена", $"Вам назначена задача: {notification.Title}");
+        await SaveNotificationAsync(userId, "task_assigned", "New Task Assigned", $"Task assigned to you: {notification.Title}");
         await SendToUserAsync(userId, "TaskAssigned", notification);
     }
 

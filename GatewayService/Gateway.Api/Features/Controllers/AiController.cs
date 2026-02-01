@@ -169,7 +169,7 @@ public sealed class AiController(
             return Ok(new ExecuteAiActionResponse
             {
                 Success = true,
-                Message = $"Задача «{title}» успешно создана!",
+                Message = $"Task \"{title}\" created successfully!",
                 Data = JsonSerializer.Deserialize<object>(content)
             });
         }
@@ -177,7 +177,7 @@ public sealed class AiController(
         return Ok(new ExecuteAiActionResponse
         {
             Success = false,
-            Message = "Не удалось создать задачу. Попробуйте позже."
+            Message = "Failed to create task. Please try again later."
         });
     }
 
@@ -216,8 +216,8 @@ public sealed class AiController(
         {
             Success = createdCount > 0,
             Message = createdCount > 0
-                ? $"Создано {createdCount} задач!"
-                : "Не удалось создать задачи."
+                ? $"Created {createdCount} tasks!"
+                : "Failed to create tasks."
         });
     }
 
@@ -252,7 +252,7 @@ public sealed class AiController(
             return Ok(new ExecuteAiActionResponse
             {
                 Success = true,
-                Message = $"Награда «{title}» добавлена в магазин!",
+                Message = $"Reward \"{title}\" added to shop!",
                 Data = JsonSerializer.Deserialize<object>(content)
             });
         }
@@ -260,7 +260,7 @@ public sealed class AiController(
         return Ok(new ExecuteAiActionResponse
         {
             Success = false,
-            Message = "Не удалось создать награду. Попробуйте позже."
+            Message = "Failed to create reward. Please try again later."
         });
     }
 
@@ -303,8 +303,8 @@ public sealed class AiController(
         {
             Success = createdCount > 0,
             Message = createdCount > 0
-                ? $"Создано {createdCount} наград!"
-                : "Не удалось создать награды."
+                ? $"Created {createdCount} rewards!"
+                : "Failed to create rewards."
         });
     }
 
@@ -326,8 +326,8 @@ public sealed class AiController(
         {
             Success = response.IsSuccessStatusCode,
             Message = response.IsSuccessStatusCode
-                ? "Задача отмечена как выполненная!"
-                : "Не удалось завершить задачу."
+                ? "Task marked as completed!"
+                : "Failed to complete task."
         });
     }
 }

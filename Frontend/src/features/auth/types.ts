@@ -103,6 +103,25 @@ export interface UserProfileResponse {
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
+  subscription?: SubscriptionInfo
+}
+
+export interface SubscriptionInfo {
+  tier: string
+  status: string
+  startDate: string
+  endDate: string | null
+  pricePerMonth: number
+  autoRenew: boolean
+  maxChildren: number
+  maxTasksPerDay: number
+  hasAIAssistant: boolean
+  hasAdvancedAnalytics: boolean
+  hasCustomRewards: boolean
+  hasPrioritySupport: boolean
+  hasFamilySharing: boolean
+  hasOfflineMode: boolean
+  daysRemaining: number | null
 }
 
 export interface UpdateProfilePayload {

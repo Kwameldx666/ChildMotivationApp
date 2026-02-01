@@ -22,5 +22,5 @@ public class CreateTaskRequest
     public string ConfirmationType { get; init; } = "none";
 
     [StringLength(64)]
-    public string? AssignedToUserId { get; init; } // ID ребёнка, которому назначается задача
+    public string? AssignedToUserId { get; init; } // ID of the child to whom the task is assigned
 }

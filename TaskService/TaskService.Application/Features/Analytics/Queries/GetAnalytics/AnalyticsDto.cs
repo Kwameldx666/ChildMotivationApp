@@ -1,29 +1,29 @@
 namespace TaskService.Application.Features.Analytics.Queries.GetAnalytics;
 
 public sealed record AnalyticsDto(
-    // Общая статистика
+    // Overall statistics
     int TotalPoints,
     int CompletedTasks,
     int TotalTasks,
     int ActiveChildren,
     double CompletionRate,
     
-    // Активность по дням недели
+    // Activity by day of week
     IReadOnlyList<DailyActivityDto> WeeklyActivity,
     
-    // Статистика по детям
+    // Statistics by children
     IReadOnlyList<ChildStatsDto> ChildrenStats,
     
-    // Задачи по категориям (на основе сложности)
+    // Tasks by category (based on difficulty)
     IReadOnlyList<CategoryDataDto> DifficultyDistribution,
     
-    // Прогресс по неделям
+    // Progress by week
     IReadOnlyList<WeeklyProgressDto> WeeklyProgress,
     
-    // Статус задач
+    // Task status
     TaskStatusDto TaskStatus,
     
-    // Тренд очков
+    // Points trend
     IReadOnlyList<PointsTrendDto> PointsTrend
 );
 

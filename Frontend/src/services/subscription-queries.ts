@@ -60,6 +60,9 @@ export function useChangeSubscription() {
       // Инвалидируем все связанные запросы
       queryClient.invalidateQueries({ queryKey: subscriptionKeys.all })
     },
+    onError: (error: Error) => {
+      console.error('[subscription] Failed to change subscription:', error.message)
+    },
   })
 }
 
@@ -74,6 +77,9 @@ export function useCancelSubscription() {
     onSuccess: (data: SubscriptionDto) => {
       queryClient.setQueryData(subscriptionKeys.current(), data)
       queryClient.invalidateQueries({ queryKey: subscriptionKeys.all })
+    },
+    onError: (error: Error) => {
+      console.error('[subscription] Failed to cancel subscription:', error.message)
     },
   })
 }

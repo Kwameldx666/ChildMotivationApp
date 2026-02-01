@@ -44,7 +44,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                 var tips = payload.Tips?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ??
                            Array.Empty<string>();
                 var summary = string.IsNullOrWhiteSpace(payload.StrategySummary)
-                    ? $"Подготовлено {suggestions.Count} заданий."
+                    ? $"Prepared {suggestions.Count} tasks."
                     : payload.StrategySummary.Trim();
                 return new TaskSuggestionsResponse(suggestions, summary, tips);
             }
@@ -70,7 +70,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
             if (suggestions.Count > 0)
             {
                 var summary = string.IsNullOrWhiteSpace(payload.BudgetSummary)
-                    ? $"Подобрано {suggestions.Count} наград."
+                    ? $"Selected {suggestions.Count} rewards."
                     : payload.BudgetSummary.Trim();
                 return new RewardSuggestionsResponse(suggestions, summary);
             }
@@ -86,7 +86,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         if (payload is { Reply: { Length: > 0 } reply })
         {
             var followUps = payload.FollowUps?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ??
-                            new[] { "Нужно ли уточнить детали?", "Хочешь изменить параметры?" };
+                            new[] { "Would you like to clarify details?", "Would you like to change parameters?" };
             var conversationId = string.IsNullOrWhiteSpace(request.ConversationId)
                 ? Guid.NewGuid().ToString("N")
                 : request.ConversationId;
@@ -117,9 +117,9 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                     ? payload.Summary
                     : new Dictionary<string, string>
                     {
-                        ["window"] = $"Последние {request.ResolveWindow()} дн.",
-                        ["focus"] = "Фокус обновлён ИИ",
-                        ["recommendation"] = "Добавьте семейный ритуал обратной связи."
+                        ["window"] = $"Last {request.ResolveWindow()} days",
+                        ["focus"] = "Focus updated by AI",
+                        ["recommendation"] = "Add a family feedback ritual."
                     };
 
                 return new AiAnalyticsResponse(insights, summary);

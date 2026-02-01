@@ -11,7 +11,7 @@ namespace Gateway.Features.Controllers;
 public class NotificationsController(INotificationServiceClient notificationClient) : ControllerBase
 {
     /// <summary>
-    /// Получить все уведомления текущего пользователя
+    /// Get all notifications for current user
     /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -25,7 +25,7 @@ public class NotificationsController(INotificationServiceClient notificationClie
     }
 
     /// <summary>
-    /// Получить непрочитанные уведомления
+    /// Get unread notifications
     /// </summary>
     [HttpGet("unread")]
     public async Task<IActionResult> GetUnread(CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class NotificationsController(INotificationServiceClient notificationClie
     }
 
     /// <summary>
-    /// Получить количество непрочитанных уведомлений
+    /// Get count of unread notifications
     /// </summary>
     [HttpGet("unread/count")]
     public async Task<IActionResult> GetUnreadCount(CancellationToken cancellationToken)
@@ -53,7 +53,7 @@ public class NotificationsController(INotificationServiceClient notificationClie
     }
 
     /// <summary>
-    /// Отметить уведомления как прочитанные
+    /// Mark notifications as read
     /// </summary>
     [HttpPost("mark-read")]
     public async Task<IActionResult> MarkAsRead([FromBody] MarkReadRequest request, CancellationToken cancellationToken)
@@ -70,7 +70,7 @@ public class NotificationsController(INotificationServiceClient notificationClie
     }
 
     /// <summary>
-    /// Отметить все уведомления как прочитанные
+    /// Mark all notifications as read
     /// </summary>
     [HttpPost("mark-all-read")]
     public async Task<IActionResult> MarkAllAsRead(CancellationToken cancellationToken)
@@ -84,7 +84,7 @@ public class NotificationsController(INotificationServiceClient notificationClie
     }
 
     /// <summary>
-    /// Удалить уведомление
+    /// Delete notification
     /// </summary>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)

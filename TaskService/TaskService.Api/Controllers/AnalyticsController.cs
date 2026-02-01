@@ -1,10 +1,12 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskService.Application.Features.Analytics.Queries.GetAnalytics;
 
 namespace TaskService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("task-service/analytics")]
 public class AnalyticsController(IMediator mediator) : ControllerBase
 {

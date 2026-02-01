@@ -80,7 +80,7 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
     [HttpPost("{id:guid}/evidence")]
     public async Task<IActionResult> UploadEvidence(Guid id, IFormFile? file, CancellationToken cancellationToken)
     {
-        if (file is null || file.Length == 0) return BadRequest("Необходимо прикрепить файл подтверждения.");
+        if (file is null || file.Length == 0) return BadRequest("A confirmation file must be attached.");
 
         var userId = User.GetUserId();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");

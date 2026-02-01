@@ -105,8 +105,8 @@ public class NotificationClient : INotificationClient
                 var payload = new
                 {
                     userId,
-                    title = "Новый комментарий",
-                    message = $"{commentAuthor} оставил(а) комментарий к задаче \"{taskTitle}\"",
+                    title = "New Comment",
+                    message = $"{commentAuthor} left a comment on task \"{taskTitle}\"",
                     type = "comment",
                     data = new Dictionary<string, object>
                     {

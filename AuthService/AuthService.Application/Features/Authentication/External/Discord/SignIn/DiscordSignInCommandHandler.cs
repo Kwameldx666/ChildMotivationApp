@@ -62,7 +62,7 @@ public class DiscordSignInCommandHandler(
                 new ExternalSignInResult(ExternalSignInStatus.Pending, missingEmailPendingToken));
         }
 
-        // 4️⃣ Пользователь уже существует
+        // 4️⃣ User already exists
         var existingUser =
             await userManager.FindByEmailAsync(
                 userInfo.Email);
@@ -90,7 +90,7 @@ public class DiscordSignInCommandHandler(
                     sessionToken));
         }
 
-        // 5️⃣ Новый пользователь → Pending
+        // 5️⃣ New user → Pending
         var pendingToken =
             await pendingUserStore.StoreAsync(
                 userInfo,

@@ -2,11 +2,11 @@ namespace ShopService.Domain.Enums;
 
 public enum OrderStatus
 {
-    Pending = 0,          // Ожидает оплаты
-    Paid = 1,             // Оплачен (списаны баллы)
-    AwaitingDelivery = 2, // Ожидает выдачи награды
-    Delivered = 3,        // Награда выдана (подтверждено родителем)
-    Confirmed = 4,        // Получение подтверждено (ребёнком)
-    Completed = 5,        // Завершён
-    Cancelled = 6         // Отменён
+    Pending = 0,          // Awaiting payment
+    Paid = 1,             // Paid (points deducted)
+    AwaitingDelivery = 2, // Awaiting reward delivery
+    Delivered = 3,        // Reward delivered (confirmed by parent)
+    Confirmed = 4,        // Receipt confirmed (by child)
+    Completed = 5,        // Completed
+    Cancelled = 6         // Cancelled
 }
