@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, LogIn } from "lucide-react"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface WelcomeScreenProps {
   onStart: () => void
@@ -142,6 +143,9 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
 
   return (
     <div className="h-[100dvh] bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       {/* Decorative waves */}
       <div className="absolute inset-0 opacity-20">
         <svg className="w-full h-full" viewBox="0 0 1440 800" preserveAspectRatio="none">

@@ -21,6 +21,7 @@ import ParentChatSelector from "@/components/parent-chat-selector"
 import { useCreateProduct } from "@/services/shop-queries"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -135,6 +136,7 @@ export default function ParentDashboard({
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
             <NotificationsPopover />
             <Button

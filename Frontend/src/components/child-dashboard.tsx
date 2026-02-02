@@ -34,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { AppRouteId, routeRecord } from "@/routes/config"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 
 interface ChildDashboardProps {
@@ -149,6 +150,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
             {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
             <div className="flex flex-wrap items-center gap-4">
+              <LanguageSwitcher variant="outline" size="sm" />
               <ThemeToggle />
               <NotificationsPopover />
               <Button
