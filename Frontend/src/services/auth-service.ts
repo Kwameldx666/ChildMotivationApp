@@ -1,9 +1,4 @@
-import {
-  ApiError,
-  httpClient,
-  STORAGE_REFRESH_TOKEN_KEY,
-  STORAGE_TOKEN_KEY,
-} from '@/services/api/http-client'
+import { ApiError, httpClient } from '@/services/api/http-client'
 import type { AuthPayload, AuthSession, AuthUser, FamilyContext, UserProfile, UserRole } from '@/features/auth/types'
 
 // cspell:ignore familyapp удалось сохранить сессию после
@@ -27,32 +22,16 @@ export interface RegisterPayload {
   family?: FamilyContext & { name?: string; emblem?: string }
 }
 
-function getAccessToken() {
-  if (!isBrowser) return null
-  return localStorage.getItem(STORAGE_TOKEN_KEY)
-}
-
-function getStoredRefreshToken() {
-  if (!isBrowser) return null
-  return localStorage.getItem(STORAGE_REFRESH_TOKEN_KEY)
-}
-
 function persistSession(payload: AuthPayload) {
   if (!isBrowser) return null
-  const accessToken = payload.accessToken ?? getAccessToken()
-  const refreshToken = payload.refreshToken ?? getStoredRefreshToken()
-  if (!accessToken || !refreshToken) return null
 
   const session: AuthSession = {
-    accessToken,
-    refreshToken,
+    accessToken: null,
+    refreshToken: null,
     user: payload.user,
     profile: payload.profile,
     family: payload.family,
   }
-
-  localStorage.setItem(STORAGE_TOKEN_KEY, accessToken)
-  localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload.user))
   localStorage.setItem(`${PROFILE_KEY_PREFIX}${payload.user.id}`, JSON.stringify(payload.profile))
   if (payload.family) {
@@ -75,8 +54,6 @@ function clearSession() {
     console.error('[auth-service] Failed to parse user for cleanup:', error)
   }
   localStorage.removeItem(CURRENT_USER_KEY)
-  localStorage.removeItem(STORAGE_TOKEN_KEY)
-  localStorage.removeItem(STORAGE_REFRESH_TOKEN_KEY)
 }
 
 export const authService = {
@@ -105,11 +82,7 @@ export const authService = {
   async me() {
     try {
       const data = await httpClient.get<AuthPayload>('/api/auth/me')
-      const session = persistSession({
-        ...data,
-        accessToken: data.accessToken ?? getAccessToken() ?? undefined,
-        refreshToken: data.refreshToken ?? getStoredRefreshToken() ?? undefined,
-      })
+      const session = persistSession(data)
       return session
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {

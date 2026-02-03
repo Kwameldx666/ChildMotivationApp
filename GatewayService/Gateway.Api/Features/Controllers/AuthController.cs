@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Features.Auth.DTOs;
 using Gateway.Extensions;
@@ -10,6 +11,9 @@ namespace Gateway.Features.Controllers;
 [Route("api-gateway/[controller]")]
 public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment env) : ControllerBase
 {
+    private const string AccessTokenCookieName = "access_token";
+    private const string RefreshTokenCookieName = "refresh_token";
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
@@ -62,18 +66,26 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         using var response = await authClient.LoginAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null || string.IsNullOrWhiteSpace(request.RefreshToken))
+        var refreshToken = request?.RefreshToken;
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            Request.Cookies.TryGetValue(RefreshTokenCookieName, out refreshToken);
+        }
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
             return BadRequest("Refresh token is required.");
 
+        request = new RefreshTokenRequest { RefreshToken = refreshToken };
+
         using var response = await authClient.RefreshAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
     }
 
     [HttpGet("{provider}/session/{token}")]
@@ -81,7 +93,7 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         CancellationToken cancellationToken)
     {
         using var response = await authClient.GetSessionAsync(token, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
     }
 
     [HttpGet("{provider}/pending/{token}")]
@@ -104,7 +116,7 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         CancellationToken cancellationToken)
     {
         using var response = await authClient.CompleteGoogleSignInAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
     }
 
     [HttpGet("github/authorize")]
@@ -119,7 +131,7 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         CancellationToken cancellationToken)
     {
         using var response = await authClient.CompleteGitHubSignInAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
     }
 
     [HttpPost("discord/authorize")]
@@ -134,6 +146,82 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         CancellationToken cancellationToken)
     {
         using var response = await authClient.CompleteDiscordSignInAsync(request, cancellationToken);
-        return await response.ToActionResultAsync();
+        return await ToActionResultWithAuthCookiesAsync(response);
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        ClearAuthCookies();
+        return Ok();
+    }
+
+    private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)
+    {
+        var content = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(content))
+        {
+            if (TryExtractTokens(content, out var accessToken, out var refreshToken))
+            {
+                SetAuthCookies(accessToken, refreshToken);
+            }
+        }
+
+        return new ContentResult
+        {
+            StatusCode = (int)response.StatusCode,
+            Content = content,
+            ContentType = response.Content.Headers.ContentType?.ToString() ?? "application/json"
+        };
+    }
+
+    private bool TryExtractTokens(string content, out string accessToken, out string refreshToken)
+    {
+        accessToken = string.Empty;
+        refreshToken = string.Empty;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+
+            accessToken = TryReadToken(root, "accessToken") ?? TryReadToken(root, "AccessToken") ?? string.Empty;
+            refreshToken = TryReadToken(root, "refreshToken") ?? TryReadToken(root, "RefreshToken") ?? string.Empty;
+
+            return !string.IsNullOrWhiteSpace(accessToken) && !string.IsNullOrWhiteSpace(refreshToken);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static string? TryReadToken(JsonElement root, string propertyName)
+    {
+        if (root.ValueKind != JsonValueKind.Object) return null;
+        if (!root.TryGetProperty(propertyName, out var value)) return null;
+        return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    }
+
+    private void SetAuthCookies(string accessToken, string refreshToken)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = !env.IsDevelopment(),
+            SameSite = SameSiteMode.Lax,
+            Path = "/",
+            IsEssential = true
+        };
+
+        Response.Cookies.Append(AccessTokenCookieName, accessToken, cookieOptions);
+        Response.Cookies.Append(RefreshTokenCookieName, refreshToken, cookieOptions);
+    }
+
+    private void ClearAuthCookies()
+    {
+        Response.Cookies.Delete(AccessTokenCookieName, new CookieOptions { Path = "/" });
+        Response.Cookies.Delete(RefreshTokenCookieName, new CookieOptions { Path = "/" });
     }
 }
