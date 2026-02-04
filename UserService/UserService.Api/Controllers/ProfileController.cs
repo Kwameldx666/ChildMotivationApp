@@ -67,6 +67,7 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
         return Ok(members);
     }
 
+    [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
     [HttpPut("{userId:guid}")]
     public async Task<IActionResult> UpdateProfileAsync(Guid userId, [FromBody] UpdateUserProfileRequest request,
         CancellationToken cancellationToken)
@@ -74,6 +75,18 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
         if (request is null)
         {
             return BadRequest("Request body cannot be null.");
+        }
+        
+        // Check that the user is updating their own profile or is a parent in the family
+        if (!TryResolveUserId(out var currentUserId, out var errorResult))
+        {
+            return errorResult ?? Unauthorized("User identifier is missing.");
+        }
+        
+        if (currentUserId != userId)
+        {
+            // TODO: Add check that currentUser is a parent of the child with userId
+            return Forbid("You can only update your own profile.");
         }
 
         var updatedProfile = await mediator.Send(
@@ -88,6 +101,7 @@ public class ProfileController(IMediator mediator, UserService.Infrastructure.Se
         return Ok(updatedProfile);
     }
 
+    [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
     [HttpPost("{userId:guid}/avatar")]
     public async Task<IActionResult> UploadAvatarAsync(Guid userId, IFormFile file, CancellationToken cancellationToken)
     {

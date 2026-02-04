@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard, MessageCircle } from "lucide-react"
+import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
@@ -33,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { AppRouteId, routeRecord } from "@/routes/config"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 
 interface ChildDashboardProps {
@@ -55,10 +57,16 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
-  const xp = stats.xp
-  const level = stats.level
-  const points = stats.points
-  const streak = stats.streak
+  const xp = stats?.xp ?? 0
+  const level = stats?.level ?? 1
+  const points = stats?.points ?? 0
+  const streak = stats?.streak ?? 0
+  const streakMultiplier = stats?.streakMultiplier ?? 1
+  const rewardProgress = stats?.rewardProgress ?? {
+    instantReward: { pointsNeeded: 30, tasksNeeded: 3, description: "Стикеры" },
+    mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: "Игрушка" },
+    bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: "Подарок" },
+  }
   const [hudCollapsed, setHudCollapsed] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -142,7 +150,9 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
             {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
             <div className="flex flex-wrap items-center gap-4">
+              <LanguageSwitcher variant="outline" size="sm" />
               <ThemeToggle />
+              <NotificationsPopover />
               <Button
                 className="gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30"
                 onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
@@ -198,16 +208,64 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
           </div>
 
           {/* CHANGE: Full HUD stats in grid below header, scrolls naturally */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 mb-4">
             {renderCardStat("Уровень", String(level), "text-primary")}
             {renderCardStat("Опыт", `${xp}`, "text-accent")}
             {renderCardStat("Очки", `${points}`, "text-secondary")}
-            {renderCardStat("Серия", `🔥 ${streak} дн.`, "text-orange-500")}
+            <Card className="bg-card border-border">
+              <CardContent className="pt-4">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Серия</p>
+                  {statsLoading ? (
+                    <Skeleton className="h-8 w-20 mx-auto" />
+                  ) : (
+                    <>
+                      <p className="text-3xl font-bold text-orange-500">🔥 {streak} дн.</p>
+                      {streakMultiplier > 1 && (
+                        <p className="text-xs text-green-500 mt-1">
+                          Бонус ×{streakMultiplier.toFixed(1)}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
+          
+          {/* Прогресс до наград */}
+          {!statsLoading && (
+            <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-lg p-4 border border-violet-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-5 h-5 text-violet-500" />
+                <h3 className="font-semibold text-sm">До награды осталось</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-500">{rewardProgress.instantReward.pointsNeeded}</p>
+                  <p className="text-xs text-muted-foreground">очков</p>
+                  <p className="text-xs text-green-500 mt-1">~{rewardProgress.instantReward.tasksNeeded} задач</p>
+                  <p className="text-[10px] text-muted-foreground">{rewardProgress.instantReward.description}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-amber-500">{rewardProgress.mediumReward.pointsNeeded}</p>
+                  <p className="text-xs text-muted-foreground">очков</p>
+                  <p className="text-xs text-amber-500 mt-1">~{rewardProgress.mediumReward.daysNeeded} дней</p>
+                  <p className="text-[10px] text-muted-foreground">{rewardProgress.mediumReward.description}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-purple-500">{rewardProgress.bigReward.pointsNeeded}</p>
+                  <p className="text-xs text-muted-foreground">очков</p>
+                  <p className="text-xs text-purple-500 mt-1">~{rewardProgress.bigReward.weeksNeeded} нед.</p>
+                  <p className="text-[10px] text-muted-foreground">{rewardProgress.bigReward.description}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-96">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-[480px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-1">

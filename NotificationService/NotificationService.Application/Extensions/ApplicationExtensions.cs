@@ -13,6 +13,9 @@ public static class ApplicationExtensions
         services.AddSingleton<IConnectionManager, ConnectionManager>();
         services.AddScoped<INotificationService, Services.NotificationService>();
         
+        // Notification storage (Singleton for In-Memory, replace with Scoped for DB)
+        services.AddSingleton<INotificationStorageService, InMemoryNotificationStorageService>();
+        
         return services;
     }
 }

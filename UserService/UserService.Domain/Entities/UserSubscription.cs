@@ -3,7 +3,7 @@ using UserService.Domain.Enums;
 namespace UserService.Domain.Entities;
 
 /// <summary>
-/// Подписка пользователя
+/// User subscription
 /// </summary>
 public class UserSubscription
 {
@@ -19,7 +19,7 @@ public class UserSubscription
     public bool AutoRenew { get; set; } = true;
     public decimal PricePerMonth { get; set; }
     
-    // Premium фичи
+    // Premium features
     public int MaxChildren { get; set; } = 2;              // Free: 2, Basic: 5, Premium: 10, Family: unlimited
     public int MaxTasksPerDay { get; set; } = 10;          // Free: 10, Basic: 50, Premium: 100, Family: unlimited
     public bool HasAIAssistant { get; set; }               // Basic+
@@ -33,7 +33,7 @@ public class UserSubscription
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Проверяет, активна ли подписка
+    /// Checks if the subscription is active
     /// </summary>
     public bool IsActive()
     {
@@ -42,7 +42,7 @@ public class UserSubscription
     }
 
     /// <summary>
-    /// Проверяет, есть ли доступ к функции
+    /// Checks if the user has access to a feature
     /// </summary>
     public bool HasFeature(string featureName)
     {

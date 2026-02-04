@@ -1,12 +1,12 @@
 namespace UserService.Domain.Enums;
 
 /// <summary>
-/// Статус подписки
+/// Subscription status
 /// </summary>
 public enum SubscriptionStatus
 {
-    Active = 0,         // Активна
-    Expired = 1,        // Истекла
-    Cancelled = 2,      // Отменена
-    PendingPayment = 3  // Ожидает оплаты
+    Active = 0,         // Active
+    Expired = 1,        // Expired
+    Cancelled = 2,      // Cancelled
+    PendingPayment = 3  // Pending payment
 }

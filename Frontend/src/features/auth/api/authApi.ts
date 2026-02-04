@@ -1,5 +1,4 @@
 import { apiClient, isAxiosError } from '@/api/api'
-import { STORAGE_REFRESH_TOKEN_KEY, STORAGE_TOKEN_KEY } from '@/services/api/http-client'
 import { appStore } from '@/store/appStore'
 import type {
   AuthPayload,
@@ -17,24 +16,6 @@ import type {
 const AUTH_BASE_PATH = '/api-gateway/auth'
 const PROFILE_BASE_PATH = '/api-gateway/profile'
 
-const persistTokens = (session: AuthSession) => {
-  if (typeof window === 'undefined') return
-
-  if (session.accessToken) {
-    localStorage.setItem(STORAGE_TOKEN_KEY, session.accessToken)
-  }
-
-  if (session.refreshToken) {
-    localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, session.refreshToken)
-  }
-}
-
-const clearTokens = () => {
-  if (typeof window === 'undefined') return
-  localStorage.removeItem(STORAGE_TOKEN_KEY)
-  localStorage.removeItem(STORAGE_REFRESH_TOKEN_KEY)
-}
-
 const toSession = (payload: AuthPayload): AuthSession => {
   const profile: UserProfile = {
     name: payload.profile?.name ?? payload.user.name,
@@ -45,8 +26,8 @@ const toSession = (payload: AuthPayload): AuthSession => {
   }
 
   return {
-    accessToken: payload.accessToken ?? null,
-    refreshToken: payload.refreshToken ?? null,
+    accessToken: null,
+    refreshToken: null,
     user: payload.user,
     profile,
     family: payload.family,
@@ -66,8 +47,8 @@ const mergeSessionWithProfile = (
   }
 
   return {
-    accessToken: baseSession?.accessToken ?? null,
-    refreshToken: baseSession?.refreshToken ?? null,
+    accessToken: null,
+    refreshToken: null,
     user: response.user,
     profile,
     family: response.family,
@@ -78,7 +59,6 @@ export const authApi = {
   async login(payload: LoginPayload) {
     const { data } = await apiClient.post<AuthPayload>(`${AUTH_BASE_PATH}/login`, payload)
     const session = toSession(data)
-    persistTokens(session)
     return session
   },
 
@@ -117,7 +97,6 @@ export const authApi = {
   async fetchProviderSession(provider: string, token: string) {
     const { data } = await apiClient.get<AuthPayload>(`${AUTH_BASE_PATH}/${provider}/session/${token}`)
     const session = toSession(data)
-    persistTokens(session)
     return session
   },
 
@@ -129,7 +108,6 @@ export const authApi = {
   async completeProviderSignIn(provider: string, payload: CompleteGoogleSignInPayload) {
     const { data } = await apiClient.post<AuthPayload>(`${AUTH_BASE_PATH}/${provider}/complete`, payload)
     const session = toSession(data)
-    persistTokens(session)
     return session
   },
 
@@ -141,11 +119,9 @@ export const authApi = {
 
       const session = {
         ...nextSession,
-        accessToken: nextSession.accessToken ?? currentSession?.accessToken ?? null,
-        refreshToken: nextSession.refreshToken ?? currentSession?.refreshToken ?? null,
+        accessToken: null,
+        refreshToken: null,
       }
-
-      persistTokens(session)
       return session
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {
@@ -156,25 +132,10 @@ export const authApi = {
   },
 
   async logout() {
-    const state = appStore.getState()
-    const refreshToken =
-      state.auth.session?.refreshToken ??
-      (typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_REFRESH_TOKEN_KEY))
-
-    if (refreshToken) {
-      try {
-        await apiClient.post(`${AUTH_BASE_PATH}/revoke`, { refreshToken })
-      } catch (error) {
-        console.warn('[authApi] Failed to revoke refresh token', error)
-      }
-    }
-
     try {
       await apiClient.post(`${AUTH_BASE_PATH}/logout`)
     } catch (error) {
       console.warn('[authApi] Failed to call logout endpoint', error)
-    } finally {
-      clearTokens()
     }
   },
 

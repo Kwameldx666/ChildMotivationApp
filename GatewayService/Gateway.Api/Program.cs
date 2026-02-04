@@ -28,6 +28,17 @@ app.UseCorrelationId();
 app.UseRequestLogging();
 
 app.UseCors(PresentationExtension.CorsPolicyName);
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Headers.ContainsKey("Authorization") &&
+        context.Request.Cookies.TryGetValue("access_token", out var accessToken) &&
+        !string.IsNullOrWhiteSpace(accessToken))
+    {
+        context.Request.Headers.Authorization = $"Bearer {accessToken}";
+    }
+
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseExceptionHandler(_ => { });

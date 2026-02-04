@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User, Sparkles, MessageCircle } from "lucide-react"
+import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "@/components/tasks-list"
 import RewardsShop from "@/components/rewards-shop"
 import AnalyticsDashboard from "@/components/analytics-dashboard"
@@ -14,14 +15,13 @@ import ChildrenManagement from "@/components/children-management"
 import TaskTemplates from "@/components/task-templates"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
-import TaskCreationModal from "@/components/task-creation-modal"
+import { CreateTaskDialog } from "@/components/create-task-dialog"
 import FamilyChat from "@/components/family-chat"
 import ParentChatSelector from "@/components/parent-chat-selector"
-import { useCreateTask } from "@/services/tasks-queries"
 import { useCreateProduct } from "@/services/shop-queries"
-import type { CreateTaskPayload } from "@/services/tasks-service"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,7 +59,6 @@ export default function ParentDashboard({
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const safeFamilyCode = familyCode ?? "—"
-  const createTask = useCreateTask()
   const createProduct = useCreateProduct()
   const { toast } = useToast()
 
@@ -71,16 +70,6 @@ export default function ParentDashboard({
     }
     return undefined
   }, [])
-
-  const handleCreateTask = async (payload: CreateTaskPayload) => {
-    try {
-      await createTask.mutateAsync(payload)
-      toast({ title: "Задача создана", description: "Она появится в списке задач" })
-    } catch (error) {
-      toast({ title: "Не удалось создать задачу", description: "Попробуйте ещё раз", variant: "destructive" })
-      throw error
-    }
-  }
 
   const handleCreateReward = async (reward: {
     title: string
@@ -147,7 +136,9 @@ export default function ParentDashboard({
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
+            <NotificationsPopover />
             <Button
               className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
               onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
@@ -242,10 +233,10 @@ export default function ParentDashboard({
               </div>
               <Button
                 className="gap-2"
-                onClick={() => router.push("/dashboard/tasks/new")}
+                onClick={() => setIsTaskModalOpen(true)}
               >
                 <Plus className="w-4 h-4" />
-                Перейти к созданию
+                Новая задача
               </Button>
             </div>
             <TasksList userType="parent" />
@@ -324,10 +315,9 @@ export default function ParentDashboard({
         onSubmit={handleCreateReward}
         isSubmitting={createProduct.isPending}
       />
-      <TaskCreationModal
+      <CreateTaskDialog
         open={isTaskModalOpen}
-        onClose={() => setIsTaskModalOpen(false)}
-        onSubmit={handleCreateTask}
+        onOpenChange={setIsTaskModalOpen}
       />
     </div>
   )

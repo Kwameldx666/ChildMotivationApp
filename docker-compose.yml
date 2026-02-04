@@ -110,6 +110,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__TaskService: ${TASKSERVICE_DB_CONNECTION:-Host=postgres-task;Port=5432;Database=task_db;Username=task_owner;Password=postgres}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
     ports:
       - "8083:8080"
     volumes:
@@ -149,6 +150,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__ShopService: ${SHOPSERVICE_DB_CONNECTION:-Host=postgres-shop;Port=5432;Database=shop_db;Username=shop_owner;Password=postgres}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
     ports:
       - "8091:8080"
     healthcheck:
@@ -172,6 +174,7 @@ services:
       AiProvider__MaxTokens: 700
       AiProvider__TimeoutSeconds: 45
       AiProvider__ApiKey: ${OPENAI_API_KEY:-}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
     ports:
       - "8095:8080"
     healthcheck:

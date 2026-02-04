@@ -38,7 +38,7 @@ public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand>
         {
             throw new ValidationException(new[]
             {
-                new ValidationFailure("Evidence", "Для этой задачи требуется прикрепить подтверждение перед завершением.")
+                new ValidationFailure("Evidence", "This task requires attaching confirmation before completion.")
             });
         }
 

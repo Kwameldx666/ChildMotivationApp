@@ -42,6 +42,7 @@ public static class InfrastructureExtensions
         services.Configure<TaskServiceOptions>(configuration.GetSection("Services:Task"));
         services.Configure<ShopServiceOptions>(configuration.GetSection("Services:Shop"));
         services.Configure<AiServiceOptions>(configuration.GetSection("Services:Ai"));
+        services.Configure<NotificationServiceOptions>(configuration.GetSection("Services:Notification"));
 
         ConfigureClientWithPolly<AuthServiceOptions>(
             services,
@@ -72,6 +73,12 @@ public static class InfrastructureExtensions
             configuration,
             DefaultHttpClientNames.AiService,
             "Services:Ai");
+
+        ConfigureClientWithPolly<NotificationServiceOptions>(
+            services,
+            configuration,
+            DefaultHttpClientNames.NotificationService,
+            "Services:Notification");
     }
 
     private static void ConfigureClientWithPolly<TOptions>(
@@ -100,6 +107,7 @@ public static class InfrastructureExtensions
         services.Configure<TaskEndpoints>(configuration.GetSection("ServiceEndpoints:TaskService"));
         services.Configure<ShopEndpoints>(configuration.GetSection("ServiceEndpoints:ShopService"));
         services.Configure<AiEndpoints>(configuration.GetSection("ServiceEndpoints:AiService"));
+        services.Configure<NotificationEndpoints>(configuration.GetSection("ServiceEndpoints:NotificationService"));
     }
 
     private static void AddProxies(this IServiceCollection services)
@@ -110,6 +118,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IShopServiceClient, ShopServiceClient>();
         services.AddScoped<IAiServiceClient, AiServiceClient>();
         services.AddScoped<IFamilyChatClient, FamilyChatClient>();
+        services.AddScoped<INotificationServiceClient, NotificationServiceClient>();
     }
 
     private static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)

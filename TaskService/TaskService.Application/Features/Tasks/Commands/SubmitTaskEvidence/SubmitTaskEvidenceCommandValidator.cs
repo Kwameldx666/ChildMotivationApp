@@ -26,6 +26,6 @@ public class SubmitTaskEvidenceCommandValidator : AbstractValidator<SubmitTaskEv
         RuleFor(x => x.Content)
             .NotEmpty()
             .Must(bytes => bytes.Length <= MaxEvidenceBytes)
-            .WithMessage($"Максимальный размер файла {MaxEvidenceBytes / (1024 * 1024)} МБ.");
+            .WithMessage($"Maximum file size is {MaxEvidenceBytes / (1024 * 1024)} MB.");
     }
 }

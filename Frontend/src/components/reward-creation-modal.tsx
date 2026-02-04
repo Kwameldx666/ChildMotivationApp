@@ -6,11 +6,72 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Loader2, Plus } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Plus, Zap, Calendar, Trophy, Info } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useToast } from "@/hooks/use-toast"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useShopProducts } from "@/services/shop-queries"
+import { cn } from "@/lib/utils"
+
+// Система категорий наград для мотивации детей
+type RewardCategory = "instant" | "medium" | "big"
+
+interface RewardCategoryConfig {
+  id: RewardCategory
+  label: string
+  description: string
+  icon: typeof Zap
+  examples: string[]
+  minPoints: number
+  maxPoints: number
+  recommendedPoints: number
+  color: string
+  bgColor: string
+  borderColor: string
+}
+
+const REWARD_CATEGORIES: RewardCategoryConfig[] = [
+  {
+    id: "instant",
+    label: "⚡ Мгновенные",
+    description: "Быстрые награды, которые можно получить сразу",
+    icon: Zap,
+    examples: ["Стикеры", "Дополнительная сказка на ночь", "15 мин дополнительного экрана", "Выбор десерта"],
+    minPoints: 20,
+    maxPoints: 40,
+    recommendedPoints: 30,
+    color: "text-emerald-600 dark:text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/40",
+  },
+  {
+    id: "medium",
+    label: "🎯 Еженедельные",
+    description: "Награды среднего уровня за неделю усилий",
+    icon: Calendar,
+    examples: ["Маленькая игрушка", "Вечер кино", "Пицца на ужин", "Поход в кафе"],
+    minPoints: 100,
+    maxPoints: 150,
+    recommendedPoints: 120,
+    color: "text-blue-600 dark:text-blue-400",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/40",
+  },
+  {
+    id: "big",
+    label: "🏆 Большие",
+    description: "Долгосрочные цели за месяц+ усилий",
+    icon: Trophy,
+    examples: ["Поездка в парк развлечений", "Новая видеоигра", "Особый подарок", "День по выбору ребёнка"],
+    minPoints: 300,
+    maxPoints: 500,
+    recommendedPoints: 350,
+    color: "text-purple-600 dark:text-purple-400",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/40",
+  },
+]
 
 interface RewardCreationModalProps {
   open: boolean
@@ -33,6 +94,32 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
   const [isAiGenerating, setIsAiGenerating] = useState(false)
   const [selectedChildId, setSelectedChildId] = useState<string>("")
   const [customPrompt, setCustomPrompt] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null)
+
+  // При выборе категории устанавливаем рекомендуемую цену
+  const handleCategorySelect = (categoryId: RewardCategory) => {
+    setSelectedCategory(categoryId)
+    const category = REWARD_CATEGORIES.find(c => c.id === categoryId)
+    if (category) {
+      setCost(String(category.recommendedPoints))
+    }
+  }
+
+  // Получаем текущую категорию по цене
+  const getCategoryByPrice = (price: number): RewardCategoryConfig | null => {
+    if (price <= 50) return REWARD_CATEGORIES[0]
+    if (price <= 200) return REWARD_CATEGORIES[1]
+    return REWARD_CATEGORIES[2]
+  }
+
+  // Проверяем соответствие цены категории
+  const isPriceInCategoryRange = (): boolean => {
+    if (!selectedCategory || !cost) return true
+    const category = REWARD_CATEGORIES.find(c => c.id === selectedCategory)
+    if (!category) return true
+    const priceNum = parseInt(cost, 10)
+    return priceNum >= category.minPoints && priceNum <= category.maxPoints
+  }
 
   const handleAiGenerate = async () => {
     setIsAiGenerating(true)
@@ -131,6 +218,53 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
         </DialogHeader>
 
         <div className="space-y-4 py-4 overflow-y-auto flex-1 px-1">
+          {/* Выбор категории награды */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2">
+              <Info className="w-4 h-4 text-muted-foreground" />
+              Выберите тип награды
+            </Label>
+            <div className="grid grid-cols-3 gap-2">
+              {REWARD_CATEGORIES.map((category) => {
+                const Icon = category.icon
+                const isSelected = selectedCategory === category.id
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => handleCategorySelect(category.id)}
+                    disabled={disabled}
+                    className={cn(
+                      "p-3 rounded-xl border-2 transition-all text-left",
+                      isSelected
+                        ? `${category.bgColor} ${category.borderColor} ${category.color}`
+                        : "border-border hover:border-primary/40 bg-background"
+                    )}
+                  >
+                    <div className="text-lg mb-1">{category.label.split(" ")[0]}</div>
+                    <div className={cn("text-xs font-medium", isSelected ? category.color : "text-muted-foreground")}>
+                      {category.minPoints}–{category.maxPoints === 500 ? "500+" : category.maxPoints} очков
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            {selectedCategory && (
+              <div className={cn(
+                "rounded-xl p-3 border",
+                REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.bgColor,
+                REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.borderColor
+              )}>
+                <p className="text-xs font-medium mb-2">
+                  {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.description}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  <strong>Примеры:</strong> {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.examples.join(", ")}
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Выбор ребенка для персонализации */}
           {children.length > 0 && (
             <div className="space-y-2">
@@ -229,7 +363,19 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                 value={cost}
                 onChange={(event) => setCost(event.target.value)}
                 disabled={isSubmitting}
+                className={cn(!isPriceInCategoryRange() && "border-amber-500")}
               />
+              {selectedCategory && cost && !isPriceInCategoryRange() && (
+                <p className="text-xs text-amber-600 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Рекомендуемый диапазон: {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.minPoints}–{REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.maxPoints} очков
+                </p>
+              )}
+              {selectedCategory && (
+                <p className="text-xs text-muted-foreground">
+                  Рекомендовано: {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.recommendedPoints} очков
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="reward-stock">Количество наград</Label>
@@ -243,6 +389,16 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                 disabled={isSubmitting}
               />
             </div>
+          </div>
+
+          {/* Подсказка о мотивации */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+            <p className="text-xs font-medium text-primary mb-1">💡 Совет по мотивации</p>
+            <p className="text-xs text-muted-foreground">
+              Дети остаются мотивированными, когда награды кажутся достижимыми. 
+              Мгновенные награды (20–40 очков) для быстрой радости, еженедельные (100–150) для среднесрочных целей, 
+              большие (300+) для долгосрочной мотивации.
+            </p>
           </div>
         </div>
 

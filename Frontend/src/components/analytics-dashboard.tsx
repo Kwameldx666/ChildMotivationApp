@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,8 +18,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
-import { ChevronLeft, ChevronRight, Filter, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Filter, Loader2, Download } from "lucide-react"
 import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
+import { toPng } from "html-to-image"
+import jsPDF from "jspdf"
 
 export default function AnalyticsDashboard() {
   const [currentChart, setCurrentChart] = useState(0)
@@ -28,6 +30,7 @@ export default function AnalyticsDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [windowDays, setWindowDays] = useState(30)
+  const exportRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     loadAnalytics()
@@ -201,34 +204,86 @@ export default function AnalyticsDashboard() {
     setCurrentChart((prev) => (prev - 1 + chartsConfig.length) % chartsConfig.length)
   }
 
+  const exportAsPng = async () => {
+    if (!exportRef.current) return
+    const dataUrl = await toPng(exportRef.current, {
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+      pixelRatio: 2,
+    })
+    const link = document.createElement("a")
+    link.href = dataUrl
+    link.download = `analytics_${windowDays}d_${new Date().toISOString().slice(0, 10)}.png`
+    link.click()
+  }
+
+  const exportAsPdf = async () => {
+    if (!exportRef.current) return
+    const dataUrl = await toPng(exportRef.current, {
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+      pixelRatio: 2,
+    })
+
+    const img = new Image()
+    img.src = dataUrl
+    await img.decode()
+
+    const pdf = new jsPDF({ orientation: "p", unit: "px", format: "a4" })
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+
+    const ratio = Math.min(pageWidth / img.width, pageHeight / img.height)
+    const imgWidth = img.width * ratio
+    const imgHeight = img.height * ratio
+    const x = (pageWidth - imgWidth) / 2
+    const y = 20
+
+    pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight)
+    pdf.save(`analytics_${windowDays}d_${new Date().toISOString().slice(0, 10)}.pdf`)
+  }
+
   return (
     <div className="space-y-6">
-      {/* Выбор периода */}
-      <div className="flex gap-2 justify-end">
-        <Button
-          variant={windowDays === 7 ? "default" : "outline"}
-          size="sm"
-          onClick={() => setWindowDays(7)}
-        >
-          7 дней
-        </Button>
-        <Button
-          variant={windowDays === 30 ? "default" : "outline"}
-          size="sm"
-          onClick={() => setWindowDays(30)}
-        >
-          30 дней
-        </Button>
-        <Button
-          variant={windowDays === 90 ? "default" : "outline"}
-          size="sm"
-          onClick={() => setWindowDays(90)}
-        >
-          90 дней
-        </Button>
+      {/* Выбор периода + экспорт */}
+      <div className="flex flex-wrap gap-2 justify-between items-center">
+        <div className="flex gap-2">
+          <Button
+            variant={windowDays === 7 ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWindowDays(7)}
+          >
+            7 дней
+          </Button>
+          <Button
+            variant={windowDays === 30 ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWindowDays(30)}
+          >
+            30 дней
+          </Button>
+          <Button
+            variant={windowDays === 90 ? "default" : "outline"}
+            size="sm"
+            onClick={() => setWindowDays(90)}
+          >
+            90 дней
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportAsPng}>
+            <Download className="w-4 h-4 mr-2" />
+            PNG
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportAsPdf}>
+            <Download className="w-4 h-4 mr-2" />
+            PDF
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div ref={exportRef} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Всего очков</CardTitle>
@@ -315,26 +370,27 @@ export default function AnalyticsDashboard() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Быстрое переключение</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {chartsConfig.map((chart, idx) => (
-              <Button
-                key={chart.id}
-                variant={currentChart === idx ? "default" : "outline"}
-                size="sm"
-                className="text-xs"
-                onClick={() => setCurrentChart(idx)}
-              >
-                {idx + 1}. {chart.title}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Быстрое переключение</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {chartsConfig.map((chart, idx) => (
+                <Button
+                  key={chart.id}
+                  variant={currentChart === idx ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => setCurrentChart(idx)}
+                >
+                  {idx + 1}. {chart.title}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

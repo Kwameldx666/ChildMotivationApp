@@ -10,8 +10,8 @@ public class FamilyMessage
     public string Content { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public bool IsRead { get; set; }
-    public Guid? MentionedTaskId { get; set; }  // Ссылка на задачу, если упоминается
-    public string? ReplyToMessageId { get; set; }  // Для ответов на сообщения
+    public Guid? MentionedTaskId { get; set; }  // Reference to task, if mentioned
+    public string? ReplyToMessageId { get; set; }  // For message replies
     
     // Navigation properties
     public User Sender { get; set; } = default!;

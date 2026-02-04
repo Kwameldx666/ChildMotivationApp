@@ -17,7 +17,7 @@ public static class PresentationExtensions
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                // Сериализация enum как строки вместо чисел
+                // Serialize enums as strings instead of numbers
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
         services.AddEndpointsApiExplorer();

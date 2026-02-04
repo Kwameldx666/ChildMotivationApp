@@ -6,6 +6,7 @@
         <UserSecretsId>6a7c427d-88d8-4c55-9754-ce4f458862d0</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0"/>
     </ItemGroup>
     <ItemGroup>

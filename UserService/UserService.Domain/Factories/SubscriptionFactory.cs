@@ -4,17 +4,25 @@ using UserService.Domain.Enums;
 namespace UserService.Domain.Factories;
 
 /// <summary>
-/// Фабрика для создания подписок с предустановленными настройками
+/// Factory for creating subscriptions with preset configurations
 /// </summary>
 public static class SubscriptionFactory
 {
     private static readonly Dictionary<SubscriptionTier, decimal> MonthlyPrices = new()
     {
         { SubscriptionTier.Free, 0 },
-        { SubscriptionTier.Basic, 4.99m },
-        { SubscriptionTier.Premium, 9.99m },
-        { SubscriptionTier.Family, 14.99m }
+        { SubscriptionTier.Basic, 299m },
+        { SubscriptionTier.Premium, 599m },
+        { SubscriptionTier.Family, 999m }
     };
+
+    /// <summary>
+    /// Creates a subscription with default settings (not bound to a user)
+    /// </summary>
+    public static UserSubscription Create(SubscriptionTier tier)
+    {
+        return CreateSubscription(Guid.Empty, tier, 1);
+    }
 
     public static UserSubscription CreateSubscription(Guid userId, SubscriptionTier tier, int durationMonths = 1)
     {
@@ -91,47 +99,47 @@ public static class SubscriptionFactory
             SubscriptionTier.Free => new SubscriptionTierInfo
             {
                 Tier = tier,
-                Name = "Бесплатный",
+                Name = "Free",
                 Price = 0,
                 Features = new[]
                 {
-                    "До 2 детей",
-                    "До 10 задач в день",
-                    "Базовые награды",
-                    "Обычная поддержка"
+                    "Up to 2 children",
+                    "Up to 10 tasks per day",
+                    "Basic rewards",
+                    "Standard support"
                 },
-                Limitations = new[] { "Без AI помощника", "Без продвинутой аналитики" }
+                Limitations = new[] { "No AI assistant", "No advanced analytics" }
             },
 
             SubscriptionTier.Basic => new SubscriptionTierInfo
             {
                 Tier = tier,
-                Name = "Базовый",
+                Name = "Basic",
                 Price = 299,
                 Features = new[]
                 {
-                    "До 5 детей",
-                    "До 50 задач в день",
-                    "AI помощник",
-                    "Все базовые награды",
-                    "Обычная поддержка"
+                    "Up to 5 children",
+                    "Up to 50 tasks per day",
+                    "AI assistant",
+                    "All basic rewards",
+                    "Standard support"
                 }
             },
 
             SubscriptionTier.Premium => new SubscriptionTierInfo
             {
                 Tier = tier,
-                Name = "Премиум",
+                Name = "Premium",
                 Price = 599,
                 Features = new[]
                 {
-                    "До 10 детей",
-                    "До 100 задач в день",
-                    "AI помощник",
-                    "Продвинутая аналитика",
-                    "Кастомные награды",
-                    "Приоритетная поддержка",
-                    "Офлайн режим"
+                    "Up to 10 children",
+                    "Up to 100 tasks per day",
+                    "AI assistant",
+                    "Advanced analytics",
+                    "Custom rewards",
+                    "Priority support",
+                    "Offline mode"
                 },
                 IsBestValue = true
             },
@@ -139,19 +147,19 @@ public static class SubscriptionFactory
             SubscriptionTier.Family => new SubscriptionTierInfo
             {
                 Tier = tier,
-                Name = "Семейный",
-                Price = 899,
+                Name = "Family",
+                Price = 999,
                 Features = new[]
                 {
-                    "Неограниченно детей",
-                    "Неограниченно задач",
-                    "AI помощник",
-                    "Продвинутая аналитика",
-                    "Кастомные награды",
-                    "Приоритетная поддержка",
-                    "Семейный доступ",
-                    "Офлайн режим",
-                    "Все премиум функции"
+                    "Unlimited children",
+                    "Unlimited tasks",
+                    "AI assistant",
+                    "Advanced analytics",
+                    "Custom rewards",
+                    "Priority support",
+                    "Family sharing",
+                    "Offline mode",
+                    "All premium features"
                 }
             },
 

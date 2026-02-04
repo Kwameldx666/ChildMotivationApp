@@ -8,7 +8,6 @@ export const STORAGE_REFRESH_TOKEN_KEY = 'familyapp_refresh_token'
 
 export interface HttpClientConfig {
   baseUrl?: string
-  getToken?: () => string | null
 }
 
 export interface RequestOptions extends RequestInit {
@@ -32,7 +31,6 @@ import { clearSession, setSession } from '@/features/auth/store/authSlice'
 import { appStore } from '@/store/appStore'
 
 const AUTH_REFRESH_PATH = '/api-gateway/auth/refresh'
-const isBrowser = typeof window !== 'undefined'
 
 interface TokenPairResponse {
   accessToken: string
@@ -41,12 +39,10 @@ interface TokenPairResponse {
 
 export class HttpClient {
   private readonly baseUrl: string
-  private readonly getToken?: () => string | null
   private refreshPromise: Promise<string | null> | null = null
 
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = config.baseUrl ?? DEFAULT_API_BASE_URL
-    this.getToken = config.getToken
   }
 
   private resolveUrl(path: string) {
@@ -82,23 +78,16 @@ export class HttpClient {
       headers.set('Content-Type', headers.get('Content-Type') ?? 'application/json')
     }
 
-    if (auth && this.getToken) {
-      const token = this.getToken()
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`)
-      } else {
-        // Dev-time hint: auth required but no token available
-        if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
-          console.warn('[http-client] Auth requested but no token available for request:', requestPath)
-          console.warn(new Error().stack)
-        }
-      }
+    if (auth && process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+      // Dev-time hint: auth requested but cookies may be missing
+      console.debug('[http-client] Auth requested; relying on HTTP-only cookies for auth:', requestPath)
     }
 
     const requestInit: RequestInit = {
       ...rest,
       headers,
       body: preparedBody,
+      credentials: rest.credentials ?? 'include',
     }
 
     const url = this.resolveUrl(requestPath)
@@ -180,35 +169,13 @@ export class HttpClient {
     return this.request<T>(path, { ...(options ?? {}), method: 'DELETE' })
   }
 
-  private resolveRefreshToken() {
-    const stateToken = appStore.getState().auth.session?.refreshToken
-    if (stateToken) return stateToken
-    return isBrowser ? localStorage.getItem(STORAGE_REFRESH_TOKEN_KEY) : null
-  }
-
-  private persistTokens(accessToken: string, refreshToken?: string | null) {
-    if (isBrowser) {
-      localStorage.setItem(STORAGE_TOKEN_KEY, accessToken)
-      if (refreshToken) {
-        localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
-      }
-    }
-  }
-
   private resetSessionState() {
     appStore.dispatch(clearSession())
-    if (isBrowser) {
-      localStorage.removeItem(STORAGE_TOKEN_KEY)
-      localStorage.removeItem(STORAGE_REFRESH_TOKEN_KEY)
-    }
   }
 
   private async refreshAccessToken(): Promise<string | null> {
     if (!this.refreshPromise) {
       this.refreshPromise = (async () => {
-        const refreshToken = this.resolveRefreshToken()
-        if (!refreshToken) return null
-
         try {
           const response = await fetch(this.resolveUrl(AUTH_REFRESH_PATH), {
             method: 'POST',
@@ -216,7 +183,6 @@ export class HttpClient {
               'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ refreshToken }),
           })
 
           if (!response.ok) return null
@@ -228,13 +194,10 @@ export class HttpClient {
           if (currentSession) {
             const nextSession = {
               ...currentSession,
-              accessToken: data.accessToken,
+              accessToken: data.accessToken ?? currentSession.accessToken,
               refreshToken: data.refreshToken ?? currentSession.refreshToken,
             }
             appStore.dispatch(setSession(nextSession))
-            this.persistTokens(nextSession.accessToken ?? '', nextSession.refreshToken)
-          } else {
-            this.persistTokens(data.accessToken, data.refreshToken ?? refreshToken)
           }
 
           return data.accessToken
@@ -257,27 +220,12 @@ export class HttpClient {
       return null
     }
 
-    const retryHeaders = new Headers(requestInit.headers as HeadersInit | undefined)
-    retryHeaders.set('Authorization', `Bearer ${newAccessToken}`)
-
     return fetch(url, {
       ...requestInit,
-      headers: retryHeaders,
     })
   }
 }
 
-// Lazy import to avoid circular dependency at module evaluation time
-const resolveAccessToken = () => {
-  const stateToken = appStore.getState().auth.session?.accessToken ?? null
-  if (stateToken) {
-    return stateToken
-  }
-
-  return typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_TOKEN_KEY)
-}
-
 export const httpClient = new HttpClient({
   baseUrl: DEFAULT_API_BASE_URL,
-  getToken: resolveAccessToken,
 })

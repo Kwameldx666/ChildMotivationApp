@@ -10,12 +10,12 @@ public class Order
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public decimal TotalAmount { get; set; }
     
-    // Поля для подтверждения выдачи награды
+    // Fields for reward delivery confirmation
     public DateTime? DeliveredAt { get; set; }
-    public string? DeliveredByUserId { get; set; } // ID родителя, который выдал награду
+    public string? DeliveredByUserId { get; set; } // ID of the parent who delivered the reward
     public DateTime? ConfirmedAt { get; set; }
-    public string? ConfirmedByUserId { get; set; } // ID ребёнка, подтвердившего получение
-    public string? DeliveryNotes { get; set; } // Комментарии к выдаче награды
+    public string? ConfirmedByUserId { get; set; } // ID of the child who confirmed receipt
+    public string? DeliveryNotes { get; set; } // Notes about reward delivery
 
     public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 }

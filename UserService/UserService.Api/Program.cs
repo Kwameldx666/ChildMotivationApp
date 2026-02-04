@@ -19,7 +19,7 @@ builder.Services.AddInfrastructure();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Сериализация enum как строки вместо чисел
+        // Serialize enums as strings instead of numbers
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 builder.Services.AddEndpointsApiExplorer();
@@ -44,6 +44,8 @@ builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy(AuthorizationConstants.UserReadPolicy,
 		policy => policy.RequireClaim(AuthorizationConstants.ScopeClaimType, AuthorizationConstants.UserReadPolicy));
+	options.AddPolicy(AuthorizationConstants.UserWritePolicy,
+		policy => policy.RequireClaim(AuthorizationConstants.ScopeClaimType, AuthorizationConstants.UserWritePolicy));
 });
 
 var app = builder.Build();

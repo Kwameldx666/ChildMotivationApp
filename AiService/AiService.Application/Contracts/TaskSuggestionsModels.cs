@@ -37,7 +37,7 @@ public sealed record TaskSuggestionsResponse(
 {
     public static TaskSuggestionsResponse Empty()
     {
-        return new TaskSuggestionsResponse(Array.Empty<TaskSuggestion>(), "Недостаточно данных для рекомендаций.",
+        return new TaskSuggestionsResponse(Array.Empty<TaskSuggestion>(), "Not enough data for recommendations.",
             Array.Empty<string>());
     }
 }

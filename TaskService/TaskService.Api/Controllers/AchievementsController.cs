@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskService.Api.Contracts.Achievements;
 using TaskService.Application.Dto.Achievements;
@@ -8,6 +9,7 @@ using TaskService.Application.Features.Achievements.Queries.GetAchievements;
 namespace TaskService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("task-service/[controller]")]
 public class AchievementsController(IMediator mediator) : ControllerBase
 {

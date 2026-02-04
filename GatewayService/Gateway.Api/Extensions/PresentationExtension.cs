@@ -18,7 +18,7 @@ internal static class PresentationExtension
         services.AddControllers()
             .AddJsonOptions(options =>
             {
-                // Сериализация enum как строки вместо чисел
+                // Serialize enums as strings instead of numbers
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
         services.AddHttpContextAccessor();
@@ -40,7 +40,7 @@ internal static class PresentationExtension
                 Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Введите: Bearer {your JWT token}"
+                Description = "Enter: Bearer {your JWT token}"
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement

@@ -44,7 +44,7 @@ public class SubmitTaskEvidenceCommandHandler : IRequestHandler<SubmitTaskEviden
 
         if (!task.RequiresEvidence)
         {
-            throw BuildValidationException("Эта задача не требует подтверждения.");
+            throw BuildValidationException("This task does not require confirmation.");
         }
 
         ValidateEvidence(task.EvidenceRequirement, request.ContentType, request.FileName);
@@ -81,23 +81,23 @@ public class SubmitTaskEvidenceCommandHandler : IRequestHandler<SubmitTaskEviden
             case TaskEvidenceRequirement.Photo:
                 if (!normalizedContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase) || !PhotoExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
-                    throw BuildValidationException("Прикрепите фотографию в форматах JPG, JPEG, PNG или WEBP.");
+                    throw BuildValidationException("Attach a photo in JPG, JPEG, PNG or WEBP format.");
                 }
                 break;
             case TaskEvidenceRequirement.Video:
                 if (!normalizedContentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase) || !VideoExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
-                    throw BuildValidationException("Прикрепите видео в форматах MP4, MOV или WEBM.");
+                    throw BuildValidationException("Attach a video in MP4, MOV or WEBM format.");
                 }
                 break;
             case TaskEvidenceRequirement.Document:
                 if (!IsDocumentContentType(normalizedContentType) || !DocumentExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
-                    throw BuildValidationException("Прикрепите документ (PDF, DOC, DOCX или TXT).");
+                    throw BuildValidationException("Attach a document (PDF, DOC, DOCX or TXT).");
                 }
                 break;
             default:
-                throw BuildValidationException("Неизвестный тип подтверждения для задачи.");
+                throw BuildValidationException("Unknown confirmation type for task.");
         }
     }
 

@@ -8,9 +8,11 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
+  createTransform,
 } from 'redux-persist'
 import createWebStorage from 'redux-persist/lib/storage/createWebStorage'
 import { authReducer } from '@/features/auth/store/authSlice'
+import type { AuthState } from '@/features/auth/types'
 
 const createPersistStorage = () => {
   if (typeof window === 'undefined') {
@@ -25,9 +27,26 @@ const createPersistStorage = () => {
 
 const storage = createPersistStorage()
 
+const authTransform = createTransform(
+  (inboundState: AuthState) => {
+    if (!inboundState.session) return inboundState
+    return {
+      ...inboundState,
+      session: {
+        ...inboundState.session,
+        accessToken: null,
+        refreshToken: null,
+      },
+    }
+  },
+  (outboundState: AuthState) => outboundState,
+  { whitelist: ['auth'] },
+)
+
 const authPersistConfig = {
   key: 'auth',
   storage,
+  transforms: [authTransform],
 }
 
 const rootReducer = combineReducers({

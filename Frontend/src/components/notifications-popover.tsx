@@ -1,0 +1,285 @@
+"use client"
+
+import { useMemo, useState } from "react"
+import {
+  Bell,
+  Check,
+  CheckCheck,
+  Gift,
+  Star,
+  Target,
+  Trophy,
+  Zap,
+  Info,
+  X,
+  Loader2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import {
+  useNotifications,
+  useUnreadNotificationsCount,
+  useMarkNotificationsRead,
+  useMarkAllNotificationsRead,
+} from "@/services/notifications-queries"
+import type { NotificationType, NotificationDto } from "@/services/notifications-service"
+
+const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
+  task_created: Target,
+  task_completed: Check,
+  task_assigned: Target,
+  reward_purchased: Gift,
+  achievement_unlocked: Trophy,
+  streak_bonus: Zap,
+  level_up: Star,
+  general: Info,
+}
+
+const NOTIFICATION_COLORS: Record<NotificationType, string> = {
+  task_created: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+  task_completed: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  task_assigned: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+  reward_purchased: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  achievement_unlocked: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
+  streak_bonus: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+  level_up: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+  general: "bg-gray-100 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
+}
+
+// Демо-уведомления для тестирования (удалить когда бэкенд будет готов)
+const DEMO_NOTIFICATIONS: NotificationDto[] = [
+  {
+    id: "1",
+    userId: "user1",
+    type: "task_completed",
+    title: "Задача выполнена!",
+    message: "Ребёнок выполнил задачу «Уборка комнаты»",
+    isRead: false,
+    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "2",
+    userId: "user1",
+    type: "streak_bonus",
+    title: "Бонус за серию! 🔥",
+    message: "7 дней подряд! Множитель очков теперь ×1.3",
+    isRead: false,
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "3",
+    userId: "user1",
+    type: "reward_purchased",
+    title: "Награда куплена",
+    message: "«Поход в кино» куплена за 150 очков",
+    isRead: true,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: "4",
+    userId: "user1",
+    type: "level_up",
+    title: "Новый уровень! ⬆️",
+    message: "Поздравляем! Достигнут 5 уровень",
+    isRead: true,
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  },
+]
+
+interface NotificationItemProps {
+  notification: NotificationDto
+  onMarkRead: (id: string) => void
+}
+
+// Простая функция для отображения времени
+function formatTimeAgo(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return "только что"
+    if (diffMins < 60) return `${diffMins} мин. назад`
+    if (diffHours < 24) return `${diffHours} ч. назад`
+    if (diffDays < 7) return `${diffDays} дн. назад`
+    return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" })
+  } catch {
+    return ""
+  }
+}
+
+function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
+  const Icon = NOTIFICATION_ICONS[notification.type] ?? Info
+  const colorClass = NOTIFICATION_COLORS[notification.type] ?? NOTIFICATION_COLORS.general
+
+  const timeAgo = useMemo(() => {
+    return formatTimeAgo(notification.createdAt)
+  }, [notification.createdAt])
+
+  return (
+    <div
+      className={cn(
+        "flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer hover:bg-muted/50",
+        !notification.isRead && "bg-primary/5"
+      )}
+      onClick={() => !notification.isRead && onMarkRead(notification.id)}
+    >
+      <div className={cn("p-2 rounded-full shrink-0", colorClass)}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className={cn("text-sm font-medium truncate", !notification.isRead && "font-semibold")}>
+            {notification.title}
+          </p>
+          {!notification.isRead && (
+            <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+          {notification.message}
+        </p>
+        <p className="text-[10px] text-muted-foreground mt-1">{timeAgo}</p>
+      </div>
+    </div>
+  )
+}
+
+export function NotificationsPopover() {
+  const [open, setOpen] = useState(false)
+  
+  // Запросы к API
+  const { data: notifications, isLoading, isError } = useNotifications()
+  const { data: unreadCount } = useUnreadNotificationsCount()
+  const markRead = useMarkNotificationsRead()
+  const markAllRead = useMarkAllNotificationsRead()
+
+  // Используем демо-данные если API недоступен
+  const displayNotifications = useMemo(() => {
+    if (isError || (!isLoading && (!notifications || notifications.length === 0))) {
+      return DEMO_NOTIFICATIONS
+    }
+    return notifications ?? []
+  }, [notifications, isLoading, isError])
+
+  const displayUnreadCount = useMemo(() => {
+    if (typeof unreadCount === "number") return unreadCount
+    return displayNotifications.filter(n => !n.isRead).length
+  }, [unreadCount, displayNotifications])
+
+  const handleMarkRead = (id: string) => {
+    markRead.mutate([id])
+  }
+
+  const handleMarkAllRead = () => {
+    markAllRead.mutate()
+  }
+
+  const unreadNotifications = displayNotifications.filter(n => !n.isRead)
+  const readNotifications = displayNotifications.filter(n => n.isRead)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          aria-label="Уведомления"
+        >
+          <Bell className="h-5 w-5" />
+          {displayUnreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center">
+              {displayUnreadCount > 9 ? "9+" : displayUnreadCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
+        <div className="flex items-center justify-between p-4 pb-2">
+          <h4 className="font-semibold">Уведомления</h4>
+          {displayUnreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={handleMarkAllRead}
+              disabled={markAllRead.isPending}
+            >
+              {markAllRead.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+              ) : (
+                <CheckCheck className="h-3 w-3 mr-1" />
+              )}
+              Прочитать все
+            </Button>
+          )}
+        </div>
+        
+        <ScrollArea className="h-[350px]">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : displayNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+              <Bell className="h-8 w-8 mb-2 opacity-50" />
+              <p className="text-sm">Нет уведомлений</p>
+            </div>
+          ) : (
+            <div className="p-2 space-y-1">
+              {unreadNotifications.length > 0 && (
+                <>
+                  <p className="text-xs font-medium text-muted-foreground px-3 py-1">
+                    Новые ({unreadNotifications.length})
+                  </p>
+                  {unreadNotifications.map(notification => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                      onMarkRead={handleMarkRead}
+                    />
+                  ))}
+                </>
+              )}
+              
+              {readNotifications.length > 0 && (
+                <>
+                  {unreadNotifications.length > 0 && (
+                    <Separator className="my-2" />
+                  )}
+                  <p className="text-xs font-medium text-muted-foreground px-3 py-1">
+                    Прочитанные
+                  </p>
+                  {readNotifications.slice(0, 5).map(notification => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                      onMarkRead={handleMarkRead}
+                    />
+                  ))}
+                  {readNotifications.length > 5 && (
+                    <p className="text-xs text-center text-muted-foreground py-2">
+                      И ещё {readNotifications.length - 5}...
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  )
+}

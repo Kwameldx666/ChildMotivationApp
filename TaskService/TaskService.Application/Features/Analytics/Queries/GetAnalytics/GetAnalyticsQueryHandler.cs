@@ -10,39 +10,39 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
     {
         var cutoffDate = DateTime.UtcNow.AddDays(-request.WindowDays);
         
-        // Получаем все задачи пользователя
+        // Get all tasks for the user
         var allTasks = await taskRepository.GetAsync(request.UserId, null, cancellationToken);
         var recentTasks = allTasks.Where(t => t.CreatedAt >= cutoffDate).ToList();
         
-        // Общая статистика
+        // Overall statistics
         var completedTasks = recentTasks.Count(t => t.Completed);
         var totalTasks = recentTasks.Count;
         var totalPoints = recentTasks.Where(t => t.Completed).Sum(t => t.RewardPoints);
         var completionRate = totalTasks > 0 ? (double)completedTasks / totalTasks * 100 : 0;
         
-        // Получаем уникальных детей
+        // Get unique children
         var activeChildren = recentTasks
             .Where(t => !string.IsNullOrEmpty(t.AssignedToUserId))
             .Select(t => t.AssignedToUserId)
             .Distinct()
             .Count();
         
-        // Активность по дням недели
+        // Activity by day of week
         var weeklyActivity = BuildWeeklyActivity(recentTasks);
         
-        // Статистика по детям
+        // Statistics by children
         var childrenStats = BuildChildrenStats(recentTasks);
         
-        // Распределение по сложности
+        // Distribution by difficulty
         var difficultyDistribution = BuildDifficultyDistribution(recentTasks);
         
-        // Прогресс по неделям
+        // Progress by week
         var weeklyProgress = BuildWeeklyProgress(recentTasks);
         
-        // Статус задач
+        // Task status
         var taskStatus = BuildTaskStatus(recentTasks);
         
-        // Тренд очков
+        // Points trend
         var pointsTrend = BuildPointsTrend(recentTasks);
         
         return new AnalyticsDto(
@@ -62,7 +62,7 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
     
     private static List<DailyActivityDto> BuildWeeklyActivity(List<Domain.Entities.TaskItem> tasks)
     {
-        var dayNames = new[] { "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс" };
+        var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
         var lastWeek = DateTime.UtcNow.AddDays(-7);
         
         return Enumerable.Range(0, 7).Select(i =>
@@ -93,7 +93,7 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
             .GroupBy(t => t.AssignedToUserId)
             .Select((g, index) => new ChildStatsDto(
                 g.Key ?? "",
-                GetChildName(g.Key ?? ""), // Можно улучшить, получив реальное имя из UserService
+                GetChildName(g.Key ?? ""), // Can be improved by getting the actual name from UserService
                 g.Where(t => t.Completed).Sum(t => t.RewardPoints),
                 g.Count(t => t.Completed),
                 g.Count(t => !t.Completed),
@@ -107,26 +107,26 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
     
     private static string GetChildName(string userId)
     {
-        // TODO: Получать реальное имя из UserService через HTTP клиент
-        // Пока используем часть ID
-        return $"Ребенок {userId[^4..]}";
+        // TODO: Get actual name from UserService via HTTP client
+        // For now using part of ID
+        return $"Child {userId[^4..]}";
     }
     
     private static List<CategoryDataDto> BuildDifficultyDistribution(List<Domain.Entities.TaskItem> tasks)
     {
         var colors = new Dictionary<int, (string Name, string Color)>
         {
-            { 1, ("Очень легко", "#10b981") },
-            { 2, ("Легко", "#3b82f6") },
-            { 3, ("Средне", "#f59e0b") },
-            { 4, ("Сложно", "#ef4444") },
-            { 5, ("Очень сложно", "#991b1b") }
+            { 1, ("Very Easy", "#10b981") },
+            { 2, ("Easy", "#3b82f6") },
+            { 3, ("Medium", "#f59e0b") },
+            { 4, ("Hard", "#ef4444") },
+            { 5, ("Very Hard", "#991b1b") }
         };
         
         return tasks
             .GroupBy(t => t.Difficulty)
             .Select(g => new CategoryDataDto(
-                colors.TryGetValue(g.Key, out var info) ? info.Name : $"Уровень {g.Key}",
+                colors.TryGetValue(g.Key, out var info) ? info.Name : $"Level {g.Key}",
                 g.Count(),
                 colors.TryGetValue(g.Key, out var color) ? color.Color : "#6b7280"
             ))
@@ -150,7 +150,7 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
             ).ToList();
             
             weeks.Add(new WeeklyProgressDto(
-                $"Нед {4 - i}",
+                $"Week {4 - i}",
                 weekTasks.Count(t => t.Completed),
                 weekTasks.Count
             ));
@@ -170,7 +170,7 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
     
     private static bool IsOverdue(Domain.Entities.TaskItem task)
     {
-        // Задача считается просроченной, если создана более 7 дней назад и не завершена
+        // Task is considered overdue if created more than 7 days ago and not completed
         return !task.Completed && 
                task.CreatedAt < DateTime.UtcNow.AddDays(-7);
     }

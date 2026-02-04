@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Sparkles, Users, Star, Check, ArrowRight } from "lucide-react"
+import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import PremiumPricing from "./premium-pricing"
 import PaymentModal from "./payment-modal"
@@ -16,6 +16,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { useCurrentSubscription, useChangeSubscription, useCancelSubscription } from "@/services/subscription-queries"
+import type { SubscriptionDto } from "@/services/subscription-service"
 
 interface SubscriptionManagerProps {
   currentTier?: "free" | "basic" | "premium" | "family"
@@ -52,20 +54,47 @@ const tierInfo = {
   }
 }
 
-export default function SubscriptionManager({ currentTier = "free", onUpgrade }: SubscriptionManagerProps) {
+export default function SubscriptionManager({ currentTier: propTier, onUpgrade }: SubscriptionManagerProps) {
   const [showPricingDialog, setShowPricingDialog] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedTier, setSelectedTier] = useState<{ id: string; name: string; price: number } | null>(null)
   const { toast } = useToast()
-  const tier = tierInfo[currentTier]
+  
+  // Загружаем реальную подписку с сервера
+  const { data: subscription, isLoading, error } = useCurrentSubscription()
+  const changeSubscription = useChangeSubscription()
+  const cancelSubscription = useCancelSubscription()
+  
+  // Используем tier из API или fallback на prop
+  const currentTier = subscription?.tier?.toLowerCase() as "free" | "basic" | "premium" | "family" ?? propTier ?? "free"
+  const tier = tierInfo[currentTier] ?? tierInfo.free
   const TierIcon = tier.icon
 
-  const handleSelectTier = (tierId: string) => {
-    if (tierId === "free") {
+  const handleSelectTier = async (tierId: string) => {
+    if (tierId === currentTier) {
       toast({
-        title: "Бесплатный тариф",
-        description: "Вы уже используете бесплатный тариф",
+        title: "Текущий тариф",
+        description: "Вы уже используете этот тариф",
       })
+      return
+    }
+
+    if (tierId === "free") {
+      // Для перехода на бесплатный - отмена подписки
+      try {
+        await cancelSubscription.mutateAsync()
+        toast({
+          title: "Подписка отменена",
+          description: "Вы перешли на бесплатный тариф",
+        })
+        onUpgrade?.("free")
+      } catch (err) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось отменить подписку",
+          variant: "destructive",
+        })
+      }
       return
     }
 
@@ -81,14 +110,58 @@ export default function SubscriptionManager({ currentTier = "free", onUpgrade }:
     }
   }
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     if (selectedTier) {
-      onUpgrade?.(selectedTier.id)
+      try {
+        await changeSubscription.mutateAsync({ tier: selectedTier.id, autoRenew: true })
+        onUpgrade?.(selectedTier.id)
+        toast({
+          title: "Подписка активирована! 🎉",
+          description: `Тариф "${selectedTier.name}" успешно подключён`,
+        })
+      } catch (err) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось активировать подписку",
+          variant: "destructive",
+        })
+      }
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    try {
+      await cancelSubscription.mutateAsync()
       toast({
-        title: "Подписка активирована! 🎉",
-        description: `Тариф "${selectedTier.name}" успешно подключён`,
+        title: "Подписка отменена",
+        description: "Вы перешли на бесплатный тариф",
+      })
+      onUpgrade?.("free")
+    } catch (err) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось отменить подписку",
+        variant: "destructive",
       })
     }
+  }
+
+  // Показываем загрузку
+  if (isLoading) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Форматируем дату окончания подписки
+  const formatEndDate = (dateStr: string | null) => {
+    if (!dateStr) return null
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
   }
 
   return (
@@ -138,15 +211,23 @@ export default function SubscriptionManager({ currentTier = "free", onUpgrade }:
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-lg border bg-card">
                   <p className="text-sm text-muted-foreground mb-1">Следующий платеж</p>
-                  <p className="font-semibold">20 февраля 2026</p>
+                  <p className="font-semibold">
+                    {subscription?.endDate ? formatEndDate(subscription.endDate) : "Бессрочно"}
+                  </p>
+                  {subscription?.daysRemaining != null && (
+                    <p className="text-xs text-muted-foreground">
+                      Осталось {subscription.daysRemaining} дн.
+                    </p>
+                  )}
                 </div>
                 <div className="p-4 rounded-lg border bg-card">
                   <p className="text-sm text-muted-foreground mb-1">Сумма</p>
                   <p className="font-semibold">
-                    {currentTier === "basic" && "$4.99"}
-                    {currentTier === "premium" && "$9.99"}
-                    {currentTier === "family" && "$14.99"}
+                    {subscription?.pricePerMonth ? `${subscription.pricePerMonth} ₽/мес` : "—"}
                   </p>
+                  {subscription?.autoRenew && (
+                    <p className="text-xs text-green-600">Автопродление вкл.</p>
+                  )}
                 </div>
               </div>
 
@@ -154,8 +235,17 @@ export default function SubscriptionManager({ currentTier = "free", onUpgrade }:
                 <Button variant="outline" onClick={() => setShowPricingDialog(true)} className="flex-1">
                   Изменить план
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  Отменить подписку
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={handleCancelSubscription}
+                  disabled={cancelSubscription.isPending}
+                >
+                  {cancelSubscription.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Отменить подписку"
+                  )}
                 </Button>
               </div>
             </>
@@ -188,17 +278,15 @@ export default function SubscriptionManager({ currentTier = "free", onUpgrade }:
       </Card>
 
       <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
-        <DialogContent className="max-w-[95vw] sm:max-w-6xl h-[85vh] p-0 gap-0 top-[10%] translate-y-0">
-          <div className="flex flex-col h-full">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-              <DialogTitle>Выберите тарифный план</DialogTitle>
-              <DialogDescription>
-                Улучшите свою подписку и получите доступ к расширенным функциям
-              </DialogDescription>
-            </DialogHeader>
-            <div className="overflow-y-auto flex-1 px-6 py-4">
-              <PremiumPricing currentTier={currentTier} onSelectTier={handleSelectTier} />
-            </div>
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-xl">Выберите план</DialogTitle>
+            <DialogDescription className="text-sm">
+              Улучшите подписку для доступа к расширенным функциям
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-6">
+            <PremiumPricing currentTier={currentTier} onSelectTier={handleSelectTier} />
           </div>
         </DialogContent>
       </Dialog>

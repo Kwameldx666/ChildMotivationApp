@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode } from "lucide-react"
+import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode, Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import SubscriptionManager from "./subscription-manager"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 interface ParentSettingsProps {
   familyName?: string | null
@@ -25,12 +26,7 @@ interface ParentSettingsProps {
 
 export default function ParentSettings({ familyName, familyCode }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
-  const [settings, setSettings] = useState({
-    notificationsEnabled: true,
-    soundEnabled: true,
-    nightModeStart: "22:00",
-    nightModeEnd: "08:00",
-  })
+  const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
 
   const [copied, setCopied] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
@@ -68,14 +64,13 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
   }
 
   const handleSettingChange = (key: string, value: any) => {
-    setSettings({ ...settings, [key]: value })
+    updateSettings({ [key]: value })
   }
 
   return (
     <div className="space-y-6">
       {/* Подписка */}
       <SubscriptionManager 
-        currentTier="free" 
         onUpgrade={(tier) => console.log("Upgrade to:", tier)}
       />
 
@@ -284,7 +279,13 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   <li>Вся статистика</li>
                   <li>Профили детей</li>
                 </ul>
-                <Button variant="destructive" className="w-full">
+                <Button 
+                  variant="destructive" 
+                  className="w-full"
+                  onClick={clearAllData}
+                  disabled={isLoading}
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Очистить все данные
                 </Button>
               </div>

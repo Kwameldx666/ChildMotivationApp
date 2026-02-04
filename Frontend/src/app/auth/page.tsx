@@ -47,7 +47,6 @@ export default function OAuthRedirectPage() {
   const providerParam = (searchParams.get("oauth_provider") ?? "google").toLowerCase() as string
   const familyCodeParam = searchParams.get("familyCode")
   const modeParam = searchParams.get("mode") as UserRole | null
-  const isPopup = window.opener !== null
 
   const [isLoading, setIsLoading] = useState(true)
   const [fatalError, setFatalError] = useState<string | null>(null)
@@ -66,6 +65,8 @@ export default function OAuthRedirectPage() {
 
   useEffect(() => {
     const processStatus = async () => {
+      const isPopup = typeof window !== 'undefined' && window.opener !== null
+      
       if (!statusParam) {
         setFatalError("Неизвестный ответ аутентификации.")
         setIsLoading(false)

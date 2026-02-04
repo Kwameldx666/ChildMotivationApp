@@ -65,6 +65,63 @@ const formatPoints = (value: number) => `${value.toLocaleString("ru-RU")} очк
 
 const resolveStatusKey = (status: OrderStatus) => (typeof status === "number" ? String(status) : status)
 
+// Категории наград по стоимости
+type RewardTier = "instant" | "medium" | "big"
+
+interface RewardTierConfig {
+  id: RewardTier
+  label: string
+  description: string
+  icon: string
+  pointsRange: string
+  minPoints: number
+  maxPoints: number
+  color: string
+  bgGradient: string
+}
+
+const REWARD_TIERS: RewardTierConfig[] = [
+  {
+    id: "instant",
+    label: "Мгновенные",
+    description: "Быстрые и легкодоступные награды",
+    icon: "⚡",
+    pointsRange: "20–40 очков",
+    minPoints: 0,
+    maxPoints: 50,
+    color: "text-emerald-600",
+    bgGradient: "from-emerald-500/10 to-green-500/10 border-emerald-500/30",
+  },
+  {
+    id: "medium",
+    label: "Еженедельные",
+    description: "Награды среднего уровня",
+    icon: "🎯",
+    pointsRange: "100–150 очков",
+    minPoints: 51,
+    maxPoints: 200,
+    color: "text-blue-600",
+    bgGradient: "from-blue-500/10 to-cyan-500/10 border-blue-500/30",
+  },
+  {
+    id: "big",
+    label: "Большие награды",
+    description: "Долгосрочные цели",
+    icon: "🏆",
+    pointsRange: "300+ очков",
+    minPoints: 201,
+    maxPoints: Infinity,
+    color: "text-purple-600",
+    bgGradient: "from-purple-500/10 to-pink-500/10 border-purple-500/30",
+  },
+]
+
+const getRewardTier = (price: number): RewardTier => {
+  if (price <= 50) return "instant"
+  if (price <= 200) return "medium"
+  return "big"
+}
+
 export default function RewardsShop({ userType }: RewardsShopProps) {
   const { toast } = useToast()
   const isParent = userType === "parent"
@@ -90,6 +147,27 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
     if (!productsQuery.data) return []
     return isParent ? productsQuery.data : productsQuery.data.filter((p) => p.isActive)
   }, [isParent, productsQuery.data])
+
+  // Группировка продуктов по категориям
+  const groupedProducts = useMemo(() => {
+    const groups: Record<RewardTier, ProductDto[]> = {
+      instant: [],
+      medium: [],
+      big: [],
+    }
+    
+    visibleProducts.forEach((product) => {
+      const tier = getRewardTier(product.price)
+      groups[tier].push(product)
+    })
+    
+    // Сортировка внутри каждой группы по цене
+    Object.keys(groups).forEach((key) => {
+      groups[key as RewardTier].sort((a, b) => a.price - b.price)
+    })
+    
+    return groups
+  }, [visibleProducts])
 
   useEffect(() => {
     if (!selectedProduct) return
@@ -223,138 +301,142 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       )
     }
 
+    // Отображаем награды по категориям
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {visibleProducts.map((product, index) => {
-          const isLowStock = product.stock < 5
-          const isOutOfStock = product.stock === 0
-          
+      <div className="space-y-12">
+        {REWARD_TIERS.map((tierConfig) => {
+          const products = groupedProducts[tierConfig.id]
+          if (products.length === 0 && !isParent) return null
+
           return (
-            <div 
-              key={product.id} 
-              className={cn(
-                "group relative overflow-hidden rounded-3xl border-2 transition-all duration-500 transform",
-                isOutOfStock 
-                  ? "border-border/30 bg-muted/20 opacity-60" 
-                  : "border-border/40 bg-gradient-to-br from-white via-slate-50/30 to-white dark:from-slate-900 dark:via-slate-800/30 dark:to-slate-900 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40 hover:-translate-y-2 hover:scale-[1.02]"
-              )}
-              style={{
-                backgroundImage: !isOutOfStock ? 'radial-gradient(circle at top right, rgba(147, 51, 234, 0.05), transparent 50%)' : undefined
-              }}
-            >
-              {/* Декоративные элементы */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
-
-              <div className="relative p-7 z-10">
-                {/* Stock badge */}
-                <div className="mb-5 flex items-center gap-2 flex-wrap">
-                  <Badge 
-                    variant="outline" 
-                    className={cn(
-                      "rounded-full px-4 py-1.5 text-xs font-bold shadow-sm backdrop-blur-sm",
-                      isOutOfStock && "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40 shadow-rose-500/20",
-                      isLowStock && !isOutOfStock && "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-amber-500/20",
-                      !isLowStock && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-500/20"
-                    )}
-                  >
-                    {isOutOfStock ? "Нет в наличии" : `${product.stock} шт.`}
+            <div key={tierConfig.id} className="space-y-6">
+              {/* Заголовок категории */}
+              <div className={`rounded-2xl border-2 p-6 ${tierConfig.bgGradient}`}>
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl">{tierConfig.icon}</div>
+                  <div className="flex-1">
+                    <h3 className={`text-2xl font-bold ${tierConfig.color}`}>{tierConfig.label}</h3>
+                    <p className="text-sm text-muted-foreground">{tierConfig.description}</p>
+                    <p className={`text-sm font-semibold mt-1 ${tierConfig.color}`}>{tierConfig.pointsRange}</p>
+                  </div>
+                  <Badge variant="outline" className="text-lg px-4 py-2">
+                    {products.length} {products.length === 1 ? "награда" : "наград"}
                   </Badge>
-                  {!product.isActive && isParent && (
-                    <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/40 shadow-sm backdrop-blur-sm">
-                      Скрыта
-                    </Badge>
-                  )}
-                  {product.isPremium && (
-                    <Badge className="rounded-full px-4 py-1.5 text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 backdrop-blur-sm">
-                      <Crown className="h-3.5 w-3.5 mr-1" />
-                      Premium
-                    </Badge>
-                  )}
-                  {product.isExclusive && (
-                    <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-sm shadow-amber-500/20 backdrop-blur-sm">
-                      Эксклюзив
-                    </Badge>
-                  )}
                 </div>
-
-                {/* Title */}
-                <h3 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors pr-20 leading-tight">
-                  {product.name}
-                </h3>
-
-                {/* Description */}
-                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px] leading-relaxed">
-                  {product.description || "Уникальная награда за достижения"}
-                </p>
-
-                {/* Price */}
-                <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/50">
-                  <div className="flex items-baseline gap-2">
-                    <Star className="h-6 w-6 text-amber-500 fill-amber-400 drop-shadow-lg" />
-                    <span className="text-4xl font-black bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow">
-                      {product.price.toLocaleString("ru-RU")}
-                    </span>
-                    <span className="text-sm text-amber-700 dark:text-amber-400 font-bold">баллов</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                {userType === "child" ? (
-                  <Button
-                    className={cn(
-                      "w-full gap-2 rounded-2xl h-14 text-base font-bold shadow-xl transition-all transform hover:scale-105",
-                      isOutOfStock 
-                        ? "bg-muted text-muted-foreground cursor-not-allowed" 
-                        : "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/50 bg-size-200 bg-pos-0 hover:bg-pos-100 transition-all duration-500"
-                    )}
-                    onClick={() => handlePurchase(product)}
-                    disabled={createOrder.isPending || isOutOfStock}
-                    style={{
-                      backgroundSize: '200% 100%',
-                    }}
-                  >
-                    {createOrder.isPending ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <ShoppingCart className="h-5 w-5" />
-                    )}
-                    {isOutOfStock ? "Недоступно" : "Обменять баллы"}
-                  </Button>
-                ) : (
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-950/30 dark:hover:to-cyan-950/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-400 transition-all duration-300 font-semibold"
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                      Править
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 gap-2 rounded-2xl h-12 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
-                      onClick={() => handleDeleteProduct(product)}
-                      disabled={pendingDeletionId === product.id}
-                    >
-                      {pendingDeletionId === product.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                      Удалить
-                    </Button>
-                  </div>
-                )}
-
-                {/* Parent info */}
-                {isParent && (
-                  <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Создано {new Date(product.createdAt).toLocaleDateString("ru-RU")}</span>
-                  </div>
-                )}
               </div>
+
+              {/* Сетка продуктов */}
+              {products.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map((product) => {
+                    const isLowStock = product.stock < 5
+                    const isOutOfStock = product.stock === 0
+
+                    return (
+                      <div
+                        key={product.id}
+                        className={cn(
+                          "group relative overflow-hidden rounded-3xl border-2 transition-all duration-500 transform",
+                          isOutOfStock
+                            ? "border-border/30 bg-muted/20 opacity-60"
+                            : "border-border/40 bg-gradient-to-br from-white via-slate-50/30 to-white dark:from-slate-900 dark:via-slate-800/30 dark:to-slate-900 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40 hover:-translate-y-2 hover:scale-[1.02]"
+                        )}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+                        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+
+                        <div className="relative p-7 z-10">
+                          <div className="mb-5 flex items-center gap-2 flex-wrap">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "rounded-full px-4 py-1.5 text-xs font-bold shadow-sm backdrop-blur-sm",
+                                isOutOfStock && "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40 shadow-rose-500/20",
+                                isLowStock && !isOutOfStock && "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-amber-500/20",
+                                !isLowStock && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-500/20"
+                              )}
+                            >
+                              {isOutOfStock ? "Нет в наличии" : `${product.stock} шт.`}
+                            </Badge>
+                            {!product.isActive && isParent && (
+                              <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/40 shadow-sm backdrop-blur-sm">
+                                Скрыта
+                              </Badge>
+                            )}
+                          </div>
+
+                          <h3 className="text-2xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors pr-20 leading-tight">
+                            {product.name}
+                          </h3>
+
+                          <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px] leading-relaxed">
+                            {product.description || "Уникальная награда за достижения"}
+                          </p>
+
+                          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/50">
+                            <div className="flex items-baseline gap-2">
+                              <Star className="h-6 w-6 text-amber-500 fill-amber-400 drop-shadow-lg" />
+                              <span className="text-4xl font-black bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow">
+                                {product.price.toLocaleString("ru-RU")}
+                              </span>
+                              <span className="text-sm text-amber-700 dark:text-amber-400 font-bold">баллов</span>
+                            </div>
+                          </div>
+
+                          {userType === "child" ? (
+                            <Button
+                              className={cn(
+                                "w-full gap-2 rounded-2xl h-14 text-base font-bold shadow-xl transition-all transform hover:scale-105",
+                                isOutOfStock
+                                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                                  : "bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/50"
+                              )}
+                              onClick={() => handlePurchase(product)}
+                              disabled={createOrder.isPending || isOutOfStock}
+                            >
+                              {createOrder.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart className="h-5 w-5" />}
+                              {isOutOfStock ? "Недоступно" : "Обменять баллы"}
+                            </Button>
+                          ) : (
+                            <div className="flex gap-3">
+                              <Button
+                                variant="outline"
+                                className="flex-1 gap-2 rounded-2xl h-12 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 dark:hover:from-blue-950/30 dark:hover:to-cyan-950/30 hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-400 transition-all duration-300 font-semibold"
+                                onClick={() => setSelectedProduct(product)}
+                              >
+                                <Edit2 className="h-4 w-4" />
+                                Править
+                              </Button>
+                              <Button
+                                variant="outline"
+                                className="flex-1 gap-2 rounded-2xl h-12 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors"
+                                onClick={() => handleDeleteProduct(product)}
+                                disabled={pendingDeletionId === product.id}
+                              >
+                                {pendingDeletionId === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                Удалить
+                              </Button>
+                            </div>
+                          )}
+
+                          {isParent && (
+                            <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+                              <span>Создано {new Date(product.createdAt).toLocaleDateString("ru-RU")}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                isParent && (
+                  <div className="rounded-2xl border-2 border-dashed border-border/40 bg-muted/5 px-6 py-8 text-center">
+                    <p className="text-sm text-muted-foreground">В этой категории пока нет наград</p>
+                  </div>
+                )
+              )}
             </div>
           )
         })}
@@ -594,61 +676,6 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
 
   return (
     <div className="space-y-10">
-      {/* Header Section */}
-      <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-gradient-to-br from-slate-950 via-purple-950 to-pink-950 px-8 py-10 text-white shadow-2xl">
-        <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-pink-500/20 blur-3xl" />
-        
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur">
-              <Gift className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/70">Магазин наград</p>
-              <h2 className="text-3xl font-bold">
-                {isParent ? "Управление каталогом" : "Обменяй баллы на награды"}
-              </h2>
-            </div>
-          </div>
-          
-          <p className="text-base text-white/80 max-w-2xl mb-6">
-            {isParent
-              ? "Редактируйте награды, управляйте запасами и мотивируйте детей достигать новых целей"
-              : "Выбирайте желанные награды и обменивайте заработанные баллы на реальные подарки"}
-          </p>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-amber-400" />
-                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Доступно</p>
-              </div>
-              <p className="text-2xl font-bold">{visibleProducts.length}</p>
-              <p className="text-xs text-white/70">наград в каталоге</p>
-            </div>
-            {userType === "child" && (
-              <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Package className="h-4 w-4 text-blue-400" />
-                  <p className="text-xs uppercase tracking-[0.3em] text-white/70">Заказы</p>
-                </div>
-                <p className="text-2xl font-bold">{ordersQuery.data?.length ?? 0}</p>
-                <p className="text-xs text-white/70">активных обменов</p>
-              </div>
-            )}
-            <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-5 py-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="h-4 w-4 text-amber-400" />
-                <p className="text-xs uppercase tracking-[0.3em] text-white/70">Информация</p>
-              </div>
-              <p className="text-sm text-white/90 font-medium">Обновлено</p>
-              <p className="text-xs text-white/70">{new Date().toLocaleDateString("ru-RU")}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Products Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
