@@ -22,6 +22,7 @@ import { useCreateProduct } from "@/services/shop-queries"
 import { useToast } from "@/hooks/use-toast"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/i18n/provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +55,7 @@ export default function ParentDashboard({
   familyEmblem,
   onLogout,
 }: ParentDashboardProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("tasks")
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
@@ -130,8 +132,8 @@ export default function ParentDashboard({
             <div className="flex items-center gap-3">
               <div className="text-3xl">{familyEmblem || "🏰"}</div>
               <div>
-                <h1 className="text-2xl font-bold">{familyName || "Моя семья"}</h1>
-                <p className="text-sm text-muted-foreground">Код семьи: {safeFamilyCode}</p>
+                <h1 className="text-2xl font-bold">{familyName || t("parentDashboard.familyNameFallback")}</h1>
+                <p className="text-sm text-muted-foreground">{t("parentDashboard.familyCodeLabel")}: {safeFamilyCode}</p>
               </div>
             </div>
           </div>
@@ -144,13 +146,13 @@ export default function ParentDashboard({
               onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
             >
               <Sparkles className="h-4 w-4" />
-              AI чат
+              {t("parentDashboard.aiChat")}
             </Button>
             <Button
               size="icon"
               className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
               onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
-              aria-label="AI чат"
+              aria-label={t("parentDashboard.aiChat")}
             >
               <Sparkles className="h-4 w-4" />
             </Button>
@@ -158,7 +160,7 @@ export default function ParentDashboard({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
                   <Avatar className="h-8 w-8">
-                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
+                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("parentDashboard.profileAvatarAlt")} />}
                     <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
                   </Avatar>
                   <span className="hidden sm:inline">{userProfile.name}</span>
@@ -168,7 +170,7 @@ export default function ParentDashboard({
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">Код семьи: {safeFamilyCode}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{t("parentDashboard.familyCodeLabel")}: {safeFamilyCode}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -179,12 +181,12 @@ export default function ParentDashboard({
                   }}
                 >
                   <User className="mr-2 h-4 w-4" />
-                  <span>Профиль</span>
+                  <span>{t("parentDashboard.profile")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Выйти</span>
+                  <span>{t("parentDashboard.logout")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -197,46 +199,46 @@ export default function ParentDashboard({
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Задачи</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.tasks")}</span>
             </TabsTrigger>
             <TabsTrigger value="rewards" className="flex items-center gap-2">
               <Gift className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Награды</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.rewards")}</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Аналитика</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.analytics")}</span>
             </TabsTrigger>
             <TabsTrigger value="children" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Дети</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.children")}</span>
             </TabsTrigger>
             <TabsTrigger value="chat" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Чат</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.chat")}</span>
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Шаблоны</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.templates")}</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Настройки</span>
+              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.settings")}</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tasks" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold">Управление задачами</h2>
-                <p className="text-sm text-muted-foreground">Создавайте и отслеживайте задачи для детей</p>
+                <h2 className="text-xl font-bold">{t("parentDashboard.sections.tasks.title")}</h2>
+                <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.tasks.subtitle")}</p>
               </div>
               <Button
                 className="gap-2"
                 onClick={() => setIsTaskModalOpen(true)}
               >
                 <Plus className="w-4 h-4" />
-                Новая задача
+                {t("parentDashboard.sections.tasks.newAction")}
               </Button>
             </div>
             <TasksList userType="parent" />
@@ -245,12 +247,12 @@ export default function ParentDashboard({
           <TabsContent value="rewards" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold">Магазин наград</h2>
-                <p className="text-sm text-muted-foreground">Создавайте награды или используйте ИИ для генерации</p>
+                <h2 className="text-xl font-bold">{t("parentDashboard.sections.rewards.title")}</h2>
+                <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.rewards.subtitle")}</p>
               </div>
               <Button className="gap-2" onClick={() => setIsRewardModalOpen(true)}>
                 <Plus className="w-4 h-4" />
-                Новая награда
+                {t("parentDashboard.sections.rewards.newAction")}
               </Button>
             </div>
             <RewardsShop userType="parent" />
@@ -258,17 +260,17 @@ export default function ParentDashboard({
 
           <TabsContent value="analytics" className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Аналитика</h2>
-              <p className="text-sm text-muted-foreground mb-4">Подробная статистика активности семьи</p>
+              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.analytics.title")}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.analytics.subtitle")}</p>
             </div>
             <AnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="children" className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Управление детьми</h2>
+              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.children.title")}</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Добавляйте, редактируйте и управляйте профилями детей
+                {t("parentDashboard.sections.children.subtitle")}
               </p>
             </div>
             <ChildrenManagement familyCode={familyCode} />
@@ -276,9 +278,9 @@ export default function ParentDashboard({
 
           <TabsContent value="templates" className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Шаблоны задач</h2>
+              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.templates.title")}</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Используйте готовые шаблоны для быстрого создания задач
+                {t("parentDashboard.sections.templates.subtitle")}
               </p>
             </div>
             <TaskTemplates />
@@ -286,8 +288,8 @@ export default function ParentDashboard({
 
           <TabsContent value="settings" className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Настройки</h2>
-              <p className="text-sm text-muted-foreground mb-4">Управляйте параметрами семьи и приложения</p>
+              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.settings.title")}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.settings.subtitle")}</p>
             </div>
             <ParentSettings familyName={familyName} familyCode={safeFamilyCode} />
           </TabsContent>
@@ -302,7 +304,7 @@ export default function ParentDashboard({
               />
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">Создайте семью для использования чата</p>
+                <p className="text-muted-foreground">{t("parentDashboard.sections.chat.empty")}</p>
               </div>
             )}
           </TabsContent>

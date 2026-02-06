@@ -32,5 +32,354 @@
     "notifications": "Notificări",
     "help": "Ajutor",
     "about": "Despre"
+  },
+  "childTaskPlanner": {
+    "title": "Calendar și planificare",
+    "subtitle": "Alege o zi și planifică sarcini — astfel e mai ușor să ții seria și să câștigi puncte.",
+    "streakLabel": "Serie: {count} zile",
+    "selectedDate": "Data selectată",
+    "taskCount": "{count} sarcini",
+    "pointsCount": "{count} puncte",
+    "dayPlan": {
+      "title": "Planul zilei",
+      "subtitle": "Ce trebuie făcut"
+    },
+    "status": {
+      "inProgress": "În lucru",
+      "free": "Liber"
+    },
+    "emptyState": "Nu există încă sarcini planificate. Adaugă idei din lista de mai jos.",
+    "possibleTasks": {
+      "title": "Sarcini posibile",
+      "subtitle": "Idei pe care le poți adăuga în plan."
+    },
+    "pointsBadge": "+{count}",
+    "pointsInline": "+{count} puncte",
+    "buttons": {
+      "planned": "În plan",
+      "schedule": "Planifică"
+    },
+    "tasks": {
+      "cleanToys": {
+        "title": "Strânge jucăriile",
+        "category": "Acasă",
+        "duration": "10 min"
+      },
+      "readPages": {
+        "title": "Citește 10 pagini",
+        "category": "Studiu",
+        "duration": "20 min"
+      },
+      "exercise": {
+        "title": "Fă exerciții",
+        "category": "Activitate",
+        "duration": "15 min"
+      },
+      "waterPlants": {
+        "title": "Udă plantele",
+        "category": "Îngrijire",
+        "duration": "8 min"
+      },
+      "helpKitchen": {
+        "title": "Ajută în bucătărie",
+        "category": "Familie",
+        "duration": "15 min"
+      }
+    }
+  },
+  "welcome": {
+    "appName": "FamilyTask",
+    "tagline": "Obiective comune — bucurie comună!",
+    "getStarted": "Începe",
+    "login": "Autentificare",
+    "subtitle": "Pentru toată familia • Durează 2 minute",
+    "slides": {
+      "tasks": {
+        "title": "Gestionează sarcinile",
+        "description": "Creează, atribuie și marchează finalizarea în familie."
+      },
+      "rewards": {
+        "title": "Câștigă recompense",
+        "description": "Câștigă puncte și schimbă-le pe premii și bonusuri."
+      },
+      "achievements": {
+        "title": "Colectează realizări",
+        "description": "Deblochează niveluri, insigne și serii pentru consistență."
+      },
+      "progress": {
+        "title": "Urmărește progresul",
+        "description": "Vezi ce s-a făcut azi și ce e planificat pentru săptămână."
+      },
+      "motivation": {
+        "title": "Menține motivația",
+        "description": "Mementouri blânde și obiective te ajută să continui."
+      },
+      "ai": {
+        "title": "Asistent AI",
+        "description": "Idei de sarcini și recompense — start rapid și mai puțină rutină."
+      }
+    }
+  },
+  "parentDashboard": {
+    "familyNameFallback": "Familia mea",
+    "familyCodeLabel": "Codul familiei",
+    "aiChat": "Chat AI",
+    "profileAvatarAlt": "Avatar profil",
+    "profile": "Profil",
+    "logout": "Deconectare",
+    "tabs": {
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "analytics": "Analitice",
+      "children": "Copii",
+      "chat": "Chat",
+      "templates": "Șabloane",
+      "settings": "Setări"
+    },
+    "sections": {
+      "tasks": {
+        "title": "Gestionarea sarcinilor",
+        "subtitle": "Creează și urmărește sarcinile pentru copii",
+        "newAction": "Sarcină nouă"
+      },
+      "rewards": {
+        "title": "Magazin de recompense",
+        "subtitle": "Creează recompense sau folosește AI pentru generare",
+        "newAction": "Recompensă nouă"
+      },
+      "analytics": {
+        "title": "Analitice",
+        "subtitle": "Statistici detaliate ale activității familiei"
+      },
+      "children": {
+        "title": "Gestionarea copiilor",
+        "subtitle": "Adaugă, editează și gestionează profilele copiilor"
+      },
+      "templates": {
+        "title": "Șabloane de sarcini",
+        "subtitle": "Folosește șabloane pentru a crea rapid sarcini"
+      },
+      "settings": {
+        "title": "Setări",
+        "subtitle": "Gestionează preferințele familiei și aplicației"
+      },
+      "chat": {
+        "empty": "Creează o familie pentru a folosi chatul"
+      }
+    }
+  },
+  "authChoice": {
+    "back": "Înapoi",
+    "title": "Bine ai venit!",
+    "subtitle": "Alege ce te aduce aici",
+    "newUser": {
+      "title": "Sunt utilizator nou",
+      "description": "Voi crea un cont și mă voi alătura FamilyQuest",
+      "bullets": {
+        "role": "✓ Voi alege un rol (părinte sau copil)",
+        "profile": "✓ Îmi completez profilul",
+        "family": "✓ Creez sau mă alătur unei familii"
+      },
+      "action": "Înregistrare"
+    },
+    "existingUser": {
+      "title": "Am deja un cont",
+      "description": "Mă voi autentifica în contul meu existent",
+      "bullets": {
+        "credentials": "✓ Voi introduce emailul și parola",
+        "profile": "✓ Mă întorc la profilul meu",
+        "continue": "✓ Continui de unde am rămas"
+      },
+      "action": "Autentificare"
+    }
+  },
+  "authScreen": {
+    "rolePrompt": "Alege un rol și completează profilul",
+    "roles": {
+      "parent": "Părinte",
+      "child": "Copil"
+    },
+    "inviteNote": "⚠️ Te alături prin link de invitație. Rolul este setat automat ca \"Copil\".",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "requiredField": "Câmp obligatoriu",
+    "age": "Vârstă",
+    "years": "ani",
+    "avatar": "Avatar",
+    "avatarAlt": "Avatar",
+    "uploadPhoto": "Încarcă fotografie",
+    "interestsTitle": "Ce îți place? *",
+    "interestsSubtitle": "Alege cel puțin un interes",
+    "interests": {
+      "sports": "Sport",
+      "music": "Muzică",
+      "art": "Desen",
+      "gaming": "Jocuri",
+      "reading": "Citit",
+      "science": "Știință",
+      "cooking": "Gătit",
+      "nature": "Natură",
+      "movies": "Filme",
+      "dancing": "Dans"
+    },
+    "familyName": "Numele familiei",
+    "familyCodeAuto": "Codul familiei se va genera automat după înregistrare.",
+    "familyCode": "Codul familiei",
+    "familyCodePlaceholder": "ABC123",
+    "submitFillRequired": "Completează câmpurile obligatorii",
+    "submitLoading": "Te rugăm să aștepți...",
+    "submitRegister": "Înregistrare",
+    "submitLogin": "Autentificare",
+    "or": "sau",
+    "oauth": {
+      "google": "Autentificare cu Google",
+      "github": "Autentificare cu GitHub",
+      "discord": "Autentificare cu Discord"
+    },
+    "switchToRegister": "Nu ai cont? Înregistrare",
+    "switchToLogin": "Ai deja cont? Autentificare",
+    "errors": {
+      "oauthProviderUnavailable": "Integrarea cu acest furnizor nu este disponibilă încă.",
+      "loginEmailPasswordRequired": "Introdu emailul și parola.",
+      "emailInvalid": "Introdu un email valid.",
+      "loginFailed": "Autentificarea a eșuat.",
+      "oauthPending": "Înregistrarea trebuie finalizată. Folosește formularul standard de înregistrare.",
+      "oauthError": "Eroare de autorizare",
+      "oauthPopupBlocked": "Permite ferestrele pop-up pentru OAuth sau folosește înregistrarea standard.",
+      "oauthCancelled": "Autorizare anulată",
+      "oauthStartFailed": "Nu am putut începe autentificarea cu furnizorul.",
+      "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere.",
+      "nameLastNameRequired": "Introdu prenumele și numele.",
+      "familyNameRequired": "Introdu numele familiei.",
+      "familyCodeRequired": "Introdu codul familiei.",
+      "interestsRequired": "Alege cel puțin un interes.",
+      "ageInvalid": "Vârsta trebuie să fie un număr.",
+      "registerFailed": "Înregistrarea a eșuat."
+    },
+    "info": {
+      "registerSuccess": "Înregistrare reușită! Autentifică-te folosind datele tale."
+    }
+  },
+  "rewardsShop": {
+    "errors": {
+      "loadTitle": "Eroare la încărcare",
+      "loadProducts": "Nu s-au putut încărca produsele din magazin",
+      "loadOrders": "Nu s-au putut încărca comenzile"
+    },
+    "empty": {
+      "title": "Magazinul este gol",
+      "parentHint": "Adaugă prima recompensă pentru a motiva copilul",
+      "childHint": "Nu sunt recompense disponibile încă. Vor apărea în curând!"
+    },
+    "emptyCategory": "Nu există încă recompense în această categorie",
+    "stock": {
+      "outOfStock": "Stoc epuizat",
+      "inStock": "{count} buc.",
+      "hidden": "Ascunsă"
+    },
+    "fallbackDescription": "O recompensă unică pentru realizări",
+    "pointsShort": "puncte",
+    "rewardCount": {
+      "one": "recompensă",
+      "few": "recompense",
+      "many": "recompense",
+      "other": "recompense"
+    },
+    "actions": {
+      "unavailable": "Indisponibil",
+      "exchange": "Schimbă puncte",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "confirming": "Se confirmă...",
+      "confirmDelivery": "Confirmă livrarea recompensei",
+      "confirmReceipt": "Confirmă primirea",
+      "saving": "Se salvează...",
+      "saveChanges": "Salvează modificările"
+    },
+    "createdAt": "Creat {date}",
+    "catalog": {
+      "title": "Catalog de recompense",
+      "parentSubtitle": "Editează recompensele și gestionează stocul",
+      "childSubtitle": "Alege și schimbă puncte pentru cadouri dorite"
+    },
+    "orders": {
+      "title": "Schimburile mele",
+      "subtitle": "Istoricul schimburilor de puncte pe recompense",
+      "emptyTitle": "Nu există comenzi",
+      "emptySubtitle": "Schimbă punctele câștigate pe recompense din catalog",
+      "orderNumber": "Comanda #{id}",
+      "itemsCount": "{count} poziții",
+      "parentNote": "Comentariul părintelui:"
+    },
+    "status": {
+      "pending": "În așteptarea plății",
+      "paid": "Plătit",
+      "awaitingDelivery": "În așteptarea livrării",
+      "delivered": "Recompensă livrată",
+      "confirmed": "Primire confirmată",
+      "completed": "Finalizat",
+      "cancelled": "Anulat",
+      "unknown": "Stare necunoscută"
+    },
+    "quantityShort": "{count} buc.",
+    "unitPrice": "{value} per buc.",
+    "toasts": {
+      "productUnavailable": {
+        "title": "Produs indisponibil",
+        "description": "Acest produs nu este în stoc."
+      },
+      "orderCreated": {
+        "title": "Comanda a fost creată",
+        "description": "{name} a fost adăugat la comenzile tale"
+      },
+      "orderFailed": {
+        "title": "Nu s-a putut crea comanda"
+      },
+      "tryAgain": "Încearcă din nou",
+      "rewardDeleted": "Recompensa a fost ștearsă",
+      "rewardDeleteFailed": {
+        "title": "Nu s-a putut șterge recompensa"
+      },
+      "rewardNameRequired": "Introdu numele recompensei",
+      "rewardUpdated": "Recompensa a fost actualizată",
+      "rewardUpdateFailed": {
+        "title": "Nu s-a putut actualiza recompensa"
+      },
+      "success": "Succes!",
+      "deliveryConfirmed": "Ai marcat recompensa ca livrată",
+      "deliveryFailed": "Nu s-a putut confirma livrarea recompensei",
+      "receiptConfirmed": "Ai confirmat primirea recompensei",
+      "receiptFailed": "Nu s-a putut confirma primirea recompensei"
+    },
+    "confirmDelete": "Ștergi recompensa \"{name}\"?",
+    "edit": {
+      "title": "Editează recompensa",
+      "subtitle": "Actualizează informațiile, prețul sau disponibilitatea",
+      "name": "Numele recompensei",
+      "namePlaceholder": "De ex.: Ieșire la cinema",
+      "description": "Descriere",
+      "descriptionPlaceholder": "Descrie recompensa...",
+      "price": "Preț (puncte)",
+      "stock": "Cantitate",
+      "activeTitle": "Afișează în magazin",
+      "activeHint": "Recompensa va fi vizibilă în catalog pentru copii"
+    },
+    "tiers": {
+      "instant": {
+        "label": "Recompense instant",
+        "description": "Recompense rapide și ușor de obținut",
+        "range": "20-40 puncte"
+      },
+      "medium": {
+        "label": "Recompense săptămânale",
+        "description": "Recompense de nivel mediu",
+        "range": "100-150 puncte"
+      },
+      "big": {
+        "label": "Recompense mari",
+        "description": "Obiective pe termen lung",
+        "range": "300+ puncte"
+      }
+    }
   }
 }

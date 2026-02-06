@@ -291,6 +291,60 @@
     "suggestions": "Предложения",
     "actions": "Рекомендуемые действия"
   },
+  "childTaskPlanner": {
+    "title": "Календарь и планирование",
+    "subtitle": "Выбирай день и планируй задания — так легче держать серию и зарабатывать очки.",
+    "streakLabel": "Серия: {count} дней",
+    "selectedDate": "Выбранная дата",
+    "taskCount": "{count} задач",
+    "pointsCount": "{count} очков",
+    "dayPlan": {
+      "title": "План на день",
+      "subtitle": "Что нужно выполнить"
+    },
+    "status": {
+      "inProgress": "В работе",
+      "free": "Свободно"
+    },
+    "emptyState": "Пока нет запланированных задач. Добавь идеи из списка ниже.",
+    "possibleTasks": {
+      "title": "Возможные задания",
+      "subtitle": "Идеи, которые можно добавить в план."
+    },
+    "pointsBadge": "+{count}",
+    "pointsInline": "+{count} очков",
+    "buttons": {
+      "planned": "В плане",
+      "schedule": "Запланировать"
+    },
+    "tasks": {
+      "cleanToys": {
+        "title": "Убрать игрушки",
+        "category": "Дом",
+        "duration": "10 мин"
+      },
+      "readPages": {
+        "title": "Прочитать 10 страниц",
+        "category": "Учёба",
+        "duration": "20 мин"
+      },
+      "exercise": {
+        "title": "Сделать зарядку",
+        "category": "Активность",
+        "duration": "15 мин"
+      },
+      "waterPlants": {
+        "title": "Полить цветы",
+        "category": "Забота",
+        "duration": "8 мин"
+      },
+      "helpKitchen": {
+        "title": "Помочь на кухне",
+        "category": "Семья",
+        "duration": "15 мин"
+      }
+    }
+  },
   "errors": {
     "networkError": "Ошибка сети. Проверьте подключение.",
     "serverError": "Ошибка сервера. Попробуйте позже.",
@@ -299,5 +353,300 @@
     "notFound": "Не найдено.",
     "validationError": "Проверьте введённые данные.",
     "unknownError": "Что-то пошло не так."
+  },
+  "welcome": {
+    "appName": "FamilyTask",
+    "tagline": "Общие цели — общая радость!",
+    "getStarted": "Начать",
+    "login": "Войти",
+    "subtitle": "Для всей семьи • Займёт 2 минуты",
+    "slides": {
+      "tasks": {
+        "title": "Управляй задачами",
+        "description": "Создавай, назначай и отмечай выполнение всей семьёй."
+      },
+      "rewards": {
+        "title": "Получай награды",
+        "description": "Зарабатывай очки и обменивай их на призы и бонусы."
+      },
+      "achievements": {
+        "title": "Собирай достижения",
+        "description": "Открывай уровни, бейджи и серии за регулярность."
+      },
+      "progress": {
+        "title": "Следи за прогрессом",
+        "description": "Понимай, что сделано сегодня и что в планах на неделю."
+      },
+      "motivation": {
+        "title": "Поддерживай мотивацию",
+        "description": "Мягкие подсказки и цели помогают не бросать начатое."
+      },
+      "ai": {
+        "title": "AI-помощник",
+        "description": "Идеи задач и наград — быстрее старт и меньше рутины."
+      }
+    }
+  },
+  "parentDashboard": {
+    "familyNameFallback": "Моя семья",
+    "familyCodeLabel": "Код семьи",
+    "aiChat": "AI чат",
+    "profileAvatarAlt": "Аватар профиля",
+    "profile": "Профиль",
+    "logout": "Выйти",
+    "tabs": {
+      "tasks": "Задачи",
+      "rewards": "Награды",
+      "analytics": "Аналитика",
+      "children": "Дети",
+      "chat": "Чат",
+      "templates": "Шаблоны",
+      "settings": "Настройки"
+    },
+    "sections": {
+      "tasks": {
+        "title": "Управление задачами",
+        "subtitle": "Создавайте и отслеживайте задачи для детей",
+        "newAction": "Новая задача"
+      },
+      "rewards": {
+        "title": "Магазин наград",
+        "subtitle": "Создавайте награды или используйте ИИ для генерации",
+        "newAction": "Новая награда"
+      },
+      "analytics": {
+        "title": "Аналитика",
+        "subtitle": "Подробная статистика активности семьи"
+      },
+      "children": {
+        "title": "Управление детьми",
+        "subtitle": "Добавляйте, редактируйте и управляйте профилями детей"
+      },
+      "templates": {
+        "title": "Шаблоны задач",
+        "subtitle": "Используйте готовые шаблоны для быстрого создания задач"
+      },
+      "settings": {
+        "title": "Настройки",
+        "subtitle": "Управляйте параметрами семьи и приложения"
+      },
+      "chat": {
+        "empty": "Создайте семью для использования чата"
+      }
+    }
+  },
+  "authChoice": {
+    "back": "Назад",
+    "title": "Добро пожаловать!",
+    "subtitle": "Выберите, что вас привело сюда",
+    "newUser": {
+      "title": "Я новый пользователь",
+      "description": "Создам новый аккаунт и присоединюсь к FamilyQuest",
+      "bullets": {
+        "role": "✓ Выберу роль (родитель или ребёнок)",
+        "profile": "✓ Заполню свой профиль",
+        "family": "✓ Создам или присоединюсь к семье"
+      },
+      "action": "Зарегистрироваться"
+    },
+    "existingUser": {
+      "title": "У меня уже есть аккаунт",
+      "description": "Войду в свой существующий аккаунт",
+      "bullets": {
+        "credentials": "✓ Введу свой email и пароль",
+        "profile": "✓ Вернусь к своему профилю",
+        "continue": "✓ Продолжу с того же места"
+      },
+      "action": "Войти"
+    }
+  },
+  "authScreen": {
+    "rolePrompt": "Выберите роль и заполните профиль",
+    "roles": {
+      "parent": "Родитель",
+      "child": "Ребёнок"
+    },
+    "inviteNote": "⚠️ Вы присоединяетесь по ссылке-приглашению. Роль автоматически установлена как \"Ребёнок\"",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "requiredField": "Обязательное поле",
+    "age": "Возраст",
+    "years": "лет",
+    "avatar": "Аватар",
+    "avatarAlt": "Аватар",
+    "uploadPhoto": "Загрузить фото",
+    "interestsTitle": "Что тебе нравится? *",
+    "interestsSubtitle": "Выбери минимум один интерес",
+    "interests": {
+      "sports": "Спорт",
+      "music": "Музыка",
+      "art": "Рисование",
+      "gaming": "Игры",
+      "reading": "Чтение",
+      "science": "Наука",
+      "cooking": "Кулинария",
+      "nature": "Природа",
+      "movies": "Кино",
+      "dancing": "Танцы"
+    },
+    "familyName": "Название семьи",
+    "familyCodeAuto": "Код семьи создастся автоматически после регистрации.",
+    "familyCode": "Код семьи",
+    "familyCodePlaceholder": "ABC123",
+    "submitFillRequired": "Заполните обязательные поля",
+    "submitLoading": "Подождите...",
+    "submitRegister": "Зарегистрироваться",
+    "submitLogin": "Войти",
+    "or": "или",
+    "oauth": {
+      "google": "Войти через Google",
+      "github": "Войти через GitHub",
+      "discord": "Войти через Discord"
+    },
+    "switchToRegister": "Нет аккаунта? Регистрация",
+    "switchToLogin": "Уже есть аккаунт? Войти",
+    "errors": {
+      "oauthProviderUnavailable": "Интеграция с выбранным провайдером ещё не доступна.",
+      "loginEmailPasswordRequired": "Введите email и пароль.",
+      "emailInvalid": "Введите корректный email.",
+      "loginFailed": "Не удалось войти.",
+      "oauthPending": "Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.",
+      "oauthError": "Ошибка авторизации",
+      "oauthPopupBlocked": "Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.",
+      "oauthCancelled": "Авторизация отменена",
+      "oauthStartFailed": "Не удалось начать вход через провайдера.",
+      "passwordTooShort": "Пароль должен быть минимум 6 символов.",
+      "nameLastNameRequired": "Введите имя и фамилию.",
+      "familyNameRequired": "Введите название семьи.",
+      "familyCodeRequired": "Введите код семьи.",
+      "interestsRequired": "Выбери хотя бы один интерес.",
+      "ageInvalid": "Возраст должен быть числом.",
+      "registerFailed": "Не удалось зарегистрироваться."
+    },
+    "info": {
+      "registerSuccess": "Регистрация прошла успешно! Войдите, используя указанные данные."
+    }
+  },
+  "rewardsShop": {
+    "errors": {
+      "loadTitle": "Ошибка загрузки",
+      "loadProducts": "Не удалось загрузить товары магазина",
+      "loadOrders": "Не удалось загрузить заказы"
+    },
+    "empty": {
+      "title": "Магазин пуст",
+      "parentHint": "Добавьте первую награду, чтобы начать мотивировать ребёнка",
+      "childHint": "Пока нет доступных наград. Скоро появятся новые!"
+    },
+    "emptyCategory": "В этой категории пока нет наград",
+    "stock": {
+      "outOfStock": "Нет в наличии",
+      "inStock": "{count} шт.",
+      "hidden": "Скрыта"
+    },
+    "fallbackDescription": "Уникальная награда за достижения",
+    "pointsShort": "баллов",
+    "rewardCount": {
+      "one": "награда",
+      "few": "награды",
+      "many": "наград",
+      "other": "наград"
+    },
+    "actions": {
+      "unavailable": "Недоступно",
+      "exchange": "Обменять баллы",
+      "edit": "Править",
+      "delete": "Удалить",
+      "confirming": "Подтверждение...",
+      "confirmDelivery": "Подтвердить выдачу награды",
+      "confirmReceipt": "Подтвердить получение",
+      "saving": "Сохранение...",
+      "saveChanges": "Сохранить изменения"
+    },
+    "createdAt": "Создано {date}",
+    "catalog": {
+      "title": "Каталог наград",
+      "parentSubtitle": "Редактируйте награды и управляйте запасами",
+      "childSubtitle": "Выбирайте и обменивайте баллы на желанные подарки"
+    },
+    "orders": {
+      "title": "Мои обмены",
+      "subtitle": "История обмена баллов на награды",
+      "emptyTitle": "Нет заказов",
+      "emptySubtitle": "Обменивайте заработанные баллы на награды из каталога",
+      "orderNumber": "Заказ #{id}",
+      "itemsCount": "{count} позиций",
+      "parentNote": "Комментарий родителя:"
+    },
+    "status": {
+      "pending": "Ожидает оплаты",
+      "paid": "Оплачен",
+      "awaitingDelivery": "Ожидает выдачи",
+      "delivered": "Награда выдана",
+      "confirmed": "Получение подтверждено",
+      "completed": "Завершён",
+      "cancelled": "Отменён",
+      "unknown": "Статус неизвестен"
+    },
+    "quantityShort": "{count} шт.",
+    "unitPrice": "{value} за шт.",
+    "toasts": {
+      "productUnavailable": {
+        "title": "Товар недоступен",
+        "description": "Этого товара нет в наличии."
+      },
+      "orderCreated": {
+        "title": "Заказ создан",
+        "description": "{name} добавлен в ваши заказы"
+      },
+      "orderFailed": {
+        "title": "Не удалось создать заказ"
+      },
+      "tryAgain": "Попробуйте ещё раз",
+      "rewardDeleted": "Награда удалена",
+      "rewardDeleteFailed": {
+        "title": "Не удалось удалить награду"
+      },
+      "rewardNameRequired": "Введите название награды",
+      "rewardUpdated": "Награда обновлена",
+      "rewardUpdateFailed": {
+        "title": "Не удалось обновить награду"
+      },
+      "success": "Успешно!",
+      "deliveryConfirmed": "Вы отметили, что награда выдана",
+      "deliveryFailed": "Не удалось подтвердить выдачу награды",
+      "receiptConfirmed": "Вы подтвердили получение награды",
+      "receiptFailed": "Не удалось подтвердить получение награды"
+    },
+    "confirmDelete": "Удалить награду «{name}»?",
+    "edit": {
+      "title": "Редактировать награду",
+      "subtitle": "Обновите информацию о награде, стоимость или доступность",
+      "name": "Название награды",
+      "namePlaceholder": "Например: Поход в кино",
+      "description": "Описание",
+      "descriptionPlaceholder": "Опишите награду подробнее...",
+      "price": "Стоимость (баллы)",
+      "stock": "Количество",
+      "activeTitle": "Отображать в магазине",
+      "activeHint": "Награда будет видна в каталоге для детей"
+    },
+    "tiers": {
+      "instant": {
+        "label": "Мгновенные",
+        "description": "Быстрые и легкодоступные награды",
+        "range": "20–40 очков"
+      },
+      "medium": {
+        "label": "Еженедельные",
+        "description": "Награды среднего уровня",
+        "range": "100–150 очков"
+      },
+      "big": {
+        "label": "Большие награды",
+        "description": "Долгосрочные цели",
+        "range": "300+ очков"
+      }
+    }
   }
 }

@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider"
 import { ArrowLeft, Plus } from "lucide-react"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { openOAuthPopup } from "@/utils/oauth-popup"
+import { useTranslation } from "@/i18n/provider"
 
 
 
@@ -23,18 +24,6 @@ interface AuthScreenProps {
 
 const AVATARS = ["🙂", "😎", "🤖", "🦊", "🐻", "🐼", "🐯", "🦁", "🐸", "🐵"] as const
 const FAMILY_EMBLEMS = ["🏠", "🌟", "🍀", "🔥", "🎯", "💎", "🧩", "🚀"] as const
-const INTERESTS = [
-  { id: 'sports', label: 'Спорт', emoji: '⚽' },
-  { id: 'music', label: 'Музыка', emoji: '🎵' },
-  { id: 'art', label: 'Рисование', emoji: '🎨' },
-  { id: 'gaming', label: 'Игры', emoji: '🎮' },
-  { id: 'reading', label: 'Чтение', emoji: '📚' },
-  { id: 'science', label: 'Наука', emoji: '🔬' },
-  { id: 'cooking', label: 'Кулинария', emoji: '🍳' },
-  { id: 'nature', label: 'Природа', emoji: '🌳' },
-  { id: 'movies', label: 'Кино', emoji: '🎬' },
-  { id: 'dancing', label: 'Танцы', emoji: '💃' },
-] as const
 function GoogleIcon(props: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={props.className} aria-hidden="true">
@@ -100,6 +89,7 @@ function GitHubIcon(props: { className?: string }) {
 }
 
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [role, setRole] = useState<UserRole>("parent")
   const [isJoiningByInvite, setIsJoiningByInvite] = useState(false) // Блокировка выбора роли
@@ -121,6 +111,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+
+  const interestsOptions = useMemo(() => [
+    { id: "sports", label: t("authScreen.interests.sports"), emoji: "⚽" },
+    { id: "music", label: t("authScreen.interests.music"), emoji: "🎵" },
+    { id: "art", label: t("authScreen.interests.art"), emoji: "🎨" },
+    { id: "gaming", label: t("authScreen.interests.gaming"), emoji: "🎮" },
+    { id: "reading", label: t("authScreen.interests.reading"), emoji: "📚" },
+    { id: "science", label: t("authScreen.interests.science"), emoji: "🔬" },
+    { id: "cooking", label: t("authScreen.interests.cooking"), emoji: "🍳" },
+    { id: "nature", label: t("authScreen.interests.nature"), emoji: "🌳" },
+    { id: "movies", label: t("authScreen.interests.movies"), emoji: "🎬" },
+    { id: "dancing", label: t("authScreen.interests.dancing"), emoji: "💃" },
+  ], [t])
 
   // UX: track user interaction to avoid showing validation errors immediately
   const [submitAttempted, setSubmitAttempted] = useState(false)
@@ -171,7 +174,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       return 'discord'
     }
 
-    throw new Error('Интеграция с выбранным провайдером ещё не доступна.')
+    throw new Error(t("authScreen.errors.oauthProviderUnavailable"))
   }
 
   // Client-side: disable register submit until required fields are valid
@@ -204,12 +207,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setSubmitAttempted(true)
 
     if (!email || !password) {
-      setError("Введите email и пароль.")
+      setError(t("authScreen.errors.loginEmailPasswordRequired"))
       return
     }
 
     if (!isValidEmail(email)) {
-      setError("Введите корректный email.")
+      setError(t("authScreen.errors.emailInvalid"))
       return
     }
 
@@ -218,7 +221,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       const session = await authApi.login({ email, password })
       onAuth(session)
     } catch (serviceError) {
-      setError(mapApiError(serviceError, "Не удалось войти."))
+      setError(mapApiError(serviceError, t("authScreen.errors.loginFailed")))
     } finally {
       setIsLoading(false)
     }
@@ -243,17 +246,17 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
         onAuth(result.session)
       } else if (result.status === 'pending') {
         // Для pending показываем сообщение что нужно завершить регистрацию
-        setError("Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.")
+        setError(t("authScreen.errors.oauthPending"))
       } else if (result.status === 'error') {
-        setError(result.error || 'Ошибка авторизации')
+        setError(result.error || t("authScreen.errors.oauthError"))
       }
     } catch (serviceError: any) {
       if (serviceError.message?.includes('всплывающие окна')) {
-        setError("Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.")
+        setError(t("authScreen.errors.oauthPopupBlocked"))
       } else if (serviceError.message?.includes('закрыто')) {
-        setError("Авторизация отменена")
+        setError(t("authScreen.errors.oauthCancelled"))
       } else {
-        setError(mapApiError(serviceError, "Не удалось начать вход через провайдера."))
+        setError(mapApiError(serviceError, t("authScreen.errors.oauthStartFailed")))
       }
     } finally {
       setIsLoading(false)
@@ -266,42 +269,42 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setSubmitAttempted(true)
 
     if (!email || !password) {
-      setError("Введите email и пароль.")
+      setError(t("authScreen.errors.loginEmailPasswordRequired"))
       return
     }
     if (!isValidEmail(email)) {
-      setError("Введите корректный email.")
+      setError(t("authScreen.errors.emailInvalid"))
       return
     }
     if (password.length < 6) {
-      setError("Пароль должен быть минимум 6 символов.")
+      setError(t("authScreen.errors.passwordTooShort"))
       return
     }
 
     if (!name.trim() || !lastName.trim()) {
-      setError("Введите имя и фамилию.")
+      setError(t("authScreen.errors.nameLastNameRequired"))
       return
     }
 
     if (role === "parent") {
       if (!familyName.trim()) {
-        setError("Введите название семьи.")
+        setError(t("authScreen.errors.familyNameRequired"))
         return
       }
     } else {
       if (!childFamilyCode.trim()) {
-        setError("Введите код семьи.")
+        setError(t("authScreen.errors.familyCodeRequired"))
         return
       }
       if (interests.length === 0) {
-        setError("Выбери хотя бы один интерес.")
+        setError(t("authScreen.errors.interestsRequired"))
         return
       }
     }
 
     const parsedAge = age.trim() ? Number(age) : undefined
     if (role === "child" && age.trim() && (Number.isNaN(parsedAge) || parsedAge! < 1 || parsedAge! > 120)) {
-      setError("Возраст должен быть числом.")
+      setError(t("authScreen.errors.ageInvalid"))
       return
     }
 
@@ -337,7 +340,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
           },
         })
       }
-      setInfo("Регистрация прошла успешно! Войдите, используя указанные данные.")
+      setInfo(t("authScreen.info.registerSuccess"))
       setMode("login")
       setError(null)
       setSubmitAttempted(false)
@@ -348,7 +351,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       setChildFamilyCodeTouched(false)
       setAgeTouched(false) 
     } catch (serviceError) {
-      setError(mapApiError(serviceError, "Не удалось зарегистрироваться."))
+      setError(mapApiError(serviceError, t("authScreen.errors.registerFailed")))
     } finally {
       setIsLoading(false)
     }
@@ -369,19 +372,21 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
             className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Назад
+            {t("common.back")}
           </Button>
 
           {(mode === "login" || mode === "register") && (
             <>
               <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{mode === "login" ? "Вход" : "Регистрация"}</h2>
-                <p className="text-sm text-gray-600 font-medium">FamilyQuest</p>
+                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  {mode === "login" ? t("auth.signIn") : t("auth.signUp")}
+                </h2>
+                <p className="text-sm text-gray-600 font-medium">{t("welcome.appName")}</p>
               </div>
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Email</Label>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("auth.email")}</Label>
                   <Input 
                     type="email" 
                     value={email} 
@@ -391,10 +396,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     aria-invalid={(emailTouched || submitAttempted) && !isValidEmail(email)}
                     className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                   />
-                  {(emailTouched || submitAttempted) && !isValidEmail(email) && <p className="text-xs text-destructive mt-1">Введите корректный email</p>}
+                  {(emailTouched || submitAttempted) && !isValidEmail(email) && (
+                    <p className="text-xs text-destructive mt-1">{t("authScreen.errors.emailInvalid")}</p>
+                  )}
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Пароль</Label>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("auth.password")}</Label>
                   <Input
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -407,7 +414,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 {mode === "register" && (
                   <>
                     <div className="text-center mb-2">
-                      <p className="text-sm font-semibold text-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg">Выберите роль и заполните профиль</p>
+                      <p className="text-sm font-semibold text-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg">
+                        {t("authScreen.rolePrompt")}
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -417,7 +426,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         onClick={() => setRole("parent")}
                         disabled={isJoiningByInvite}
                       >
-                        Родитель
+                        {t("authScreen.roles.parent")}
                       </Button>
                       <Button
                         type="button"
@@ -425,19 +434,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         onClick={() => setRole("child")}
                         disabled={isJoiningByInvite}
                       >
-                        Ребёнок
+                        {t("authScreen.roles.child")}
                       </Button>
                     </div>
                     
                     {isJoiningByInvite && (
                       <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded-lg">
-                        ⚠️ Вы присоединяетесь по ссылке-приглашению. Роль автоматически установлена как "Ребёнок"
+                        {t("authScreen.inviteNote")}
                       </p>
                     )}
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Имя</Label>
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.firstName")}</Label>
                         <Input 
                           required 
                           aria-invalid={(nameTouched || submitAttempted) && !name.trim()} 
@@ -446,10 +455,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           onBlur={() => setNameTouched(true)}
                           className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                         />
-                        {(nameTouched || submitAttempted) && !name.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        {(nameTouched || submitAttempted) && !name.trim() && (
+                          <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
+                        )}
                       </div>
                       <div>
-                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Фамилия</Label>
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.lastName")}</Label>
                         <Input 
                           required 
                           aria-invalid={(lastNameTouched || submitAttempted) && !lastName.trim()} 
@@ -458,7 +469,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           onBlur={() => setLastNameTouched(true)}
                           className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                         />
-                        {(lastNameTouched || submitAttempted) && !lastName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        {(lastNameTouched || submitAttempted) && !lastName.trim() && (
+                          <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
+                        )}
                       </div>
                     </div>
 
@@ -466,11 +479,11 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       <>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.age")}</Label>
                             <div className="pt-2 pb-1">
                               <div className="flex justify-between items-center mb-3">
                                 <span className="text-2xl font-bold text-purple-600">{age || '5'}</span>
-                                <span className="text-xs text-gray-500">лет</span>
+                                <span className="text-xs text-gray-500">{t("authScreen.years")}</span>
                               </div>
                               <Slider
                                 min={5}
@@ -490,12 +503,12 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                             </div>
                           </div>
                           <div>
-                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.avatar")}</Label>
                             <div className="flex items-center gap-3">
                               {/* Превью аватара */}
                               <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
                                 {avatar.startsWith('data:') ? (
-                                  <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+                                  <img src={avatar} alt={t("authScreen.avatarAlt")} className="w-full h-full object-cover" />
                                 ) : (
                                   <span className="text-3xl">{avatar}</span>
                                 )}
@@ -526,7 +539,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                   </svg>
-                                  <span className="text-sm">Загрузить фото</span>
+                                  <span className="text-sm">{t("authScreen.uploadPhoto")}</span>
                                 </label>
                               </div>
                             </div>
@@ -535,10 +548,10 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
                         {/* Минималистичный выбор интересов */}
                         <div>
-                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Что тебе нравится? *</Label>
-                          <p className="text-xs text-gray-600 mb-2">Выбери минимум один интерес</p>
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.interestsTitle")}</Label>
+                          <p className="text-xs text-gray-600 mb-2">{t("authScreen.interestsSubtitle")}</p>
                           <div className="grid grid-cols-2 gap-2">
-                            {INTERESTS.map((interest) => (
+                            {interestsOptions.map((interest) => (
                               <label
                                 key={interest.id}
                                 className={`flex items-center gap-2 p-2 rounded-lg border-2 cursor-pointer transition-all ${
@@ -565,7 +578,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                             ))}
                           </div>
                           {(submitAttempted) && interests.length === 0 && (
-                            <p className="text-xs text-destructive mt-1">Выбери хотя бы один интерес</p>
+                            <p className="text-xs text-destructive mt-1">{t("authScreen.errors.interestsRequired")}</p>
                           )}
                         </div>
                       </>
@@ -574,7 +587,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     {role === "parent" ? (
                       <>
                         <div>
-                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Название семьи</Label>
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyName")}</Label>
                           <Input 
                             required 
                             aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} 
@@ -583,17 +596,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                             onBlur={() => setFamilyNameTouched(true)}
                             className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                           />
-                          {(familyNameTouched || submitAttempted) && !familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                          {(familyNameTouched || submitAttempted) && !familyName.trim() && (
+                            <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
+                          )}
                         </div>
                         
                         {/* Аватар для родителя */}
                         <div>
-                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.avatar")}</Label>
                           <div className="flex items-center gap-3">
                             {/* Превью аватара */}
                             <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
                               {avatar.startsWith('data:') ? (
-                                <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+                                <img src={avatar} alt={t("authScreen.avatarAlt")} className="w-full h-full object-cover" />
                               ) : (
                                 <span className="text-3xl">{avatar}</span>
                               )}
@@ -624,7 +639,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-sm">Загрузить фото</span>
+                                <span className="text-sm">{t("authScreen.uploadPhoto")}</span>
                               </label>
                               
                               {/* Эмодзи аватары */}
@@ -648,21 +663,23 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           </div>
                         </div>
                         
-                        <p className="text-xs text-gray-600">Код семьи создастся автоматически после регистрации.</p>
+                        <p className="text-xs text-gray-600">{t("authScreen.familyCodeAuto")}</p>
                       </>
                     ) : (
                       <div>
-                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Код семьи</Label>
+                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyCode")}</Label>
                         <Input
                           required
                           aria-invalid={(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim()}
                           value={childFamilyCode}
                           onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
                           onBlur={() => setChildFamilyCodeTouched(true)}
-                          placeholder="ABC123"
+                          placeholder={t("authScreen.familyCodePlaceholder")}
                           className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                         />
-                        {(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                        {(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim() && (
+                          <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
+                        )}
                       </div>
                     )}
                   </>
@@ -680,7 +697,15 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
                   disabled={mode === "register" ? isRegisterFinishDisabled : isLoading}
                 >
-                  {mode === "register" ? (isRegisterFinishDisabled ? "Заполните обязательные поля" : isLoading ? "Подождите..." : "Зарегистрироваться") : (isLoading ? "Подождите..." : "Войти")}
+                  {mode === "register"
+                    ? (isRegisterFinishDisabled
+                      ? t("authScreen.submitFillRequired")
+                      : isLoading
+                        ? t("authScreen.submitLoading")
+                        : t("authScreen.submitRegister"))
+                    : (isLoading
+                      ? t("authScreen.submitLoading")
+                      : t("authScreen.submitLogin"))}
                 </Button>
 
                 {(mode === "login" || mode === "register") && (
@@ -690,7 +715,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         <div className="w-full border-t border-gray-300" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-gray-600">или</span>
+                        <span className="bg-white px-2 text-gray-600">{t("authScreen.or")}</span>
                       </div>
                     </div>
 
@@ -700,7 +725,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         variant="outline"
                         onClick={() => submitOAuth("google")}
                         disabled={isLoading}
-                        aria-label="Войти через Google"
+                        aria-label={t("authScreen.oauth.google")}
                       >
                         <GoogleIcon className="h-5 w-5" />
                         <span className="sr-only">Google</span>
@@ -710,7 +735,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         variant="outline"
                         onClick={() => submitOAuth("github")}
                         disabled={isLoading}
-                        aria-label="Войти через GitHub"
+                        aria-label={t("authScreen.oauth.github")}
                       >
                         <GitHubIcon className="h-5 w-5" />
                         <span className="sr-only">GitHub</span>
@@ -720,7 +745,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         variant="outline"
                         onClick={() => submitOAuth("discord")}
                         disabled={isLoading}
-                        aria-label="Войти через Discord"
+                        aria-label={t("authScreen.oauth.discord")}
                       >
                         <DiscordIcon className="h-5 w-5" />
                         <span className="sr-only">Discord</span>
@@ -738,7 +763,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     }}
                     className="text-primary hover:underline"
                   >
-                    {mode === "login" ? "Нет аккаунта? Регистрация" : "Уже есть аккаунт? Войти"}
+                    {mode === "login" ? t("authScreen.switchToRegister") : t("authScreen.switchToLogin")}
                   </button>
                 </div>
               </form>
