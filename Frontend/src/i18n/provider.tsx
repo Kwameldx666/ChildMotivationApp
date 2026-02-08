@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react'
 import { Locale, defaultLocale, messages, Messages, locales } from '@/i18n'
 
 const LOCALE_STORAGE_KEY = 'familyapp_locale'
@@ -37,39 +37,47 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
+  // Always start with defaultLocale to ensure server/client match
   const [locale, setLocaleState] = useState<Locale>(defaultLocale)
-  const [isHydrated, setIsHydrated] = useState(false)
 
+  // Load locale from localStorage after hydration
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(LOCALE_STORAGE_KEY) as Locale | null
-        if (stored && locales.includes(stored)) {
-          setLocaleState(stored)
-        } else {
-          const browserLocale = navigator.language.split('-')[0] as Locale
-          if (locales.includes(browserLocale)) {
-            setLocaleState(browserLocale)
-          }
+    try {
+      const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
+      console.log('[I18nProvider] Loaded stored locale:', stored)
+      if (stored && (locales as readonly string[]).includes(stored)) {
+        setLocaleState(stored as Locale)
+        document.documentElement.lang = stored
+        console.log('[I18nProvider] Applied stored locale:', stored)
+      } else {
+        // Try browser locale
+        const browserLocale = navigator.language.split('-')[0]
+        console.log('[I18nProvider] Browser locale:', browserLocale)
+        if ((locales as readonly string[]).includes(browserLocale)) {
+          setLocaleState(browserLocale as Locale)
+          document.documentElement.lang = browserLocale
+          console.log('[I18nProvider] Applied browser locale:', browserLocale)
         }
-      } catch (error) {
-        console.error('[i18n] Failed to load locale:', error)
       }
-      setIsHydrated(true)
+    } catch (error) {
+      console.error('[i18n] Failed to load locale:', error)
     }
   }, [])
 
   const setLocale = useCallback((newLocale: Locale) => {
+    console.log('[I18nProvider] setLocale called with:', newLocale, 'current:', locale)
     setLocaleState(newLocale)
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(LOCALE_STORAGE_KEY, newLocale)
-        document.documentElement.lang = newLocale
-      } catch (error) {
-        console.error('[i18n] Failed to save locale:', error)
-      }
+    try {
+      localStorage.setItem(LOCALE_STORAGE_KEY, newLocale)
+      document.documentElement.lang = newLocale
+      console.log('[I18nProvider] Locale saved to localStorage:', newLocale)
+      // Force re-read to verify
+      const verified = localStorage.getItem(LOCALE_STORAGE_KEY)
+      console.log('[I18nProvider] Verified localStorage value:', verified)
+    } catch (error) {
+      console.error('[i18n] Failed to save locale:', error)
     }
-  }, [])
+  }, [locale])
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     const currentMessages = messages[locale] as Record<string, unknown>
@@ -92,19 +100,17 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     return key
   }, [locale])
 
-  const currentMessages = messages[locale]
+  const currentMessages = messages[locale] as Messages
 
-  // Prevent hydration mismatch
-  if (!isHydrated) {
-    return (
-      <I18nContext.Provider value={{ locale: defaultLocale, setLocale, t, messages: messages[defaultLocale] }}>
-        {children}
-      </I18nContext.Provider>
-    )
-  }
+  const contextValue = useMemo(() => ({
+    locale,
+    setLocale,
+    t,
+    messages: currentMessages
+  }), [locale, setLocale, t, currentMessages])
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t, messages: currentMessages }}>
+    <I18nContext.Provider value={contextValue}>
       {children}
     </I18nContext.Provider>
   )

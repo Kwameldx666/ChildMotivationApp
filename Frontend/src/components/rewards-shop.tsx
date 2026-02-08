@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/i18n/provider"
 
 interface RewardsShopProps {
   userType: "parent" | "child"
@@ -44,25 +45,6 @@ const statusStyles: Record<string, { bg: string; text: string; border: string; i
   "6": { bg: "bg-rose-500/10", text: "text-rose-700", border: "border-rose-500/30", icon: XCircle },
 }
 
-const statusLabels: Record<string, string> = {
-  Pending: "Ожидает оплаты",
-  Paid: "Оплачен",
-  AwaitingDelivery: "Ожидает выдачи",
-  Delivered: "Награда выдана",
-  Confirmed: "Получение подтверждено",
-  Completed: "Завершён",
-  Cancelled: "Отменён",
-  "0": "Ожидает оплаты",
-  "1": "Оплачен",
-  "2": "Ожидает выдачи",
-  "3": "Награда выдана",
-  "4": "Получение подтверждено",
-  "5": "Завершён",
-  "6": "Отменён",
-}
-
-const formatPoints = (value: number) => `${value.toLocaleString("ru-RU")} очков`
-
 const resolveStatusKey = (status: OrderStatus) => (typeof status === "number" ? String(status) : status)
 
 // Категории наград по стоимости
@@ -80,13 +62,13 @@ interface RewardTierConfig {
   bgGradient: string
 }
 
-const REWARD_TIERS: RewardTierConfig[] = [
+const getRewardTiers = (t: (key: string, params?: Record<string, string | number>) => string): RewardTierConfig[] => [
   {
     id: "instant",
-    label: "Мгновенные",
-    description: "Быстрые и легкодоступные награды",
+    label: t("rewardsShop.tiers.instant.label"),
+    description: t("rewardsShop.tiers.instant.description"),
     icon: "⚡",
-    pointsRange: "20–40 очков",
+    pointsRange: t("rewardsShop.tiers.instant.range"),
     minPoints: 0,
     maxPoints: 50,
     color: "text-emerald-600",
@@ -94,10 +76,10 @@ const REWARD_TIERS: RewardTierConfig[] = [
   },
   {
     id: "medium",
-    label: "Еженедельные",
-    description: "Награды среднего уровня",
+    label: t("rewardsShop.tiers.medium.label"),
+    description: t("rewardsShop.tiers.medium.description"),
     icon: "🎯",
-    pointsRange: "100–150 очков",
+    pointsRange: t("rewardsShop.tiers.medium.range"),
     minPoints: 51,
     maxPoints: 200,
     color: "text-blue-600",
@@ -105,16 +87,22 @@ const REWARD_TIERS: RewardTierConfig[] = [
   },
   {
     id: "big",
-    label: "Большие награды",
-    description: "Долгосрочные цели",
+    label: t("rewardsShop.tiers.big.label"),
+    description: t("rewardsShop.tiers.big.description"),
     icon: "🏆",
-    pointsRange: "300+ очков",
+    pointsRange: t("rewardsShop.tiers.big.range"),
     minPoints: 201,
     maxPoints: Infinity,
     color: "text-purple-600",
     bgGradient: "from-purple-500/10 to-pink-500/10 border-purple-500/30",
   },
 ]
+
+const resolveIntlLocale = (locale: string) => {
+  if (locale === "ru") return "ru-RU"
+  if (locale === "ro") return "ro-RO"
+  return "en-US"
+}
 
 const getRewardTier = (price: number): RewardTier => {
   if (price <= 50) return "instant"
@@ -123,6 +111,7 @@ const getRewardTier = (price: number): RewardTier => {
 }
 
 export default function RewardsShop({ userType }: RewardsShopProps) {
+  const { t, locale } = useTranslation()
   const { toast } = useToast()
   const isParent = userType === "parent"
   const productsQuery = useShopProducts()
@@ -142,6 +131,49 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
     isActive: true,
   })
   const [pendingDeletionId, setPendingDeletionId] = useState<string | null>(null)
+
+  const intlLocale = useMemo(() => resolveIntlLocale(locale), [locale])
+  const numberFormatter = useMemo(() => new Intl.NumberFormat(intlLocale), [intlLocale])
+  const dateFormatter = useMemo(() => new Intl.DateTimeFormat(intlLocale), [intlLocale])
+  const dateTimeFormatter = useMemo(() => new Intl.DateTimeFormat(intlLocale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }), [intlLocale])
+
+  const rewardTiers = useMemo(() => getRewardTiers(t), [t])
+  const statusLabels = useMemo(() => ({
+    Pending: t("rewardsShop.status.pending"),
+    Paid: t("rewardsShop.status.paid"),
+    AwaitingDelivery: t("rewardsShop.status.awaitingDelivery"),
+    Delivered: t("rewardsShop.status.delivered"),
+    Confirmed: t("rewardsShop.status.confirmed"),
+    Completed: t("rewardsShop.status.completed"),
+    Cancelled: t("rewardsShop.status.cancelled"),
+    "0": t("rewardsShop.status.pending"),
+    "1": t("rewardsShop.status.paid"),
+    "2": t("rewardsShop.status.awaitingDelivery"),
+    "3": t("rewardsShop.status.delivered"),
+    "4": t("rewardsShop.status.confirmed"),
+    "5": t("rewardsShop.status.completed"),
+    "6": t("rewardsShop.status.cancelled"),
+  }), [t])
+
+  const formatRewardCount = (count: number) => {
+    if (locale === "ru") {
+      const mod10 = count % 10
+      const mod100 = count % 100
+      if (mod10 === 1 && mod100 !== 11) {
+        return `${count} ${t("rewardsShop.rewardCount.one")}`
+      }
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+        return `${count} ${t("rewardsShop.rewardCount.few")}`
+      }
+      return `${count} ${t("rewardsShop.rewardCount.many")}`
+    }
+
+    const key = count === 1 ? "one" : "other"
+    return `${count} ${t(`rewardsShop.rewardCount.${key}`)}`
+  }
 
   const visibleProducts = useMemo(() => {
     if (!productsQuery.data) return []
@@ -184,8 +216,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
   const handlePurchase = async (product: ProductDto) => {
     if (product.stock <= 0) {
       toast({
-        title: "Товар недоступен",
-        description: "Этого товара нет в наличии.",
+        title: t("rewardsShop.toasts.productUnavailable.title"),
+        description: t("rewardsShop.toasts.productUnavailable.description"),
         variant: "destructive",
       })
       return
@@ -197,30 +229,30 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       })
 
       toast({
-        title: "Заказ создан",
-        description: `${product.name} добавлен в ваши заказы`,
+        title: t("rewardsShop.toasts.orderCreated.title"),
+        description: t("rewardsShop.toasts.orderCreated.description", { name: product.name }),
       })
     } catch (error) {
       toast({
-        title: "Не удалось создать заказ",
-        description: error instanceof Error ? error.message : "Попробуйте еще раз",
+        title: t("rewardsShop.toasts.orderFailed.title"),
+        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
         variant: "destructive",
       })
     }
   }
 
   const handleDeleteProduct = async (product: ProductDto) => {
-    const confirmed = window.confirm(`Удалить награду «${product.name}»?`)
+    const confirmed = window.confirm(t("rewardsShop.confirmDelete", { name: product.name }))
     if (!confirmed) return
 
     try {
       setPendingDeletionId(product.id)
       await deleteProduct.mutateAsync(product.id)
-      toast({ title: "Награда удалена" })
+      toast({ title: t("rewardsShop.toasts.rewardDeleted") })
     } catch (error) {
       toast({
-        title: "Не удалось удалить награду",
-        description: error instanceof Error ? error.message : "Попробуйте ещё раз",
+        title: t("rewardsShop.toasts.rewardDeleteFailed.title"),
+        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
         variant: "destructive",
       })
     } finally {
@@ -240,18 +272,18 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
     }
 
     if (!payload.name) {
-      toast({ title: "Введите название награды", variant: "destructive" })
+      toast({ title: t("rewardsShop.toasts.rewardNameRequired"), variant: "destructive" })
       return
     }
 
     try {
       await updateProduct.mutateAsync({ id: selectedProduct.id, payload })
-      toast({ title: "Награда обновлена" })
+      toast({ title: t("rewardsShop.toasts.rewardUpdated") })
       setSelectedProduct(null)
     } catch (error) {
       toast({
-        title: "Не удалось обновить награду",
-        description: error instanceof Error ? error.message : "Попробуйте ещё раз",
+        title: t("rewardsShop.toasts.rewardUpdateFailed.title"),
+        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
         variant: "destructive",
       })
     }
@@ -280,8 +312,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
             <AlertCircle className="h-5 w-5 text-red-600" />
           </div>
           <div>
-            <p className="font-semibold text-red-700">Ошибка загрузки</p>
-            <p className="text-red-600">Не удалось загрузить товары магазина</p>
+            <p className="font-semibold text-red-700">{t("rewardsShop.errors.loadTitle")}</p>
+            <p className="text-red-600">{t("rewardsShop.errors.loadProducts")}</p>
           </div>
         </div>
       )
@@ -293,9 +325,9 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
             <Gift className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Магазин пуст</h3>
+          <h3 className="text-lg font-semibold mb-2">{t("rewardsShop.empty.title")}</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            {isParent ? "Добавьте первую награду, чтобы начать мотивировать ребёнка" : "Пока нет доступных наград. Скоро появятся новые!"}
+            {isParent ? t("rewardsShop.empty.parentHint") : t("rewardsShop.empty.childHint")}
           </p>
         </div>
       )
@@ -304,7 +336,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
     // Отображаем награды по категориям
     return (
       <div className="space-y-12">
-        {REWARD_TIERS.map((tierConfig) => {
+        {rewardTiers.map((tierConfig) => {
           const products = groupedProducts[tierConfig.id]
           if (products.length === 0 && !isParent) return null
 
@@ -320,7 +352,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                     <p className={`text-sm font-semibold mt-1 ${tierConfig.color}`}>{tierConfig.pointsRange}</p>
                   </div>
                   <Badge variant="outline" className="text-lg px-4 py-2">
-                    {products.length} {products.length === 1 ? "награда" : "наград"}
+                    {formatRewardCount(products.length)}
                   </Badge>
                 </div>
               </div>
@@ -357,11 +389,11 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                                 !isLowStock && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-500/20"
                               )}
                             >
-                              {isOutOfStock ? "Нет в наличии" : `${product.stock} шт.`}
+                              {isOutOfStock ? t("rewardsShop.stock.outOfStock") : t("rewardsShop.stock.inStock", { count: product.stock })}
                             </Badge>
                             {!product.isActive && isParent && (
                               <Badge variant="outline" className="rounded-full px-4 py-1.5 text-xs bg-slate-500/15 text-slate-700 dark:text-slate-400 border-slate-500/40 shadow-sm backdrop-blur-sm">
-                                Скрыта
+                                {t("rewardsShop.stock.hidden")}
                               </Badge>
                             )}
                           </div>
@@ -371,16 +403,16 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                           </h3>
 
                           <p className="text-sm text-muted-foreground mb-6 line-clamp-2 min-h-[40px] leading-relaxed">
-                            {product.description || "Уникальная награда за достижения"}
+                            {product.description || t("rewardsShop.fallbackDescription")}
                           </p>
 
                           <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/50">
                             <div className="flex items-baseline gap-2">
                               <Star className="h-6 w-6 text-amber-500 fill-amber-400 drop-shadow-lg" />
                               <span className="text-4xl font-black bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 bg-clip-text text-transparent drop-shadow">
-                                {product.price.toLocaleString("ru-RU")}
+                                {numberFormatter.format(product.price)}
                               </span>
-                              <span className="text-sm text-amber-700 dark:text-amber-400 font-bold">баллов</span>
+                              <span className="text-sm text-amber-700 dark:text-amber-400 font-bold">{t("rewardsShop.pointsShort")}</span>
                             </div>
                           </div>
 
@@ -396,7 +428,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                               disabled={createOrder.isPending || isOutOfStock}
                             >
                               {createOrder.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <ShoppingCart className="h-5 w-5" />}
-                              {isOutOfStock ? "Недоступно" : "Обменять баллы"}
+                              {isOutOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")}
                             </Button>
                           ) : (
                             <div className="flex gap-3">
@@ -406,7 +438,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                                 onClick={() => setSelectedProduct(product)}
                               >
                                 <Edit2 className="h-4 w-4" />
-                                Править
+                                {t("rewardsShop.actions.edit")}
                               </Button>
                               <Button
                                 variant="outline"
@@ -415,14 +447,14 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                                 disabled={pendingDeletionId === product.id}
                               >
                                 {pendingDeletionId === product.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                                Удалить
+                                {t("rewardsShop.actions.delete")}
                               </Button>
                             </div>
                           )}
 
                           {isParent && (
                             <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Создано {new Date(product.createdAt).toLocaleDateString("ru-RU")}</span>
+                              <span>{t("rewardsShop.createdAt", { date: dateFormatter.format(new Date(product.createdAt)) })}</span>
                             </div>
                           )}
                         </div>
@@ -433,7 +465,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               ) : (
                 isParent && (
                   <div className="rounded-2xl border-2 border-dashed border-border/40 bg-muted/5 px-6 py-8 text-center">
-                    <p className="text-sm text-muted-foreground">В этой категории пока нет наград</p>
+                    <p className="text-sm text-muted-foreground">{t("rewardsShop.emptyCategory")}</p>
                   </div>
                 )
               )}
@@ -466,8 +498,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
             <AlertCircle className="h-5 w-5 text-red-600" />
           </div>
           <div>
-            <p className="font-semibold text-red-700">Ошибка загрузки</p>
-            <p className="text-red-600">Не удалось загрузить заказы</p>
+            <p className="font-semibold text-red-700">{t("rewardsShop.errors.loadTitle")}</p>
+            <p className="text-red-600">{t("rewardsShop.errors.loadOrders")}</p>
           </div>
         </div>
       )
@@ -479,9 +511,9 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
             <Package className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Нет заказов</h3>
+          <h3 className="text-lg font-semibold mb-2">{t("rewardsShop.orders.emptyTitle")}</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Обменивайте заработанные баллы на награды из каталога
+            {t("rewardsShop.orders.emptySubtitle")}
           </p>
         </div>
       )
@@ -493,7 +525,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
           const statusKey = resolveStatusKey(order.status)
           const statusStyle = statusStyles[statusKey] ?? { bg: "bg-muted", text: "text-foreground", border: "border-border", icon: Clock }
           const StatusIcon = statusStyle.icon
-          const badgeLabel = statusLabels[statusKey] ?? "Статус неизвестен"
+          const badgeLabel = statusLabels[statusKey] ?? t("rewardsShop.status.unknown")
 
           return (
             <div 
@@ -516,11 +548,11 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Package className="h-5 w-5 text-primary" />
-                      <h3 className="text-lg font-bold">Заказ #{order.id.slice(0, 8)}</h3>
+                      <h3 className="text-lg font-bold">{t("rewardsShop.orders.orderNumber", { id: order.id.slice(0, 8) })}</h3>
                     </div>
                     <p className="text-xs text-muted-foreground flex items-center gap-2">
                       <Clock className="h-3 w-3" />
-                      {new Date(order.createdAt).toLocaleString("ru-RU")}
+                      {dateTimeFormatter.format(new Date(order.createdAt))}
                     </p>
                   </div>
                   <Badge 
@@ -542,14 +574,14 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Package className="h-4 w-4" />
-                      <span className="font-medium">{order.items.length} позиций</span>
+                      <span className="font-medium">{t("rewardsShop.orders.itemsCount", { count: order.items.length })}</span>
                     </div>
                     <div className="flex items-baseline gap-1">
                       <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
                       <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                        {order.totalAmount.toLocaleString("ru-RU")}
+                        {numberFormatter.format(order.totalAmount)}
                       </span>
-                      <span className="text-xs text-muted-foreground font-medium">баллов</span>
+                      <span className="text-xs text-muted-foreground font-medium">{t("rewardsShop.pointsShort")}</span>
                     </div>
                   </div>
                 </div>
@@ -564,15 +596,15 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                       <div className="flex-1">
                         <p className="font-semibold text-sm text-foreground mb-0.5">{item.productName}</p>
                         <p className="text-xs text-muted-foreground flex items-center gap-2">
-                          <span>{item.quantity} шт.</span>
+                          <span>{t("rewardsShop.quantityShort", { count: item.quantity })}</span>
                           <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                          <span>{item.unitPrice.toLocaleString("ru-RU")} за шт.</span>
+                          <span>{t("rewardsShop.unitPrice", { value: numberFormatter.format(item.unitPrice) })}</span>
                         </p>
                       </div>
                       <div className="flex items-baseline gap-1 ml-4">
                         <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
                         <span className="text-base font-bold text-amber-600">
-                          {item.lineTotal.toLocaleString("ru-RU")}
+                          {numberFormatter.format(item.lineTotal)}
                         </span>
                       </div>
                     </div>
@@ -582,7 +614,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                 {/* Action Buttons */}
                 {order.deliveryNotes && (
                   <div className="mt-4 rounded-2xl border border-border/50 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 px-4 py-3">
-                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">Комментарий родителя:</p>
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">{t("rewardsShop.orders.parentNote")}</p>
                     <p className="text-sm text-muted-foreground">{order.deliveryNotes}</p>
                   </div>
                 )}
@@ -599,13 +631,13 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                             payload: { deliveredByUserId: "parent-user-id", notes: "Награда выдана" }
                           })
                           toast({
-                            title: "Успешно!",
-                            description: "Вы отметили, что награда выдана",
+                            title: t("rewardsShop.toasts.success"),
+                            description: t("rewardsShop.toasts.deliveryConfirmed"),
                           })
                         } catch (error) {
                           toast({
-                            title: "Ошибка",
-                            description: "Не удалось подтвердить выдачу награды",
+                            title: t("common.error"),
+                            description: t("rewardsShop.toasts.deliveryFailed"),
                             variant: "destructive",
                           })
                         }
@@ -615,12 +647,12 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                       {markAsDelivered.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Подтверждение...
+                          {t("rewardsShop.actions.confirming")}
                         </>
                       ) : (
                         <>
                           <Gift className="mr-2 h-4 w-4" />
-                          Подтвердить выдачу награды
+                          {t("rewardsShop.actions.confirmDelivery")}
                         </>
                       )}
                     </Button>
@@ -639,13 +671,13 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                             payload: { confirmedByUserId: "child-user-id" }
                           })
                           toast({
-                            title: "Успешно!",
-                            description: "Вы подтвердили получение награды",
+                            title: t("rewardsShop.toasts.success"),
+                            description: t("rewardsShop.toasts.receiptConfirmed"),
                           })
                         } catch (error) {
                           toast({
-                            title: "Ошибка",
-                            description: "Не удалось подтвердить получение награды",
+                            title: t("common.error"),
+                            description: t("rewardsShop.toasts.receiptFailed"),
                             variant: "destructive",
                           })
                         }
@@ -655,12 +687,12 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                       {confirmReceived.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Подтверждение...
+                          {t("rewardsShop.actions.confirming")}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="mr-2 h-4 w-4" />
-                          Подтвердить получение
+                          {t("rewardsShop.actions.confirmReceipt")}
                         </>
                       )}
                     </Button>
@@ -680,11 +712,11 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold mb-1">Каталог наград</h3>
+            <h3 className="text-2xl font-bold mb-1">{t("rewardsShop.catalog.title")}</h3>
             <p className="text-sm text-muted-foreground">
               {isParent
-                ? "Редактируйте награды и управляйте запасами"
-                : "Выбирайте и обменивайте баллы на желанные подарки"}
+                ? t("rewardsShop.catalog.parentSubtitle")
+                : t("rewardsShop.catalog.childSubtitle")}
             </p>
           </div>
         </div>
@@ -696,8 +728,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-bold mb-1">Мои обмены</h3>
-              <p className="text-sm text-muted-foreground">История обмена баллов на награды</p>
+              <h3 className="text-2xl font-bold mb-1">{t("rewardsShop.orders.title")}</h3>
+              <p className="text-sm text-muted-foreground">{t("rewardsShop.orders.subtitle")}</p>
             </div>
           </div>
           {renderOrders()}
@@ -708,19 +740,17 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
       <Dialog open={Boolean(selectedProduct)} onOpenChange={(open) => (!open ? setSelectedProduct(null) : undefined)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Редактировать награду</DialogTitle>
-            <DialogDescription className="text-base">
-              Обновите информацию о награде, стоимость или доступность
-            </DialogDescription>
+            <DialogTitle className="text-2xl">{t("rewardsShop.edit.title")}</DialogTitle>
+            <DialogDescription className="text-base">{t("rewardsShop.edit.subtitle")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label htmlFor="reward-name" className="text-sm font-semibold">Название награды</Label>
+              <Label htmlFor="reward-name" className="text-sm font-semibold">{t("rewardsShop.edit.name")}</Label>
               <Input
                 id="reward-name"
                 className="h-12 rounded-xl"
-                placeholder="Например: Поход в кино"
+                placeholder={t("rewardsShop.edit.namePlaceholder")}
                 value={productForm.name}
                 onChange={(event) => setProductForm((prev) => ({ ...prev, name: event.target.value }))}
                 disabled={updateProduct.isPending}
@@ -728,12 +758,12 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="reward-description" className="text-sm font-semibold">Описание</Label>
+              <Label htmlFor="reward-description" className="text-sm font-semibold">{t("rewardsShop.edit.description")}</Label>
               <Textarea
                 id="reward-description"
                 className="rounded-xl resize-none"
                 rows={4}
-                placeholder="Опишите награду подробнее..."
+                placeholder={t("rewardsShop.edit.descriptionPlaceholder")}
                 value={productForm.description}
                 onChange={(event) => setProductForm((prev) => ({ ...prev, description: event.target.value }))}
                 disabled={updateProduct.isPending}
@@ -744,7 +774,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               <div className="space-y-2">
                 <Label htmlFor="reward-price" className="text-sm font-semibold flex items-center gap-2">
                   <Star className="h-4 w-4 text-amber-500" />
-                  Стоимость (баллы)
+                  {t("rewardsShop.edit.price")}
                 </Label>
                 <Input
                   id="reward-price"
@@ -761,7 +791,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               <div className="space-y-2">
                 <Label htmlFor="reward-stock" className="text-sm font-semibold flex items-center gap-2">
                   <Package className="h-4 w-4 text-blue-500" />
-                  Количество
+                  {t("rewardsShop.edit.stock")}
                 </Label>
                 <Input
                   id="reward-stock"
@@ -787,8 +817,8 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
                   disabled={updateProduct.isPending}
                 />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold">Отображать в магазине</p>
-                  <p className="text-xs text-muted-foreground">Награда будет видна в каталоге для детей</p>
+                  <p className="text-sm font-semibold">{t("rewardsShop.edit.activeTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("rewardsShop.edit.activeHint")}</p>
                 </div>
               </label>
             </div>
@@ -801,7 +831,7 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               onClick={() => setSelectedProduct(null)}
               disabled={updateProduct.isPending}
             >
-              Отмена
+              {t("common.cancel")}
             </Button>
             <Button 
               className="flex-1 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30" 
@@ -811,10 +841,10 @@ export default function RewardsShop({ userType }: RewardsShopProps) {
               {updateProduct.isPending ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  Сохранение...
+                  {t("rewardsShop.actions.saving")}
                 </>
               ) : (
-                "Сохранить изменения"
+                t("rewardsShop.actions.saveChanges")
               )}
             </Button>
           </div>

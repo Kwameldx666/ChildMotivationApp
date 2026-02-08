@@ -24,6 +24,11 @@ export function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const { locale, setLocale } = useI18n()
 
+  const handleLocaleChange = (newLocale: Locale) => {
+    console.log('[LanguageSwitcher] Changing locale from', locale, 'to', newLocale)
+    setLocale(newLocale)
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,7 +41,10 @@ export function LanguageSwitcher({
         {locales.map((loc) => (
           <DropdownMenuItem
             key={loc}
-            onClick={() => setLocale(loc)}
+            onSelect={(event) => {
+              event.preventDefault()
+              handleLocaleChange(loc)
+            }}
             className={locale === loc ? 'bg-accent' : ''}
           >
             {localeNames[loc]}
