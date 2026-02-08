@@ -6,7 +6,7 @@ public class UserEndpoints
     public string ProfileMe { get; set; } = string.Empty;
     public string FamilyMembers { get; set; } = string.Empty;
     public string FamilyMembersMe { get; set; } = string.Empty;
-    
+
     // Subscription endpoints
     public string SubscriptionMe { get; set; } = string.Empty;
     public string Subscription { get; set; } = string.Empty;

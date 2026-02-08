@@ -1,6 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Gateway.Exceptions;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Gateway.Extensions;
 

@@ -75,9 +75,7 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
     {
         var refreshToken = request?.RefreshToken;
         if (string.IsNullOrWhiteSpace(refreshToken))
-        {
             Request.Cookies.TryGetValue(RefreshTokenCookieName, out refreshToken);
-        }
 
         if (string.IsNullOrWhiteSpace(refreshToken))
             return BadRequest("Refresh token is required.");
@@ -161,12 +159,8 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         var content = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(content))
-        {
             if (TryExtractTokens(content, out var accessToken, out var refreshToken))
-            {
                 SetAuthCookies(accessToken, refreshToken);
-            }
-        }
 
         return new ContentResult
         {

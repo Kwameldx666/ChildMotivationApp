@@ -244,7 +244,7 @@ public class GitHubAuthProvider(
                 DefaultErrors.BadRequest("GitHub did not return required user information"));
         }
 
-        if (string.IsNullOrWhiteSpace(user.Picture) || string.IsNullOrWhiteSpace(user.Sub))
+        if (string.IsNullOrWhiteSpace(user.Picture) || string.IsNullOrWhiteSpace(user.Sub) || string.IsNullOrWhiteSpace(user.Name))
         {
             try
             {
@@ -274,6 +274,19 @@ public class GitHubAuthProvider(
                         nodeIdProp.ValueKind == System.Text.Json.JsonValueKind.String)
                     {
                         user.Sub = nodeIdProp.GetString() ?? string.Empty;
+                    }
+                }
+
+                // Fallback to login if name is not provided
+                if (string.IsNullOrWhiteSpace(user.Name) &&
+                    root.TryGetProperty("login", out var loginProp) &&
+                    loginProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var login = loginProp.GetString();
+                    if (!string.IsNullOrWhiteSpace(login))
+                    {
+                        user.Name = login!;
+                        _logger.LogInformation("Using GitHub login as name fallback: {Login}", login);
                     }
                 }
             }

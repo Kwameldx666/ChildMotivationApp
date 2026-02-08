@@ -12,7 +12,7 @@ namespace Gateway.Features.Controllers;
 public class SubscriptionController(IUserServiceClient userServiceClient) : ControllerBase
 {
     /// <summary>
-    /// Get current user's subscription
+    ///     Get current user's subscription
     /// </summary>
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentSubscriptionAsync(CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Get subscription by userId
+    ///     Get subscription by userId
     /// </summary>
     [HttpGet("{userId:guid}")]
     public async Task<IActionResult> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken)
@@ -32,10 +32,11 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Change subscription (upgrade/downgrade)
+    ///     Change subscription (upgrade/downgrade)
     /// </summary>
     [HttpPost("change")]
-    public async Task<IActionResult> ChangeSubscriptionAsync([FromBody] ChangeSubscriptionRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ChangeSubscriptionAsync([FromBody] ChangeSubscriptionRequest request,
+        CancellationToken cancellationToken)
     {
         if (request is null)
             return BadRequest("Request body cannot be null.");
@@ -45,7 +46,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Cancel subscription (downgrade to Free)
+    ///     Cancel subscription (downgrade to Free)
     /// </summary>
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelSubscriptionAsync(CancellationToken cancellationToken)
@@ -55,7 +56,7 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     }
 
     /// <summary>
-    /// Get available subscription tiers
+    ///     Get available subscription tiers
     /// </summary>
     [AllowAnonymous]
     [HttpGet("tiers")]

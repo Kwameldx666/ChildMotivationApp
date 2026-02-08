@@ -1,9 +1,9 @@
 using Gateway.Extensions;
+using Gateway.Infrastructure.Services.Clients;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Gateway.Infrastructure.Services.Clients;
 
-namespace Gateway.Api.Features.Controllers;
+namespace Gateway.Features.Controllers;
 
 [ApiController]
 [Authorize]

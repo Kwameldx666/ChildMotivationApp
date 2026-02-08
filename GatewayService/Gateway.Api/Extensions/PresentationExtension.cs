@@ -1,11 +1,11 @@
-﻿using Gateway.Authorization.ScopeRequirement;
+﻿using System.Text.Json.Serialization;
+using Gateway.Authorization.ScopeRequirement;
 using Gateway.Common.Constants.Scopes;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 
 namespace Gateway.Extensions;
 

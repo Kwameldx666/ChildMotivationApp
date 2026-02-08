@@ -14,11 +14,14 @@ public interface IUserServiceClient
 
     Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, Stream fileStream, string fileName, string contentType,
         CancellationToken cancellationToken);
-    
+
     // Subscription
     Task<HttpResponseMessage> GetCurrentSubscriptionAsync(CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken);
-    Task<HttpResponseMessage> ChangeSubscriptionAsync(ChangeSubscriptionRequest request, CancellationToken cancellationToken);
+
+    Task<HttpResponseMessage> ChangeSubscriptionAsync(ChangeSubscriptionRequest request,
+        CancellationToken cancellationToken);
+
     Task<HttpResponseMessage> CancelSubscriptionAsync(CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetSubscriptionTiersAsync(CancellationToken cancellationToken);
 }

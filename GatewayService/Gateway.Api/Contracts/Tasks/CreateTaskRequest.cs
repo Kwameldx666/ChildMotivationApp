@@ -8,7 +8,7 @@ public class CreateTaskRequest
 
     [StringLength(2000)] public string? Description { get; init; }
 
-    [Range(1,5)] public int? Difficulty { get; init; }
+    [Range(1, 5)] public int? Difficulty { get; init; }
 
     [StringLength(64)] public string? AssignedToUserId { get; init; }
 
