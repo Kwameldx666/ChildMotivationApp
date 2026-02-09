@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Check, Copy, RefreshCw, Users, ChevronRight } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
+import { useTranslation } from "@/i18n/provider"
 import type { FamilyMember } from "@/services/family-service"
 
 interface ChildrenManagementProps {
@@ -31,6 +32,7 @@ const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const normalizedFamilyCode =
     familyCode && familyCode.trim() && familyCode !== "—" ? familyCode.trim() : null
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
@@ -64,9 +66,9 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
       <Card>
         <CardContent className="py-12 text-center space-y-3">
           <Users className="w-10 h-10 mx-auto text-muted-foreground" />
-          <h3 className="text-lg font-semibold">Создайте семью</h3>
+          <h3 className="text-lg font-semibold">{t("family.createFamilyPrompt")}</h3>
           <p className="text-sm text-muted-foreground">
-            Чтобы видеть подключенных детей, создайте семью и поделитесь кодом с ребёнком
+            {t("family.createFamilyDescription")}
           </p>
         </CardContent>
       </Card>
@@ -78,7 +80,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
       <Card>
         <CardContent className="py-12 text-center space-y-2">
           <Users className="w-10 h-10 mx-auto text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Загружаем список подключённых детей…</p>
+          <p className="text-sm text-muted-foreground">{t("family.loadingChildren")}</p>
         </CardContent>
       </Card>
     )
@@ -88,10 +90,10 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
     return (
       <Card>
         <CardContent className="py-12 text-center space-y-3">
-          <p className="text-sm text-muted-foreground">Не удалось получить список детей</p>
+          <p className="text-sm text-muted-foreground">{t("family.failedToLoadChildren")}</p>
           <Button variant="outline" className="gap-2" onClick={() => refetch()}>
             <RefreshCw className="w-4 h-4" />
-            Повторить
+            {t("common.retry")}
           </Button>
         </CardContent>
       </Card>
@@ -102,10 +104,9 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
     return (
       <Card>
         <CardContent className="py-12 text-center space-y-3">
-          <p className="text-sm text-muted-foreground">Пока ни один ребёнок не подключился</p>
+          <p className="text-sm text-muted-foreground">{t("family.noChildren")}</p>
           <p className="text-xs text-muted-foreground">
-            Передайте код семьи <span className="font-semibold">{normalizedFamilyCode}</span> ребёнку.
-            После подключения его профиль появится здесь автоматически.
+            {t("family.noChildrenDescription")}
           </p>
         </CardContent>
       </Card>
@@ -117,7 +118,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
       <Card>
         <CardContent className="py-6 flex flex-col gap-3">
           <p className="text-sm text-muted-foreground">
-            Поделитесь кодом семьи, чтобы ребёнок смог присоединиться:
+            {t("family.shareCode")}
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-base font-semibold tracking-wide font-mono bg-secondary/40 px-3 py-2 rounded">
@@ -125,7 +126,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
             </span>
             <Button variant="outline" size="sm" className="gap-2" onClick={(e) => handleCopyId(e, normalizedFamilyCode)}>
               {copiedId === normalizedFamilyCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              {copiedId === normalizedFamilyCode ? "Скопировано" : "Скопировать код"}
+              {copiedId === normalizedFamilyCode ? t("family.codeCopied") : t("family.copyCode")}
             </Button>
           </div>
         </CardContent>
@@ -148,11 +149,11 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-semibold text-lg">{formatMemberName(child)}</h3>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
-                        {child.role?.toLowerCase() === "child" ? "Ребёнок" : child.role}
+                        {child.role?.toLowerCase() === "child" ? t("family.child") : child.role}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {child.age ? `${child.age} лет` : "Возраст не указан"}
+                      {child.age ? `${child.age} ${t("profile.days")}` : t("profile.ageNotSpecified")}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold" title={child.id}>
@@ -161,7 +162,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                       <button
                         onClick={(e) => handleCopyId(e, child.id)}
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                        title="Скопировать ID"
+                        title={t("profile.copyId")}
                       >
                         {copiedId === child.id ? (
                           <Check className="w-4 h-4 text-green-500" />

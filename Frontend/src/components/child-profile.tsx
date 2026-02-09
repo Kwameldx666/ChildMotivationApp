@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useTranslation } from "@/i18n/provider"
 
 interface ChildProfileProps {
   childId: string
@@ -59,20 +60,20 @@ const defaultStats: ChildProgressStats = {
   },
 }
 
-const rankLadder: Array<{ threshold: number; label: string }> = [
-  { threshold: 1, label: "Новичок" },
-  { threshold: 4, label: "Искатель" },
-  { threshold: 7, label: "Мастер" },
-  { threshold: 12, label: "Легенда" },
+const rankLadder: Array<{ threshold: number; key: string }> = [
+  { threshold: 1, key: "childProfile.rank.novice" },
+  { threshold: 4, key: "childProfile.rank.seeker" },
+  { threshold: 7, key: "childProfile.rank.master" },
+  { threshold: 12, key: "childProfile.rank.legend" },
 ]
 
-const resolveRank = (level: number) => {
+const resolveRankKey = (level: number) => {
   for (let index = rankLadder.length - 1; index >= 0; index -= 1) {
     if (level >= rankLadder[index].threshold) {
-      return rankLadder[index].label
+      return rankLadder[index].key
     }
   }
-  return rankLadder[0].label
+  return rankLadder[0].key
 }
 
 const getAchievementIcon = (icon: string) => achievementIconMap[icon] ?? Trophy
@@ -89,9 +90,10 @@ export default function ChildProfile({
   const [copied, setCopied] = useState(false)
   const { theme, setTheme } = useTheme()
   const { colorTheme, setColorTheme, themes } = useColorTheme()
+  const { t } = useTranslation()
   const { data: achievementsData, isLoading: achievementsLoading, isError: achievementsError } = useAchievements()
   const metrics = stats ?? defaultStats
-  const rank = resolveRank(metrics.level)
+  const rank = t(resolveRankKey(metrics.level))
 
   const achievementShowcase = useMemo(() => {
     if (!achievementsData) return [] as AchievementDto[]
@@ -116,7 +118,7 @@ export default function ChildProfile({
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
               {avatarImageUrl ? (
-                <img src={avatarImageUrl} alt="Аватар" className="h-full w-full object-cover" />
+                <img src={avatarImageUrl} alt={t("childProfile.avatar")} className="h-full w-full object-cover" />
               ) : (
                 <span className="text-5xl">{avatarSymbol}</span>
               )}
@@ -124,7 +126,7 @@ export default function ChildProfile({
             <div className="flex-1 min-w-0">
               <h2 className="text-2xl font-bold truncate">{name}</h2>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
-                <span>ID профиля:</span>
+                <span>{t("childProfile.profileId")}</span>
                 <code className="bg-secondary/30 px-3 py-1 rounded font-mono font-semibold text-xs break-all">{childId}</code>
                 <Button size="sm" variant="ghost" onClick={handleCopyId} className="h-6 w-6 p-0">
                   {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
@@ -132,7 +134,7 @@ export default function ChildProfile({
               </div>
               {familyCode && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Код семьи: <span className="font-semibold text-foreground">{familyCode}</span>
+                  {t("childProfile.familyCode")} <span className="font-semibold text-foreground">{familyCode}</span>
                 </p>
               )}
             </div>
@@ -143,7 +145,7 @@ export default function ChildProfile({
       {/* Theme Toggle */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Настройки оформления</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("childProfile.appearance.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Светлая/Тёмная тема */}
@@ -154,7 +156,7 @@ export default function ChildProfile({
               ) : (
                 <Sun className="w-5 h-5 text-amber-500" />
               )}
-              <span className="text-sm">Режим</span>
+              <span className="text-sm">{t("childProfile.appearance.mode")}</span>
             </div>
             <Button
               variant="outline"
@@ -165,12 +167,12 @@ export default function ChildProfile({
               {theme === "dark" ? (
                 <>
                   <Sun className="h-4 w-4" />
-                  Светлая
+                  {t("childProfile.appearance.light")}
                 </>
               ) : (
                 <>
                   <Moon className="h-4 w-4" />
-                  Тёмная
+                  {t("childProfile.appearance.dark")}
                 </>
               )}
             </Button>
@@ -180,7 +182,7 @@ export default function ChildProfile({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Palette className="w-5 h-5 text-primary" />
-              <span className="text-sm">Цветовая тема</span>
+              <span className="text-sm">{t("childProfile.appearance.colorTheme")}</span>
             </div>
             <Select value={colorTheme} onValueChange={(value: any) => setColorTheme(value)}>
               <SelectTrigger className="w-40">
@@ -204,20 +206,20 @@ export default function ChildProfile({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Текущая серия</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("childProfile.stats.currentStreak")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <Flame className="w-6 h-6 text-orange-500" />
               {renderMetricValue(`${metrics.streak}`, "text-foreground")}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">дней подряд с выполненными задачами</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("childProfile.stats.streakDescription")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Ранг</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("childProfile.stats.rank")}</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -225,44 +227,44 @@ export default function ChildProfile({
             ) : (
               <p className="text-3xl font-bold text-primary">{rank}</p>
             )}
-            <p className="text-xs text-muted-foreground mt-1">Уровень {metrics.level}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("childProfile.stats.level")} {metrics.level}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Купленные награды</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("childProfile.stats.purchasedRewards")}</CardTitle>
           </CardHeader>
           <CardContent>
             {renderMetricValue(`${metrics.rewardsPurchased}`, "text-accent")}
-            <p className="text-xs text-muted-foreground mt-1">Из магазина</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("childProfile.stats.fromShop")}</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Статистика прогресса</CardTitle>
+          <CardTitle>{t("childProfile.stats.progressTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[{
-              label: "Баланс очков",
+              label: t("childProfile.stats.pointsBalance"),
               value: `${metrics.points}`,
               accent: "text-secondary",
             },
             {
-              label: "Набрано опыта",
+              label: t("childProfile.stats.xpEarned"),
               value: `${metrics.xp} XP`,
               accent: "text-accent",
             },
             {
-              label: "Завершено задач",
+              label: t("childProfile.stats.tasksCompleted"),
               value: `${metrics.tasksCompleted}`,
               accent: "text-primary",
             },
             {
-              label: "Списано очков",
+              label: t("childProfile.stats.pointsSpent"),
               value: `${metrics.totalPointsSpent}`,
               accent: "text-muted-foreground",
             }].map((item) => (
@@ -281,7 +283,7 @@ export default function ChildProfile({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="w-5 h-5" />
-            Достижения
+            {t("childProfile.achievements.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -300,11 +302,11 @@ export default function ChildProfile({
           )}
 
           {!achievementsLoading && achievementsError && (
-            <p className="text-sm text-destructive">Не удалось загрузить достижения.</p>
+            <p className="text-sm text-destructive">{t("childProfile.achievements.loadError")}</p>
           )}
 
           {!achievementsLoading && !achievementsError && achievementShowcase.length === 0 && (
-            <p className="text-sm text-muted-foreground">Достижения появятся, как только ты начнёшь выполнять миссии.</p>
+            <p className="text-sm text-muted-foreground">{t("childProfile.achievements.empty")}</p>
           )}
 
           {!achievementsLoading && !achievementsError && achievementShowcase.length > 0 && (
@@ -324,7 +326,7 @@ export default function ChildProfile({
                     <p className="text-sm font-semibold mb-1 line-clamp-2">{achievement.title}</p>
                     <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{achievement.description}</p>
                     {achievement.unlocked ? (
-                      <Badge className="bg-accent text-accent-foreground">Получено</Badge>
+                      <Badge className="bg-accent text-accent-foreground">{t("childProfile.achievements.unlocked")}</Badge>
                     ) : (
                       <Badge variant="outline" className="text-[11px]">
                         {achievement.progress} / {achievement.total}

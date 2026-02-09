@@ -3,17 +3,19 @@
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface FamilyTimelinePageProps {
   onBack: () => void
 }
 
 export default function FamilyTimelinePage({ onBack }: FamilyTimelinePageProps) {
+  const { t } = useTranslation()
   const events = [
-    { type: "achievement", user: "Иван", text: "разблокировал достижение Юный помощник", time: "2 часа назад" },
-    { type: "reward", user: "Мария", text: "купила награду Пицца", time: "4 часа назад" },
-    { type: "task", user: "Родитель", text: "создал задачу Помыть посуду", time: "вчера" },
-    { type: "level", user: "Иван", text: "достиг уровня 10!", time: "вчера" },
+    { type: "achievement", user: t("familyTimeline.userIvan"), text: t("familyTimeline.unlockedAchievement"), time: t("familyTimeline.hoursAgo2") },
+    { type: "reward", user: t("familyTimeline.userMaria"), text: t("familyTimeline.boughtReward"), time: t("familyTimeline.hoursAgo4") },
+    { type: "task", user: t("familyTimeline.userParent"), text: t("familyTimeline.createdTask"), time: t("familyTimeline.yesterday") },
+    { type: "level", user: t("familyTimeline.userIvan"), text: t("familyTimeline.reachedLevel"), time: t("familyTimeline.yesterday") },
   ]
 
   return (
@@ -21,9 +23,9 @@ export default function FamilyTimelinePage({ onBack }: FamilyTimelinePageProps) 
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
-        <h1 className="text-2xl font-bold">История семьи</h1>
+        <h1 className="text-2xl font-bold">{t("familyTimeline.title")}</h1>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">

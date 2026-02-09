@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { CreditCard, Check, Loader2, Crown } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/i18n/provider"
 
 interface PaymentModalProps {
   open: boolean
@@ -24,6 +25,7 @@ interface PaymentModalProps {
 }
 
 export default function PaymentModal({ open, onClose, tierName, price, onSuccess }: PaymentModalProps) {
+  const { t } = useTranslation()
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [cardNumber, setCardNumber] = useState("")
@@ -72,8 +74,8 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
     
     if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
       toast({
-        title: "Ошибка",
-        description: "Заполните все поля карты",
+        title: t("paymentModal.errorTitle"),
+        description: t("paymentModal.fillAllFields"),
         variant: "destructive",
       })
       return
@@ -91,8 +93,8 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
       setIsSuccess(true)
       
       toast({
-        title: "Оплата успешна! 🎉",
-        description: `Подписка "${tierName}" активирована`,
+        title: t("paymentModal.paymentSuccess"),
+        description: t("paymentModal.subscriptionActivatedToast", { tierName }),
       })
 
       setTimeout(() => {
@@ -123,10 +125,10 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crown className="h-5 w-5 text-purple-600" />
-            Оплата подписки
+            {t("paymentModal.title")}
           </DialogTitle>
           <DialogDescription>
-            Оформление подписки "{tierName}" - {price} ₽/месяц
+            {t("paymentModal.description", { tierName, price: String(price) })}
           </DialogDescription>
         </DialogHeader>
 
@@ -138,9 +140,9 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold">Оплата прошла успешно!</h3>
+              <h3 className="text-lg font-semibold">{t("paymentModal.successTitle")}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Ваша подписка активирована
+                {t("paymentModal.successDescription")}
               </p>
             </div>
           </div>
@@ -150,15 +152,15 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2 text-foreground">
                   <CreditCard className="h-4 w-4" />
-                  Данные карты
+                  {t("paymentModal.cardDetails")}
                 </CardTitle>
                 <CardDescription className="text-xs text-foreground/60">
-                  Ваши данные защищены и не сохраняются
+                  {t("paymentModal.cardSecure")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cardNumber" className="text-foreground">Номер карты</Label>
+                  <Label htmlFor="cardNumber" className="text-foreground">{t("paymentModal.cardNumber")}</Label>
                   <Input
                     id="cardNumber"
                     placeholder="1234 5678 9012 3456"
@@ -170,7 +172,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cardName" className="text-foreground">Имя владельца</Label>
+                  <Label htmlFor="cardName" className="text-foreground">{t("paymentModal.cardholderName")}</Label>
                   <Input
                     id="cardName"
                     placeholder="IVAN IVANOV"
@@ -183,7 +185,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="cardExpiry" className="text-foreground">Срок действия</Label>
+                    <Label htmlFor="cardExpiry" className="text-foreground">{t("paymentModal.expiryDate")}</Label>
                     <Input
                       id="cardExpiry"
                       placeholder="MM/YY"
@@ -211,7 +213,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
             </Card>
 
             <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border">
-              <span className="text-sm font-medium text-foreground">Итого к оплате:</span>
+              <span className="text-sm font-medium text-foreground">{t("paymentModal.totalAmount")}</span>
               <span className="text-lg font-bold text-foreground">${price.toFixed(2)}</span>
             </div>
 
@@ -223,7 +225,7 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
                 disabled={isProcessing}
                 className="flex-1"
               >
-                Отмена
+                {t("paymentModal.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -233,10 +235,10 @@ export default function PaymentModal({ open, onClose, tierName, price, onSuccess
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Обработка...
+                    {t("paymentModal.processing")}
                   </>
                 ) : (
-                  `Оплатить $${price.toFixed(2)}`
+                  t("paymentModal.pay", { price: price.toFixed(2) })
                 )}
               </Button>
             </div>

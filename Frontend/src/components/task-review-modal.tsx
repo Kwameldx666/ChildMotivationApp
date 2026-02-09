@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { CheckCircle2, XCircle, MessageSquare } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface TaskReviewModalProps {
   open: boolean
@@ -39,6 +40,7 @@ export default function TaskReviewModal({
   onReject,
   onRequestInfo,
 }: TaskReviewModalProps) {
+  const { t } = useTranslation()
   const [reviewMode, setReviewMode] = useState<"review" | "approve" | "reject" | "request">("review")
   const [feedback, setFeedback] = useState("")
 
@@ -67,30 +69,30 @@ export default function TaskReviewModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Проверка задачи: {taskTitle}</DialogTitle>
-          <DialogDescription>Ребёнок: {childName}</DialogDescription>
+          <DialogTitle>{t("taskReview.title", { taskTitle })}</DialogTitle>
+          <DialogDescription>{t("taskReview.childLabel", { childName })}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Submission details */}
           <Card className="p-4 bg-muted/50">
-            <h4 className="font-medium mb-2">Отправка ребёнка:</h4>
+            <h4 className="font-medium mb-2">{t("taskReview.submissionTitle")}</h4>
             <div className="space-y-2">
               {submission.type !== "checklist" && submission.content && (
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Файлы: </span>
-                  <span className="font-medium">✓ Загруженные материалы</span>
+                  <span className="text-muted-foreground">{t("taskReview.filesLabel")}</span>
+                  <span className="font-medium">{t("taskReview.uploadedMaterials")}</span>
                 </div>
               )}
               {submission.type === "checklist" && (
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Чек-лист: </span>
-                  <span className="font-medium">✓ Выполнен</span>
+                  <span className="text-muted-foreground">{t("taskReview.checklistLabel")}</span>
+                  <span className="font-medium">{t("taskReview.checklistDone")}</span>
                 </div>
               )}
               {submission.comment && (
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Комментарий: </span>
+                  <span className="text-muted-foreground">{t("taskReview.commentLabel")}</span>
                   <p className="italic text-sm mt-1">"{submission.comment}"</p>
                 </div>
               )}
@@ -100,7 +102,7 @@ export default function TaskReviewModal({
           {/* Review modes */}
           {reviewMode === "review" && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Выберите действие:</p>
+              <p className="text-sm font-medium">{t("taskReview.chooseAction")}</p>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   variant="outline"
@@ -108,7 +110,7 @@ export default function TaskReviewModal({
                   onClick={() => setReviewMode("approve")}
                 >
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  <span className="text-xs">Подтвердить</span>
+                  <span className="text-xs">{t("taskReview.approve")}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -116,7 +118,7 @@ export default function TaskReviewModal({
                   onClick={() => setReviewMode("request")}
                 >
                   <MessageSquare className="w-5 h-5 text-orange-600" />
-                  <span className="text-xs">Уточнить</span>
+                  <span className="text-xs">{t("taskReview.clarify")}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -124,7 +126,7 @@ export default function TaskReviewModal({
                   onClick={() => setReviewMode("reject")}
                 >
                   <XCircle className="w-5 h-5 text-red-600" />
-                  <span className="text-xs">Отклонить</span>
+                  <span className="text-xs">{t("taskReview.reject")}</span>
                 </Button>
               </div>
             </div>
@@ -133,9 +135,9 @@ export default function TaskReviewModal({
           {/* Approve mode */}
           {reviewMode === "approve" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">✓ Отзыв при подтверждении</label>
+              <label className="text-sm font-medium">{t("taskReview.approveFeedbackLabel")}</label>
               <Textarea
-                placeholder="Напишите поощрительный отзыв (опционально)..."
+                placeholder={t("taskReview.approvePlaceholder")}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={3}
@@ -146,9 +148,9 @@ export default function TaskReviewModal({
           {/* Reject mode */}
           {reviewMode === "reject" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">✗ Причина отклонения</label>
+              <label className="text-sm font-medium">{t("taskReview.rejectReasonLabel")}</label>
               <Textarea
-                placeholder="Объясните, почему отклоняется задача..."
+                placeholder={t("taskReview.rejectPlaceholder")}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={3}
@@ -160,9 +162,9 @@ export default function TaskReviewModal({
           {/* Request info mode */}
           {reviewMode === "request" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">? Запросить дополнительную информацию</label>
+              <label className="text-sm font-medium">{t("taskReview.requestInfoLabel")}</label>
               <Textarea
-                placeholder="Какая дополнительная информация нужна? Например: нужно ещё одно фото с другого угла..."
+                placeholder={t("taskReview.requestInfoPlaceholder")}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={3}
@@ -174,29 +176,29 @@ export default function TaskReviewModal({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose} className="bg-transparent">
-            Отмена
+            {t("common.cancel")}
           </Button>
           {reviewMode === "review" && (
             <Button variant="outline" onClick={onClose} className="bg-transparent">
-              Вернуться
+              {t("taskReview.goBack")}
             </Button>
           )}
           {reviewMode === "approve" && (
             <Button onClick={handleApprove} className="gap-2 bg-green-600 hover:bg-green-700">
               <CheckCircle2 className="w-4 h-4" />
-              Подтвердить
+              {t("taskReview.approve")}
             </Button>
           )}
           {reviewMode === "reject" && (
             <Button onClick={handleReject} variant="destructive" className="gap-2">
               <XCircle className="w-4 h-4" />
-              Отклонить
+              {t("taskReview.reject")}
             </Button>
           )}
           {reviewMode === "request" && (
             <Button onClick={handleRequestInfo} className="gap-2 bg-orange-600 hover:bg-orange-700">
               <MessageSquare className="w-4 h-4" />
-              Запросить
+              {t("taskReview.request")}
             </Button>
           )}
         </DialogFooter>

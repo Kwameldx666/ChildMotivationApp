@@ -7,11 +7,13 @@ import { authApi } from "@/features/auth/api/authApi"
 import { clearSession, selectAuthSession, setSession } from "@/features/auth/store/authSlice"
 import type { UpdateProfilePayload } from "@/features/auth/types"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { useTranslation } from "@/i18n/provider"
 
 export default function ProfilePage() {
   const session = useAppSelector(selectAuthSession)
   const dispatch = useAppDispatch()
   const router = useRouter()
+  const { t } = useTranslation()
 
   const userId = session?.user.id
 
@@ -65,7 +67,7 @@ export default function ProfilePage() {
   const handleProfileUpdate = useCallback(
     async (payload: UpdateProfilePayload) => {
       if (!userId) {
-        throw new Error("Нет активной сессии")
+        throw new Error(t("profilePage.noActiveSession"))
       }
 
       const updatedSession = await authApi.updateProfile(userId, payload)

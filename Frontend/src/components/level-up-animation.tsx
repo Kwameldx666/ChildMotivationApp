@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface LevelUpAnimationProps {
   show: boolean
@@ -11,6 +12,7 @@ interface LevelUpAnimationProps {
 }
 
 export default function LevelUpAnimation({ show, level, onComplete }: LevelUpAnimationProps) {
+  const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -36,8 +38,8 @@ export default function LevelUpAnimation({ show, level, onComplete }: LevelUpAni
             </div>
             <div className="relative z-10 text-8xl font-bold text-primary animate-bounce">{level}</div>
           </div>
-          <h2 className="text-3xl font-bold mb-2">Новый уровень!</h2>
-          <p className="text-muted-foreground text-lg">Поздравляем с повышением уровня!</p>
+          <h2 className="text-3xl font-bold mb-2">{t("levelUp.title")}</h2>
+          <p className="text-muted-foreground text-lg">{t("levelUp.congratulations")}</p>
           <div className="mt-6 flex gap-2 justify-center">
             <span className="text-4xl animate-bounce delay-100">🎉</span>
             <span className="text-4xl animate-bounce delay-200">✨</span>

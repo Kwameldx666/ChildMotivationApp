@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode, Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useTranslation } from "@/i18n/provider"
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ interface ParentSettingsProps {
 
 export default function ParentSettings({ familyName, familyCode }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
+  const { t } = useTranslation()
   const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
 
   const [copied, setCopied] = useState(false)
@@ -51,8 +53,8 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Присоединяйся к нашей семье!',
-          text: `Привет! Присоединяйся к нашей семье в приложении Family Tasks. Код семьи: ${familyCode}`,
+          title: t("parentSettings.shareTitle"),
+          text: t("parentSettings.shareText", { familyCode }),
           url: inviteLink,
         })
       } catch (error) {
@@ -77,20 +79,20 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
       {/* Семья */}
       <Card>
         <CardHeader>
-          <CardTitle>Информация о семье</CardTitle>
-          <CardDescription>Данные вашей семьи и приглашение детей</CardDescription>
+          <CardTitle>{t("family.familyInfo")}</CardTitle>
+          <CardDescription>{t("family.familyInfoDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">Название семьи</Label>
+            <Label className="text-sm text-muted-foreground mb-2 block">{t("common.name")}</Label>
             <div className="p-3 bg-muted rounded-lg">
-              <p className="font-semibold">{familyName || "Семья"}</p>
+              <p className="font-semibold">{familyName || t("family.title")}</p>
             </div>
           </div>
           
           <div>
             <Label htmlFor="familyCode" className="text-sm text-muted-foreground mb-2 block">
-              Код для приглашения детей
+              {t("family.inviteCode")}
             </Label>
             <div className="flex gap-2">
               <Input id="familyCode" value={familyCode} disabled className="font-mono font-bold text-center" />
@@ -98,13 +100,13 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
-            {copied && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ Скопировано!</p>}
+            {copied && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ {t("family.codeCopied")}</p>}
           </div>
 
           <div className="border-t pt-4">
             <Label className="text-sm text-muted-foreground mb-2 block flex items-center gap-2">
               <Link2 className="w-4 h-4" />
-              Ссылка-приглашение
+              {t("family.inviteLink")}
             </Label>
             <div className="space-y-2">
               <div className="flex gap-2">
@@ -118,7 +120,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   {linkCopied ? "✓" : ""}
                 </Button>
               </div>
-              {linkCopied && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ Ссылка скопирована!</p>}
+              {linkCopied && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ {t("family.linkCopied")}</p>}
               
               <div className="flex gap-2">
                 <Button 
@@ -127,31 +129,31 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
                 >
                   <Share2 className="w-4 h-4" />
-                  Поделиться ссылкой
+                  {t("family.shareLink")}
                 </Button>
               </div>
               
               <p className="text-xs text-muted-foreground mt-2">
-                💡 Отправьте эту ссылку ребёнку - он автоматически присоединится к семье при переходе
+                {t("family.shareCodeHint")}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Уведомления */}
+      {/* Notifications */}
       <Card>
         <CardHeader>
-          <CardTitle>Уведомления</CardTitle>
-          <CardDescription>Управляйте уведомлениями приложения</CardDescription>
+          <CardTitle>{t("notifications.title")}</CardTitle>
+          <CardDescription>{t("notifications.markAllRead")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-muted-foreground" />
               <div>
-                <Label className="font-medium">Включить уведомления</Label>
-                <p className="text-xs text-muted-foreground">Получайте уведомления о выполнении задач</p>
+                <Label className="font-medium">{t("notifications.enableNotifications")}</Label>
+                <p className="text-xs text-muted-foreground">{t("notifications.taskCompletionDesc")}</p>
               </div>
             </div>
             <Switch
@@ -162,8 +164,8 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
 
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-medium">Звуковые уведомления</Label>
-              <p className="text-xs text-muted-foreground">Включить звук при уведомлениях</p>
+              <Label className="font-medium">{t("notifications.soundNotifications")}</Label>
+              <p className="text-xs text-muted-foreground">{t("notifications.soundNotificationsDesc")}</p>
             </div>
             <Switch
               checked={settings.soundEnabled}
@@ -176,7 +178,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
             <div className="bg-accent/10 border border-accent rounded-lg p-3 space-y-3">
               <div>
                 <Label htmlFor="nightStart" className="text-sm">
-                  Ночной режим начинается
+                  {t("notifications.nightModeStart")}
                 </Label>
                 <Input
                   id="nightStart"
@@ -187,7 +189,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
               </div>
               <div>
                 <Label htmlFor="nightEnd" className="text-sm">
-                  Ночной режим заканчивается
+                  {t("notifications.nightModeEnd")}
                 </Label>
                 <Input
                   id="nightEnd"
@@ -197,18 +199,18 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                В ночном режиме уведомления будут приходить только срочные
+                {t("notifications.nightModeHint")}
               </p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Оформление */}
+      {/* Appearance */}
       <Card>
         <CardHeader>
-          <CardTitle>Оформление</CardTitle>
-          <CardDescription>Измените внешний вид приложения</CardDescription>
+          <CardTitle>{t("settings.appearance")}</CardTitle>
+          <CardDescription>{t("settings.theme")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -219,9 +221,9 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                 <Sun className="w-5 h-5 text-amber-500" />
               )}
               <div>
-                <Label className="font-medium">Тема оформления</Label>
+                <Label className="font-medium">{t("settings.theme")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  {theme === "dark" ? "Темная тема включена" : "Светлая тема включена"}
+                  {theme === "dark" ? t("settings.themeDark") : t("settings.themeLight")}
                 </p>
               </div>
             </div>
@@ -234,12 +236,12 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
               {theme === "dark" ? (
                 <>
                   <Sun className="h-4 w-4" />
-                  Светлая
+                  {t("settings.lightThemeLabel")}
                 </>
               ) : (
                 <>
                   <Moon className="h-4 w-4" />
-                  Тёмная
+                  {t("settings.darkThemeLabel")}
                 </>
               )}
             </Button>
@@ -247,11 +249,11 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
         </CardContent>
       </Card>
 
-      {/* Опасные действия */}
+      {/* Danger Zone */}
       <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-destructive">Опасные действия</CardTitle>
-          <CardDescription>Действия, которые нельзя отменить</CardDescription>
+          <CardTitle className="text-destructive">{t("settings.dangerZone")}</CardTitle>
+          <CardDescription>{t("settings.dangerDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Dialog>
@@ -261,23 +263,23 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                 className="w-full border-destructive text-destructive hover:bg-destructive/5 bg-transparent"
               >
                 <AlertCircle className="w-4 h-4 mr-2" />
-                Очистить все данные
+                {t("settings.clearAllData")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Вы уверены?</DialogTitle>
+                <DialogTitle>{t("settings.clearAllDataConfirm")}</DialogTitle>
                 <DialogDescription>
-                  Это действие удалит все данные вашей семьи. Это нельзя будет отменить.
+                  {t("settings.clearAllDataMessage")}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">Будут удалены:</p>
+                <p className="text-sm text-muted-foreground">{t("settings.whatWillBeDeleted")}</p>
                 <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
-                  <li>Все задачи</li>
-                  <li>Все награды</li>
-                  <li>Вся статистика</li>
-                  <li>Профили детей</li>
+                  <li>{t("settings.allTasksDeleted")}</li>
+                  <li>{t("settings.allRewardsDeleted")}</li>
+                  <li>{t("settings.allStatisticsDeleted")}</li>
+                  <li>{t("settings.childProfilesDeleted")}</li>
                 </ul>
                 <Button 
                   variant="destructive" 
@@ -286,7 +288,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   disabled={isLoading}
                 >
                   {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  Очистить все данные
+                  {t("settings.clearAllData")}
                 </Button>
               </div>
             </DialogContent>

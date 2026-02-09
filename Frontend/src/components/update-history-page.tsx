@@ -3,23 +3,25 @@
 import { ArrowLeft, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface UpdateHistoryPageProps {
   onBack: () => void
 }
 
 export default function UpdateHistoryPage({ onBack }: UpdateHistoryPageProps) {
+  const { t } = useTranslation()
   const updates = [
     {
-      date: "20 Дек",
+      date: t("updateHistory.dateDec20"),
       changes: [
-        { field: "Название", old: "Помыть тарелки", new: "Помыть посуду", by: "Родитель" },
-        { field: "Награда XP", old: "50", new: "100", by: "Родитель" },
+        { field: t("updateHistory.fieldName"), old: t("updateHistory.oldWashPlates"), new: t("updateHistory.newWashDishes"), by: t("updateHistory.byParent") },
+        { field: t("updateHistory.fieldRewardXP"), old: "50", new: "100", by: t("updateHistory.byParent") },
       ],
     },
     {
-      date: "18 Дек",
-      changes: [{ field: "Сложность", old: "2 звезды", new: "3 звезды", by: "Родитель" }],
+      date: t("updateHistory.dateDec18"),
+      changes: [{ field: t("updateHistory.fieldDifficulty"), old: t("updateHistory.stars2"), new: t("updateHistory.stars3"), by: t("updateHistory.byParent") }],
     },
   ]
 
@@ -28,11 +30,11 @@ export default function UpdateHistoryPage({ onBack }: UpdateHistoryPageProps) {
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <h1 className="text-2xl font-bold flex items-center gap-2 mt-2">
           <FileText className="w-5 h-5" />
-          История изменений
+          {t("updateHistory.title")}
         </h1>
       </header>
 

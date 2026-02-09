@@ -3,17 +3,19 @@
 import { ArrowLeft, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface XPBreakdownPageProps {
   onBack: () => void
 }
 
 export default function XPBreakdownPage({ onBack }: XPBreakdownPageProps) {
+  const { t } = useTranslation()
   const xpBreakdown = [
-    { task: "Убрать комнату", xp: 150, date: "Сегодня" },
-    { task: "Помыть посуду", xp: 100, date: "Сегодня" },
-    { task: "Ежедневная миссия", xp: 50, date: "Вчера" },
-    { task: "Достижение разблокировано", xp: 200, date: "Вчера" },
+    { task: t("xpBreakdown.cleanRoom"), xp: 150, date: t("xpBreakdown.today") },
+    { task: t("xpBreakdown.washDishes"), xp: 100, date: t("xpBreakdown.today") },
+    { task: t("xpBreakdown.dailyMission"), xp: 50, date: t("xpBreakdown.yesterday") },
+    { task: t("xpBreakdown.achievementUnlocked"), xp: 200, date: t("xpBreakdown.yesterday") },
   ]
 
   const totalXP = xpBreakdown.reduce((sum, item) => sum + item.xp, 0)
@@ -23,18 +25,18 @@ export default function XPBreakdownPage({ onBack }: XPBreakdownPageProps) {
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
-          Прирост опыта
+          {t("xpBreakdown.title")}
         </h1>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">
         <Card className="mb-6 bg-gradient-to-r from-accent/10 to-secondary/10">
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground mb-2">Всего XP за 2 дня</p>
+            <p className="text-center text-muted-foreground mb-2">{t("xpBreakdown.totalXPForDays")}</p>
             <p className="text-center text-4xl font-bold text-accent">{totalXP}</p>
           </CardContent>
         </Card>

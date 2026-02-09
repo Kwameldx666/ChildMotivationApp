@@ -18,12 +18,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
-import { ChevronLeft, ChevronRight, Filter, Loader2, Download } from "lucide-react"
-import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
+import { useI18n } from "@/i18n/provider"
 import { toPng } from "html-to-image"
 import jsPDF from "jspdf"
+import { ChevronLeft, ChevronRight, Filter, Loader2, Download } from "lucide-react"
+import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
 
 export default function AnalyticsDashboard() {
+  const { t } = useI18n()
   const [currentChart, setCurrentChart] = useState(0)
   const [selectedChild, setSelectedChild] = useState("all")
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
@@ -43,7 +45,7 @@ export default function AnalyticsDashboard() {
       const data = await getTaskAnalytics(windowDays)
       setAnalytics(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки аналитики')
+      setError(err instanceof Error ? err.message : t('analyticsDashboard.loadError'))
       console.error('Analytics error:', err)
     } finally {
       setLoading(false)
@@ -54,7 +56,7 @@ export default function AnalyticsDashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">Загрузка аналитики...</span>
+        <span className="ml-2">{t('analyticsDashboard.loading')}</span>
       </div>
     )
   }
@@ -62,20 +64,20 @@ export default function AnalyticsDashboard() {
   if (error || !analytics) {
     return (
       <div className="text-center p-8">
-        <p className="text-red-500 mb-4">{error || 'Нет данных'}</p>
-        <Button onClick={loadAnalytics}>Попробовать снова</Button>
+        <p className="text-red-500 mb-4">{error || t('analyticsDashboard.noData')}</p>
+        <Button onClick={loadAnalytics}>{t('analyticsDashboard.tryAgain')}</Button>
       </div>
     )
   }
 
   // Конфигурация графиков
   const chartsConfig = [
-    { id: 0, title: "Активность в неделю", type: "bar" },
-    { id: 1, title: "Очки по детям", type: "pie" },
-    { id: 2, title: "Сложность задач", type: "pie" },
-    { id: 3, title: "Прогресс по неделям", type: "area" },
-    { id: 4, title: "Статус задач", type: "pie" },
-    { id: 5, title: "Тренд накопления очков", type: "area" },
+    { id: 0, titleKey: "analytics.charts.weeklyActivity", type: "bar" },
+    { id: 1, titleKey: "analytics.charts.pointsByChildren", type: "pie" },
+    { id: 2, titleKey: "analytics.charts.difficultyDistribution", type: "pie" },
+    { id: 3, titleKey: "analytics.charts.weeklyProgress", type: "area" },
+    { id: 4, titleKey: "analytics.charts.taskStatus", type: "pie" },
+    { id: 5, titleKey: "analytics.charts.pointsTrend", type: "area" },
   ]
 
   const renderChart = (chartId: number) => {
@@ -89,8 +91,8 @@ export default function AnalyticsDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="tasksCompleted" fill="#8b5cf6" name="Задачи" />
-              <Bar dataKey="pointsEarned" fill="#f59e0b" name="Очки" />
+              <Bar dataKey="tasksCompleted" fill="#8b5cf6" name={t('analytics.chartLabels.tasks')} />
+              <Bar dataKey="pointsEarned" fill="#f59e0b" name={t('analytics.chartLabels.points')} />
             </BarChart>
           </ResponsiveContainer>
         )
@@ -147,16 +149,16 @@ export default function AnalyticsDashboard() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Area type="monotone" dataKey="completed" stackId="1" stroke="#10b981" fill="#10b981" name="Выполнено" />
-              <Area type="monotone" dataKey="total" stackId="1" stroke="#3b82f6" fill="#3b82f6" name="Всего" />
+              <Area type="monotone" dataKey="completed" stackId="1" stroke="#10b981" fill="#10b981" name={t('analytics.chartLabels.completed')} />
+              <Area type="monotone" dataKey="total" stackId="1" stroke="#3b82f6" fill="#3b82f6" name={t('analytics.chartLabels.total')} />
             </AreaChart>
           </ResponsiveContainer>
         )
       case 4:
         const taskStatusData = [
-          { name: "Выполнено", value: analytics.taskStatus.completed, fill: "#10b981" },
-          { name: "В работе", value: analytics.taskStatus.inProgress, fill: "#f59e0b" },
-          { name: "Просрочено", value: analytics.taskStatus.overdue, fill: "#ef4444" },
+          { name: t('analytics.chartLabels.completed'), value: analytics.taskStatus.completed, fill: "#10b981" },
+          { name: t('analytics.chartLabels.inProgress'), value: analytics.taskStatus.inProgress, fill: "#f59e0b" },
+          { name: t('analytics.chartLabels.overdue'), value: analytics.taskStatus.overdue, fill: "#ef4444" },
         ]
         return (
           <ResponsiveContainer width="100%" height={300}>
@@ -187,7 +189,7 @@ export default function AnalyticsDashboard() {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="points" stroke="#8b5cf6" fill="#8b5cf6" name="Очки" />
+              <Area type="monotone" dataKey="points" stroke="#8b5cf6" fill="#8b5cf6" name={t('analytics.chartLabels.points')} />
             </AreaChart>
           </ResponsiveContainer>
         )
@@ -253,31 +255,31 @@ export default function AnalyticsDashboard() {
             size="sm"
             onClick={() => setWindowDays(7)}
           >
-            7 дней
+            {t('analytics.periodSelection.7days')}
           </Button>
           <Button
             variant={windowDays === 30 ? "default" : "outline"}
             size="sm"
             onClick={() => setWindowDays(30)}
           >
-            30 дней
+            {t('analytics.periodSelection.30days')}
           </Button>
           <Button
             variant={windowDays === 90 ? "default" : "outline"}
             size="sm"
             onClick={() => setWindowDays(90)}
           >
-            90 дней
+            {t('analytics.periodSelection.90days')}
           </Button>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportAsPng}>
             <Download className="w-4 h-4 mr-2" />
-            PNG
+            {t('analytics.export.png')}
           </Button>
           <Button variant="outline" size="sm" onClick={exportAsPdf}>
             <Download className="w-4 h-4 mr-2" />
-            PDF
+            {t('analytics.export.pdf')}
           </Button>
         </div>
       </div>
@@ -286,41 +288,41 @@ export default function AnalyticsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Всего очков</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.cards.totalPoints')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-primary">{analytics.totalPoints.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground mt-1">Заработано за период</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('analytics.cards.earnedForPeriod')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Завершённые задачи</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.cards.completedTasks')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-accent">{analytics.completedTasks}</p>
-            <p className="text-xs text-muted-foreground mt-1">Из {analytics.totalTasks} всего</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('analytics.cards.outOf', { total: analytics.totalTasks })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Процент выполнения</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.cards.completionRate')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-green-600">{analytics.completionRate.toFixed(1)}%</p>
-            <p className="text-xs text-muted-foreground mt-1">Успешность</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('analytics.cards.successRate')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Активные дети</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.cards.activeChildren')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-secondary">{analytics.activeChildren}</p>
-            <p className="text-xs text-muted-foreground mt-1">Участвуют в задачах</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('analytics.cards.participatingInTasks')}</p>
           </CardContent>
         </Card>
       </div>
@@ -328,9 +330,9 @@ export default function AnalyticsDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>{chartsConfig[currentChart].title}</CardTitle>
+            <CardTitle>{t(chartsConfig[currentChart].titleKey)}</CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              График {currentChart + 1} из {chartsConfig.length}
+              {t('analyticsDashboard.chartOf', { current: currentChart + 1, total: chartsConfig.length })}
             </p>
           </div>
           <div className="flex gap-2">
@@ -352,7 +354,7 @@ export default function AnalyticsDashboard() {
                 size="sm"
                 onClick={() => setSelectedChild("all")}
               >
-                Вся семья
+                {t('analyticsDashboard.wholeFamily')}
               </Button>
               {analytics.childrenStats.map((child) => (
                 <Button
@@ -372,7 +374,7 @@ export default function AnalyticsDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Быстрое переключение</CardTitle>
+            <CardTitle className="text-base">{t('analyticsDashboard.quickSwitch')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -384,7 +386,7 @@ export default function AnalyticsDashboard() {
                   className="text-xs"
                   onClick={() => setCurrentChart(idx)}
                 >
-                  {idx + 1}. {chart.title}
+                  {idx + 1}. {t(chart.titleKey)}
                 </Button>
               ))}
             </div>

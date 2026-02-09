@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { useAiChat, type ChatMessage } from "@/hooks/use-ai-chat"
 import type { AiAction } from "@/services/ai-service"
+import { useTranslation } from "@/i18n/provider"
 
 interface AIChatPageProps {
   userName?: string
@@ -25,42 +26,44 @@ type QuickAction = {
   accent: string
 }
 
-const quickActions: QuickAction[] = [
-  {
-    title: "Спринт задач",
-    description: "Попроси ИИ собрать задачи под конкретную цель",
-    prompt: "Составь недельный спринт задач для ребёнка, чтобы прокачать ответственность и помочь с уроками.",
-    accent: "from-emerald-500/20 to-teal-500/10",
-  },
-  {
-    title: "Наградный буст",
-    description: "Пусть ИИ обновит магазин наград",
-    prompt: "Предложи свежие награды до 400 очков с упором на семейные ритуалы.",
-    accent: "from-amber-500/20 to-orange-500/10",
-  },
-  {
-    title: "Диалог с ребёнком",
-    description: "Получите сценарий беседы",
-    prompt: "Подскажи, как поговорить с ребёнком о снижении мотивации, чтобы он не замкнулся.",
-    accent: "from-purple-500/20 to-fuchsia-500/10",
-  },
-]
-
-const starterIdeas = [
-  "Смести расписание задач на неделю с указанием времени и XP",
-  "Разбей награду 'поход в музей' на микро-бонусы",
-  "Придумай тёплое сообщение для семейного чата с итогами недели",
-  "Сделай чек-лист подготовки к утру для ребёнка 9 лет",
-]
-
 export default function AIChatPage({ userName, role = "parent", familyName, onBack }: AIChatPageProps) {
+  const { t } = useTranslation()
+
+  const quickActions: QuickAction[] = useMemo(() => [
+    {
+      title: t("aiChatPage.quickActions.taskSprint.title"),
+      description: t("aiChatPage.quickActions.taskSprint.description"),
+      prompt: t("aiChatPage.quickActions.taskSprint.prompt"),
+      accent: "from-emerald-500/20 to-teal-500/10",
+    },
+    {
+      title: t("aiChatPage.quickActions.rewardBoost.title"),
+      description: t("aiChatPage.quickActions.rewardBoost.description"),
+      prompt: t("aiChatPage.quickActions.rewardBoost.prompt"),
+      accent: "from-amber-500/20 to-orange-500/10",
+    },
+    {
+      title: t("aiChatPage.quickActions.childDialog.title"),
+      description: t("aiChatPage.quickActions.childDialog.description"),
+      prompt: t("aiChatPage.quickActions.childDialog.prompt"),
+      accent: "from-purple-500/20 to-fuchsia-500/10",
+    },
+  ], [t])
+
+  const starterIdeas = useMemo(() => [
+    t("aiChatPage.starterIdeas.weeklySchedule"),
+    t("aiChatPage.starterIdeas.microBonuses"),
+    t("aiChatPage.starterIdeas.weekSummary"),
+    t("aiChatPage.starterIdeas.morningChecklist"),
+  ], [t])
+
   const [input, setInput] = useState("")
   const scrollerRef = useRef<HTMLDivElement | null>(null)
   const greeting = useMemo(() => {
-    const persona = role === "child" ? "Твой семейный наставник здесь" : "Готов построить семейную стратегию"
-    const family = familyName ? ` семьи «${familyName}»` : ""
-    return `${persona}! ${userName ? `${userName},` : ""} я помогу с задачами, наградами и коммуникацией${family}. Сформулируй запрос — и я сделаю остальное.`
-  }, [familyName, role, userName])
+    const persona = role === "child" ? t("aiChatPage.greeting.childPersona") : t("aiChatPage.greeting.parentPersona")
+    const family = familyName ? ` ${t("aiChatPage.greeting.familySuffix", { familyName })}` : ""
+    return `${persona}! ${userName ? `${userName},` : ""} ${t("aiChatPage.greeting.helpMessage")}${family}. ${t("aiChatPage.greeting.cta")}`
+  }, [familyName, role, userName, t])
 
   const context = useMemo(() => {
     const base: Record<string, string> = {
@@ -129,26 +132,25 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-200/80">AI Command Room</p>
             <h1 className="text-3xl font-semibold leading-tight text-white lg:text-4xl">
-              Интеллектуальный ассистент семьи
+              {t("aiChatPage.header.title")}
             </h1>
             <p className="mt-2 text-sm text-slate-300/90">
-              Попроси создать набор задач, сводку недели или подготовить сообщение — ассистент выполнит запрос с учетом
-              семейного контекста.
+              {t("aiChatPage.header.description")}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2 text-right">
             {onBack ? (
               <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={onBack}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Назад
+                {t("common.back")}
               </Button>
             ) : null}
             <Badge variant="secondary" className={cn("flex items-center gap-2 border-0 bg-emerald-500/20 text-emerald-50", isThinking && "bg-yellow-500/20 text-yellow-100")}> 
               <Sparkles className="h-3 w-3" />
-              {isThinking ? "ИИ формирует ответ" : "Онлайн"}
+              {isThinking ? t("aiChatPage.status.thinking") : t("aiChatPage.status.online")}
             </Badge>
             <p className="text-xs text-slate-300/80">
-              {lastReplyAt ? `Последний ответ ${lastReplyAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}` : "Диалог только стартует"}
+              {lastReplyAt ? t("aiChatPage.status.lastReply", { time: lastReplyAt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) }) : t("aiChatPage.status.dialogStart")}
             </p>
           </div>
         </div>
@@ -157,13 +159,13 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
           <section className="rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
             <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-emerald-200/70">Диалог</p>
-                <h2 className="text-xl font-semibold text-white">AI-оператор</h2>
+                <p className="text-xs uppercase tracking-[0.2em] text-emerald-200/70">{t("aiChatPage.dialog.label")}</p>
+                <h2 className="text-xl font-semibold text-white">{t("aiChatPage.dialog.title")}</h2>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300/80">
                 {conversationId ? <span className="rounded-full bg-white/5 px-3 py-1">Session: {conversationId.slice(0, 8)}</span> : null}
                 <Button variant="ghost" size="sm" className="text-xs text-slate-200 hover:bg-white/10" onClick={reset}>
-                  <RotateCcw className="mr-1 h-3.5 w-3.5" /> Сбросить
+                  <RotateCcw className="mr-1 h-3.5 w-3.5" /> {t("aiChatPage.dialog.reset")}
                 </Button>
               </div>
             </header>
@@ -182,7 +184,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                         )}
                       >
                         <p className="mb-2 text-xs uppercase tracking-wide text-white/60">
-                          {message.role === "user" ? "Вы" : message.role === "assistant" ? "ИИ" : "Система"}
+                          {message.role === "user" ? t("aiChatPage.messages.you") : message.role === "assistant" ? t("aiChatPage.messages.ai") : t("aiChatPage.messages.system")}
                         </p>
                         <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/90">{message.content}</p>
                         <p className="mt-3 text-[11px] text-white/50">
@@ -209,7 +211,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                   {isThinking && (
                     <div className="flex items-center gap-3 text-xs text-slate-300">
                       <div className="h-2 w-2 animate-ping rounded-full bg-emerald-300" />
-                      <span>Готовлю ответ…</span>
+                      <span>{t("aiChatPage.messages.preparing")}</span>
                     </div>
                   )}
                 </div>
@@ -219,7 +221,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
               {pendingActions.length > 0 && (
                 <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-emerald-200">
-                    Доступные действия
+                    {t("aiChatPage.actions.available")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {pendingActions.map((action, idx) => (
@@ -256,11 +258,11 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                     value={input}
                     onChange={event => setInput(event.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Расскажи, что должен сделать ассистент. Например: “Подготовь письмо родителям с итогами недели и списком задач на понедельник.”"
+                    placeholder={t("aiChatPage.input.placeholder")}
                     className="min-h-[120px] resize-none border-none bg-transparent text-slate-100 placeholder:text-slate-400 focus-visible:ring-emerald-400"
                   />
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                    <div className="text-xs text-slate-400">Shift+Enter — перенос строки</div>
+                    <div className="text-xs text-slate-400">{t("aiChatPage.input.shiftEnterHint")}</div>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -268,7 +270,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                         className="text-xs text-slate-200 hover:bg-white/10"
                         onClick={() => handleSuggestion(starterIdeas[Math.floor(Math.random() * starterIdeas.length)])}
                       >
-                        <Wand2 className="mr-1 h-3.5 w-3.5" /> Случайная идея
+                        <Wand2 className="mr-1 h-3.5 w-3.5" /> {t("aiChatPage.input.randomIdea")}
                       </Button>
                       <Button
                         type="button"
@@ -276,7 +278,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                         className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-emerald-500/40 hover:opacity-90"
                         onClick={handleSubmit}
                       >
-                        Отправить
+                        {t("aiChatPage.input.send")}
                         <Send className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -291,7 +293,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base font-semibold text-white">
                   <Bot className="h-4 w-4" />
-                  Быстрые действия
+                  {t("aiChatPage.sidebar.quickActions")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -316,7 +318,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-sm text-white">
                   <PenSquare className="h-4 w-4" />
-                  Шаблоны запросов
+                  {t("aiChatPage.sidebar.promptTemplates")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs leading-relaxed">
@@ -329,7 +331,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                       className="mt-2 h-7 text-[11px] text-emerald-200 hover:bg-white/10"
                       onClick={() => handleSuggestion(prompt)}
                     >
-                      Вставить в поле
+                      {t("aiChatPage.sidebar.insertToField")}
                     </Button>
                   </div>
                 ))}
@@ -338,18 +340,17 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
 
             <Card className="border-white/10 bg-white/5 text-slate-100">
               <CardHeader>
-                <CardTitle className="text-sm text-white">Информация о контексте</CardTitle>
+                <CardTitle className="text-sm text-white">{t("aiChatPage.sidebar.contextInfo")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
                 <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-                  <p className="text-slate-300">Роль: {role === "child" ? "ребёнок" : "родитель"}</p>
-                  {userName ? <p className="text-slate-300">Имя: {userName}</p> : null}
-                  {familyName ? <p className="text-slate-300">Семья: {familyName}</p> : null}
+                  <p className="text-slate-300">{t("aiChatPage.context.roleLabel", { role: role === "child" ? t("aiChatPage.context.roleChild") : t("aiChatPage.context.roleParent") })}</p>
+                  {userName ? <p className="text-slate-300">{t("aiChatPage.context.nameLabel", { name: userName })}</p> : null}
+                  {familyName ? <p className="text-slate-300">{t("aiChatPage.context.familyLabel", { family: familyName })}</p> : null}
                 </div>
                 <Separator className="border-white/10" />
                 <p className="text-slate-400">
-                  Ассистент использует контекст роли и семьи, чтобы формировать ответы во всех сценариях: постановка задач,
-                  рекомендации по наградам, объяснение правил, текст для семейного чата.
+                  {t("aiChatPage.context.description")}
                 </p>
               </CardContent>
             </Card>
@@ -369,6 +370,7 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ action, onExecute, onDismiss, showDismiss = false }: ActionButtonProps) {
+  const { t } = useTranslation()
   const [isExecuting, setIsExecuting] = useState(false)
 
   const handleExecute = async () => {
@@ -406,7 +408,7 @@ function ActionButton({ action, onExecute, onDismiss, showDismiss = false }: Act
         onClick={handleExecute}
       >
         {actionIcons[action.type] ?? <Play className="h-3.5 w-3.5" />}
-        {isExecuting ? "Выполняю…" : action.label}
+        {isExecuting ? t("aiChatPage.actions.executing") : action.label}
       </Button>
       {showDismiss && (
         <button

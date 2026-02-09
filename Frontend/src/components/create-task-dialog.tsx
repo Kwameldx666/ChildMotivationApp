@@ -13,14 +13,15 @@ import { useToast } from "@/hooks/use-toast"
 import { Check, Loader2, Sparkles, Camera, CameraOff, User, Clock, Zap, Tag, FileText } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useFamilyMembers } from "@/services/family-queries"
+import { useTranslation } from "@/i18n/provider"
 
 const QUICK_IDEAS = [
-  { emoji: "🧹", text: "Убрать в комнате" },
-  { emoji: "📚", text: "Почитать книгу" },
-  { emoji: "🍽️", text: "Помочь с ужином" },
-  { emoji: "🏃", text: "Сделать зарядку" },
-  { emoji: "🛏️", text: "Заправить кровать" },
-  { emoji: "🧺", text: "Сложить вещи" },
+  { emoji: "🧹", text: "createTaskDialog.quickIdeas.cleanRoom" },
+  { emoji: "📚", text: "createTaskDialog.quickIdeas.readBook" },
+  { emoji: "🍽️", text: "createTaskDialog.quickIdeas.helpWithDinner" },
+  { emoji: "🏃", text: "createTaskDialog.quickIdeas.doExercise" },
+  { emoji: "🛏️", text: "createTaskDialog.quickIdeas.makeBed" },
+  { emoji: "🧺", text: "createTaskDialog.quickIdeas.foldClothes" },
 ]
 
 const DIFFICULTY_POINTS: Record<number, number> = {
@@ -28,12 +29,12 @@ const DIFFICULTY_POINTS: Record<number, number> = {
 }
 
 const CATEGORIES = [
-  { id: 'home', label: 'Домашние дела', emoji: '🏠' },
-  { id: 'study', label: 'Учёба', emoji: '📚' },
-  { id: 'health', label: 'Здоровье', emoji: '💪' },
-  { id: 'creativity', label: 'Творчество', emoji: '🎨' },
-  { id: 'social', label: 'Общение', emoji: '🤝' },
-  { id: 'other', label: 'Другое', emoji: '✨' },
+  { id: 'home', label: 'tasks.categories.home', emoji: '🏠' },
+  { id: 'study', label: 'tasks.categories.study', emoji: '📚' },
+  { id: 'health', label: 'tasks.categories.health', emoji: '💪' },
+  { id: 'creativity', label: 'tasks.categories.creativity', emoji: '🎨' },
+  { id: 'social', label: 'tasks.categories.social', emoji: '🤝' },
+  { id: 'other', label: 'tasks.categories.other', emoji: '✨' },
 ] as const
 
 interface CreateTaskDialogProps {
@@ -44,6 +45,7 @@ interface CreateTaskDialogProps {
 
 export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDialogProps) {
   const { toast } = useToast()
+  const { t } = useTranslation()
   const createTask = useCreateTask()
 
   const [description, setDescription] = useState("")
@@ -85,7 +87,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
     : (title.trim().length >= 3 && description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild))
 
   const handleQuickIdea = (idea: typeof QUICK_IDEAS[0]) => {
-    setDescription(idea.text)
+    setDescription(t(idea.text))
   }
 
   const handleSubmit = async (event?: FormEvent) => {
@@ -131,13 +133,13 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
         assignedToUserId: selectedChild || undefined,
       })
 
-      toast({ title: "✓ Задача создана" })
+      toast({ title: t("createTaskDialog.taskCreatedToast") })
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
       toast({
-        title: "Ошибка",
-        description: "Не удалось создать задачу",
+        title: t("common.error"),
+        description: t("createTaskDialog.createError"),
         variant: "destructive",
       })
     } finally {
@@ -160,7 +162,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
       <DialogContent className="max-w-md gap-0 p-0 overflow-hidden">
         {/* Заголовок */}
         <DialogHeader className="px-5 pt-5 pb-4">
-          <DialogTitle className="text-base font-medium">Новая задача</DialogTitle>
+          <DialogTitle className="text-base font-medium">{t("createTaskDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col">
@@ -172,7 +174,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Опишите задачу, ИИ сформулирует детали..."
+                  placeholder={t("createTaskDialog.describePlaceholder")}
                   rows={2}
                   className="resize-none border-0 bg-muted/30 p-3 text-base placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
                   autoFocus
@@ -191,7 +193,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                         className="inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1.5 text-xs transition-colors hover:bg-muted"
                       >
                         <span>{idea.emoji}</span>
-                        <span>{idea.text}</span>
+                        <span>{t(idea.text)}</span>
                       </button>
                     ))}
                   </div>
@@ -204,12 +206,12 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
               <div className="px-5 pb-3">
                 <div className="flex items-center gap-3 mb-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Название</span>
+                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.titleLabel")}</span>
                 </div>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Краткое название задачи"
+                  placeholder={t("createTaskDialog.titlePlaceholder")}
                   className="border-0 bg-muted/30 p-3 text-base placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
                   autoFocus
                 />
@@ -219,12 +221,12 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
               <div className="px-5 pb-3">
                 <div className="flex items-center gap-3 mb-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Описание</span>
+                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.descriptionLabel")}</span>
                 </div>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Подробное описание задачи..."
+                  placeholder={t("createTaskDialog.descriptionPlaceholder")}
                   rows={2}
                   className="resize-none border-0 bg-muted/30 p-3 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
                 />
@@ -244,13 +246,13 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                       <SelectContent>
                         {CATEGORIES.map((cat) => (
                           <SelectItem key={cat.id} value={cat.id}>
-                            {cat.emoji} {cat.label}
+                            {cat.emoji} {t(cat.label)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <span className="text-xs text-muted-foreground">Категория</span>
+                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.categoryLabel")}</span>
                 </div>
               </div>
             </>
@@ -265,12 +267,12 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                 </div>
                 {children.length === 1 ? (
                   <span className="text-sm text-muted-foreground">
-                    Для: {children[0].name} {children[0].lastName || ''}
+                    {t("createTaskDialog.forChild")} {children[0].name} {children[0].lastName || ''}
                   </span>
                 ) : (
                   <Select value={selectedChild ?? ''} onValueChange={(v) => setSelectedChild(v || undefined)}>
                     <SelectTrigger className="h-8 flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0">
-                      <SelectValue placeholder="Выберите ребёнка" />
+                      <SelectValue placeholder={t("createTaskDialog.selectChild")} />
                     </SelectTrigger>
                     <SelectContent>
                       {children.map((child) => (
@@ -298,10 +300,10 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                   onChange={(e) => setDueDate(e.target.value)}
                   min={new Date().toISOString().slice(0, 16)}
                   className="h-8 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
-                  placeholder="Выберите дату и время"
+                  placeholder={t("createTaskDialog.dateTimePlaceholder")}
                 />
               </div>
-              <span className="text-xs text-muted-foreground">Срок</span>
+              <span className="text-xs text-muted-foreground">{t("createTaskDialog.deadline")}</span>
             </div>
           </div>
 
@@ -318,7 +320,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                     : <CameraOff className="h-3.5 w-3.5 text-muted-foreground" />
                   }
                 </div>
-                <span className="text-sm">Фото-подтверждение</span>
+                <span className="text-sm">{t("createTaskDialog.photoConfirmation")}</span>
               </div>
               <Switch
                 checked={requiresConfirmation}
@@ -340,15 +342,15 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">⭐ Очень легко</SelectItem>
-                      <SelectItem value="2">⭐⭐ Легко</SelectItem>
-                      <SelectItem value="3">⭐⭐⭐ Средне</SelectItem>
-                      <SelectItem value="4">⭐⭐⭐⭐ Сложно</SelectItem>
-                      <SelectItem value="5">⭐⭐⭐⭐⭐ Очень сложно</SelectItem>
+                      <SelectItem value="1">⭐ {t("tasks.difficultyLevels.1")}</SelectItem>
+                      <SelectItem value="2">⭐⭐ {t("tasks.difficultyLevels.2")}</SelectItem>
+                      <SelectItem value="3">⭐⭐⭐ {t("tasks.difficultyLevels.3")}</SelectItem>
+                      <SelectItem value="4">⭐⭐⭐⭐ {t("tasks.difficultyLevels.4")}</SelectItem>
+                      <SelectItem value="5">⭐⭐⭐⭐⭐ {t("tasks.difficultyLevels.5")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <span className="text-xs text-muted-foreground">{computedXP} XP • {computedPoints} очков</span>
+                <span className="text-xs text-muted-foreground">{t("createTaskDialog.xpAndPoints", { xp: computedXP, points: computedPoints })}</span>
               </div>
             </div>
           )}
@@ -367,7 +369,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
               )}
             >
               {useAi ? <Sparkles className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
-              {useAi ? "С ИИ" : "Быстро"}
+              {useAi ? t("createTaskDialog.withAi") : t("createTaskDialog.quick")}
             </button>
 
             <Button 
@@ -379,12 +381,12 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {useAi ? "ИИ думает..." : "Создаём..."}
+                  {useAi ? t("createTaskDialog.aiThinking") : t("createTaskDialog.creating")}
                 </>
               ) : (
                 <>
                   <Check className="h-3.5 w-3.5" />
-                  Создать
+                  {t("common.create")}
                 </>
               )}
             </Button>

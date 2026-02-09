@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react"
 import { aiService } from "@/services/ai-service"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/i18n/provider"
 
 interface AITaskSuggestion {
   title: string
@@ -18,57 +19,31 @@ interface AITaskSuggestion {
   category: string
 }
 
-const AI_TASK_SUGGESTIONS: AITaskSuggestion[] = [
-  {
-    title: "Помыть посуду",
-    description: "Помойте всю посуду после обеда",
-    difficulty: 2,
-    category: "home",
-  },
-  {
-    title: "Полить цветы",
-    description: "Полейте домашние растения",
-    difficulty: 1,
-    category: "home",
-  },
-  {
-    title: "Сделать домашнее задание",
-    description: "Выполнить 3 задания из учебника",
-    difficulty: 3,
-    category: "study",
-  },
-  {
-    title: "Погулять с собакой",
-    description: "Гулять 30 минут в парке",
-    difficulty: 2,
-    category: "pets",
-  },
-  {
-    title: "Убрать свою комнату",
-    description: "Расставить вещи по местам и пропылесосить",
-    difficulty: 3,
-    category: "home",
-  },
-]
-
-
-
-const AI_REWARD_SUGGESTIONS = [
-  { title: "Пицца", cost: 500, emoji: "🍕" },
-  { title: "Поход в кино", cost: 750, emoji: "🎬" },
-  { title: "Новая игра", cost: 1000, emoji: "🎮" },
-  { title: "Прогулка в парк", cost: 300, emoji: "🌳" },
-  { title: "Десерт на выбор", cost: 250, emoji: "🍰" },
-]
-
 interface ParentAISuggestionsProps {
   onTaskSelect?: (task: AITaskSuggestion) => void
 }
 
 export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestionsProps) {
+  const { t, locale } = useTranslation()
   const [showTaskSuggestions, setShowTaskSuggestions] = useState(false)
   const [showRewardSuggestions, setShowRewardSuggestions] = useState(false)
   const [selectedTask, setSelectedTask] = useState<AITaskSuggestion | null>(null)
+
+  const AI_TASK_SUGGESTIONS: AITaskSuggestion[] = [
+    { title: t("parentAiSuggestions.mockTasks.washDishes.title"), description: t("parentAiSuggestions.mockTasks.washDishes.description"), difficulty: 2, category: "home" },
+    { title: t("parentAiSuggestions.mockTasks.waterFlowers.title"), description: t("parentAiSuggestions.mockTasks.waterFlowers.description"), difficulty: 1, category: "home" },
+    { title: t("parentAiSuggestions.mockTasks.homework.title"), description: t("parentAiSuggestions.mockTasks.homework.description"), difficulty: 3, category: "study" },
+    { title: t("parentAiSuggestions.mockTasks.walkDog.title"), description: t("parentAiSuggestions.mockTasks.walkDog.description"), difficulty: 2, category: "pets" },
+    { title: t("parentAiSuggestions.mockTasks.cleanRoom.title"), description: t("parentAiSuggestions.mockTasks.cleanRoom.description"), difficulty: 3, category: "home" },
+  ]
+
+  const AI_REWARD_SUGGESTIONS = [
+    { title: t("parentAiSuggestions.mockRewards.pizza"), cost: 500, emoji: "🍕" },
+    { title: t("parentAiSuggestions.mockRewards.cinema"), cost: 750, emoji: "🎬" },
+    { title: t("parentAiSuggestions.mockRewards.newGame"), cost: 1000, emoji: "🎮" },
+    { title: t("parentAiSuggestions.mockRewards.parkWalk"), cost: 300, emoji: "🌳" },
+    { title: t("parentAiSuggestions.mockRewards.dessert"), cost: 250, emoji: "🍰" },
+  ]
 
   const { data: familyMembers = [] } = useFamilyMembers()
   const firstChild = familyMembers.find(m => m.role === 'child')
@@ -85,8 +60,8 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
       const payload: any = {
         childId: firstChild?.id,
         childAge: (firstChild as any)?.age ?? undefined,
-        tone: 'дружелюбный',
-        language: 'ru',
+        tone: t("parentAiSuggestions.friendlyTone"),
+        language: locale,
       }
 
       if (opts?.useDescription && promptDescription.trim()) {
@@ -104,7 +79,7 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
       setSuggestions(mapped)
     } catch (error) {
       console.error('[parent-ai-suggestions] Failed to fetch suggestions', error)
-      toast({ title: 'ИИ недоступен', description: 'Не удалось получить предложения' })
+      toast({ title: t("parentAiSuggestions.aiUnavailable"), description: t("parentAiSuggestions.fetchError") })
       setSuggestions(null)
     } finally {
       setIsLoading(false)
@@ -136,12 +111,12 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
             >
               <span className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                Предложить задачи
+                {t("parentAiSuggestions.suggestTasks")}
               </span>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <p className="text-xs text-muted-foreground mt-3">
-              ИИ проанализирует возраст и активность детей и предложит подходящие задачи
+              {t("parentAiSuggestions.suggestTasksDesc")}
             </p>
           </CardContent>
         </Card>
@@ -154,12 +129,12 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
             >
               <span className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                Идеи наград
+                {t("parentAiSuggestions.rewardIdeas")}
               </span>
               <ChevronRight className="w-4 h-4" />
             </Button>
             <p className="text-xs text-muted-foreground mt-3">
-              ИИ рекомендует популярные награды и поможет сбалансировать цены
+              {t("parentAiSuggestions.rewardIdeasDesc")}
             </p>
           </CardContent>
         </Card>
@@ -171,13 +146,13 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-yellow-500" />
-              Предложенные задачи
+              {t("parentAiSuggestions.suggestedTasks")}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3">
             <div className="space-y-2">
-              <Textarea value={promptDescription} onChange={(e) => setPromptDescription((e as any).target.value)} placeholder="Опишите задачу (необязательно)" />
+              <Textarea value={promptDescription} onChange={(e) => setPromptDescription((e as any).target.value)} placeholder={t("parentAiSuggestions.describeTask")} />
               <div className="flex items-center gap-2">
                 <Select value={String(suggestionCount)} onValueChange={(v) => setSuggestionCount(Number(v))}>
                   <SelectTrigger className="w-20">
@@ -193,7 +168,7 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
                 </Select>
 
                 <Button className="ml-auto" onClick={() => fetchSuggestions({ useDescription: true })}>
-                  Получить
+                  {t("parentAiSuggestions.generate")}
                 </Button>
               </div>
             </div>
@@ -208,14 +183,14 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <p className="font-semibold">{task?.title ?? '...'}</p>
-                      <p className="text-sm text-muted-foreground">{task?.description ?? 'Загрузка...'}</p>
+                      <p className="text-sm text-muted-foreground">{task?.description ?? t("parentAiSuggestions.loading")}</p>
                       <div className="flex gap-2 mt-2">
                         <span className="text-xs bg-muted px-2 py-1 rounded">{task?.difficulty ? "⭐".repeat(task.difficulty) : ' '}</span>
                         <span className="text-xs bg-muted px-2 py-1 rounded text-muted-foreground">{task?.category ?? '-'}</span>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => handleTaskSelect(task)}>
-                      Использовать
+                      {t("parentAiSuggestions.use")}
                     </Button>
                   </div>
                 </CardContent>
@@ -225,7 +200,7 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowTaskSuggestions(false)}>
-              Закрыть
+              {t("parentAiSuggestions.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -237,7 +212,7 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-yellow-500" />
-              Популярные награды
+              {t("parentAiSuggestions.popularRewards")}
             </DialogTitle>
           </DialogHeader>
 
@@ -255,7 +230,7 @@ export default function ParentAISuggestions({ onTaskSelect }: ParentAISuggestion
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowRewardSuggestions(false)}>
-              Закрыть
+              {t("parentAiSuggestions.close")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -232,7 +232,7 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                   key={item.title}
                   type="button"
                   onClick={() => goToSlide(i)}
-                  aria-label={`Слайд ${i + 1}`}
+                  aria-label={t("welcomeScreen.slideLabel", { number: i + 1 })}
                   className={[
                     "h-9 w-9 rounded-xl text-xl",
                     "grid place-items-center",

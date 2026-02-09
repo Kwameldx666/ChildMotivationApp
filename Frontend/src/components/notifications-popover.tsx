@@ -31,6 +31,7 @@ import {
   useMarkAllNotificationsRead,
 } from "@/services/notifications-queries"
 import type { NotificationType, NotificationDto } from "@/services/notifications-service"
+import { useTranslation } from "@/i18n/provider"
 
 const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
   task_created: Target,
@@ -55,44 +56,46 @@ const NOTIFICATION_COLORS: Record<NotificationType, string> = {
 }
 
 // Демо-уведомления для тестирования (удалить когда бэкенд будет готов)
-const DEMO_NOTIFICATIONS: NotificationDto[] = [
-  {
-    id: "1",
-    userId: "user1",
-    type: "task_completed",
-    title: "Задача выполнена!",
-    message: "Ребёнок выполнил задачу «Уборка комнаты»",
-    isRead: false,
-    createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "2",
-    userId: "user1",
-    type: "streak_bonus",
-    title: "Бонус за серию! 🔥",
-    message: "7 дней подряд! Множитель очков теперь ×1.3",
-    isRead: false,
-    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "3",
-    userId: "user1",
-    type: "reward_purchased",
-    title: "Награда куплена",
-    message: "«Поход в кино» куплена за 150 очков",
-    isRead: true,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "4",
-    userId: "user1",
-    type: "level_up",
-    title: "Новый уровень! ⬆️",
-    message: "Поздравляем! Достигнут 5 уровень",
-    isRead: true,
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-  },
-]
+function getDemoNotifications(t: (key: string, params?: Record<string, string | number>) => string): NotificationDto[] {
+  return [
+    {
+      id: "1",
+      userId: "user1",
+      type: "task_completed",
+      title: t("notificationsPopover.demo.taskCompletedTitle"),
+      message: t("notificationsPopover.demo.taskCompletedMessage"),
+      isRead: false,
+      createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "2",
+      userId: "user1",
+      type: "streak_bonus",
+      title: t("notificationsPopover.demo.streakBonusTitle"),
+      message: t("notificationsPopover.demo.streakBonusMessage"),
+      isRead: false,
+      createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "3",
+      userId: "user1",
+      type: "reward_purchased",
+      title: t("notificationsPopover.demo.rewardPurchasedTitle"),
+      message: t("notificationsPopover.demo.rewardPurchasedMessage"),
+      isRead: true,
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "4",
+      userId: "user1",
+      type: "level_up",
+      title: t("notificationsPopover.demo.levelUpTitle"),
+      message: t("notificationsPopover.demo.levelUpMessage"),
+      isRead: true,
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ]
+}
 
 interface NotificationItemProps {
   notification: NotificationDto
@@ -100,7 +103,7 @@ interface NotificationItemProps {
 }
 
 // Простая функция для отображения времени
-function formatTimeAgo(dateString: string): string {
+function formatTimeAgo(dateString: string, t: (key: string, params?: Record<string, string | number>) => string, locale: string): string {
   try {
     const date = new Date(dateString)
     const now = new Date()
@@ -109,23 +112,25 @@ function formatTimeAgo(dateString: string): string {
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
 
-    if (diffMins < 1) return "только что"
-    if (diffMins < 60) return `${diffMins} мин. назад`
-    if (diffHours < 24) return `${diffHours} ч. назад`
-    if (diffDays < 7) return `${diffDays} дн. назад`
-    return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" })
+    if (diffMins < 1) return t("notificationsPopover.justNow")
+    if (diffMins < 60) return t("notificationsPopover.minutesAgo", { count: diffMins })
+    if (diffHours < 24) return t("notificationsPopover.hoursAgo", { count: diffHours })
+    if (diffDays < 7) return t("notificationsPopover.daysAgo", { count: diffDays })
+    const dateLocale = locale === "ru" ? "ru-RU" : locale === "ro" ? "ro-RO" : "en-US"
+    return date.toLocaleDateString(dateLocale, { day: "numeric", month: "short" })
   } catch {
     return ""
   }
 }
 
 function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
+  const { t, locale } = useTranslation()
   const Icon = NOTIFICATION_ICONS[notification.type] ?? Info
   const colorClass = NOTIFICATION_COLORS[notification.type] ?? NOTIFICATION_COLORS.general
 
   const timeAgo = useMemo(() => {
-    return formatTimeAgo(notification.createdAt)
-  }, [notification.createdAt])
+    return formatTimeAgo(notification.createdAt, t, locale)
+  }, [notification.createdAt, t, locale])
 
   return (
     <div
@@ -157,6 +162,7 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
 }
 
 export function NotificationsPopover() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   
   // Запросы к API
@@ -168,7 +174,7 @@ export function NotificationsPopover() {
   // Используем демо-данные если API недоступен
   const displayNotifications = useMemo(() => {
     if (isError || (!isLoading && (!notifications || notifications.length === 0))) {
-      return DEMO_NOTIFICATIONS
+      return getDemoNotifications(t)
     }
     return notifications ?? []
   }, [notifications, isLoading, isError])
@@ -196,7 +202,7 @@ export function NotificationsPopover() {
           variant="ghost"
           size="icon"
           className="relative"
-          aria-label="Уведомления"
+          aria-label={t("notificationsPopover.title")}
         >
           <Bell className="h-5 w-5" />
           {displayUnreadCount > 0 && (
@@ -208,7 +214,7 @@ export function NotificationsPopover() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
         <div className="flex items-center justify-between p-4 pb-2">
-          <h4 className="font-semibold">Уведомления</h4>
+          <h4 className="font-semibold">{t("notificationsPopover.title")}</h4>
           {displayUnreadCount > 0 && (
             <Button
               variant="ghost"
@@ -222,7 +228,7 @@ export function NotificationsPopover() {
               ) : (
                 <CheckCheck className="h-3 w-3 mr-1" />
               )}
-              Прочитать все
+              {t("notificationsPopover.markAllRead")}
             </Button>
           )}
         </div>
@@ -235,14 +241,14 @@ export function NotificationsPopover() {
           ) : displayNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
               <Bell className="h-8 w-8 mb-2 opacity-50" />
-              <p className="text-sm">Нет уведомлений</p>
+              <p className="text-sm">{t("notificationsPopover.noNotifications")}</p>
             </div>
           ) : (
             <div className="p-2 space-y-1">
               {unreadNotifications.length > 0 && (
                 <>
                   <p className="text-xs font-medium text-muted-foreground px-3 py-1">
-                    Новые ({unreadNotifications.length})
+                    {t("notificationsPopover.newCount", { count: unreadNotifications.length })}
                   </p>
                   {unreadNotifications.map(notification => (
                     <NotificationItem
@@ -260,7 +266,7 @@ export function NotificationsPopover() {
                     <Separator className="my-2" />
                   )}
                   <p className="text-xs font-medium text-muted-foreground px-3 py-1">
-                    Прочитанные
+                    {t("notificationsPopover.read")}
                   </p>
                   {readNotifications.slice(0, 5).map(notification => (
                     <NotificationItem
@@ -271,7 +277,7 @@ export function NotificationsPopover() {
                   ))}
                   {readNotifications.length > 5 && (
                     <p className="text-xs text-center text-muted-foreground py-2">
-                      И ещё {readNotifications.length - 5}...
+                      {t("notificationsPopover.andMore", { count: readNotifications.length - 5 })}
                     </p>
                   )}
                 </>

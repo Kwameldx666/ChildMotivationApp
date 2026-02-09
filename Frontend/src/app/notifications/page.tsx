@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AppRoute } from "@/routes/AppRoute"
+import { useTranslation } from "@/i18n/provider"
 
 interface Notification {
   id: string
@@ -38,88 +39,88 @@ const NOTIFICATION_COLORS: Record<string, string> = {
   system: "bg-slate-500/10 text-slate-700 border-slate-500/30",
 }
 
-// Генерируем демо-данные для истории уведомлений
-const generateDemoNotifications = (): Notification[] => {
+// Generate demo notification history data
+const generateDemoNotifications = (t: (key: string) => string): Notification[] => {
   const now = new Date()
   return [
     {
       id: "1",
       type: "task",
-      title: "Новая задача",
-      message: "Родитель создал задачу «Помыть посуду»",
-      time: "1 час назад",
+      title: t("notificationsPage.demo.newTask.title"),
+      message: t("notificationsPage.demo.newTask.message"),
+      time: t("notificationsPage.demo.newTask.time"),
       timestamp: new Date(now.getTime() - 1 * 60 * 60 * 1000),
       read: false,
     },
     {
       id: "2",
       type: "reward",
-      title: "Награда получена!",
-      message: "Ты обменял 50 очков на «Дополнительная сказка на ночь»",
-      time: "3 часа назад",
+      title: t("notificationsPage.demo.rewardReceived.title"),
+      message: t("notificationsPage.demo.rewardReceived.message"),
+      time: t("notificationsPage.demo.rewardReceived.time"),
       timestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000),
       read: false,
     },
     {
       id: "3",
       type: "achievement",
-      title: "Новое достижение!",
-      message: "Разблокировано: «Юный помощник» — выполни 5 задач",
-      time: "вчера",
+      title: t("notificationsPage.demo.newAchievement.title"),
+      message: t("notificationsPage.demo.newAchievement.message"),
+      time: t("notificationsPage.demo.newAchievement.time"),
       timestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "4",
       type: "level",
-      title: "Новый уровень!",
-      message: "Поздравляем! Ты достиг уровня 5!",
-      time: "2 дня назад",
+      title: t("notificationsPage.demo.newLevel.title"),
+      message: t("notificationsPage.demo.newLevel.message"),
+      time: t("notificationsPage.demo.newLevel.time"),
       timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "5",
       type: "task",
-      title: "Задача выполнена",
-      message: "Ты успешно выполнил задачу «Прибраться в комнате»",
-      time: "3 дня назад",
+      title: t("notificationsPage.demo.taskCompleted.title"),
+      message: t("notificationsPage.demo.taskCompleted.message"),
+      time: t("notificationsPage.demo.taskCompleted.time"),
       timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "6",
       type: "family",
-      title: "Новый член семьи",
-      message: "К семье присоединился новый участник",
-      time: "5 дней назад",
+      title: t("notificationsPage.demo.newMember.title"),
+      message: t("notificationsPage.demo.newMember.message"),
+      time: t("notificationsPage.demo.newMember.time"),
       timestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "7",
       type: "reward",
-      title: "Новая награда в магазине",
-      message: "Родитель добавил награду «Поход в кино» за 150 очков",
-      time: "неделю назад",
+      title: t("notificationsPage.demo.newRewardInShop.title"),
+      message: t("notificationsPage.demo.newRewardInShop.message"),
+      time: t("notificationsPage.demo.newRewardInShop.time"),
       timestamp: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "8",
       type: "achievement",
-      title: "Серия выполнения!",
-      message: "Ты выполняешь задачи 7 дней подряд! 🔥",
-      time: "неделю назад",
+      title: t("notificationsPage.demo.streak.title"),
+      message: t("notificationsPage.demo.streak.message"),
+      time: t("notificationsPage.demo.streak.time"),
       timestamp: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000),
       read: true,
     },
     {
       id: "9",
       type: "system",
-      title: "Добро пожаловать!",
-      message: "Добро пожаловать в FamilyQuest! Начни выполнять задачи и зарабатывай награды.",
-      time: "2 недели назад",
+      title: t("notificationsPage.demo.welcome.title"),
+      message: t("notificationsPage.demo.welcome.message"),
+      time: t("notificationsPage.demo.welcome.time"),
       timestamp: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
       read: true,
     },
@@ -128,14 +129,14 @@ const generateDemoNotifications = (): Notification[] => {
 
 export default function NotificationsPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [filter, setFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
-    // Загружаем уведомления (в реальном приложении - из API)
-    setNotifications(generateDemoNotifications())
-  }, [])
+    setNotifications(generateDemoNotifications(t))
+  }, [t])
 
   const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications])
 
@@ -171,7 +172,7 @@ export default function NotificationsPage() {
   }
 
   const handleClearAll = () => {
-    if (window.confirm("Удалить все уведомления?")) {
+    if (window.confirm(t("notificationsPage.confirmDeleteAll"))) {
       setNotifications([])
     }
   }
@@ -190,18 +191,18 @@ export default function NotificationsPage() {
             <div className="flex items-center justify-between gap-4">
               <Button variant="ghost" onClick={() => router.back()} className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Назад
+                {t("notificationsPage.back")}
               </Button>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <Button variant="outline" size="sm" onClick={handleMarkAllRead} className="gap-2">
                     <CheckCheck className="h-4 w-4" />
-                    <span className="hidden sm:inline">Прочитать все</span>
+                    <span className="hidden sm:inline">{t("notificationsPage.readAll")}</span>
                   </Button>
                 )}
                 {notifications.length > 0 && (
                   <Button variant="ghost" size="sm" onClick={handleClearAll} className="text-destructive hover:text-destructive">
-                    Очистить все
+                    {t("notificationsPage.clearAll")}
                   </Button>
                 )}
               </div>
@@ -209,12 +210,12 @@ export default function NotificationsPage() {
             <div className="mt-4">
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <Bell className="w-6 h-6" />
-                Уведомления
+                {t("notificationsPage.title")}
                 {unreadCount > 0 && (
-                  <Badge className="bg-primary text-primary-foreground">{unreadCount} новых</Badge>
+                  <Badge className="bg-primary text-primary-foreground">{unreadCount} {t("notificationsPage.newCount")}</Badge>
                 )}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">История всех ваших уведомлений</p>
+              <p className="text-sm text-muted-foreground mt-1">{t("notificationsPage.historySubtitle")}</p>
             </div>
           </div>
         </header>
@@ -225,7 +226,7 @@ export default function NotificationsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Поиск уведомлений..."
+                placeholder={t("notificationsPage.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -234,13 +235,13 @@ export default function NotificationsPage() {
 
             <Tabs value={filter} onValueChange={setFilter}>
               <TabsList className="w-full flex-wrap h-auto p-1">
-                <TabsTrigger value="all" className="text-xs">Все</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs">{t("notificationsPage.filterAll")}</TabsTrigger>
                 <TabsTrigger value="unread" className="text-xs">
-                  Непрочитанные {unreadCount > 0 && `(${unreadCount})`}
+                  {t("notificationsPage.filterUnread")} {unreadCount > 0 && `(${unreadCount})`}
                 </TabsTrigger>
-                <TabsTrigger value="task" className="text-xs">📝 Задачи</TabsTrigger>
-                <TabsTrigger value="reward" className="text-xs">🎁 Награды</TabsTrigger>
-                <TabsTrigger value="achievement" className="text-xs">🏆 Достижения</TabsTrigger>
+                <TabsTrigger value="task" className="text-xs">{t("notificationsPage.filterTasks")}</TabsTrigger>
+                <TabsTrigger value="reward" className="text-xs">{t("notificationsPage.filterRewards")}</TabsTrigger>
+                <TabsTrigger value="achievement" className="text-xs">{t("notificationsPage.filterAchievements")}</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -250,11 +251,11 @@ export default function NotificationsPage() {
             <Card>
               <CardContent className="py-12 text-center">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">Нет уведомлений</h3>
+                <h3 className="text-lg font-semibold mb-2">{t("notificationsPage.noNotifications")}</h3>
                 <p className="text-sm text-muted-foreground">
                   {filter !== "all" || searchQuery
-                    ? "По вашему запросу ничего не найдено"
-                    : "Здесь будут появляться ваши уведомления"}
+                    ? t("notificationsPage.nothingFound")
+                    : t("notificationsPage.emptyMessage")}
                 </p>
               </CardContent>
             </Card>

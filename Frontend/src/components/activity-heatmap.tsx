@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface ActivityDay {
   date: string
@@ -18,8 +19,7 @@ interface ActivityHeatmapProps {
   title?: string
 }
 
-const MONTHS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
-const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+
 
 // Генерируем 365 дней для конкретного года
 const generateYearDays = (year: number): Date[] => {
@@ -45,7 +45,20 @@ const getIntensityClass = (count: number): string => {
   return "bg-green-500 dark:bg-green-600"
 }
 
-export default function ActivityHeatmap({ data = [], isLoading = false, title = "Активность за год" }: ActivityHeatmapProps) {
+export default function ActivityHeatmap({ data = [], isLoading = false, title }: ActivityHeatmapProps) {
+  const { t } = useTranslation()
+  const displayTitle = title ?? t("activityHeatmap.title")
+  const MONTHS = [
+    t("activityHeatmap.months.jan"), t("activityHeatmap.months.feb"), t("activityHeatmap.months.mar"),
+    t("activityHeatmap.months.apr"), t("activityHeatmap.months.may"), t("activityHeatmap.months.jun"),
+    t("activityHeatmap.months.jul"), t("activityHeatmap.months.aug"), t("activityHeatmap.months.sep"),
+    t("activityHeatmap.months.oct"), t("activityHeatmap.months.nov"), t("activityHeatmap.months.dec")
+  ]
+  const DAYS = [
+    t("activityHeatmap.days.mon"), t("activityHeatmap.days.tue"), t("activityHeatmap.days.wed"),
+    t("activityHeatmap.days.thu"), t("activityHeatmap.days.fri"), t("activityHeatmap.days.sat"),
+    t("activityHeatmap.days.sun")
+  ]
   const currentYear = new Date().getFullYear()
   const [selectedYear, setSelectedYear] = useState(currentYear)
   
@@ -134,7 +147,7 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle>{displayTitle}</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-32 w-full" />
@@ -156,10 +169,10 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-4">
-            <span>{title}</span>
+            <span>{displayTitle}</span>
             <div className="flex items-center gap-4 text-sm font-normal text-muted-foreground">
-              <span>{totalTasks} задач</span>
-              <span>{activeDays} активных дней</span>
+              <span>{t("activityHeatmap.tasksCount", { count: totalTasks })}</span>
+              <span>{t("activityHeatmap.activeDaysCount", { count: activeDays })}</span>
             </div>
           </CardTitle>
           
@@ -234,7 +247,8 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
                       const dateStr = day.toISOString().split('T')[0]
                       const count = activityMap.get(dateStr) || 0
                       const intensityClass = getIntensityClass(count)
-                      const tooltipText = `${formatTooltipDate(day)}: ${count} ${count === 1 ? 'задача' : count > 1 && count < 5 ? 'задачи' : 'задач'}`
+                      const taskWord = count === 1 ? t("activityHeatmap.taskOne") : count > 1 && count < 5 ? t("activityHeatmap.taskFew") : t("activityHeatmap.taskMany")
+                      const tooltipText = `${formatTooltipDate(day)}: ${count} ${taskWord}`
                       
                       return (
                         <div
@@ -254,7 +268,7 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
             
             {/* Легенда */}
             <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
-              <span>Меньше</span>
+              <span>{t("activityHeatmap.less")}</span>
               <div className="flex gap-1">
                 {[0, 1, 2, 3, 4].map(level => (
                   <div
@@ -263,7 +277,7 @@ export default function ActivityHeatmap({ data = [], isLoading = false, title = 
                   />
                 ))}
               </div>
-              <span>Больше</span>
+              <span>{t("activityHeatmap.more")}</span>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Check, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSubscriptionTiers } from "@/services/subscription-queries"
+import { useTranslation } from "@/i18n/provider"
 
 interface PricingTier {
   id: string
@@ -17,43 +18,43 @@ interface PricingTier {
 // Дополнительные данные для тарифов (features и descriptions)
 const tierExtras: Record<string, { description: string; features: string[]; highlighted?: boolean }> = {
   free: {
-    description: "Для начала",
+    description: "subscription.plans.free.tagline",
     features: [
-      "До 2 детей",
-      "До 10 задач в день",
-      "Семейный чат",
-      "Базовые награды",
+      "subscription.plans.free.features.0",
+      "subscription.plans.free.features.1",
+      "subscription.plans.free.features.2",
+      "subscription.plans.free.features.3",
     ],
   },
   basic: {
-    description: "Для активных семей",
+    description: "subscription.plans.basic.tagline",
     features: [
-      "До 5 детей",
-      "До 30 задач в день",
-      "AI генерация задач",
-      "Расширенные награды",
+      "subscription.plans.basic.features.0",
+      "subscription.plans.basic.features.1",
+      "subscription.plans.basic.features.2",
+      "subscription.plans.basic.features.3",
     ],
   },
   premium: {
-    description: "Максимум возможностей",
+    description: "subscription.plans.premium.tagline",
     highlighted: true,
     features: [
-      "До 10 детей",
-      "До 100 задач в день",
-      "Продвинутый AI помощник",
-      "Детальная аналитика",
-      "Приоритетная поддержка",
-      "Офлайн режим",
+      "subscription.plans.premium.features.0",
+      "subscription.plans.premium.features.1",
+      "subscription.plans.premium.features.2",
+      "subscription.plans.premium.features.3",
+      "subscription.plans.premium.features.4",
+      "subscription.plans.premium.features.5",
     ],
   },
   family: {
-    description: "Для больших семей",
+    description: "subscription.plans.family.tagline",
     features: [
-      "Без ограничений детей",
-      "Без ограничений задач",
-      "Все функции Premium",
-      "Семейный доступ",
-      "Персональный менеджер",
+      "subscription.plans.family.features.0",
+      "subscription.plans.family.features.1",
+      "subscription.plans.family.features.2",
+      "subscription.plans.family.features.3",
+      "subscription.plans.family.features.4",
     ],
   }
 }
@@ -65,6 +66,7 @@ interface PremiumPricingProps {
 
 export default function PremiumPricing({ currentTier = "free", onSelectTier }: PremiumPricingProps) {
   const { data: apiTiers, isLoading } = useSubscriptionTiers()
+  const { t } = useTranslation()
   
   // Формируем тарифы на основе данных API
   const pricingTiers: PricingTier[] = apiTiers?.map(tier => {
@@ -80,10 +82,10 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
     }
   }) || [
     // Fallback тарифы если API недоступен
-    { id: "free", name: "Бесплатный", price: 0, description: "Для начала", features: tierExtras.free.features },
-    { id: "basic", name: "Базовый", price: 299, description: "Для активных семей", features: tierExtras.basic.features },
-    { id: "premium", name: "Премиум", price: 599, description: "Максимум возможностей", features: tierExtras.premium.features, highlighted: true },
-    { id: "family", name: "Семейный", price: 999, description: "Для больших семей", features: tierExtras.family.features },
+    { id: "free", name: "Free", price: 0, description: "subscription.plans.free.tagline", features: tierExtras.free.features },
+    { id: "basic", name: "Basic", price: 299, description: "subscription.plans.basic.tagline", features: tierExtras.basic.features },
+    { id: "premium", name: "Premium", price: 599, description: "subscription.plans.premium.tagline", features: tierExtras.premium.features, highlighted: true },
+    { id: "family", name: "Family", price: 999, description: "subscription.plans.family.tagline", features: tierExtras.family.features },
   ]
 
   if (isLoading) {
@@ -116,7 +118,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             {tier.highlighted && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <span className="bg-purple-500 text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
-                  Популярный
+                  {t("subscription.mostPopular")}
                 </span>
               </div>
             )}
@@ -125,26 +127,26 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             {isCurrentTier && !tier.highlighted && (
               <div className="absolute -top-3 left-4">
                 <span className="bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-                  Текущий
+                  {t("subscription.currentlyActive")}
                 </span>
               </div>
             )}
 
             {/* Header */}
             <div className="mb-4">
-              <h3 className="text-base font-semibold text-foreground">{tier.name}</h3>
-              <p className="text-xs text-muted-foreground">{tier.description}</p>
+              <h3 className="text-base font-semibold text-foreground">{t(`subscription.${tier.id}`)}</h3>
+              <p className="text-xs text-muted-foreground">{t(tier.description)}</p>
             </div>
 
             {/* Price */}
             <div className="mb-5">
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-foreground">{tier.price === 0 ? "Бесплатно" : `${tier.price} ₽`}</span>
-                {tier.price > 0 && <span className="text-sm text-muted-foreground">/мес</span>}
+                <span className="text-3xl font-bold text-foreground">{t(`subscription.plans.${tier.id}.price`)}</span>
+                {tier.price > 0 && <span className="text-sm text-muted-foreground">{t("subscription.perMonth")}</span>}
               </div>
               {!isFree && (
                 <p className="text-xs text-muted-foreground/70 mt-0.5">
-                  {Math.floor(tier.price * 12 * 0.85)} ₽/год (-15%)
+                  {t(`subscription.plans.${tier.id}.yearlyPrice`)} {t("subscription.perYear")} ({t(`subscription.plans.${tier.id}.yearlyDiscount`)})
                 </p>
               )}
             </div>
@@ -156,7 +158,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
                   <div className="rounded-full bg-green-500/10 p-0.5 mt-0.5">
                     <Check className="h-3 w-3 text-green-500" />
                   </div>
-                  <span className="text-sm text-foreground/80">{feature}</span>
+                  <span className="text-sm text-foreground/80">{t(feature)}</span>
                 </li>
               ))}
             </ul>
@@ -173,10 +175,10 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
               onClick={() => onSelectTier?.(tier.id)}
             >
               {isCurrentTier 
-                ? "Текущий план" 
+                ? t("subscription.currentPlan") 
                 : isFree 
-                  ? "Перейти на бесплатный" 
-                  : "Выбрать"}
+                  ? t("subscription.free") 
+                  : t("subscription.selectPlan")}
             </Button>
           </div>
         )

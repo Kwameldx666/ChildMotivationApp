@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, Search, HelpCircle } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface FAQ {
   id: string
@@ -13,69 +14,62 @@ interface FAQ {
   category: string
 }
 
-const FAQS: FAQ[] = [
-  {
-    id: "1",
-    question: "Как присоединиться ребёнку?",
-    answer:
-      "Ребёнок должен создать аккаунт и выбрать роль. После выбора роли 'Ребёнок' ему нужно будет ввести 6-символьный код семьи, который предоставил родитель. Код можно найти в настройках приложения родителя.",
-    category: "Регистрация",
-  },
-  {
-    id: "2",
-    question: "Как работают задачи?",
-    answer:
-      "Родитель создаёт задачу с описанием, устанавливает сложность (1-5 звёзд) и выбирает способ проверки (фото или чек-лист). Ребёнок выполняет задачу и отправляет её на проверку. После одобрения родителем ребёнок получает очки и опыт.",
-    category: "Задачи",
-  },
-  {
-    id: "3",
-    question: "Как ребёнок может заработать очки?",
-    answer:
-      "Ребёнок зарабатывает очки за выполнение задач. Количество очков зависит от сложности задачи. Также можно получить бонус за быстрое выполнение или достижение целей семьи.",
-    category: "Система наград",
-  },
-  {
-    id: "4",
-    question: "Что можно купить за очки?",
-    answer:
-      "Родитель создаёт награды в магазине. Это могут быть реальные предметы (пицца, поход в кино) или цифровые (новый скин для аватара, стикер). Ребёнок может обменять накопленные очки на любую доступную награду.",
-    category: "Система наград",
-  },
-  {
-    id: "5",
-    question: "Как работают достижения?",
-    answer:
-      "Достижения разблокируются автоматически при выполнении определённых условий. Например, выполнение 10 задач разблокирует достижение 'Юный помощник'. Каждое достижение даёт бонусный опыт.",
-    category: "Игромеханика",
-  },
-  {
-    id: "6",
-    question: "Можно ли сбросить данные?",
-    answer:
-      "Да, но это необратимое действие. В настройках родителя есть опция 'Очистить все данные', которая удалит все задачи, награды, профили и статистику. Аккаунт при этом сохранится.",
-    category: "Настройки",
-  },
-  {
-    id: "7",
-    question: "Как настроить уведомления?",
-    answer:
-      "В настройках можно включить/отключить уведомления, звуки и установить ночной режим. В ночном режиме приходят только срочные уведомления. Для каждого ребёнка можно настроить уведомления отдельно.",
-    category: "Настройки",
-  },
-  {
-    id: "8",
-    question: "Как изменить код семьи?",
-    answer:
-      "Код семьи генерируется автоматически при создании семьи и не может быть изменён. Если нужен новый код, нужно создать новую семью. Старая семья при этом сохранится.",
-    category: "Семья",
-  },
-]
-
 export default function HelpFAQ() {
+  const { t } = useTranslation()
   const [search, setSearch] = useState("")
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+  const FAQS: FAQ[] = [
+    {
+      id: "1",
+      question: t("helpFaq.faq1.question"),
+      answer: t("helpFaq.faq1.answer"),
+      category: t("helpFaq.categories.registration"),
+    },
+    {
+      id: "2",
+      question: t("helpFaq.faq2.question"),
+      answer: t("helpFaq.faq2.answer"),
+      category: t("helpFaq.categories.tasks"),
+    },
+    {
+      id: "3",
+      question: t("helpFaq.faq3.question"),
+      answer: t("helpFaq.faq3.answer"),
+      category: t("helpFaq.categories.rewards"),
+    },
+    {
+      id: "4",
+      question: t("helpFaq.faq4.question"),
+      answer: t("helpFaq.faq4.answer"),
+      category: t("helpFaq.categories.rewards"),
+    },
+    {
+      id: "5",
+      question: t("helpFaq.faq5.question"),
+      answer: t("helpFaq.faq5.answer"),
+      category: t("helpFaq.categories.gamification"),
+    },
+    {
+      id: "6",
+      question: t("helpFaq.faq6.question"),
+      answer: t("helpFaq.faq6.answer"),
+      category: t("helpFaq.categories.settings"),
+    },
+    {
+      id: "7",
+      question: t("helpFaq.faq7.question"),
+      answer: t("helpFaq.faq7.answer"),
+      category: t("helpFaq.categories.settings"),
+    },
+    {
+      id: "8",
+      question: t("helpFaq.faq8.question"),
+      answer: t("helpFaq.faq8.answer"),
+      category: t("helpFaq.categories.family"),
+    },
+  ]
 
   const categories = Array.from(new Set(FAQS.map((faq) => faq.category)))
 
@@ -90,13 +84,13 @@ export default function HelpFAQ() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Справка и вопросы</h1>
-        <p className="text-muted-foreground">Найди ответ на свой вопрос</p>
+        <h1 className="text-3xl font-bold mb-2">{t("helpFaq.title")}</h1>
+        <p className="text-muted-foreground">{t("helpFaq.subtitle")}</p>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input placeholder="Поиск..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+        <Input placeholder={t("helpFaq.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
       </div>
 
       <div className="flex gap-2 flex-wrap">
@@ -105,7 +99,7 @@ export default function HelpFAQ() {
           onClick={() => setSelectedCategory(null)}
           size="sm"
         >
-          Все
+          {t("helpFaq.allCategories")}
         </Button>
         {categories.map((category) => (
           <Button
@@ -124,7 +118,7 @@ export default function HelpFAQ() {
           <Card>
             <CardContent className="pt-12 text-center">
               <HelpCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Вопросы не найдены</p>
+              <p className="text-muted-foreground">{t("helpFaq.noResults")}</p>
             </CardContent>
           </Card>
         ) : (

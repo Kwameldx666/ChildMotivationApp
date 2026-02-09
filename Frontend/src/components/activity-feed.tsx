@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, Gift, Trophy, Star, Zap, MessageSquare } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface Activity {
   id: number
@@ -15,76 +16,77 @@ interface Activity {
   color: string
 }
 
-const ACTIVITIES: Activity[] = [
-  {
-    id: 1,
-    type: "task_completed",
-    user: { name: "Маша", avatar: "👧" },
-    message: "выполнила задачу",
-    detail: "Убрать комнату",
-    time: "5 минут назад",
-    icon: CheckCircle2,
-    color: "text-primary",
-  },
-  {
-    id: 2,
-    type: "reward_created",
-    user: { name: "Папа", avatar: "👨" },
-    message: "создал новую награду",
-    detail: "Поход в парк развлечений",
-    time: "15 минут назад",
-    icon: Gift,
-    color: "text-secondary",
-  },
-  {
-    id: 3,
-    type: "level_up",
-    user: { name: "Кирилл", avatar: "👦" },
-    message: "получил уровень",
-    detail: "Уровень 5",
-    time: "1 час назад",
-    icon: Zap,
-    color: "text-accent",
-  },
-  {
-    id: 4,
-    type: "achievement",
-    user: { name: "Маша", avatar: "👧" },
-    message: "разблокировала достижение",
-    detail: "Быстрая ракета",
-    time: "2 часа назад",
-    icon: Trophy,
-    color: "text-accent",
-  },
-  {
-    id: 5,
-    type: "task_completed",
-    user: { name: "Кирилл", avatar: "👦" },
-    message: "выполнил задачу",
-    detail: "Помыть посуду",
-    time: "3 часа назад",
-    icon: CheckCircle2,
-    color: "text-primary",
-  },
-  {
-    id: 6,
-    type: "comment",
-    user: { name: "Мама", avatar: "👩" },
-    message: "оставила комментарий",
-    detail: "Отлично! Спасибо!",
-    time: "4 часа назад",
-    icon: MessageSquare,
-    color: "text-primary",
-  },
-]
-
 export default function ActivityFeed() {
+  const { t } = useTranslation()
+
+  const ACTIVITIES: Activity[] = [
+    {
+      id: 1,
+      type: "task_completed",
+      user: { name: t("activityFeed.sampleName.masha"), avatar: "👧" },
+      message: t("activityFeed.message.completedTaskFemale"),
+      detail: t("activityFeed.detail.cleanRoom"),
+      time: t("activityFeed.time.5min"),
+      icon: CheckCircle2,
+      color: "text-primary",
+    },
+    {
+      id: 2,
+      type: "reward_created",
+      user: { name: t("activityFeed.sampleName.papa"), avatar: "👨" },
+      message: t("activityFeed.message.createdReward"),
+      detail: t("activityFeed.detail.parkTrip"),
+      time: t("activityFeed.time.15min"),
+      icon: Gift,
+      color: "text-secondary",
+    },
+    {
+      id: 3,
+      type: "level_up",
+      user: { name: t("activityFeed.sampleName.kirill"), avatar: "👦" },
+      message: t("activityFeed.message.gotLevel"),
+      detail: t("activityFeed.detail.level5"),
+      time: t("activityFeed.time.1hour"),
+      icon: Zap,
+      color: "text-accent",
+    },
+    {
+      id: 4,
+      type: "achievement",
+      user: { name: t("activityFeed.sampleName.masha"), avatar: "👧" },
+      message: t("activityFeed.message.unlockedAchievement"),
+      detail: t("activityFeed.detail.fastRocket"),
+      time: t("activityFeed.time.2hours"),
+      icon: Trophy,
+      color: "text-accent",
+    },
+    {
+      id: 5,
+      type: "task_completed",
+      user: { name: t("activityFeed.sampleName.kirill"), avatar: "👦" },
+      message: t("activityFeed.message.completedTaskMale"),
+      detail: t("activityFeed.detail.washDishes"),
+      time: t("activityFeed.time.3hours"),
+      icon: CheckCircle2,
+      color: "text-primary",
+    },
+    {
+      id: 6,
+      type: "comment",
+      user: { name: t("activityFeed.sampleName.mama"), avatar: "👩" },
+      message: t("activityFeed.message.leftComment"),
+      detail: t("activityFeed.detail.greatThanks"),
+      time: t("activityFeed.time.4hours"),
+      icon: MessageSquare,
+      color: "text-primary",
+    },
+  ]
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="w-5 h-5 text-accent" />
-          Лента активности семьи
+          {t("activity.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>

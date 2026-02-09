@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Upload, CheckCircle, Camera, ListChecks } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface TaskDetailsModalProps {
   open: boolean
@@ -26,6 +27,7 @@ interface TaskDetailsModalProps {
 export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetailsModalProps) {
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null)
   const [checkedItems, setCheckedItems] = useState<boolean[]>([])
+  const { t } = useTranslation()
 
   if (!task) return null
 
@@ -54,26 +56,26 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
 
         <div className="space-y-6">
           <div>
-            <h3 className="font-semibold mb-2">Описание</h3>
+            <h3 className="font-semibold mb-2">{t("taskDetails.description")}</h3>
             <p className="text-sm text-muted-foreground">{task.description}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-4">
-                <p className="text-xs text-muted-foreground">Сложность</p>
+                <p className="text-xs text-muted-foreground">{t("taskDetails.difficulty")}</p>
                 <p className="text-lg font-bold">{"⭐".repeat(task.difficulty)}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4">
-                <p className="text-xs text-muted-foreground">Опыт</p>
+                <p className="text-xs text-muted-foreground">{t("taskDetails.experience")}</p>
                 <p className="text-lg font-bold text-accent">{task.reward.xp} XP</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4">
-                <p className="text-xs text-muted-foreground">Очки</p>
+                <p className="text-xs text-muted-foreground">{t("taskDetails.points")}</p>
                 <p className="text-lg font-bold text-secondary">{task.reward.points} pts</p>
               </CardContent>
             </Card>
@@ -83,7 +85,7 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Camera className="w-4 h-4" />
-                <h3 className="font-semibold">Загрузить фото доказательство</h3>
+                <h3 className="font-semibold">{t("taskDetails.uploadPhotoProof")}</h3>
               </div>
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                 {uploadedPhoto ? (
@@ -94,7 +96,7 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
                       className="w-32 h-32 object-cover rounded mx-auto mb-4"
                     />
                     <Button variant="outline" size="sm" onClick={() => setUploadedPhoto(null)}>
-                      Заменить фото
+                      {t("taskDetails.replacePhoto")}
                     </Button>
                   </div>
                 ) : (
@@ -102,13 +104,13 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
                     <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                     <div className="flex flex-col items-center gap-2">
                       <Upload className="w-8 h-8 text-muted-foreground" />
-                      <p className="text-sm font-medium">Нажми чтобы загрузить фото</p>
+                      <p className="text-sm font-medium">{t("taskDetails.clickToUploadPhoto")}</p>
                     </div>
                   </label>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Совет: сделай фото при хорошем освещении для лучшей проверки!
+                {t("taskDetails.photoTip")}
               </p>
             </div>
           )}
@@ -117,7 +119,7 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <ListChecks className="w-4 h-4" />
-                <h3 className="font-semibold">Проверка выполнения</h3>
+                <h3 className="font-semibold">{t("taskDetails.completionCheck")}</h3>
               </div>
               <div className="space-y-2">
                 {task.checklist.map((item, idx) => (
@@ -144,14 +146,14 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
 
           <div className="bg-blue-50 p-3 rounded-lg">
             <p className="text-xs font-medium">
-              Совет ИИ: Если у тебя есть вопросы, нажми кнопку "ИИ помощник" в главной вкладке!
+              {t("taskDetails.aiTip")}
             </p>
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Отмена
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -159,7 +161,7 @@ export default function TaskDetailsModal({ open, onOpenChange, task }: TaskDetai
             className="bg-gradient-to-r from-purple-500 to-pink-500"
           >
             <CheckCircle className="mr-2 w-4 h-4" />
-            Отправить на проверку
+            {t("taskDetails.submitForReview")}
           </Button>
         </DialogFooter>
       </DialogContent>

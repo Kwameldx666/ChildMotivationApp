@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { WifiOff, X } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 export default function OfflineIndicator() {
+  const { t } = useTranslation()
   const [isOnline, setIsOnline] = useState(true)
   const [showIndicator, setShowIndicator] = useState(false)
 
@@ -39,7 +41,7 @@ export default function OfflineIndicator() {
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <WifiOff className="w-4 h-4" />
-          <span className="text-sm font-medium">Вы оффлайн. Синхронизация будет выполнена позже.</span>
+          <span className="text-sm font-medium">{t("offline.message")}</span>
         </div>
         <button
           onClick={() => setShowIndicator(false)}

@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { useTranslation } from "@/i18n/provider"
 
 function splitName(fullName: string): [string, string] {
   if (!fullName) {
@@ -24,15 +25,15 @@ function splitName(fullName: string): [string, string] {
   return [parts[0], parts[1]]
 }
 
-function mapOAuthError(e: string | null | undefined) {
-  if (!e) return "Авторизация прервана пользователем."
+function mapOAuthError(e: string | null | undefined, t: (key: string) => string) {
+  if (!e) return t("authPage.oauthCancelled")
   const lower = e.toLowerCase()
   if (lower.includes("access token") || lower.includes("access_token") || lower.includes("the access token is missing"))
-    return "Не получен токен доступа от провайдера. Попробуйте ещё раз или вернитесь на главную."
+    return t("authPage.noAccessToken")
   if (lower.includes("github did not return required user information") || lower.includes("did not return required user information"))
-    return "Провайдер не вернул необходимые данные пользователя (email). Попробуйте другой аккаунт или вернитесь на главную."
+    return t("authPage.noUserInfo")
   if (lower.includes("error while processing") || lower.includes("authentication failed"))
-    return "Ошибка при обработке запроса на сервере. Попробуйте позже."
+    return t("authPage.serverError")
   return e
 }
 
@@ -40,6 +41,7 @@ export default function OAuthRedirectPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
+  const { t } = useTranslation()
 
   const statusParam = searchParams.get("oauth_status")?.toLowerCase() ?? null
   const tokenParam = searchParams.get("oauth_token")
@@ -68,13 +70,13 @@ export default function OAuthRedirectPage() {
       const isPopup = typeof window !== 'undefined' && window.opener !== null
       
       if (!statusParam) {
-        setFatalError("Неизвестный ответ аутентификации.")
+        setFatalError(t("authPage.unknownResponse"))
         setIsLoading(false)
         return
       }
 
       if (statusParam === "error") {
-        const mappedError = mapOAuthError(errorParam)
+        const mappedError = mapOAuthError(errorParam, t)
         
         if (isPopup && window.opener) {
           window.opener.postMessage({
@@ -95,7 +97,7 @@ export default function OAuthRedirectPage() {
       }
 
       if (!tokenParam) {
-        setFatalError("Не удалось получить токен авторизации.")
+        setFatalError(t("authPage.noToken"))
         setIsLoading(false)
         return
       }
@@ -121,7 +123,7 @@ export default function OAuthRedirectPage() {
           dispatch(setSession(session))
           router.replace("/")
         } catch (err) {
-          setFatalError(mapApiError(err, "Не удалось завершить вход."))
+          setFatalError(mapApiError(err, t("authPage.loginFailed")))
           setIsLoading(false)
         }
         return
@@ -171,13 +173,13 @@ export default function OAuthRedirectPage() {
           
           setIsLoading(false)
         } catch (err) {
-          setFatalError(mapApiError(err, "Не удалось получить данные профиля."))
+          setFatalError(mapApiError(err, t("authPage.profileFetchFailed")))
           setIsLoading(false)
         }
         return
       }
 
-      setFatalError("Получен неизвестный статус авторизации.")
+      setFatalError(t("authPage.unknownStatus"))
       setIsLoading(false)
     }
 
@@ -206,12 +208,12 @@ export default function OAuthRedirectPage() {
     const trimmedEmail = email.trim().toLowerCase()
 
     if (!trimmedName || !trimmedLastName) {
-      setFormError("Введите имя и фамилию.")
+      setFormError(t("authPage.enterNameAndLastName"))
       return
     }
 
     if (!trimmedEmail || !trimmedEmail.includes("@")) {
-      setFormError("Введите корректный email.")
+      setFormError(t("authPage.enterValidEmail"))
       return
     }
 
@@ -222,25 +224,25 @@ export default function OAuthRedirectPage() {
     if (role === "parent") {
       normalizedFamilyName = familyName.trim()
       if (!normalizedFamilyName) {
-        setFormError("Введите название семьи.")
+        setFormError(t("authPage.enterFamilyName"))
         return
       }
     } else {
       normalizedFamilyCode = familyCode.trim().toUpperCase()
       if (!normalizedFamilyCode) {
-        setFormError("Введите код семьи.")
+        setFormError(t("authPage.enterFamilyCode"))
         return
       }
 
       if (age.trim()) {
         const numericAge = Number(age.trim())
         if (Number.isNaN(numericAge) || numericAge < 5 || numericAge > 16) {
-          setFormError("Возраст должен быть от 5 до 16 лет.")
+          setFormError(t("authPage.ageRange"))
           return
         }
         parsedAge = numericAge
       } else {
-        setFormError("Введите возраст ребёнка.")
+        setFormError(t("authPage.enterChildAge"))
         return
       }
     }
@@ -281,7 +283,7 @@ export default function OAuthRedirectPage() {
     } catch (err) {
       // Treat client/validation errors (4xx) as form errors; server/fatal as fatal
       const status = (err as any)?.response?.status
-      const mapped = mapApiError(err, "Не удалось завершить регистрацию.")
+      const mapped = mapApiError(err, t("authPage.registrationFailed"))
       if (status && status >= 400 && status < 500) {
         setFormError(mapped)
       } else {
@@ -294,7 +296,7 @@ export default function OAuthRedirectPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-        <p className="text-lg">Завершаем авторизацию...</p>
+        <p className="text-lg">{t("authPage.completing")}</p>
       </div>
     )
   }
@@ -304,9 +306,9 @@ export default function OAuthRedirectPage() {
       <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 space-y-4">
-            <h1 className="text-xl font-semibold">Что-то пошло не так</h1>
+            <h1 className="text-xl font-semibold">{t("authPage.errorTitle")}</h1>
             <p className="text-sm text-muted-foreground whitespace-pre-line">{fatalError}</p>
-            <Button onClick={() => router.replace("/")}>Вернуться на главную</Button>
+            <Button onClick={() => router.replace("/")}>{t("authPage.goHome")}</Button>
           </CardContent>
         </Card>
       </div>
@@ -316,7 +318,7 @@ export default function OAuthRedirectPage() {
   if (!pendingUser || !pendingToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
-        <p className="text-lg">Данные авторизации недоступны.</p>
+        <p className="text-lg">{t("authPage.dataUnavailable")}</p>
       </div>
     )
   }
@@ -326,15 +328,15 @@ export default function OAuthRedirectPage() {
       <Card className="w-full max-w-lg bg-white/90 backdrop-blur-sm shadow-xl">
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-bold">Добро пожаловать, {pendingUser.name}</h1>
-            <p className="text-sm text-muted-foreground">Выберите роль и завершите настройку профиля.</p>
+            <h1 className="text-2xl font-bold">{t("authPage.welcomeUser", { name: pendingUser.name })}</h1>
+            <p className="text-sm text-muted-foreground">{t("authPage.setupProfile")}</p>
           </div>
 
           {avatarPreview && (
             <div className="flex justify-center">
               <img
                 src={avatarPreview}
-                alt="Аватар"
+                alt={t("authPage.avatar")}
                 className="h-20 w-20 rounded-full border border-muted shadow"
                 referrerPolicy="no-referrer"
               />
@@ -347,7 +349,7 @@ export default function OAuthRedirectPage() {
 
           <form className="space-y-4" onSubmit={handleSubmitPending}>
             <div>
-              <Label>Email</Label>
+              <Label>{t("authPage.emailLabel")}</Label>
               <Input
                 type="email"
                 value={email}
@@ -356,22 +358,22 @@ export default function OAuthRedirectPage() {
                 autoComplete="email"
               />
               {normalizedEmailFromProvider && (
-                <p className="text-xs text-muted-foreground mt-1">Email импортирован из профиля провайдера</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("authPage.emailImported")}</p>
               )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Имя</Label>
-                <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Имя" />
+                <Label>{t("authPage.nameLabel")}</Label>
+                <Input value={name} onChange={(event) => setName(event.target.value)} placeholder={t("authPage.namePlaceholder")} />
               </div>
               <div>
-                <Label>Фамилия</Label>
-                <Input value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder="Фамилия" />
+                <Label>{t("authPage.lastNameLabel")}</Label>
+                <Input value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder={t("authPage.lastNamePlaceholder")} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Роль</Label>
+              <Label>{t("authPage.roleLabel")}</Label>
               <div className="flex gap-3">
                 <Button
                   type="button"
@@ -379,7 +381,7 @@ export default function OAuthRedirectPage() {
                   onClick={() => setRole("parent")}
                   disabled={isSubmitting}
                 >
-                  Родитель
+                  {t("authPage.roleParent")}
                 </Button>
                 {hasInviteCode && (
                   <Button
@@ -388,45 +390,45 @@ export default function OAuthRedirectPage() {
                     onClick={() => setRole("child")}
                     disabled={isSubmitting}
                   >
-                    Ребёнок
+                    {t("authPage.roleChild")}
                   </Button>
                 )}
               </div>
               {!hasInviteCode && (
                 <p className="text-xs text-muted-foreground">
-                  Чтобы присоединиться к существующей семье как ребёнок, используйте ссылку-приглашение от родителя
+                  {t("authPage.inviteHint")}
                 </p>
               )}
             </div>
 
             {role === "parent" ? (
               <div>
-                <Label>Название семьи</Label>
+                <Label>{t("authPage.familyNameLabel")}</Label>
                 <Input
                   value={familyName}
                   onChange={(event) => setFamilyName(event.target.value)}
-                  placeholder="Например, Семья Соколовых"
+                  placeholder={t("authPage.familyNamePlaceholder")}
                 />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Код семьи</Label>
+                  <Label>{t("authPage.familyCodeLabel")}</Label>
                   <Input
                     value={familyCode}
                     onChange={(event) => setFamilyCode(event.target.value)}
                     placeholder="ABC123"
                   />
                   {(familyCodeParam || localStorage.getItem("pendingFamilyCode")) && familyCode && (
-                    <p className="text-xs text-green-600 mt-1">✓ Код импортирован из приглашения</p>
+                    <p className="text-xs text-green-600 mt-1">{t("authPage.codeImported")}</p>
                   )}
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authPage.ageLabel")}</Label>
                   <div className="pt-2 pb-1">
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-2xl font-bold text-purple-600">{age || '5'}</span>
-                      <span className="text-xs text-gray-500">лет</span>
+                      <span className="text-xs text-gray-500">{t("authPage.ageUnit")}</span>
                     </div>
                     <Slider
                       min={5}
@@ -447,10 +449,10 @@ export default function OAuthRedirectPage() {
 
             <div className="flex justify-between gap-3">
               <Button type="button" variant="outline" onClick={() => router.replace("/")} disabled={isSubmitting}>
-                Отмена
+                {t("authPage.cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Сохраняем..." : "Завершить"}
+                {isSubmitting ? t("authPage.saving") : t("authPage.finish")}
               </Button>
             </div>
           </form>

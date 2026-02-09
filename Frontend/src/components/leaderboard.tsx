@@ -2,14 +2,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Trophy, Medal, Award, TrendingUp } from "lucide-react"
-
-const MOCK_LEADERBOARD = [
-  { name: "Мария", avatar: "👧", xp: 2450, level: 8, trend: "+200" },
-  { name: "Иван", avatar: "👦", xp: 1980, level: 7, trend: "+150" },
-  { name: "Анна", avatar: "👶", xp: 1650, level: 6, trend: "+180" },
-]
+import { useTranslation } from "@/i18n/provider"
 
 export default function Leaderboard() {
+  const { t } = useTranslation()
+
+  const MOCK_LEADERBOARD = [
+    { name: t("leaderboard.mockName1"), avatar: "👧", xp: 2450, level: 8, trend: "+200" },
+    { name: t("leaderboard.mockName2"), avatar: "👦", xp: 1980, level: 7, trend: "+150" },
+    { name: t("leaderboard.mockName3"), avatar: "👶", xp: 1650, level: 6, trend: "+180" },
+  ]
+
   const getMedalIcon = (index: number) => {
     switch (index) {
       case 0:
@@ -28,7 +31,7 @@ export default function Leaderboard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
-          Таблица лидеров
+          {t("leaderboard.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -46,7 +49,7 @@ export default function Leaderboard() {
               <div className="text-4xl">{member.avatar}</div>
               <div>
                 <p className="font-semibold text-base">{member.name}</p>
-                <p className="text-sm text-muted-foreground">Уровень {member.level}</p>
+                <p className="text-sm text-muted-foreground">{t("leaderboard.level", { level: member.level })}</p>
               </div>
             </div>
             <div className="text-right">

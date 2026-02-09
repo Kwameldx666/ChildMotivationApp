@@ -40,6 +40,7 @@ import TaskSubmissionModal from "./task-submission-modal"
 import TaskEditModal, { type EditableTask } from "./task-edit-modal"
 import { CreateTaskDialog } from "./create-task-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/i18n/provider"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 
@@ -79,53 +80,53 @@ const CARD_ACCENTS = [
 ] as const
 
 const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; hint: string }> = {
-	none: { label: "Без подтверждения", hint: "Можно завершить сразу" },
-	photo: { label: "Фото", hint: "Подойдёт любой снимок результата" },
-	video: { label: "Видео", hint: "Короткий ролик или сторис" },
-	document: { label: "Документ", hint: "PDF или скан отчёта" },
+	none: { label: "tasksList.evidence.noneLabel", hint: "tasksList.evidence.noneHint" },
+	photo: { label: "tasksList.evidence.photoLabel", hint: "tasksList.evidence.photoHint" },
+	video: { label: "tasksList.evidence.videoLabel", hint: "tasksList.evidence.videoHint" },
+	document: { label: "tasksList.evidence.documentLabel", hint: "tasksList.evidence.documentHint" },
 }
 
 const STATUS_META: Record<TaskStatus, { label: string; badge: string; icon: LucideIcon; journeyIndex: number }> = {
 	pending: {
-		label: "Новая",
+		label: "tasksList.status.pending",
 		badge: "bg-slate-900/5 text-slate-700 ring-1 ring-slate-200",
 		icon: Circle,
 		journeyIndex: 0,
 	},
 	in_progress: {
-		label: "В работе",
+		label: "tasksList.status.inProgress",
 		badge: "bg-blue-500/10 text-blue-700 ring-1 ring-blue-200",
 		icon: Clock,
 		journeyIndex: 1,
 	},
 	completed: {
-		label: "Готово",
+		label: "tasksList.status.completed",
 		badge: "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-200",
 		icon: CheckCircle2,
 		journeyIndex: 3,
 	},
 	overdue: {
-		label: "Просрочено",
+		label: "tasksList.status.overdue",
 		badge: "bg-red-500/10 text-red-700 ring-1 ring-red-200",
 		icon: AlertCircle,
 		journeyIndex: 2,
 	},
 }
 
-const JOURNEY_STEPS = ["Назначена", "В работе", "Проверка", "Готово"] as const
+const JOURNEY_STEPS = ["tasksList.journey.assigned", "tasksList.journey.inProgress", "tasksList.journey.review", "tasksList.journey.done"] as const
 
 const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
-	{ id: "all", label: "Все задачи", hint: "Полный список" },
-	{ id: "pending", label: "Новые", hint: "Только что добавлены" },
-	{ id: "in_progress", label: "В работе", hint: "Ребёнок занимается" },
-	{ id: "completed", label: "Готово", hint: "Подтверждённые" },
-	{ id: "overdue", label: "Просрочено", hint: "Нуждаются во внимании" },
+	{ id: "all", label: "tasksList.filters.all", hint: "tasksList.filters.allHint" },
+	{ id: "pending", label: "tasksList.filters.pending", hint: "tasksList.filters.pendingHint" },
+	{ id: "in_progress", label: "tasksList.filters.inProgress", hint: "tasksList.filters.inProgressHint" },
+	{ id: "completed", label: "tasksList.filters.completed", hint: "tasksList.filters.completedHint" },
+	{ id: "overdue", label: "tasksList.filters.overdue", hint: "tasksList.filters.overdueHint" },
 ]
 
 const HERO_STATS = [
-	{ id: "active", label: "Активные", hint: "Назначены или в процессе", compute: (summary: Record<TaskStatus, number>) => summary.pending + summary.in_progress },
-	{ id: "done", label: "Готово", hint: "Подтверждены родителем", compute: (summary: Record<TaskStatus, number>) => summary.completed },
-	{ id: "focus", label: "Фокус", hint: "Ждут реакции", compute: (summary: Record<TaskStatus, number>) => summary.overdue },
+	{ id: "active", label: "tasksList.heroStats.active", hint: "tasksList.heroStats.activeHint", compute: (summary: Record<TaskStatus, number>) => summary.pending + summary.in_progress },
+	{ id: "done", label: "tasksList.heroStats.done", hint: "tasksList.heroStats.doneHint", compute: (summary: Record<TaskStatus, number>) => summary.completed },
+	{ id: "focus", label: "tasksList.heroStats.focus", hint: "tasksList.heroStats.focusHint", compute: (summary: Record<TaskStatus, number>) => summary.overdue },
 ] as const
 
 const renderDifficulty = (level: number) => (
@@ -186,6 +187,7 @@ function resolveEvidenceRequirement(value?: string | number | null): TaskEvidenc
 
 export default function TasksList({ userType }: TasksListProps) {
 	const router = useRouter()
+	const { t } = useTranslation()
 	const { data, isLoading, isError, error } = useTasks()
 	const { stats: progressStats } = useChildProgressStats()
 	const currentStreak = progressStats?.streak ?? 0
@@ -230,15 +232,15 @@ export default function TasksList({ userType }: TasksListProps) {
 				},
 			})
 			toast({
-				title: "Задача обновлена",
-				description: "Изменения успешно сохранены.",
+				title: t("tasksList.toast.taskUpdated"),
+				description: t("tasksList.toast.taskUpdatedDesc"),
 			})
 			setIsEditModalOpen(false)
 			setEditableTask(null)
 		} catch (err) {
 			toast({
-				title: "Ошибка обновления",
-				description: err instanceof Error ? err.message : "Попробуйте ещё раз",
+				title: t("tasksList.toast.updateError"),
+				description: err instanceof Error ? err.message : t("tasksList.toast.tryAgain"),
 				variant: "destructive",
 			})
 		}
@@ -331,15 +333,15 @@ export default function TasksList({ userType }: TasksListProps) {
 			try {
 				await submitEvidence.mutateAsync({ id: pendingEvidenceTask.id, file })
 				toast({
-					title: "Подтверждение отправлено",
-					description: "Мы сообщим родителю, что файл готов к проверке.",
+					title: t("tasksList.toast.evidenceSubmitted"),
+					description: t("tasksList.toast.evidenceSubmittedDesc"),
 				})
 				setPendingEvidenceTask(null)
 			} catch (submitError) {
 				console.error(submitError)
 				toast({
-					title: "Не удалось загрузить файл",
-					description: submitError instanceof Error ? submitError.message : "Попробуйте ещё раз",
+					title: t("tasksList.toast.uploadFailed"),
+					description: submitError instanceof Error ? submitError.message : t("tasksList.toast.tryAgain"),
 					variant: "destructive",
 				})
 			}
@@ -370,8 +372,8 @@ export default function TasksList({ userType }: TasksListProps) {
 			} catch (err) {
 				console.error(err)
 				toast({
-					title: "Не удалось открыть подтверждение",
-					description: err instanceof Error ? err.message : "Попробуйте ещё раз",
+					title: t("tasksList.toast.viewEvidenceFailed"),
+					description: err instanceof Error ? err.message : t("tasksList.toast.tryAgain"),
 					variant: "destructive",
 				})
 			}
@@ -381,18 +383,18 @@ export default function TasksList({ userType }: TasksListProps) {
 
 	const handleDeleteTask = useCallback(
 		async (taskId: string) => {
-			if (!confirm("Вы уверены, что хотите удалить эту задачу?")) return
+			if (!confirm(t("tasksList.confirmDelete"))) return
 			try {
 				await deleteTask.mutateAsync(taskId)
 				toast({
-					title: "Задача удалена",
-					description: "Задача успешно удалена.",
+					title: t("tasksList.toast.taskDeleted"),
+					description: t("tasksList.toast.taskDeletedDesc"),
 				})
 			} catch (err) {
 				console.error(err)
 				toast({
-					title: "Не удалось удалить задачу",
-					description: err instanceof Error ? err.message : "Попробуйте ещё раз",
+					title: t("tasksList.toast.deleteFailed"),
+					description: err instanceof Error ? err.message : t("tasksList.toast.tryAgain"),
 					variant: "destructive",
 				})
 			}
@@ -427,32 +429,38 @@ export default function TasksList({ userType }: TasksListProps) {
 		if (typedError?.status === 401) {
 			return (
 				<div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
-					Вы не авторизованы. Войдите, чтобы видеть задачи.
+					{t("tasksList.errors.unauthorized")}
 				</div>
 			)
 		}
 		return (
 			<div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-				Ошибка при загрузке задач: {coalesce(typedError?.message, "Попробуйте обновить страницу")}
+				{t("tasksList.errors.loadError")}: {coalesce(typedError?.message, t("tasksList.errors.tryRefresh"))}
 			</div>
 		)
 	}
 
 	if (!tasks.length) {
 		return (
-			<div className="rounded-3xl border border-dashed border-primary/30 bg-primary/5 px-6 py-10 text-center shadow-sm">
-				<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-					<Sparkles className="h-5 w-5" />
+			<>
+				<div className="rounded-3xl border border-dashed border-primary/30 bg-primary/5 px-6 py-10 text-center shadow-sm">
+					<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+						<Sparkles className="h-5 w-5" />
+					</div>
+					<h3 className="mt-4 text-xl font-semibold">{t("tasks.noTasks")}</h3>
+					<p className="mt-2 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
+					{userType === "parent" && (
+						<Button className="mt-6 gap-2" onClick={openTaskCreation}>
+							<Plus className="h-4 w-4" />
+							{t("tasks.addFirstTask")}
+						</Button>
+					)}
 				</div>
-				<h3 className="mt-4 text-xl font-semibold">Пока задач нет</h3>
-				<p className="mt-2 text-sm text-muted-foreground">Создайте первую задачу — ребёнок увидит её сразу после сохранения.</p>
-				{userType === "parent" && (
-					<Button className="mt-6 gap-2" onClick={openTaskCreation}>
-						<Plus className="h-4 w-4" />
-						Создать задачу
-					</Button>
-				)}
-			</div>
+				<CreateTaskDialog
+					open={isCreateTaskOpen}
+					onOpenChange={setIsCreateTaskOpen}
+				/>
+			</>
 		)
 	}
 
@@ -484,7 +492,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				</div>
 					<div className="flex items-center gap-4">
 						<div className="flex items-center gap-2">
-							<span className="text-xs text-muted-foreground">Показывать:</span>
+							<span className="text-xs text-muted-foreground">{t("tasksList.showPerPage")}:</span>
 							<div className="flex rounded-lg border border-border/50 overflow-hidden">
 								{[10, 15, 20].map((size) => (
 									<button
@@ -504,7 +512,7 @@ export default function TasksList({ userType }: TasksListProps) {
 							</div>
 						</div>
 						<p className="text-sm text-muted-foreground">
-							{filteredTasks.length} из {decoratedTasks.length} задач
+							{filteredTasks.length} {t("tasksList.of")} {decoratedTasks.length} {t("tasksList.tasks")}
 						</p>
 					</div>
 				</div>
@@ -543,7 +551,7 @@ export default function TasksList({ userType }: TasksListProps) {
 									className="gap-1"
 								>
 									<ChevronLeft className="h-4 w-4" />
-									Назад
+									{t("tasksList.pagination.prev")}
 								</Button>
 								
 								<div className="flex items-center gap-1">
@@ -571,7 +579,7 @@ export default function TasksList({ userType }: TasksListProps) {
 									disabled={currentPage === totalPages}
 									className="gap-1"
 								>
-									Вперёд
+									{t("tasksList.pagination.next")}
 									<ChevronRight className="h-4 w-4" />
 								</Button>
 							</div>
@@ -579,16 +587,16 @@ export default function TasksList({ userType }: TasksListProps) {
 					</>
 				) : decoratedTasks.length > 0 ? (
 					<div className="rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 px-6 py-8 text-center">
-						<p className="text-sm text-muted-foreground">Задачи с таким статусом не найдены</p>
+						<p className="text-sm text-muted-foreground">{t("tasks.noTasks")}</p>
 					</div>
 				) : (
 					<div className="rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 px-6 py-10 text-center shadow-sm backdrop-blur-sm">
-						<h3 className="text-lg font-semibold text-foreground">Пока задач нет</h3>
-						<p className="mt-2 text-sm text-muted-foreground">Создайте первую задачу — ребёнок увидит её сразу после сохранения.</p>
+						<h3 className="text-lg font-semibold text-foreground">{t("tasks.noTasks")}</h3>
+						<p className="mt-2 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
 						{userType === "parent" && (
 							<Button className="mt-4 gap-2" onClick={openTaskCreation}>
 								<Plus className="h-4 w-4" />
-								Создать задачу
+								{t("tasks.addFirstTask")}
 							</Button>
 						)}
 					</div>
@@ -634,20 +642,20 @@ export default function TasksList({ userType }: TasksListProps) {
 							className="absolute -top-12 right-0 text-white hover:text-gray-300 flex items-center gap-2 text-lg"
 						>
 							<X className="h-8 w-8" />
-							Закрыть
+							{t("common.close")}
 						</button>
 						
 						<div className="bg-white rounded-lg overflow-hidden">
 							<div className="p-4 bg-gradient-to-r from-primary to-secondary text-white">
 								<h3 className="font-bold text-lg">{viewingEvidence.task.title}</h3>
-								<p className="text-sm opacity-90">Подтверждение выполнения</p>
+								<p className="text-sm opacity-90">{t("tasksList.evidenceViewer.subtitle")}</p>
 							</div>
 							
 							<div className="bg-black flex items-center justify-center" style={{ maxHeight: '70vh' }}>
 								{viewingEvidence.type.startsWith('image/') ? (
 									<img
 										src={viewingEvidence.url}
-										alt="Подтверждение"
+										alt={t("tasksList.evidenceViewer.altText")}
 										className="max-w-full max-h-[70vh] object-contain"
 									/>
 								) : viewingEvidence.type.startsWith('video/') ? (
@@ -670,10 +678,10 @@ export default function TasksList({ userType }: TasksListProps) {
 										link.click()
 									}}
 								>
-									Скачать
+									{t("tasksList.evidenceViewer.download")}
 								</Button>
 								<Button onClick={handleCloseViewer}>
-									Закрыть
+									{t("common.close")}
 								</Button>
 							</div>
 						</div>
@@ -715,6 +723,7 @@ function TaskRow({
 	downloadLoading,
 	deleteLoading,
 }: TaskRowProps) {
+	const { t } = useTranslation()
 	const [isOpen, setIsOpen] = useState(false)
 	const statusMeta = STATUS_META[task.status]
 	const StatusIcon = statusMeta.icon
@@ -736,9 +745,9 @@ function TaskRow({
 	
 	const evidenceStatusText = requiresEvidence
 		? evidenceReady
-			? `Файл получен${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
-			: "Ждём подтверждение"
-		: "Можно завершить сразу"
+			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
+			: t("tasksList.evidenceStatus.awaitingEvidence")
+		: t("tasksList.evidenceStatus.canCompleteDirect")
 	const canParentConfirm = !requiresEvidence || evidenceReady
 	const canChildComplete = canParentConfirm
 	const isCompleted = task.completed
@@ -786,7 +795,7 @@ function TaskRow({
 						)}>
 							<StatusIcon className="h-4 w-4" />
 							<span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
-								{statusMeta.label}
+								{t(statusMeta.label)}
 							</span>
 						</div>
 
@@ -798,7 +807,7 @@ function TaskRow({
 							<div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
 								<span className="flex items-center gap-1">
 									<Clock className="h-3 w-3" />
-									До {task.dueLabel}
+									{t("tasksList.dueBy")} {task.dueLabel}
 								</span>
 								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
 								<span className="font-semibold text-primary">
@@ -806,7 +815,7 @@ function TaskRow({
 								</span>
 								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
 								<span className="font-semibold text-amber-600">
-									{task.pointsReward} баллов
+									{task.pointsReward} {t("tasksList.pointsLabel")}
 									{streakMultiplier > 1 && !task.completed && (
 										<span className="text-green-500 ml-1">
 											(+{Math.round(task.pointsReward * (streakMultiplier - 1))} 🔥)
@@ -819,7 +828,7 @@ function TaskRow({
 						{/* Progress indicator (steps instead of %) */}
 						<div className="hidden lg:flex items-center gap-4">
 							<div className="flex flex-col gap-1">
-								<span className="text-xs text-muted-foreground">Стадия</span>
+								<span className="text-xs text-muted-foreground">{t("tasksList.stage")}</span>
 								<div className="flex items-center gap-2">
 									{JOURNEY_STEPS.map((step, index) => (
 										<div key={`step-${task.id}-${step}`} className="flex items-center gap-1">
@@ -833,7 +842,7 @@ function TaskRow({
 												"text-[10px]",
 												index <= statusMeta.journeyIndex ? "text-foreground" : "text-muted-foreground"
 											)}>
-												{step}
+												{t(step)}
 											</span>
 										</div>
 									))}
@@ -857,7 +866,7 @@ function TaskRow({
 										event.stopPropagation()
 										onEdit()
 									}}
-									aria-label="Редактировать задачу"
+									aria-label={t("tasksList.ariaLabels.editTask")}
 								>
 									<Pencil className="h-4 w-4" />
 								</Button>
@@ -870,7 +879,7 @@ function TaskRow({
 										onDelete()
 									}}
 									disabled={deleteLoading}
-									aria-label="Удалить задачу"
+									aria-label={t("tasksList.ariaLabels.deleteTask")}
 								>
 									<Trash2 className="h-4 w-4" />
 								</Button>
@@ -884,7 +893,7 @@ function TaskRow({
 								event.stopPropagation()
 								handleToggle()
 							}}
-							aria-label={isOpen ? "Скрыть детали" : "Показать детали"}
+							aria-label={isOpen ? t("tasksList.ariaLabels.hideDetails") : t("tasksList.ariaLabels.showDetails")}
 						>
 							<ChevronDown className={cn("h-5 w-5 transition-transform duration-300", isOpen && "rotate-180")} />
 						</Button>
@@ -900,32 +909,32 @@ function TaskRow({
 						{/* Mobile progress */}
 						<div className="lg:hidden space-y-3">
 							<div className="flex items-center justify-between">
-								<span className="text-sm text-muted-foreground">Прогресс выполнения</span>
+								<span className="text-sm text-muted-foreground">{t("tasksList.progressLabel")}</span>
 								<span className="text-lg font-bold text-foreground">{Math.round(task.progressValue)}%</span>
 							</div>
 							<Progress value={task.progressValue} className="h-2.5" />
 							<div className="flex items-center gap-2">
-								<span className="text-sm text-muted-foreground">Сложность:</span>
+								<span className="text-sm text-muted-foreground">{t("tasks.difficulty")}:</span>
 								{renderDifficulty(task.difficulty)}
 							</div>
 						</div>
 
 						{/* Description */}
 						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
-							<p className="text-sm font-medium text-muted-foreground mb-2">Описание задачи</p>
+							<p className="text-sm font-medium text-muted-foreground mb-2">{t("tasksList.descriptionLabel")}</p>
 							<p className="text-base text-foreground leading-relaxed">
-								{task.description?.trim() || "Добавьте подробности, чтобы ребёнку было проще понять шаги."}
+								{task.description?.trim() || t("tasksList.noDescription")}
 							</p>
 						</div>
 
 						{/* Info cards */}
 						<div className="grid gap-3 sm:grid-cols-3">
 							<div className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 p-4">
-								<p className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">Создана</p>
+								<p className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">{t("tasksList.created")}</p>
 								<p className="mt-2 text-2xl font-bold text-blue-900 dark:text-blue-300">{task.createdLabel}</p>
 							</div>
 							<div className="rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200/50 dark:border-purple-800/50 p-4">
-								<p className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">Дедлайн</p>
+								<p className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">{t("tasksList.deadline")}</p>
 								<p className="mt-2 text-2xl font-bold text-purple-900 dark:text-purple-300">{task.dueLabel}</p>
 							</div>
 							<div className={cn(
@@ -938,13 +947,13 @@ function TaskRow({
 									"text-xs font-bold uppercase tracking-wider",
 									requiresEvidence ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
 								)}>
-									Подтверждение
+									{t("tasksList.evidence.title")}
 								</p>
 								<p className={cn(
 									"mt-2 text-lg font-bold",
 									requiresEvidence ? "text-amber-900 dark:text-amber-300" : "text-emerald-900 dark:text-emerald-300"
 								)}>
-									{evidenceMeta.label}
+									{t(evidenceMeta.label)}
 								</p>
 								<p className="mt-1 text-xs text-muted-foreground">{evidenceStatusText}</p>
 							</div>
@@ -952,7 +961,7 @@ function TaskRow({
 
 						{/* Journey steps */}
 						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
-							<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Этапы выполнения</p>
+							<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">{t("tasksList.journeySteps")}</p>
 							<div className="flex items-center justify-between">
 								{JOURNEY_STEPS.map((step, stepIndex) => (
 									<div key={`${task.id}-${step}`} className="flex flex-col items-center gap-2 flex-1">
@@ -1007,7 +1016,7 @@ function TaskRow({
 										disabled={downloadLoading}
 									>
 										<Eye className="h-4 w-4" />
-										Посмотреть файл
+										{t("tasksList.actions.viewFile")}
 									</Button>
 								)}
 								{requiresEvidence && userType === "child" && !isCompleted && (
@@ -1018,7 +1027,7 @@ function TaskRow({
 										onClick={onUploadEvidence}
 									>
 										<Upload className="h-4 w-4" />
-										{evidenceReady ? "Заменить файл" : "Отправить файл"}
+										{evidenceReady ? t("tasksList.actions.replaceFile") : t("tasksList.actions.submitFile")}
 									</Button>
 								)}
 								{userType === "parent" && !isCompleted && (
@@ -1030,17 +1039,17 @@ function TaskRow({
 											onClick={onReject} 
 											disabled={updateLoading}
 										>
-											Отклонить
+											{t("tasksList.actions.reject")}
 										</Button>
 										<Button
 											size="sm"
 											className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl"
 											onClick={onConfirm}
 											disabled={!canParentConfirm || confirmLoading}
-											title={!canParentConfirm ? "Нужно дождаться подтверждения" : undefined}
+											title={!canParentConfirm ? t("tasksList.actions.awaitEvidenceHint") : undefined}
 										>
 											<CheckCircle2 className="h-4 w-4" />
-											Подтвердить
+											{t("tasksList.actions.confirm")}
 										</Button>
 									</>
 								)}
@@ -1050,15 +1059,15 @@ function TaskRow({
 										size="sm"
 										onClick={onConfirm}
 										disabled={!canChildComplete || confirmLoading}
-										title={!canChildComplete ? "Сначала прикрепи подтверждение" : undefined}
+										title={!canChildComplete ? t("tasksList.actions.attachEvidenceFirst") : undefined}
 									>
 										<CheckCircle2 className="h-4 w-4" />
-										Я сделал
+										{t("tasksList.actions.iDidIt")}
 									</Button>
 								)}
 								{isCompleted && (
 									<Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 shadow-lg">
-										✓ Задача закрыта
+										✓ {t("tasksList.taskClosed")}
 									</Badge>
 								)}
 							</div>

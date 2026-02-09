@@ -9,17 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Home, Loader2, LogOut } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface ProfileOverviewProps {
   session: AuthSession
   onLogout: () => void
   onGoDashboard: () => void
   onUpdateProfile: (payload: UpdateProfilePayload) => Promise<AuthSession>
-}
-
-const roleDictionary: Record<AuthSession["profile"]["role"], string> = {
-  parent: "Родитель",
-  child: "Ребёнок",
 }
 
 type ProfileFormState = {
@@ -30,6 +26,7 @@ type ProfileFormState = {
 }
 
 export default function ProfileOverview({ session, onLogout, onGoDashboard, onUpdateProfile }: ProfileOverviewProps) {
+  const { t } = useTranslation()
   const { profile, user, family } = session
 
   const [formState, setFormState] = useState<ProfileFormState>({
@@ -145,31 +142,31 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
     } catch (error) {
       console.error("[profile] Failed to update profile", error)
       setStatus("error")
-      setErrorMessage("Не удалось обновить профиль. Попробуйте позже.")
+      setErrorMessage(t("profileOverview.updateError"))
     }
   }
 
-  const familyName = family?.name ?? "Семья не создана"
+  const familyName = family?.name ?? t("profileOverview.noFamily")
   const familyCode = family?.code ?? "—"
   const familyEmblem = family?.emblem ?? "🏡"
-  const ageLabel = profile.role === "child" && profile.age !== undefined ? `${profile.age} лет` : "—"
+  const ageLabel = profile.role === "child" && profile.age !== undefined ? `${profile.age} ${t("profileOverview.yearsOld")}` : "—"
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Мой профиль</h1>
-            <p className="text-sm text-muted-foreground">Управляйте данными аккаунта и сведениями о семье</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("profileOverview.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("profileOverview.subtitle")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button variant="outline" onClick={onGoDashboard} className="gap-2">
               <Home className="h-4 w-4" />
-              К панели
+              {t("profileOverview.toDashboard")}
             </Button>
             <Button variant="destructive" onClick={onLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
-              Выйти
+              {t("profileOverview.logout")}
             </Button>
           </div>
         </div>
@@ -178,7 +175,7 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
           <CardHeader className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 text-2xl">
-                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Фото профиля" />}
+                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("profileOverview.profilePhoto")} />}
                 <AvatarFallback>{avatarSymbol}</AvatarFallback>
               </Avatar>
               <div>
@@ -186,19 +183,19 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
                   <h2 className="text-2xl font-semibold">
                     {[profile.name, profile.lastName].filter(Boolean).join(" ") || user.email}
                   </h2>
-                  <Badge>{roleDictionary[profile.role]}</Badge>
+                  <Badge>{profile.role === "parent" ? t("profileOverview.role.parent") : t("profileOverview.role.child")}</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
               </div>
             </div>
             <div className="grid gap-4 text-sm text-muted-foreground md:text-right">
               <div>
-                <p className="font-medium text-foreground">Идентификатор</p>
+                <p className="font-medium text-foreground">{t("profileOverview.identifier")}</p>
                 <p className="font-mono text-xs md:text-sm break-all">{user.id}</p>
               </div>
               {profile.role === "child" && (
                 <div>
-                  <p className="font-medium text-foreground">Возраст</p>
+                  <p className="font-medium text-foreground">{t("profileOverview.age")}</p>
                   <p>{ageLabel}</p>
                 </div>
               )}
@@ -208,37 +205,37 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="profile-name">Имя</Label>
+                  <Label htmlFor="profile-name">{t("profileOverview.form.name")}</Label>
                   <Input
                     id="profile-name"
                     value={formState.name}
                     onChange={event => handleFieldChange("name")(event.target.value)}
-                    placeholder="Например, Анна"
+                    placeholder={t("profileOverview.form.namePlaceholder")}
                     autoComplete="given-name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profile-lastname">Фамилия</Label>
+                  <Label htmlFor="profile-lastname">{t("profileOverview.form.lastName")}</Label>
                   <Input
                     id="profile-lastname"
                     value={formState.lastName}
                     onChange={event => handleFieldChange("lastName")(event.target.value)}
-                    placeholder="Например, Иванова"
+                    placeholder={t("profileOverview.form.lastNamePlaceholder")}
                     autoComplete="family-name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="profile-avatar">Эмодзи, инициалы или ссылка на фото</Label>
+                  <Label htmlFor="profile-avatar">{t("profileOverview.form.avatarLabel")}</Label>
                   <Input
                     id="profile-avatar"
                     value={formState.avatar}
                     onChange={event => handleFieldChange("avatar")(event.target.value)}
-                    placeholder="🌟, AI или https://avatar"
+                    placeholder={t("profileOverview.form.avatarPlaceholder")}
                   />
                 </div>
                 {profile.role === "child" && (
                   <div className="space-y-2">
-                    <Label htmlFor="profile-age">Возраст</Label>
+                    <Label htmlFor="profile-age">{t("profileOverview.form.age")}</Label>
                     <Input
                       id="profile-age"
                       type="number"
@@ -255,14 +252,14 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
               <div className="flex flex-wrap items-center gap-3">
                 <Button type="submit" disabled={!canSubmit} className="gap-2">
                   {status === "saving" && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Сохранить
+                  {t("profileOverview.form.save")}
                 </Button>
-                {status === "success" && <p className="text-sm text-emerald-600">Профиль обновлён</p>}
+                {status === "success" && <p className="text-sm text-emerald-600">{t("profileOverview.form.success")}</p>}
                 {status === "error" && (
-                  <p className="text-sm text-destructive">{errorMessage ?? "Не удалось обновить профиль"}</p>
+                  <p className="text-sm text-destructive">{errorMessage ?? t("profileOverview.form.error")}</p>
                 )}
                 {!isDirty && status === "idle" && (
-                  <p className="text-xs text-muted-foreground">Измените данные и сохраните их, когда будете готовы.</p>
+                  <p className="text-xs text-muted-foreground">{t("profileOverview.form.hint")}</p>
                 )}
               </div>
             </form>
@@ -272,37 +269,35 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Семья</CardTitle>
+              <CardTitle>{t("profileOverview.family.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="text-4xl">{familyEmblem}</div>
                 <div>
                   <p className="text-lg font-semibold">{familyName}</p>
-                  <p className="text-sm text-muted-foreground">Код: {familyCode}</p>
+                  <p className="text-sm text-muted-foreground">{t("profileOverview.family.code")} {familyCode}</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Код семьи можно отправить близким, чтобы они присоединились к FamilyQuest. Если вы ещё не создали
-                семью, сделайте это в панели управления.
+                {t("profileOverview.family.description")}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Быстрые действия</CardTitle>
+              <CardTitle>{t("profileOverview.quickActions.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button onClick={onGoDashboard} className="w-full justify-start gap-2" variant="secondary">
-                <Home className="h-4 w-4" /> Перейти в панель
+                <Home className="h-4 w-4" /> {t("profileOverview.quickActions.goToDashboard")}
               </Button>
               <Button onClick={onLogout} className="w-full justify-start gap-2" variant="outline">
-                <LogOut className="h-4 w-4" /> Выйти из аккаунта
+                <LogOut className="h-4 w-4" /> {t("profileOverview.quickActions.logout")}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Советы: обновите профиль, чтобы дети и другие родители узнавали вас быстрее, и делитесь кодом семьи
-                только с доверенными членами семьи.
+                {t("profileOverview.quickActions.tips")}
               </p>
             </CardContent>
           </Card>

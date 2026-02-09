@@ -6,12 +6,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    turbo: {
-      enabled: false
-    }
-  },
-  optimizeFonts: false,
 }
 
 export default nextConfig

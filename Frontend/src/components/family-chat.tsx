@@ -12,6 +12,7 @@ import { useFamilyMessages, useSendFamilyMessage } from "@/services/family-chat-
 import { useTasks } from "@/services/tasks-queries"
 import type { FamilyMessageDto } from "@/services/family-chat-service"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslation } from "@/i18n/provider"
 import {
   Command,
   CommandEmpty,
@@ -43,6 +44,7 @@ export default function FamilyChat({
   userRole,
   onBack
 }: FamilyChatProps) {
+  const { t } = useTranslation()
   const [message, setMessage] = useState("")
   const [mentionedTaskId, setMentionedTaskId] = useState<string | null>(null)
   const [showTaskPicker, setShowTaskPicker] = useState(false)
@@ -55,7 +57,7 @@ export default function FamilyChat({
 
   const mentionedTask = useMemo(() => {
     if (!mentionedTaskId) return null
-    return tasks.find(t => t.id === mentionedTaskId)
+    return tasks.find(tk => tk.id === mentionedTaskId)
   }, [mentionedTaskId, tasks])
 
   const scrollToBottom = () => {
@@ -78,14 +80,14 @@ export default function FamilyChat({
       setMessage("")
       setMentionedTaskId(null)
       toast({
-        title: "Сообщение отправлено",
+        title: t("familyChat.messageSent"),
         variant: "default",
       })
     } catch (error) {
       console.error(error)
       toast({
-        title: "Ошибка отправки",
-        description: "Попробуйте ещё раз",
+        title: t("familyChat.sendError"),
+        description: t("familyChat.tryAgain"),
         variant: "destructive",
       })
     }
@@ -110,9 +112,9 @@ export default function FamilyChat({
     yesterday.setDate(yesterday.getDate() - 1)
 
     if (date.toDateString() === today.toDateString()) {
-      return "Сегодня"
+      return t("familyChat.today")
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Вчера"
+      return t("familyChat.yesterday")
     } else {
       return date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
     }
@@ -189,7 +191,7 @@ export default function FamilyChat({
           )}
           <div className="flex-1">
             <h1 className="text-sm font-medium text-muted-foreground mb-2">
-              Семейный чат
+              {t("chat.familyChat")}
             </h1>
             {/* Список участников */}
             <div className="flex items-center gap-3 flex-wrap">
@@ -211,13 +213,13 @@ export default function FamilyChat({
                       {participant.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {participant.isOnline ? "онлайн" : "не в сети"}
+                      {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
                     </span>
                   </div>
                 </div>
               ))}
               {chatParticipants.filter(p => p.id !== currentUserId).length === 0 && (
-                <span className="text-sm text-muted-foreground">Нет других участников</span>
+                <span className="text-sm text-muted-foreground">{t("familyChat.noParticipants")}</span>
               )}
             </div>
           </div>
@@ -239,7 +241,7 @@ export default function FamilyChat({
             {group.messages.map((msg) => {
               const isOwnMessage = msg.senderId === currentUserId
               const mentionedTaskInMsg = msg.mentionedTaskId 
-                ? tasks.find(t => t.id === msg.mentionedTaskId)
+                ? tasks.find(tk => tk.id === msg.mentionedTaskId)
                 : null
               const senderInfo = chatParticipants.find(p => p.id === msg.senderId)
 
@@ -325,7 +327,7 @@ export default function FamilyChat({
               <div className="flex-1">
                 <div className="flex items-center gap-1 text-xs font-semibold text-rose-900 dark:text-rose-400">
                   <Hash className="h-3 w-3" />
-                  <span>Прикреплена задача:</span>
+                  <span>{t("familyChat.attachedTask")}</span>
                 </div>
                 <p className="mt-1 text-sm text-rose-800 dark:text-rose-300">{mentionedTask.title}</p>
               </div>
@@ -354,11 +356,11 @@ export default function FamilyChat({
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="start">
               <Command>
-                <CommandInput placeholder="Найти задачу..." />
+                <CommandInput placeholder={t("familyChat.searchTask")} />
                 <CommandList>
-                  <CommandEmpty>Задачи не найдены</CommandEmpty>
-                  <CommandGroup heading="Доступные задачи">
-                    {tasks.filter(t => !t.completed).map((task) => (
+                  <CommandEmpty>{t("familyChat.noTasksFound")}</CommandEmpty>
+                  <CommandGroup heading={t("familyChat.availableTasks")}>
+                    {tasks.filter(tk => !tk.completed).map((task) => (
                       <CommandItem
                         key={task.id}
                         onSelect={() => {
@@ -386,7 +388,7 @@ export default function FamilyChat({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Напишите сообщение..."
+            placeholder={t("chat.placeholder")}
             className="min-h-[44px] max-h-32 resize-none border-rose-200 focus-visible:ring-rose-400 dark:border-slate-700"
             rows={1}
           />
@@ -402,7 +404,7 @@ export default function FamilyChat({
         </div>
 
         <p className="text-xs text-muted-foreground mt-2 text-center">
-          💡 Нажмите <Hash className="h-3 w-3 inline" /> чтобы упомянуть задачу в сообщении
+          {t("familyChat.taskHintPrefix")} <Hash className="h-3 w-3 inline" /> {t("familyChat.taskHintSuffix")}
         </p>
       </div>
     </div>

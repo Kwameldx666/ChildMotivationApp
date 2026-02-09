@@ -3,27 +3,30 @@
 import { ArrowLeft, TrendingUp, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface ParentAIInsightsPageProps {
   onBack: () => void
 }
 
 export default function ParentAIInsightsPage({ onBack }: ParentAIInsightsPageProps) {
+  const { t } = useTranslation()
+
   const insights = [
     {
       type: "warning",
-      title: "Низкая мотивация",
-      message: "Мария не выполняла задачи 3 дня. Рекомендуем создать более привлекательные награды.",
+      title: t("parentAiInsights.lowMotivationTitle"),
+      message: t("parentAiInsights.lowMotivationMessage"),
     },
     {
       type: "success",
-      title: "Отличный прогресс",
-      message: "Иван достигает все поставленные цели. Рекомендуем увеличить сложность задач.",
+      title: t("parentAiInsights.greatProgressTitle"),
+      message: t("parentAiInsights.greatProgressMessage"),
     },
     {
       type: "insight",
-      title: "Анализ наград",
-      message: "Дешёвые награды (до 100 очков) мотивируют сильнее. Добавь больше микро-наград.",
+      title: t("parentAiInsights.rewardAnalysisTitle"),
+      message: t("parentAiInsights.rewardAnalysisMessage"),
     },
   ]
 
@@ -32,11 +35,11 @@ export default function ParentAIInsightsPage({ onBack }: ParentAIInsightsPagePro
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <h1 className="text-2xl font-bold flex items-center gap-2 mt-2">
           <TrendingUp className="w-5 h-5" />
-          ИИ Аналитика
+          {t("parentAiInsights.title")}
         </h1>
       </header>
 

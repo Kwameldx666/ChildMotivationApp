@@ -4,25 +4,22 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Circle } from "lucide-react"
-
-const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
-const MONTHS = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сентябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-]
+import { useTranslation } from "@/i18n/provider"
 
 export default function TaskCalendar() {
+  const { t } = useTranslation()
   const [currentDate, setCurrentDate] = useState(new Date())
+
+  const DAYS = [
+    t("taskCalendar.mon"), t("taskCalendar.tue"), t("taskCalendar.wed"),
+    t("taskCalendar.thu"), t("taskCalendar.fri"), t("taskCalendar.sat"), t("taskCalendar.sun")
+  ]
+  const MONTHS = [
+    t("taskCalendar.january"), t("taskCalendar.february"), t("taskCalendar.march"),
+    t("taskCalendar.april"), t("taskCalendar.may"), t("taskCalendar.june"),
+    t("taskCalendar.july"), t("taskCalendar.august"), t("taskCalendar.september"),
+    t("taskCalendar.october"), t("taskCalendar.november"), t("taskCalendar.december")
+  ]
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
@@ -75,7 +72,7 @@ export default function TaskCalendar() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Календарь задач</CardTitle>
+          <CardTitle>{t("taskCalendar.title")}</CardTitle>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={previousMonth}>
               <ChevronLeft className="w-4 h-4" />
@@ -94,15 +91,15 @@ export default function TaskCalendar() {
           <div className="flex items-center justify-center gap-4 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-primary" />
-              <span>Выполнено</span>
+              <span>{t("taskCalendar.completed")}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-accent" />
-              <span>В процессе</span>
+              <span>{t("taskCalendar.inProgress")}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-destructive" />
-              <span>Просрочено</span>
+              <span>{t("taskCalendar.overdue")}</span>
             </div>
           </div>
 

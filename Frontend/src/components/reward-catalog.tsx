@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Filter } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface Reward {
   id: string
@@ -17,91 +18,94 @@ interface Reward {
   popular: boolean
 }
 
-const CATALOG_REWARDS: Reward[] = [
+const getCatalogRewards = (t: (key: string) => string): Reward[] => [
   {
     id: "1",
-    name: "Поход в кино",
-    description: "Семейный вечер в кинотеатре на фильм по выбору",
+    name: t("rewardCatalog.items.movieTrip.name"),
+    description: t("rewardCatalog.items.movieTrip.description"),
     icon: "🎬",
     cost: 500,
-    category: "Развлечение",
+    category: "entertainment",
     difficulty: "hard",
     popular: true,
   },
   {
     id: "2",
-    name: "Пицца",
-    description: "Заказ пиццы на ужин",
+    name: t("rewardCatalog.items.pizza.name"),
+    description: t("rewardCatalog.items.pizza.description"),
     icon: "🍕",
     cost: 150,
-    category: "Еда",
+    category: "food",
     difficulty: "easy",
     popular: true,
   },
   {
     id: "3",
-    name: "Новый скин для аватара",
-    description: "Цифровой скин, меняющий внешний вид персонажа",
+    name: t("rewardCatalog.items.avatarSkin.name"),
+    description: t("rewardCatalog.items.avatarSkin.description"),
     icon: "🎨",
     cost: 200,
-    category: "Цифровое",
+    category: "digital",
     difficulty: "medium",
     popular: false,
   },
   {
     id: "4",
-    name: "Шоколад",
-    description: "Плитка качественного шоколада",
+    name: t("rewardCatalog.items.chocolate.name"),
+    description: t("rewardCatalog.items.chocolate.description"),
     icon: "🍫",
     cost: 50,
-    category: "Еда",
+    category: "food",
     difficulty: "easy",
     popular: false,
   },
   {
     id: "5",
-    name: "Видеоигра",
-    description: "Выбор игры в App Store или Steam",
+    name: t("rewardCatalog.items.videoGame.name"),
+    description: t("rewardCatalog.items.videoGame.description"),
     icon: "🎮",
     cost: 800,
-    category: "Технология",
+    category: "technology",
     difficulty: "hard",
     popular: true,
   },
   {
     id: "6",
-    name: "День без домашних дел",
-    description: "Полный день без выполнения обязанностей",
+    name: t("rewardCatalog.items.dayOff.name"),
+    description: t("rewardCatalog.items.dayOff.description"),
     icon: "😎",
     cost: 300,
-    category: "Привилегия",
+    category: "privilege",
     difficulty: "hard",
     popular: true,
   },
   {
     id: "7",
-    name: "Книга",
-    description: "Любимая книга или комикс",
+    name: t("rewardCatalog.items.book.name"),
+    description: t("rewardCatalog.items.book.description"),
     icon: "📚",
     cost: 250,
-    category: "Обучение",
+    category: "education",
     difficulty: "medium",
     popular: false,
   },
   {
     id: "8",
-    name: "Новые кроссовки",
-    description: "Кроссовки на выбор",
+    name: t("rewardCatalog.items.sneakers.name"),
+    description: t("rewardCatalog.items.sneakers.description"),
     icon: "👟",
     cost: 1000,
-    category: "Одежда",
+    category: "clothing",
     difficulty: "hard",
     popular: false,
   },
 ]
 
 export default function RewardCatalog() {
+  const { t } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+  const CATALOG_REWARDS = getCatalogRewards(t)
 
   const categories = Array.from(new Set(CATALOG_REWARDS.map((r) => r.category)))
 
@@ -127,11 +131,11 @@ export default function RewardCatalog() {
   const getDifficultyLabel = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return "Легко"
+        return t("rewardCatalog.difficulty.easy")
       case "medium":
-        return "Средне"
+        return t("rewardCatalog.difficulty.medium")
       case "hard":
-        return "Сложно"
+        return t("rewardCatalog.difficulty.hard")
       default:
         return ""
     }
@@ -140,12 +144,12 @@ export default function RewardCatalog() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Каталог наград</h1>
-        <p className="text-muted-foreground">Предложенные награды для вдохновения</p>
+        <h1 className="text-3xl font-bold mb-2">{t("rewardCatalog.title")}</h1>
+        <p className="text-muted-foreground">{t("rewardCatalog.subtitle")}</p>
       </div>
 
       <div>
-        <h2 className="text-xl font-bold mb-4">Популярные награды</h2>
+        <h2 className="text-xl font-bold mb-4">{t("rewardCatalog.popularRewards")}</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {popularRewards.map((reward) => (
             <Card key={reward.id} className="hover:shadow-lg transition-all border-2 border-accent/30">
@@ -169,10 +173,10 @@ export default function RewardCatalog() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Все награды</h2>
+          <h2 className="text-xl font-bold">{t("rewardCatalog.allRewards")}</h2>
           <Button variant="outline" size="sm" className="gap-2 bg-transparent">
             <Filter className="w-4 h-4" />
-            Фильтры
+            {t("rewardCatalog.filters")}
           </Button>
         </div>
 
@@ -182,7 +186,7 @@ export default function RewardCatalog() {
             onClick={() => setSelectedCategory(null)}
             size="sm"
           >
-            Все
+            {t("common.all")}
           </Button>
           {categories.map((category) => (
             <Button
@@ -191,7 +195,7 @@ export default function RewardCatalog() {
               onClick={() => setSelectedCategory(category)}
               size="sm"
             >
-              {category}
+              {t(`rewardCatalog.categories.${category}`)}
             </Button>
           ))}
         </div>
@@ -209,10 +213,10 @@ export default function RewardCatalog() {
                 <h3 className="font-semibold mb-1">{reward.name}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{reward.description}</p>
                 <div className="flex items-center justify-between pt-4 border-t">
-                  <span className="font-bold text-accent">{reward.cost} очков</span>
+                    <span className="font-bold text-accent">{reward.cost} {t("rewardCatalog.points")}</span>
                   <Button size="sm" onClick={() => {}}>
                     <Plus className="w-3 h-3 mr-1" />
-                    Добавить
+                    {t("rewardCatalog.add")}
                   </Button>
                 </div>
               </CardContent>

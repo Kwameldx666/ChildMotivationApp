@@ -6,13 +6,12 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Users, FileText, Settings, BarChart3, Gift, LogOut, User, Sparkles, MessageCircle } from "lucide-react"
+import { Plus, Users, Settings, BarChart3, Gift, LogOut, User, Sparkles, MessageCircle } from "lucide-react"
 import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "@/components/tasks-list"
 import RewardsShop from "@/components/rewards-shop"
 import AnalyticsDashboard from "@/components/analytics-dashboard"
 import ChildrenManagement from "@/components/children-management"
-import TaskTemplates from "@/components/task-templates"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
 import { CreateTaskDialog } from "@/components/create-task-dialog"
@@ -89,11 +88,11 @@ export default function ParentDashboard({
         isActive: true,
       })
 
-      toast({ title: "Товар добавлен", description: "Награда появится в магазине" })
+      toast({ title: t("parentDashboard.rewardAddedTitle"), description: t("parentDashboard.rewardAddedDescription") })
     } catch (error) {
       toast({
-        title: "Не удалось добавить товар",
-        description: error instanceof Error ? error.message : "Попробуйте ещё раз",
+        title: t("parentDashboard.rewardAddErrorTitle"),
+        description: error instanceof Error ? error.message : t("parentDashboard.rewardAddErrorDescription"),
         variant: "destructive",
       })
       throw error
@@ -196,7 +195,7 @@ export default function ParentDashboard({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.tasks")}</span>
@@ -216,10 +215,6 @@ export default function ParentDashboard({
             <TabsTrigger value="chat" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.chat")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.templates")}</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -274,16 +269,6 @@ export default function ParentDashboard({
               </p>
             </div>
             <ChildrenManagement familyCode={familyCode} />
-          </TabsContent>
-
-          <TabsContent value="templates" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.templates.title")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t("parentDashboard.sections.templates.subtitle")}
-              </p>
-            </div>
-            <TaskTemplates />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">

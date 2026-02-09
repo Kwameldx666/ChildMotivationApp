@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslation } from "@/i18n/provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -36,6 +37,7 @@ const AchievementSkeleton = () => (
 )
 
 export default function AchievementTree() {
+  const { t } = useTranslation()
   const { data, isLoading, isError } = useAchievements()
   const achievements = data ?? []
 
@@ -61,7 +63,7 @@ export default function AchievementTree() {
             >
               <Icon className="w-6 h-6" />
             </div>
-            {achievement.unlocked && <Badge className="bg-accent text-accent-foreground">Разблокировано!</Badge>}
+            {achievement.unlocked && <Badge className="bg-accent text-accent-foreground">{t("achievementTree.unlocked")}</Badge>}
           </div>
           <CardTitle className="text-base mt-2">{achievement.title}</CardTitle>
         </CardHeader>
@@ -86,8 +88,8 @@ export default function AchievementTree() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold mb-1">Дерево достижений</h2>
-        <p className="text-sm text-muted-foreground">Выполняйте достижения и получайте награды</p>
+        <h2 className="text-xl font-bold mb-1">{t("achievementTree.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("achievementTree.subtitle")}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -95,14 +97,14 @@ export default function AchievementTree() {
         {!isLoading && isError && (
           <Card className="md:col-span-2 lg:col-span-3">
             <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-              Не удалось загрузить достижения.
+              {t("achievementTree.loadError")}
             </CardContent>
           </Card>
         )}
         {!isLoading && !isError && achievements.length === 0 && (
           <Card className="md:col-span-2 lg:col-span-3">
             <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-              Достижения скоро появятся!
+              {t("achievementTree.comingSoon")}
             </CardContent>
           </Card>
         )}

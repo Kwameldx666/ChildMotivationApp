@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard, MessageCircle } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
@@ -55,6 +56,7 @@ interface ChildDashboardProps {
 
 export default function ChildDashboard({ userId, userProfile, familyCode, onLogout }: ChildDashboardProps) {
   const router = useRouter()
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
   const xp = stats?.xp ?? 0
@@ -63,9 +65,9 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   const streak = stats?.streak ?? 0
   const streakMultiplier = stats?.streakMultiplier ?? 1
   const rewardProgress = stats?.rewardProgress ?? {
-    instantReward: { pointsNeeded: 30, tasksNeeded: 3, description: "Стикеры" },
-    mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: "Игрушка" },
-    bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: "Подарок" },
+    instantReward: { pointsNeeded: 30, tasksNeeded: 3, description: t("childDashboard.rewards.stickers") },
+    mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: t("childDashboard.rewards.toy") },
+    bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: t("childDashboard.rewards.gift") },
   }
   const [hudCollapsed, setHudCollapsed] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -87,10 +89,10 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   // CHANGE: AI Helper function
   const handleAIHelper = () => {
     const suggestions = [
-      "Чтобы выполнить эту задачу максимально эффективно, попробуй разбить её на три простых шага.",
-      "Совет: сначала подготовь необходимые материалы, а потом приступай к выполнению.",
-      "Не забудь сделать хорошую фотографию при хорошем освещении для проверки родителя!",
-      "Эта задача намного легче, если делать её вместе с семьёй. Позови кого-нибудь помочь!",
+      t("childDashboard.aiSuggestions.tip1"),
+      t("childDashboard.aiSuggestions.tip2"),
+      t("childDashboard.aiSuggestions.tip3"),
+      t("childDashboard.aiSuggestions.tip4"),
     ]
     setAiMessage(suggestions[Math.floor(Math.random() * suggestions.length)])
   }
@@ -144,8 +146,8 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 mb-6">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">Привет, {userProfile.name}! 👋</h1>
-              <p className="text-sm text-muted-foreground">Продолжай выполнять задачи и зарабатывай награды</p>
+              <h1 className="text-2xl font-bold">{t("child.greeting", { name: userProfile.name })}</h1>
+              <p className="text-sm text-muted-foreground">{t("child.subtitle")}</p>
             </div>
 
             {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
@@ -158,19 +160,19 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                 onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
               >
                 <MessageSquare className="h-4 w-4" />
-                AI чат
+                {t("childDashboard.aiChat")}
               </Button>
-              {renderInlineStat("Уровень", String(level), "text-primary")}
-              {renderInlineStat("Опыт", `${xp}`, "text-accent")}
-              {renderInlineStat("Очки", `${points}`, "text-secondary")}
-              {renderInlineStat("Серия", `🔥${streak}`, "text-orange-500")}
+              {renderInlineStat(t("child.stats.level"), String(level), "text-primary")}
+              {renderInlineStat(t("child.stats.experience"), `${xp}`, "text-accent")}
+              {renderInlineStat(t("child.stats.points"), `${points}`, "text-secondary")}
+              {renderInlineStat(t("child.stats.streak"), `${streak}`, "text-orange-500")}
             </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <Avatar className="h-8 w-8">
-                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="Аватар профиля" />}
+                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("childDashboard.profileAvatar")} />}
                     <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -180,14 +182,15 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{userProfile.name}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {userProfile.age && `${userProfile.age} лет • `}Код семьи: {familyCode}
+                      {userProfile.age && `${userProfile.age} ${t("child.stats.age")} • `}
+                      {t("child.stats.familyCode")}: {familyCode}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setShowAvatarPicker(true)}>
                   <User className="mr-2 h-4 w-4" />
-                  <span>Изменить аватар</span>
+                  <span>{t("child.navigation.changeAvatar")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={event => {
@@ -196,12 +199,12 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                   }}
                 >
                   <IdCard className="mr-2 h-4 w-4" />
-                  <span>Профиль</span>
+                  <span>{t("child.navigation.profile")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Выйти</span>
+                  <span>{t("child.navigation.logout")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -209,21 +212,21 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
           {/* CHANGE: Full HUD stats in grid below header, scrolls naturally */}
           <div className="grid grid-cols-4 gap-4 mb-4">
-            {renderCardStat("Уровень", String(level), "text-primary")}
-            {renderCardStat("Опыт", `${xp}`, "text-accent")}
-            {renderCardStat("Очки", `${points}`, "text-secondary")}
+            {renderCardStat(t("child.stats.level"), String(level), "text-primary")}
+            {renderCardStat(t("child.stats.experience"), `${xp}`, "text-accent")}
+            {renderCardStat(t("child.stats.points"), `${points}`, "text-secondary")}
             <Card className="bg-card border-border">
               <CardContent className="pt-4">
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Серия</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("child.stats.streak")}</p>
                   {statsLoading ? (
                     <Skeleton className="h-8 w-20 mx-auto" />
                   ) : (
                     <>
-                      <p className="text-3xl font-bold text-orange-500">🔥 {streak} дн.</p>
+                      <p className="text-3xl font-bold text-orange-500">{t("childDashboard.streakDays", { count: streak })}</p>
                       {streakMultiplier > 1 && (
                         <p className="text-xs text-green-500 mt-1">
-                          Бонус ×{streakMultiplier.toFixed(1)}
+                          {t("childDashboard.bonusMultiplier", { value: streakMultiplier.toFixed(1) })}
                         </p>
                       )}
                     </>
@@ -238,25 +241,25 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
             <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-lg p-4 border border-violet-500/20">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-5 h-5 text-violet-500" />
-                <h3 className="font-semibold text-sm">До награды осталось</h3>
+                <h3 className="font-semibold text-sm">{t("childDashboard.rewardProgress")}</h3>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-green-500">{rewardProgress.instantReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">очков</p>
-                  <p className="text-xs text-green-500 mt-1">~{rewardProgress.instantReward.tasksNeeded} задач</p>
+                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
+                  <p className="text-xs text-green-500 mt-1">{t("childDashboard.tasksNeeded", { count: rewardProgress.instantReward.tasksNeeded })}</p>
                   <p className="text-[10px] text-muted-foreground">{rewardProgress.instantReward.description}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-amber-500">{rewardProgress.mediumReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">очков</p>
-                  <p className="text-xs text-amber-500 mt-1">~{rewardProgress.mediumReward.daysNeeded} дней</p>
+                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
+                  <p className="text-xs text-amber-500 mt-1">{t("childDashboard.daysNeeded", { count: rewardProgress.mediumReward.daysNeeded })}</p>
                   <p className="text-[10px] text-muted-foreground">{rewardProgress.mediumReward.description}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-purple-500">{rewardProgress.bigReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">очков</p>
-                  <p className="text-xs text-purple-500 mt-1">~{rewardProgress.bigReward.weeksNeeded} нед.</p>
+                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
+                  <p className="text-xs text-purple-500 mt-1">{t("childDashboard.weeksNeeded", { count: rewardProgress.bigReward.weeksNeeded })}</p>
                   <p className="text-[10px] text-muted-foreground">{rewardProgress.bigReward.description}</p>
                 </div>
               </div>
@@ -270,39 +273,39 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
           <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Задачи</span>
+              <span className="hidden sm:inline text-xs">{t("tasks.title")}</span>
             </TabsTrigger>
             <TabsTrigger value="missions" className="flex items-center gap-1">
               <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Миссии</span>
+              <span className="hidden sm:inline text-xs">{t("childDashboard.missions")}</span>
             </TabsTrigger>
             <TabsTrigger value="achievements" className="flex items-center gap-1">
               <Award className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Достижения</span>
+              <span className="hidden sm:inline text-xs">{t("achievements.title")}</span>
             </TabsTrigger>
             <TabsTrigger value="stickers" className="flex items-center gap-1">
               <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Стикеры</span>
+              <span className="hidden sm:inline text-xs">{t("child.navigation.stickers")}</span>
             </TabsTrigger>
             <TabsTrigger value="shop" className="flex items-center gap-1">
               <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Магазин</span>
+              <span className="hidden sm:inline text-xs">{t("child.navigation.shop")}</span>
             </TabsTrigger>
             <TabsTrigger value="chat" className="flex items-center gap-1">
               <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Чат</span>
+              <span className="hidden sm:inline text-xs">{t("child.navigation.chat")}</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-1">
               <User className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">Профиль</span>
+              <span className="hidden sm:inline text-xs">{t("child.navigation.profile")}</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tasks" className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold mb-1">Мои задачи</h2>
-                <p className="text-sm text-muted-foreground mb-4">Выполняй задачи и получай опыт и очки</p>
+                <h2 className="text-xl font-bold mb-1">{t("child.navigation.tasks")}</h2>
+                <p className="text-sm text-muted-foreground mb-4">{t("child.messages.completeTask")}</p>
               </div>
               {/* CHANGE: Added AI helper button */}
               <Button
@@ -310,7 +313,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                 className="gap-2 bg-linear-to-r from-purple-500 to-pink-500 text-white"
               >
                 <MessageSquare className="w-4 h-4" />
-                ИИ помощник
+                {t("childDashboard.aiHelper")}
               </Button>
             </div>
             <TasksList userType="child" />
@@ -330,8 +333,8 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
           <TabsContent value="shop" className="space-y-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Магазин наград</h2>
-              <p className="text-sm text-muted-foreground mb-4">Потрати свои очки на награды</p>
+              <h2 className="text-xl font-bold mb-1">{t("child.navigation.rewards")}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{t("child.messages.earnRewards")}</p>
             </div>
             <RewardsShop userType="child" />
           </TabsContent>
@@ -350,8 +353,8 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
           <TabsContent value="chat" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold mb-1">Чат с семьёй</h2>
-                <p className="text-sm text-muted-foreground">Общайся с родителями и упоминай задачи</p>
+                <h2 className="text-xl font-bold mb-1">{t("childDashboard.familyChat")}</h2>
+                <p className="text-sm text-muted-foreground">{t("childDashboard.familyChatDescription")}</p>
               </div>
             </div>
             <div className="max-w-4xl mx-auto">
@@ -370,19 +373,19 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
       <Dialog open={showAIHelper} onOpenChange={setShowAIHelper}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>ИИ Помощник</DialogTitle>
+            <DialogTitle>{t("childDashboard.aiHelper")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-linear-to-r from-purple-100 to-pink-100 p-4 rounded-lg">
-              <p className="text-sm font-medium">{aiMessage || "Загружаю совет..."}</p>
+              <p className="text-sm font-medium">{aiMessage || t("childDashboard.loadingAdvice")}</p>
             </div>
             <Button onClick={handleAIHelper} className="w-full">
-              Получить ещё совет
+              {t("childDashboard.getMoreAdvice")}
             </Button>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAIHelper(false)}>
-              Закрыть
+              {t("common.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -392,7 +395,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
       <Dialog open={showAvatarPicker} onOpenChange={setShowAvatarPicker}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Выбери аватар</DialogTitle>
+            <DialogTitle>{t("childDashboard.chooseAvatar")}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-4 gap-4">
             {["👦", "👧", "🧒", "👨‍🦱", "👩‍🦱", "🧑", "👨‍🎨", "👩‍💼", "🧑‍💻", "👨‍⚕️", "👩‍⚕️", "🧑‍🍳"].map((avatar) => (
@@ -409,7 +412,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-muted-foreground mb-2">Загрузить своё изображение</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">{t("childDashboard.uploadImage")}</label>
             <input
               type="file"
               accept="image/*"
@@ -423,7 +426,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                   const raw = localStorage.getItem('familyapp_current_user')
                   if (raw) userId = JSON.parse(raw).id
                   if (!userId) {
-                    alert('Не удалось определить пользователя. Пожалуйста, перезайдите.')
+                    alert(t('childDashboard.userNotFound'))
                     return
                   }
 
@@ -433,7 +436,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                   window.location.reload()
                 } catch (err) {
                   console.error(err)
-                  alert('Ошибка при загрузке аватара')
+                  alert(t('childDashboard.avatarUploadError'))
                 }
               }}
             />
@@ -441,7 +444,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAvatarPicker(false)}>
-              Отмена
+              {t("common.cancel")}
             </Button>
           </DialogFooter>
         </DialogContent>

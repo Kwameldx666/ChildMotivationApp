@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Send, Sparkles, Lightbulb, Bot, User, Zap, TrendingUp, Target, Award } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "@/i18n/provider"
 
 interface Message {
   id: string
@@ -15,44 +16,27 @@ interface Message {
   timestamp: Date
 }
 
-const SUGGESTIONS = [
-  {
-    icon: Target,
-    color: "from-blue-500 to-cyan-500",
-    title: "Какие задачи создать?",
-    description: "Получи идеи для эффективных домашних дел",
-    prompt: "Подскажи идеи для домашних задач для ребёнка 8-12 лет",
-  },
-  {
-    icon: Zap,
-    color: "from-orange-500 to-yellow-500",
-    title: "Как мотивировать?",
-    description: "Советы по повышению мотивации ребёнка",
-    prompt: "Как мотивировать ребёнка выполнять задачи?",
-  },
-  {
-    icon: Award,
-    color: "from-purple-500 to-pink-500",
-    title: "Система наград",
-    description: "Рекомендации для справедливой системы",
-    prompt: "Помоги создать систему наград для семьи",
-  },
-  {
-    icon: TrendingUp,
-    color: "from-emerald-500 to-teal-500",
-    title: "Анализ прогресса",
-    description: "Советы по улучшению результатов",
-    prompt: "Как анализировать прогресс ребёнка?",
-  },
+const SUGGESTION_KEYS = [
+  { icon: Target, color: "from-blue-500 to-cyan-500", key: "createTasks" },
+  { icon: Zap, color: "from-orange-500 to-yellow-500", key: "motivate" },
+  { icon: Award, color: "from-purple-500 to-pink-500", key: "rewards" },
+  { icon: TrendingUp, color: "from-emerald-500 to-teal-500", key: "progress" },
 ]
 
 export default function AIAssistant() {
+  const { t, locale } = useTranslation()
+  const suggestions = SUGGESTION_KEYS.map(s => ({
+    ...s,
+    title: t(`aiAssistant.suggestions.${s.key}.title`),
+    description: t(`aiAssistant.suggestions.${s.key}.description`),
+    prompt: t(`aiAssistant.suggestions.${s.key}.prompt`),
+  }))
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content:
-        "👋 Привет! Я ваш ИИ помощник в управлении семьей.\n\n✨ Я могу помочь вам:\n• Создать интересные задачи для детей\n• Дать советы по мотивации\n• Настроить систему наград\n• Проанализировать прогресс\n\nВыберите тему ниже или задайте свой вопрос!",
+      content: t("aiAssistant.welcomeMessage"),
       timestamp: new Date(),
     },
   ])
@@ -88,7 +72,7 @@ export default function AIAssistant() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `Спасибо за вопрос! 💡\n\nНа основе вашего запроса "${messageText}", вот мои рекомендации:\n\n✅ **Начните с малого**\nСоздавайте 2-3 задачи в день, чтобы не перегружать ребёнка\n\n🎯 **Варьируйте сложность**\nЧередуйте простые и сложные задачи для поддержания интереса\n\n📊 **Регулярная проверка**\nОтслеживайте прогресс еженедельно и корректируйте подход\n\n🏆 **Моментальное поощрение**\nНаграждайте достижения сразу для лучшей мотивации\n\nХотите узнать подробнее о каком-то из этих пунктов?`,
+        content: t("aiAssistant.mockResponse", { query: messageText }),
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, assistantMessage])
@@ -110,21 +94,21 @@ export default function AIAssistant() {
             <Sparkles className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-            ИИ Помощник
+            {t("aiAssistant.title")}
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Получите персональные рекомендации по управлению семейными задачами и мотивации детей
+            {t("aiAssistant.subtitle")}
           </p>
           <Badge variant="outline" className="gap-1 bg-white/50 dark:bg-slate-900/50">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Онлайн и готов помочь
+            {t("aiAssistant.onlineStatus")}
           </Badge>
         </div>
 
         {/* Quick Suggestions */}
         {messages.length === 1 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {SUGGESTIONS.map((suggestion, idx) => {
+            {suggestions.map((suggestion, idx) => {
               const Icon = suggestion.icon
               return (
                 <Card
@@ -160,10 +144,10 @@ export default function AIAssistant() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 flex-1">
                 <Bot className="w-5 h-5 text-white" />
-                <h2 className="text-lg font-semibold text-white">Диалог с ИИ</h2>
+                <h2 className="text-lg font-semibold text-white">{t("aiAssistant.chatTitle")}</h2>
               </div>
               <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                {messages.length - 1} {messages.length === 2 ? 'сообщение' : 'сообщений'}
+                {messages.length - 1} {messages.length === 2 ? t("aiAssistant.messageCountOne") : t("aiAssistant.messageCountMany")}
               </Badge>
             </div>
           </div>
@@ -197,7 +181,7 @@ export default function AIAssistant() {
                       </p>
                     </div>
                     <p className={`text-[10px] text-muted-foreground mt-1 px-2 ${message.role === "user" ? "text-right" : "text-left"}`}>
-                      {message.timestamp.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
+                      {message.timestamp.toLocaleTimeString(locale === "ru" ? "ru-RU" : locale === "ro" ? "ro-RO" : "en-US", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
 
@@ -236,7 +220,7 @@ export default function AIAssistant() {
             <div className="flex gap-3 items-end">
               <div className="flex-1 relative">
                 <Input
-                  placeholder="Задайте вопрос ИИ помощнику..."
+                  placeholder={t("aiAssistant.inputPlaceholder")}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}

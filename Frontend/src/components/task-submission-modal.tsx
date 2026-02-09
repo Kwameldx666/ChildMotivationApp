@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card"
 import { Send, Sparkles } from "lucide-react"
 import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 import MediaUpload from "./media-upload"
+import { useTranslation } from "@/i18n/provider"
 
 interface TaskSubmissionModalProps {
 	open: boolean
@@ -34,6 +35,7 @@ export default function TaskSubmissionModal({
 	isSubmitting,
 	onSubmit,
 }: TaskSubmissionModalProps) {
+	const { t } = useTranslation()
 	const [file, setFile] = useState<File | null>(null)
 
 	useEffect(() => {
@@ -62,7 +64,7 @@ export default function TaskSubmissionModal({
 				<DialogHeader>
 					<DialogTitle className="text-2xl flex items-center gap-2">
 						<Sparkles className="h-6 w-6 text-primary" />
-						Отправка доказательства
+						{t("taskSubmission.title")}
 					</DialogTitle>
 					<DialogDescription className="text-base">
 						<strong>{taskTitle}</strong>
@@ -72,7 +74,7 @@ export default function TaskSubmissionModal({
 				<div className="space-y-6 py-4">
 					{requirements && (
 						<Card className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200">
-							<p className="text-sm font-bold text-violet-900 mb-2">📋 Требования родителя</p>
+							<p className="text-sm font-bold text-violet-900 mb-2">{t("taskSubmission.requirementsLabel")}</p>
 							<p className="text-sm text-violet-800">{requirements}</p>
 						</Card>
 					)}
@@ -92,7 +94,7 @@ export default function TaskSubmissionModal({
 						className="flex-1 sm:flex-none"
 						disabled={isSubmitting}
 					>
-						Отмена
+						{t("taskSubmission.cancel")}
 					</Button>
 					<Button 
 						onClick={handleSubmit} 
@@ -100,7 +102,7 @@ export default function TaskSubmissionModal({
 						className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
 					>
 						<Send className="w-4 h-4" />
-						{isSubmitting ? "Отправляем..." : "Отправить родителю"}
+						{isSubmitting ? t("taskSubmission.submitting") : t("taskSubmission.submit")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

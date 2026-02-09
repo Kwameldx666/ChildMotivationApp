@@ -11,6 +11,7 @@ import { ArrowLeft, Sparkles, Users, UserCircle, Home, Zap } from "lucide-react"
 import { authApi } from "@/features/auth/api/authApi"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { openOAuthPopup } from "@/utils/oauth-popup"
+import { useTranslation } from "@/i18n/provider"
 
 function GoogleIcon(props: { className?: string }) {
   return (
@@ -86,17 +87,7 @@ const AVATARS = [
 
 const FAMILY_EMBLEMS = ["🏰", "🏡", "🌟", "⭐", "🌈", "🦄", "🐉", "🦅", "🌲", "🌊"]
 
-const AI_SUGGESTIONS = {
-  password: "Выбери надёжный пароль из минимум 6 символов, с буквами и цифрами для безопасности!",
-  role: "Мы рекомендуем роль Ребёнка для возраста от 6 до 16 лет, и роль Родителя для взрослых.",
-  familyName: [
-    "Семья Супергероев",
-    "Космические Исследователи",
-    "Команда Дракона",
-    "Лига Справедливости",
-    "Семья Викингов",
-  ],
-}
+// AI_SUGGESTIONS keys are resolved via t() inside the component
 
 interface AuthScreenProps {
   onAuth: (userData: {
@@ -110,6 +101,7 @@ interface AuthScreenProps {
 }
 
 export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
+  const { t } = useTranslation()
   const [isLogin, setIsLogin] = useState(true)
   const [step, setStep] = useState<"credentials" | "role" | "parent-family" | "child-profile" | "demo">("credentials")
   const [email, setEmail] = useState("")
@@ -160,17 +152,17 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
         onAuth(result.session)
       } else if (result.status === 'pending') {
         // Для pending показываем сообщение что нужно завершить регистрацию
-        setError("Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.")
+        setError(t("authScreen.errors.oauthPending"))
       } else if (result.status === 'error') {
-        setError(result.error || 'Ошибка авторизации')
+        setError(result.error || t("authScreen.errors.oauthError"))
       }
     } catch (err: any) {
       if (err.message?.includes('всплывающие окна')) {
-        setError("Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.")
+        setError(t("authScreen.errors.oauthPopupBlocked"))
       } else if (err.message?.includes('закрыто')) {
-        setError("Авторизация отменена")
+        setError(t("authScreen.errors.oauthCancelled"))
       } else {
-        setError(mapApiError(err, 'Не удалось начать OAuth-процесс.'))
+        setError(mapApiError(err, t("authScreen.errors.oauthStartFailed")))
       }
     } finally {
       setIsLoading(false)
@@ -181,16 +173,16 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     const demoUser = {
       id: "demo-user-" + Date.now(),
       email: "demo@familytask.com",
-      name: "Тест",
-      lastName: "Пользователь",
+      name: t("authScreen.demo.name"),
+      lastName: t("authScreen.demo.lastName"),
     }
 
     localStorage.setItem("familyapp_current_user", JSON.stringify(demoUser))
     localStorage.setItem(
       `familyapp_profile_${demoUser.id}`,
       JSON.stringify({
-        name: "Тест",
-        lastName: "Пользователь",
+        name: t("authScreen.demo.name"),
+        lastName: t("authScreen.demo.lastName"),
         avatar: "🧑",
         role: "child",
         age: 12,
@@ -200,7 +192,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
       `familyapp_family_${demoUser.id}`,
       JSON.stringify({
         code: "DEMO12",
-        name: "Демо Семья",
+        name: t("authScreen.demo.familyName"),
         emblem: "🏰",
       }),
     )
@@ -208,14 +200,14 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     onAuth({
       user: demoUser,
       profile: {
-        name: "Тест",
-        lastName: "Пользователь",
+        name: t("authScreen.demo.name"),
+        lastName: t("authScreen.demo.lastName"),
         avatar: "🧑",
         role: "child",
         age: 12,
       },
       familyCode: "DEMO12",
-      familyName: "Демо Семья",
+      familyName: t("authScreen.demo.familyName"),
       familyEmblem: "🏰",
     })
   }
@@ -225,12 +217,12 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
     setError("")
 
     if (!email || !password) {
-      setError("Пожалуйста, заполните все поля")
+      setError(t("authScreen.errors.loginEmailPasswordRequired"))
       return
     }
 
     if (password.length < 6) {
-      setError("Пароль должен содержать минимум 6 символов")
+      setError(t("authScreen.errors.passwordTooShort"))
       return
     }
 
@@ -264,14 +256,14 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
           familyEmblem: familyData.emblem,
         })
       } else {
-        setError("Неверный email или пароль")
+        setError(t("auth.invalidCredentials"))
       }
     }
   }
 
   const handleRoleSubmit = () => {
     if (!role) {
-      setError("Пожалуйста, выбери роль")
+      setError(t("authScreen.errors.roleRequired"))
       return
     }
 
@@ -286,7 +278,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
 
   const handleParentFamilySubmit = async () => {
     if (!familyName) {
-      setError("Пожалуйста, введи название семьи")
+      setError(t("authScreen.errors.familyNameRequired"))
       return
     }
 
@@ -332,7 +324,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
 
   const handleChildProfileSubmit = async () => {
     if (!childName || !childFamilyCode) {
-      setError("Пожалуйста, заполни все поля")
+      setError(t("authScreen.errors.nameLastNameRequired"))
       return
     }
 
@@ -390,19 +382,19 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Назад
+              {t("common.back")}
             </Button>
 
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{isLogin ? "Вход" : "Регистрация"}</h2>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{isLogin ? t("auth.signIn") : t("auth.signUp")}</h2>
               <p className="text-sm font-medium text-gray-700">
-                {isLogin ? "Добро пожаловать обратно!" : "Начни своё приключение"}
+                {isLogin ? t("authScreen.welcomeBack") : t("authScreen.startAdventure")}
               </p>
             </div>
 
             <form onSubmit={handleCredentialsSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="email" className="text-sm font-semibold text-gray-800 mb-1.5 block">Email</Label>
+                <Label htmlFor="email" className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("auth.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -415,24 +407,24 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-800">Пароль</Label>
+                  <Label htmlFor="password" className="text-sm font-semibold text-gray-800">{t("auth.password")}</Label>
                   <Sparkles className="w-4 h-4 text-yellow-500" />
                 </div>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Минимум 6 символов"
+                  placeholder={t("authScreen.passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
-                <p className="text-xs text-gray-600 mt-1">{AI_SUGGESTIONS.password}</p>
+                <p className="text-xs text-gray-600 mt-1">{t("authScreen.hints.password")}</p>
               </div>
 
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
 
               <Button type="submit" className="w-full bg-gradient-to-r from-primary to-secondary" disabled={isLoading}>
-                {isLoading ? "Загрузка..." : isLogin ? "Вход" : "Регистрация"}
+                {isLoading ? t("authScreen.submitLoading") : isLogin ? t("authScreen.submitLogin") : t("authScreen.submitRegister")}
               </Button>
             </form>
 
@@ -441,7 +433,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-gray-600">Или</span>
+                <span className="bg-background px-2 text-gray-600">{t("authScreen.or")}</span>
               </div>
             </div>
 
@@ -463,12 +455,12 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
             {/* CHANGE: Demo mode button */}
             <Button onClick={handleDemoMode} variant="outline" className="w-full mb-4 bg-transparent">
               <Zap className="mr-2 h-4 w-4" />
-              Попробовать демо
+              {t("authScreen.tryDemo")}
             </Button>
 
             <div className="text-center">
               <p className="text-sm text-gray-700">
-                {isLogin ? "Нет аккаунта? " : "Уже есть аккаунт? "}
+                {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
                 <button
                   onClick={() => {
                     setIsLogin(!isLogin)
@@ -476,7 +468,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                   }}
                   className="text-primary font-medium hover:underline"
                 >
-                  {isLogin ? "Создай" : "Войди"}
+                  {isLogin ? t("authScreen.switchCreate") : t("authScreen.switchLogin")}
                 </button>
               </p>
             </div>
@@ -503,16 +495,16 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Назад
+              {t("common.back")}
             </Button>
 
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Выбери свою роль</h2>
+              <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{t("authScreen.chooseRole")}</h2>
               <div className="bg-blue-100 p-3 rounded-lg mb-4 flex items-start gap-2 border border-blue-200">
                 <Sparkles className="w-4 h-4 text-yellow-500 mt-1 flex-shrink-0" />
-                <p className="text-sm text-blue-900 font-medium">{AI_SUGGESTIONS.role}</p>
+                <p className="text-sm text-blue-900 font-medium">{t("authScreen.hints.role")}</p>
               </div>
-              <p className="text-sm text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-200">⚠️ Роль нельзя изменить позже, выбери внимательно!</p>
+              <p className="text-sm text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-200">{t("authScreen.roleWarning")}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-6">
@@ -523,9 +515,9 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 }`}
               >
                 <Users className="w-12 h-12 mx-auto mb-3 text-primary" />
-                <h3 className="font-bold mb-2 text-gray-900">Родитель</h3>
+                <h3 className="font-bold mb-2 text-gray-900">{t("authScreen.roles.parent")}</h3>
                 <p className="text-xs text-gray-700">
-                  Создавай задания, управляй наградами и следи за прогрессом
+                  {t("authScreen.roles.parentDesc")}
                 </p>
               </button>
 
@@ -536,15 +528,15 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 }`}
               >
                 <UserCircle className="w-12 h-12 mx-auto mb-3 text-secondary" />
-                <h3 className="font-bold mb-2 text-gray-900">Ребёнок</h3>
-                <p className="text-xs text-gray-700">Выполняй задания, получай награды и добивайся целей</p>
+                <h3 className="font-bold mb-2 text-gray-900">{t("authScreen.roles.child")}</h3>
+                <p className="text-xs text-gray-700">{t("authScreen.roles.childDesc")}</p>
               </button>
             </div>
 
             {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded mb-4">{error}</div>}
 
             <Button onClick={handleRoleSubmit} className="w-full bg-gradient-to-r from-primary to-secondary">
-              Продолжить
+              {t("authScreen.continue")}
             </Button>
           </CardContent>
         </Card>
@@ -569,21 +561,21 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Назад
+              {t("common.back")}
             </Button>
 
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                 <Home className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Создай семью</h2>
-              <p className="text-sm font-medium text-gray-700">Дай ей название и выбери эмблему</p>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{t("authScreen.createFamily")}</h2>
+              <p className="text-sm font-medium text-gray-700">{t("authScreen.createFamilySubtitle")}</p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <Label className="text-sm font-semibold text-gray-800">Название семьи</Label>
+                  <Label className="text-sm font-semibold text-gray-800">{t("authScreen.familyName")}</Label>
                   <Button
                     type="button"
                     size="sm"
@@ -597,16 +589,16 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 <Input 
                   required 
                   aria-invalid={!familyName.trim()} 
-                  placeholder="Семья Иванова" 
+                  placeholder={t("authScreen.familyNamePlaceholder")} 
                   value={familyName} 
                   onChange={(e) => setFamilyName(e.target.value)}
                   className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
-                {!familyName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                {!familyName.trim() && <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>}
 
                 {showAINames && (
                   <div className="mt-2 space-y-1">
-                    {AI_SUGGESTIONS.familyName.map((name, idx) => (
+                    {[t("authScreen.hints.familyName0"), t("authScreen.hints.familyName1"), t("authScreen.hints.familyName2"), t("authScreen.hints.familyName3"), t("authScreen.hints.familyName4")].map((name, idx) => (
                       <button
                         key={idx}
                         onClick={() => {
@@ -629,7 +621,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 className="w-full bg-gradient-to-r from-primary to-secondary"
                 disabled={isParentCreateDisabled}
               >
-                {isParentCreateDisabled ? "Заполните название семьи" : isLoading ? "Создаётся..." : "Создать семью"}
+                {isParentCreateDisabled ? t("authScreen.submitFamilyNameRequired") : isLoading ? t("authScreen.submitCreating") : t("authScreen.submitCreateFamily")}
               </Button>
             </div>
           </CardContent>
@@ -655,35 +647,35 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               className="mb-6 bg-white/80 hover:bg-white border-2 border-purple-300 hover:border-purple-500 text-gray-800 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Назад
+              {t("common.back")}
             </Button>
 
             <div className="text-center mb-6">
               <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg border-2 border-purple-200">
                 <div className="text-5xl">{selectedAvatar}</div>
               </div>
-              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Создай профиль</h2>
-              <p className="text-sm font-medium text-gray-700">Заполни информацию о себе</p>
+              <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{t("authScreen.createProfile")}</h2>
+              <p className="text-sm font-medium text-gray-700">{t("authScreen.createProfileSubtitle")}</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Имя</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.firstName")}</Label>
                 <Input 
                   required 
                   aria-invalid={!childName.trim()} 
-                  placeholder="Иван" 
+                  placeholder={t("authScreen.firstNamePlaceholder")} 
                   value={childName} 
                   onChange={(e) => setChildName(e.target.value)}
                   className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
-                {!childName.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                {!childName.trim() && <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>}
               </div>
 
               <div>
-                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Фамилия</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.lastName")}</Label>
                 <Input 
-                  placeholder="Иванов" 
+                  placeholder={t("authScreen.lastNamePlaceholder")} 
                   value={childLastName} 
                   onChange={(e) => setChildLastName(e.target.value)}
                   className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
@@ -691,11 +683,11 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               </div>
 
               <div>
-                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Возраст</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.age")}</Label>
                 <div className="pt-2 pb-1">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-2xl font-bold text-purple-600">{childAge}</span>
-                    <span className="text-xs text-gray-500">лет</span>
+                    <span className="text-xs text-gray-500">{t("authScreen.years")}</span>
                   </div>
                   <Slider
                     min={5}
@@ -713,12 +705,12 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
               </div>
 
               <div>
-                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Аватар</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.avatar")}</Label>
                 <div className="flex items-center gap-3">
                   {/* Превью аватара */}
                   <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
                     {selectedAvatar.startsWith('data:') ? (
-                      <img src={selectedAvatar} alt="Аватар" className="w-full h-full object-cover" />
+                      <img src={selectedAvatar} alt={t("authScreen.avatarAlt")} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-3xl">{selectedAvatar}</span>
                     )}
@@ -749,14 +741,14 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span className="text-sm">Загрузить фото</span>
+                      <span className="text-sm">{t("authScreen.uploadPhoto")}</span>
                     </label>
                   </div>
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">Код семьи</Label>
+                <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyCode")}</Label>
                 <Input
                   required
                   aria-invalid={!childFamilyCode.trim()}
@@ -766,7 +758,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                   maxLength={6}
                   className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                 />
-                {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">Обязательное поле</p>}
+                {!childFamilyCode.trim() && <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>}
               </div>
 
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>}
@@ -776,7 +768,7 @@ export function AuthScreenEnhanced({ onAuth, onBack }: AuthScreenProps) {
                 className="w-full bg-linear-to-r from-primary to-secondary"
                 disabled={isChildProfileDisabled}
               >
-                {isChildProfileDisabled ? "Заполните обязательные поля" : isLoading ? "Присоединяется..." : "Присоединиться к семье"}
+                {isChildProfileDisabled ? t("authScreen.submitFillRequired") : isLoading ? t("authScreen.submitJoining") : t("authScreen.submitJoinFamily")}
               </Button>
             </div>
           </CardContent>

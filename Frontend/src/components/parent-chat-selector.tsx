@@ -9,6 +9,7 @@ import { ArrowLeft, MessageCircle, Users, User } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "./family-chat"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/i18n/provider"
 
 interface ParentChatSelectorProps {
   familyId: string
@@ -33,6 +34,7 @@ export default function ParentChatSelector({
   currentUserName,
   currentUserAvatar,
 }: ParentChatSelectorProps) {
+  const { t } = useTranslation()
   const [selectedChat, setSelectedChat] = useState<SelectedChat>({ type: "list" })
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(familyId) })
 
@@ -86,9 +88,9 @@ export default function ParentChatSelector({
     <div className="max-w-4xl mx-auto space-y-4">
       {/* Header */}
       <div className="text-center space-y-2 mb-6">
-        <h2 className="text-2xl font-bold">Чаты с детьми</h2>
+        <h2 className="text-2xl font-bold">{t("parentChatSelector.title")}</h2>
         <p className="text-sm text-muted-foreground">
-          Выберите общий чат или персональную беседу с ребёнком
+          {t("parentChatSelector.subtitle")}
         </p>
       </div>
 
@@ -111,14 +113,14 @@ export default function ParentChatSelector({
             </div>
             
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-1">Общий чат семьи</h3>
+              <h3 className="text-lg font-semibold mb-1">{t("parentChatSelector.groupChatTitle")}</h3>
               <p className="text-sm text-muted-foreground">
-                Общайтесь со всеми детьми одновременно
+                {t("parentChatSelector.groupChatDescription")}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="secondary" className="gap-1">
                   <Users className="w-3 h-3" />
-                  {children.length} {children.length === 1 ? "ребёнок" : "детей"}
+                  {t("parentChatSelector.childrenCount", { count: children.length })}
                 </Badge>
               </div>
             </div>
@@ -133,7 +135,7 @@ export default function ParentChatSelector({
       {/* Список детей для приватных чатов */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground px-2">
-          Приватные чаты
+          {t("parentChatSelector.privateChats")}
         </h3>
         
         {children.length === 0 ? (
@@ -141,10 +143,10 @@ export default function ParentChatSelector({
             <div className="p-8 text-center space-y-2">
               <User className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
               <p className="text-sm text-muted-foreground">
-                Пока нет детей в семье
+                {t("parentChatSelector.noChildren")}
               </p>
               <p className="text-xs text-muted-foreground">
-                Пригласите детей используя код семьи
+                {t("parentChatSelector.inviteChildren")}
               </p>
             </div>
           </Card>
@@ -188,7 +190,7 @@ export default function ParentChatSelector({
                     <div className="flex-1">
                       <h3 className="text-base font-semibold">{child.name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {child.age ? `${child.age} лет` : "Персональный чат"}
+                        {child.age ? t("parentChatSelector.yearsOld", { age: child.age }) : t("parentChatSelector.personalChat")}
                       </p>
                     </div>
 

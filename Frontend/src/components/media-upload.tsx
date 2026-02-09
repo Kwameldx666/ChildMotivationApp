@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Camera, Upload, Video, FileText, Image, X, Check, Square, Circle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TaskEvidenceRequirement } from "@/services/tasks-service"
+import { useTranslation } from "@/i18n/provider"
 
 interface MediaUploadProps {
 	evidenceType: TaskEvidenceRequirement
@@ -23,27 +24,27 @@ const SOURCE_CONFIG: Record<UploadSource, {
 	capture?: boolean | "user" | "environment"
 }> = {
 	camera: {
-		label: "Сделать фото",
+		label: "mediaUpload.takePhoto",
 		icon: Camera,
 		accept: "image/*",
 		capture: "environment"
 	},
 	gallery: {
-		label: "Из галереи",
+		label: "mediaUpload.fromGallery",
 		icon: Image,
 		accept: "image/*,video/*"
 	},
 	"record-video": {
-		label: "Записать видео",
+		label: "mediaUpload.recordVideo",
 		icon: Video
 	},
 	video: {
-		label: "Загрузить видео",
+		label: "mediaUpload.uploadVideo",
 		icon: Upload,
 		accept: "video/*"
 	},
 	file: {
-		label: "Выбрать файл",
+		label: "mediaUpload.chooseFile",
 		icon: FileText,
 		accept: ".pdf,.doc,.docx,.txt"
 	}
@@ -55,6 +56,7 @@ export default function MediaUpload({
 	selectedFile,
 	onClear
 }: MediaUploadProps) {
+	const { t } = useTranslation()
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 	const [isRecording, setIsRecording] = useState(false)
 	const [recordingTime, setRecordingTime] = useState(0)
@@ -121,12 +123,12 @@ export default function MediaUpload({
 		try {
 			// Проверяем поддержку MediaRecorder
 			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-				alert('Ваш браузер не поддерживает доступ к камере. Попробуйте другой браузер.')
+				alert(t('mediaUpload.browserNoCamera'))
 				return
 			}
 
 			if (!window.MediaRecorder) {
-				alert('Ваш браузер не поддерживает запись видео. Используйте опцию "Загрузить видео".')
+				alert(t('mediaUpload.browserNoRecording'))
 				return
 			}
 
@@ -192,17 +194,17 @@ export default function MediaUpload({
 				setRecordingTime(prev => prev + 1)
 			}, 1000)
 		} catch (error) {
-			console.error('Ошибка доступа к камере:', error)
+			console.error('Camera access error:', error)
 			if (error instanceof Error) {
 				if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-					alert('Доступ к камере запрещён. Пожалуйста, разрешите доступ в настройках браузера.')
+					alert(t('mediaUpload.cameraAccessDenied'))
 				} else if (error.name === 'NotFoundError') {
-					alert('Камера не найдена. Убедитесь, что устройство имеет камеру.')
+					alert(t('mediaUpload.cameraNotFound'))
 				} else {
-					alert('Не удалось получить доступ к камере: ' + error.message)
+					alert(t('mediaUpload.cameraAccessError') + error.message)
 				}
 			} else {
-				alert('Не удалось получить доступ к камере. Убедитесь, что разрешили доступ.')
+				alert(t('mediaUpload.cameraAccessGenericError'))
 			}
 		}
 	}
@@ -229,21 +231,21 @@ export default function MediaUpload({
 
 	// Форматирование размера файла
 	const formatFileSize = (bytes: number): string => {
-		if (bytes < 1024) return `${bytes} Б`
-		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`
-		return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`
+		if (bytes < 1024) return `${bytes} ${t("mediaUpload.bytes")}`
+		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} ${t("mediaUpload.kilobytes")}`
+		return `${(bytes / (1024 * 1024)).toFixed(1)} ${t("mediaUpload.megabytes")}`
 	}
 
 	const getInstructionText = (): string => {
 		switch (evidenceType) {
 			case "photo":
-				return "Сделай чёткое фото результата при хорошем освещении"
+				return t("mediaUpload.photoInstruction")
 			case "video":
-				return "Запиши короткое видео (до 30 сек), показывающее выполненную работу"
+				return t("mediaUpload.videoInstruction")
 			case "document":
-				return "Прикрепи документ или заметку с подтверждением"
+				return t("mediaUpload.documentInstruction")
 			default:
-				return "Выбери способ загрузки доказательства"
+				return t("mediaUpload.defaultInstruction")
 		}
 	}
 
@@ -257,7 +259,7 @@ export default function MediaUpload({
 								<Check className="h-6 w-6 text-emerald-600" />
 							</div>
 							<div>
-								<p className="font-semibold text-emerald-900">Файл выбран</p>
+								<p className="font-semibold text-emerald-900">{t("mediaUpload.fileSelected")}</p>
 								<p className="text-sm text-emerald-700">{selectedFile.name}</p>
 								<p className="text-xs text-emerald-600">{formatFileSize(selectedFile.size)}</p>
 							</div>
@@ -278,7 +280,7 @@ export default function MediaUpload({
 							{selectedFile.type.startsWith("image/") ? (
 								<img
 									src={previewUrl}
-									alt="Превью"
+									alt={t("mediaUpload.preview")}
 									className="w-full h-48 object-cover"
 								/>
 							) : selectedFile.type.startsWith("video/") ? (
@@ -298,7 +300,7 @@ export default function MediaUpload({
 						className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-100"
 					>
 						<Upload className="h-4 w-4 mr-2" />
-						Выбрать другой файл
+						{t("mediaUpload.chooseAnotherFile")}
 					</Button>
 				</div>
 			</Card>
@@ -317,7 +319,7 @@ export default function MediaUpload({
 									<Circle className="h-6 w-6 text-white fill-current" />
 								</div>
 								<div>
-									<p className="font-bold text-red-900">Идёт запись</p>
+									<p className="font-bold text-red-900">{t("mediaUpload.recording")}</p>
 									<p className="text-2xl font-mono text-red-700">{formatTime(recordingTime)}</p>
 								</div>
 							</div>
@@ -328,7 +330,7 @@ export default function MediaUpload({
 								className="gap-2"
 							>
 								<Square className="h-5 w-5" />
-								Остановить
+							{t("mediaUpload.stop")}
 							</Button>
 						</div>
 						
@@ -344,7 +346,7 @@ export default function MediaUpload({
 						</div>
 						
 						<p className="text-sm text-red-700 text-center">
-							💡 Держи камеру ровно и покажи результат работы со всех сторон
+						💡 {t("mediaUpload.recordingTip")}
 						</p>
 					</div>
 				</Card>
@@ -361,7 +363,7 @@ export default function MediaUpload({
 						<Upload className="h-4 w-4 text-blue-600" />
 					</div>
 					<div>
-						<p className="text-sm font-semibold text-blue-900">Как загрузить доказательство</p>
+						<p className="text-sm font-semibold text-blue-900">{t("mediaUpload.howToUpload")}</p>
 						<p className="text-sm text-blue-700 mt-1">{getInstructionText()}</p>
 					</div>
 				</div>
@@ -397,7 +399,7 @@ export default function MediaUpload({
 								<div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
 									<Icon className="h-7 w-7 text-primary" />
 								</div>
-								<span className="font-semibold">{config.label}</span>
+								<span className="font-semibold">{t(config.label)}</span>
 							</Button>
 						</div>
 					)
@@ -408,21 +410,21 @@ export default function MediaUpload({
 			{evidenceType === "photo" && (
 				<div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
 					<p className="text-xs text-amber-800">
-						💡 <strong>Совет:</strong> Убедись, что результат хорошо виден на фото. Используй хорошее освещение!
+						💡 <strong>{t("mediaUpload.tip")}</strong> {t("mediaUpload.photoTip")}
 					</p>
 				</div>
 			)}
 			{evidenceType === "video" && (
 				<div className="rounded-lg bg-purple-50 border border-purple-200 p-3">
 					<p className="text-xs text-purple-800">
-						💡 <strong>Совет:</strong> Держи камеру ровно и говори чётко. Покажи результат со всех сторон!
+						💡 <strong>{t("mediaUpload.tip")}</strong> {t("mediaUpload.videoTip")}
 					</p>
 				</div>
 			)}
 			{evidenceType === "document" && (
 				<div className="rounded-lg bg-green-50 border border-green-200 p-3">
 					<p className="text-xs text-green-800">
-						💡 <strong>Совет:</strong> Поддерживаются форматы: PDF, DOC, DOCX, TXT
+						💡 <strong>{t("mediaUpload.tip")}</strong> {t("mediaUpload.documentTip")}
 					</p>
 				</div>
 			)}

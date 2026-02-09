@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useShopProducts } from "@/services/shop-queries"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/i18n/provider"
 
 // Система категорий наград для мотивации детей
 type RewardCategory = "instant" | "medium" | "big"
@@ -31,13 +32,13 @@ interface RewardCategoryConfig {
   borderColor: string
 }
 
-const REWARD_CATEGORIES: RewardCategoryConfig[] = [
+const getRewardCategories = (t: (key: string) => string): RewardCategoryConfig[] => [
   {
     id: "instant",
-    label: "⚡ Мгновенные",
-    description: "Быстрые награды, которые можно получить сразу",
+    label: t("rewardCreation.categories.instant.label"),
+    description: t("rewardCreation.categories.instant.description"),
     icon: Zap,
-    examples: ["Стикеры", "Дополнительная сказка на ночь", "15 мин дополнительного экрана", "Выбор десерта"],
+    examples: t("rewardCreation.categories.instant.examples").split(", "),
     minPoints: 20,
     maxPoints: 40,
     recommendedPoints: 30,
@@ -47,10 +48,10 @@ const REWARD_CATEGORIES: RewardCategoryConfig[] = [
   },
   {
     id: "medium",
-    label: "🎯 Еженедельные",
-    description: "Награды среднего уровня за неделю усилий",
+    label: t("rewardCreation.categories.medium.label"),
+    description: t("rewardCreation.categories.medium.description"),
     icon: Calendar,
-    examples: ["Маленькая игрушка", "Вечер кино", "Пицца на ужин", "Поход в кафе"],
+    examples: t("rewardCreation.categories.medium.examples").split(", "),
     minPoints: 100,
     maxPoints: 150,
     recommendedPoints: 120,
@@ -60,10 +61,10 @@ const REWARD_CATEGORIES: RewardCategoryConfig[] = [
   },
   {
     id: "big",
-    label: "🏆 Большие",
-    description: "Долгосрочные цели за месяц+ усилий",
+    label: t("rewardCreation.categories.big.label"),
+    description: t("rewardCreation.categories.big.description"),
     icon: Trophy,
-    examples: ["Поездка в парк развлечений", "Новая видеоигра", "Особый подарок", "День по выбору ребёнка"],
+    examples: t("rewardCreation.categories.big.examples").split(", "),
     minPoints: 300,
     maxPoints: 500,
     recommendedPoints: 350,
@@ -81,11 +82,13 @@ interface RewardCreationModalProps {
 }
 
 export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitting = false }: RewardCreationModalProps) {
+  const { t } = useTranslation()
   const { toast } = useToast()
   const { data: familyMembers = [] } = useFamilyMembers()
   const { data: existingProducts = [] } = useShopProducts()
   
   const children = familyMembers.filter(m => m.role === 'child')
+  const REWARD_CATEGORIES = getRewardCategories(t)
   
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -151,26 +154,26 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
         setCost(String(suggestion.cost || (suggestion as any).Cost))
         setStock("1")
         toast({
-          title: "ИИ сгенерировал награду",
-          description: `${suggestion.title || (suggestion as any).Title} - ${suggestion.cost || (suggestion as any).Cost} баллов`,
+          title: t("rewardCreation.toast.aiGenerated"),
+          description: t("rewardCreation.toast.aiGeneratedDesc", { title: suggestion.title || (suggestion as any).Title, cost: suggestion.cost || (suggestion as any).Cost }),
         })
       }
     } catch (error: any) {
       console.error('[reward-creation-modal] AI generation failed', error)
       
       // Определяем тип ошибки для более понятного сообщения
-      let errorMessage = "Не удалось сгенерировать награду. Попробуйте еще раз."
+      let errorMessage = t("rewardCreation.errors.default")
       
       if (error?.message?.includes('Timeout') || error?.message?.includes('timeout')) {
-        errorMessage = "ИИ долго обрабатывает запрос. Попробуйте упростить подсказку или попробовать позже."
+        errorMessage = t("rewardCreation.errors.timeout")
       } else if (error?.code === 500 || error?.description?.includes('Timeout')) {
-        errorMessage = "Сервер ИИ перегружен. Попробуйте через несколько секунд."
+        errorMessage = t("rewardCreation.errors.serverOverloaded")
       } else if (error?.message) {
         errorMessage = error.message
       }
       
       toast({
-        title: "Ошибка генерации",
+        title: t("rewardCreation.toast.generationError"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -213,8 +216,8 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Создать новую награду</DialogTitle>
-          <DialogDescription>Добавьте награду вручную или используйте ИИ для генерации идей</DialogDescription>
+          <DialogTitle>{t("rewardCreation.title")}</DialogTitle>
+          <DialogDescription>{t("rewardCreation.subtitle")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4 overflow-y-auto flex-1 px-1">
@@ -222,7 +225,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
               <Info className="w-4 h-4 text-muted-foreground" />
-              Выберите тип награды
+              {t("rewardCreation.selectType")}
             </Label>
             <div className="grid grid-cols-3 gap-2">
               {REWARD_CATEGORIES.map((category) => {
@@ -243,7 +246,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                   >
                     <div className="text-lg mb-1">{category.label.split(" ")[0]}</div>
                     <div className={cn("text-xs font-medium", isSelected ? category.color : "text-muted-foreground")}>
-                      {category.minPoints}–{category.maxPoints === 500 ? "500+" : category.maxPoints} очков
+                      {category.minPoints}–{category.maxPoints === 500 ? "500+" : category.maxPoints} {t("rewardCreation.points")}
                     </div>
                   </button>
                 )
@@ -259,7 +262,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                   {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.description}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  <strong>Примеры:</strong> {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.examples.join(", ")}
+                  <strong>{t("rewardCreation.examplesLabel")}</strong> {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.examples.join(", ")}
                 </p>
               </div>
             )}
@@ -268,7 +271,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
           {/* Выбор ребенка для персонализации */}
           {children.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="child-select">Для кого награда?</Label>
+              <Label htmlFor="child-select">{t("rewardCreation.forWhom")}</Label>
               <select
                 id="child-select"
                 className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
@@ -276,7 +279,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                 onChange={(e) => setSelectedChildId(e.target.value)}
                 disabled={disabled}
               >
-                <option value="">Для всех детей</option>
+                <option value="">{t("rewardCreation.forAllChildren")}</option>
                 {children.map((child) => (
                   <option key={child.id} value={child.id}>
                     {child.name} {child.lastName}
@@ -284,17 +287,17 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
                 ))}
               </select>
               <p className="text-xs text-muted-foreground">
-                ИИ учтет увлечения выбранного ребенка при генерации
+                {t("rewardCreation.aiConsidersInterests")}
               </p>
             </div>
           )}
 
           {/* Дополнительный промпт */}
           <div className="space-y-2">
-            <Label htmlFor="custom-prompt">Подсказка для ИИ (необязательно)</Label>
+            <Label htmlFor="custom-prompt">{t("rewardCreation.aiHint")}</Label>
             <Textarea
               id="custom-prompt"
-              placeholder="Например: Ребенок хочет что-то связанное с динозаврами, или Награда для особого случая..."
+              placeholder={t("rewardCreation.aiHintPlaceholder")}
               rows={2}
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
@@ -313,27 +316,27 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
             {isAiGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Генерируем награду...</span>
-                <span className="text-xs opacity-75">(может занять до минуты)</span>
+                <span>{t("rewardCreation.generating")}</span>
+                <span className="text-xs opacity-75">{t("rewardCreation.generatingTime")}</span>
               </>
             ) : (
               <>
-                Сгенерировать с помощью ИИ
+                {t("rewardCreation.generateWithAi")}
               </>
             )}
           </Button>
 
           {isAiGenerating && (
             <div className="text-center text-xs text-muted-foreground animate-pulse">
-              ИИ анализирует интересы и придумывает идеальную награду...
+              {t("rewardCreation.aiAnalyzing")}
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="reward-title">Название награды</Label>
+            <Label htmlFor="reward-title">{t("rewardCreation.rewardName")}</Label>
             <Input
               id="reward-title"
-              placeholder="Например: Час игр на консоли"
+              placeholder={t("rewardCreation.rewardNamePlaceholder")}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               disabled={isSubmitting}
@@ -341,10 +344,10 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reward-description">Описание</Label>
+            <Label htmlFor="reward-description">{t("rewardCreation.description")}</Label>
             <Textarea
               id="reward-description"
-              placeholder="Подробное описание награды..."
+              placeholder={t("rewardCreation.descriptionPlaceholder")}
               rows={3}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
@@ -354,7 +357,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="reward-cost">Стоимость в очках</Label>
+              <Label htmlFor="reward-cost">{t("rewardCreation.costInPoints")}</Label>
               <Input
                 id="reward-cost"
                 type="number"
@@ -368,17 +371,17 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
               {selectedCategory && cost && !isPriceInCategoryRange() && (
                 <p className="text-xs text-amber-600 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  Рекомендуемый диапазон: {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.minPoints}–{REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.maxPoints} очков
+                  {t("rewardCreation.recommendedRange", { min: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.minPoints ?? 0, max: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.maxPoints ?? 0 })}
                 </p>
               )}
               {selectedCategory && (
                 <p className="text-xs text-muted-foreground">
-                  Рекомендовано: {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.recommendedPoints} очков
+                  {t("rewardCreation.recommended", { points: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.recommendedPoints ?? 0 })}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reward-stock">Количество наград</Label>
+              <Label htmlFor="reward-stock">{t("rewardCreation.stockCount")}</Label>
               <Input
                 id="reward-stock"
                 type="number"
@@ -393,11 +396,9 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
 
           {/* Подсказка о мотивации */}
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-            <p className="text-xs font-medium text-primary mb-1">💡 Совет по мотивации</p>
+            <p className="text-xs font-medium text-primary mb-1">{t("rewardCreation.motivationTip")}</p>
             <p className="text-xs text-muted-foreground">
-              Дети остаются мотивированными, когда награды кажутся достижимыми. 
-              Мгновенные награды (20–40 очков) для быстрой радости, еженедельные (100–150) для среднесрочных целей, 
-              большие (300+) для долгосрочной мотивации.
+              {t("rewardCreation.motivationTipText")}
             </p>
           </div>
         </div>
@@ -410,7 +411,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
             className="flex-1 bg-transparent"
             disabled={isSubmitting}
           >
-            Отмена
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -419,7 +420,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
             className="flex-1 gap-2"
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {isSubmitting ? "Сохраняем" : "Создать награду"}
+            {isSubmitting ? t("rewardCreation.saving") : t("rewardCreation.createReward")}
           </Button>
         </div>
       </DialogContent>
