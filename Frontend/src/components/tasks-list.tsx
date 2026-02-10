@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import type { KeyboardEvent } from "react"
@@ -152,9 +152,9 @@ function mapStatus(task: TaskDto): TaskStatus {
 }
 
 function formatDate(value?: string | Date): string {
-	if (!value) return "—"
+	if (!value) return "â€”"
 	const date = typeof value === "string" ? new Date(value) : value
-	if (Number.isNaN(date.getTime())) return "—"
+	if (Number.isNaN(date.getTime())) return "â€”"
 	return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short" }).format(date)
 }
 
@@ -296,14 +296,14 @@ export default function TasksList({ userType }: TasksListProps) {
 		[decoratedTasks, activeFilter],
 	)
 
-	// Пагинация
+	// ÐŸÐ°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ
 	const totalPages = Math.ceil(filteredTasks.length / pageSize)
 	const paginatedTasks = useMemo(
 		() => filteredTasks.slice((currentPage - 1) * pageSize, currentPage * pageSize),
 		[filteredTasks, currentPage, pageSize],
 	)
 
-	// Сброс на первую страницу при смене фильтра или размера страницы
+	// Ð¡Ð±Ñ€Ð¾Ñ Ð½Ð° Ð¿ÐµÑ€Ð²ÑƒÑŽ ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñƒ Ð¿Ñ€Ð¸ ÑÐ¼ÐµÐ½Ðµ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð° Ð¸Ð»Ð¸ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹
 	useEffect(() => {
 		setCurrentPage(1)
 	}, [activeFilter, pageSize])
@@ -356,11 +356,11 @@ export default function TasksList({ userType }: TasksListProps) {
 				const url = URL.createObjectURL(blob)
 				const contentType = task.evidence?.contentType || blob.type
 				
-				// Если это изображение или видео, показываем во встроенном просмотрщике
+				// Ð•ÑÐ»Ð¸ ÑÑ‚Ð¾ Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ Ð¸Ð»Ð¸ Ð²Ð¸Ð´ÐµÐ¾, Ð¿Ð¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÐ¼ Ð²Ð¾ Ð²ÑÑ‚Ñ€Ð¾ÐµÐ½Ð½Ð¾Ð¼ Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€Ñ‰Ð¸ÐºÐµ
 				if (contentType.startsWith('image/') || contentType.startsWith('video/')) {
 					setViewingEvidence({ task, url, type: contentType })
 				} else {
-					// Для других файлов скачиваем
+					// Ð”Ð»Ñ Ð´Ñ€ÑƒÐ³Ð¸Ñ… Ñ„Ð°Ð¹Ð»Ð¾Ð² ÑÐºÐ°Ñ‡Ð¸Ð²Ð°ÐµÐ¼
 					const link = document.createElement("a")
 					link.href = url
 					link.download = coalesce(task.evidence?.fileName, `evidence-${task.id}`)
@@ -483,8 +483,8 @@ export default function TasksList({ userType }: TasksListProps) {
 									)}
 								>
 									<div className="text-left">
-										<p className="text-sm font-semibold">{filter.label}</p>
-										<p className="text-[11px] text-muted-foreground">{filter.hint}</p>
+										<p className="text-sm font-semibold">{t(filter.label)}</p>
+										<p className="text-[11px] text-muted-foreground">{t(filter.hint)}</p>
 									</div>
 								</button>
 							)
@@ -540,7 +540,7 @@ export default function TasksList({ userType }: TasksListProps) {
 							))}
 						</div>
 
-						{/* Пагинация */}
+						{/* ÐŸÐ°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ */}
 						{totalPages > 1 && (
 							<div className="flex items-center justify-center gap-2 pt-6">
 								<Button
@@ -630,7 +630,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				onOpenChange={setIsCreateTaskOpen}
 			/>
 
-			{/* Модальное окно просмотра медиа */}
+			{/* ÐœÐ¾Ð´Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð¾ÐºÐ½Ð¾ Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€Ð° Ð¼ÐµÐ´Ð¸Ð° */}
 			{viewingEvidence && (
 				<div 
 					className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
@@ -732,7 +732,7 @@ function TaskRow({
 	const requiresEvidence = evidenceRequirement !== "none"
 	const evidenceReady = Boolean(task.evidence?.isSubmitted)
 	
-	// Отладочный вывод для проверки данных о доказательстве
+	// ÐžÑ‚Ð»Ð°Ð´Ð¾Ñ‡Ð½Ñ‹Ð¹ Ð²Ñ‹Ð²Ð¾Ð´ Ð´Ð»Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¾ Ð´Ð¾ÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒÑÑ‚Ð²Ðµ
 	if (requiresEvidence && typeof window !== 'undefined' && window.location.search.includes('debug')) {
 		console.log('Task evidence debug:', {
 			taskId: task.id,
@@ -745,7 +745,7 @@ function TaskRow({
 	
 	const evidenceStatusText = requiresEvidence
 		? evidenceReady
-			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
+			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` Â· ${formatDate(task.evidence.uploadedAt)}` : ""}`
 			: t("tasksList.evidenceStatus.awaitingEvidence")
 		: t("tasksList.evidenceStatus.canCompleteDirect")
 	const canParentConfirm = !requiresEvidence || evidenceReady
@@ -818,7 +818,7 @@ function TaskRow({
 									{task.pointsReward} {t("tasksList.pointsLabel")}
 									{streakMultiplier > 1 && !task.completed && (
 										<span className="text-green-500 ml-1">
-											(+{Math.round(task.pointsReward * (streakMultiplier - 1))} 🔥)
+											(+{Math.round(task.pointsReward * (streakMultiplier - 1))} ðŸ”¥)
 										</span>
 									)}
 								</span>
@@ -980,7 +980,7 @@ function TaskRow({
 											"text-xs font-medium text-center transition-colors",
 											stepIndex <= statusMeta.journeyIndex ? "text-primary font-bold" : "text-muted-foreground"
 										)}>
-											{step}
+											{t(step)}
 										</span>
 										{stepIndex < JOURNEY_STEPS.length - 1 && (
 											<div className="absolute top-6 left-[calc(50%+24px)] right-[calc(50%-24px)] h-0.5 -z-10 hidden sm:block">
@@ -1067,7 +1067,7 @@ function TaskRow({
 								)}
 								{isCompleted && (
 									<Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 shadow-lg">
-										✓ {t("tasksList.taskClosed")}
+										âœ“ {t("tasksList.taskClosed")}
 									</Badge>
 								)}
 							</div>

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { useTranslation } from "@/i18n/provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 function splitName(fullName: string): [string, string] {
   if (!fullName) {
@@ -325,6 +326,9 @@ export default function OAuthRedirectPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       <Card className="w-full max-w-lg bg-white/90 backdrop-blur-sm shadow-xl">
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2 text-center">

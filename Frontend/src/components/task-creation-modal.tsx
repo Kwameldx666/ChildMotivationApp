@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -30,22 +30,22 @@ const QUICK_TEMPLATES: Array<{
   {
     labelKey: "taskCreation.templates.cleaning",
     descriptionKey: "taskCreation.templates.cleaningDesc",
-    emoji: "🧹",
+    emoji: "ðŸ§¹",
   },
   {
     labelKey: "taskCreation.templates.study",
     descriptionKey: "taskCreation.templates.studyDesc",
-    emoji: "📚",
+    emoji: "ðŸ“š",
   },
   {
     labelKey: "taskCreation.templates.care",
     descriptionKey: "taskCreation.templates.careDesc",
-    emoji: "🍽️",
+    emoji: "ðŸ½ï¸",
   },
   {
     labelKey: "taskCreation.templates.activity",
     descriptionKey: "taskCreation.templates.activityDesc",
-    emoji: "🏃",
+    emoji: "ðŸƒ",
   },
 ]
 
@@ -71,16 +71,16 @@ const generateAiSuggestion = async (description: string, t: (key: string, params
   let difficulty = 2
   let category = t("taskCreation.categories.home")
   
-  if (words.includes("уборк") || words.includes("порядок") || words.includes("пылесос")) {
+  if (words.includes("ÑƒÐ±Ð¾Ñ€Ðº") || words.includes("Ð¿Ð¾Ñ€ÑÐ´Ð¾Ðº") || words.includes("Ð¿Ñ‹Ð»ÐµÑÐ¾Ñ")) {
     difficulty = 3
     category = t("taskCreation.templates.cleaning")
-  } else if (words.includes("чита") || words.includes("книг") || words.includes("урок") || words.includes("учи")) {
+  } else if (words.includes("Ñ‡Ð¸Ñ‚Ð°") || words.includes("ÐºÐ½Ð¸Ð³") || words.includes("ÑƒÑ€Ð¾Ðº") || words.includes("ÑƒÑ‡Ð¸")) {
     difficulty = 2
     category = t("taskCreation.templates.study")
-  } else if (words.includes("помо") || words.includes("стол") || words.includes("посуд")) {
+  } else if (words.includes("Ð¿Ð¾Ð¼Ð¾") || words.includes("ÑÑ‚Ð¾Ð»") || words.includes("Ð¿Ð¾ÑÑƒÐ´")) {
     difficulty = 1
     category = t("taskCreation.templates.care")
-  } else if (words.includes("зарядк") || words.includes("спорт") || words.includes("бег")) {
+  } else if (words.includes("Ð·Ð°Ñ€ÑÐ´Ðº") || words.includes("ÑÐ¿Ð¾Ñ€Ñ‚") || words.includes("Ð±ÐµÐ³")) {
     difficulty = 2
     category = t("taskCreation.templates.activity")
   }
@@ -91,7 +91,7 @@ const generateAiSuggestion = async (description: string, t: (key: string, params
     ? description.substring(0, 30).trim() + "..."
     : description.trim()
   
-  const fullDescription = `${description}\n\n✨ ${t("taskCreation.categoryLabel", { category })}`
+  const fullDescription = `${description}\n\nâœ¨ ${t("taskCreation.categoryLabel", { category })}`
   
   return {
     title: title.charAt(0).toUpperCase() + title.slice(1),
@@ -110,7 +110,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const [submitError, setSubmitError] = useState<string | null>(null)
   
 
-  // Родители могут назначать задачу ребёнку; если детей больше одного — выбор обязателен;
+  // Ð Ð¾Ð´Ð¸Ñ‚ÐµÐ»Ð¸ Ð¼Ð¾Ð³ÑƒÑ‚ Ð½Ð°Ð·Ð½Ð°Ñ‡Ð°Ñ‚ÑŒ Ð·Ð°Ð´Ð°Ñ‡Ñƒ Ñ€ÐµÐ±Ñ‘Ð½ÐºÑƒ; ÐµÑÐ»Ð¸ Ð´ÐµÑ‚ÐµÐ¹ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾ â€” Ð²Ñ‹Ð±Ð¾Ñ€ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÐµÐ½;
   const { data: familyMembers = [] } = useFamilyMembers()
   const children = familyMembers.filter(member => member.role === 'child')
   const [selectedChildId, setSelectedChildId] = useState<string | undefined>(undefined)
@@ -164,10 +164,10 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       setIsSubmitting(true)
       setSubmitError(null)
       
-      // Генерируем описание задачи автоматически перед отправкой
+      // Ð“ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÐ¼ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸ Ð¿ÐµÑ€ÐµÐ´ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ¾Ð¹
       const finalSuggestion = await generateAiSuggestion(trimmedDescription, t)
 
-      // Если детей больше одного — выбор обязателен
+      // Ð•ÑÐ»Ð¸ Ð´ÐµÑ‚ÐµÐ¹ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾ â€” Ð²Ñ‹Ð±Ð¾Ñ€ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÐµÐ½
       if (children.length > 1 && !selectedChildId) {
         setSubmitError(t("taskCreation.selectAssignee"))
         return
@@ -210,7 +210,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr] h-[calc(80vh-150px)] px-5 pb-4 pt-3">
           <ScrollArea className="h-full rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
             <div className="space-y-5">
-              {/* Основное поле — описание задачи */}
+              {/* ÐžÑÐ½Ð¾Ð²Ð½Ð¾Ðµ Ð¿Ð¾Ð»Ðµ â€” Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð¸ */}
               <section className="space-y-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{t("taskCreation.whatToDo")}</p>
                 <div className="space-y-2">
@@ -224,9 +224,9 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 </div>
               </section>
 
-              {/* Опциональные настройки */}
+              {/* ÐžÐ¿Ñ†Ð¸Ð¾Ð½Ð°Ð»ÑŒÐ½Ñ‹Ðµ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ */}
               <section className="grid gap-3 md:grid-cols-3">
-                {/* Срок */}
+                {/* Ð¡Ñ€Ð¾Ðº */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">{t("taskCreation.deadline")}</Label>
                   <div className="relative">
@@ -240,7 +240,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                   </div>
                 </div>
 
-                {/* Подтверждение */}
+                {/* ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">{t("taskCreation.confirmation")}</Label>
                   <div className="flex items-center justify-between gap-3 pt-1">
@@ -254,7 +254,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                   </div>
                 </div>
 
-                {/* Назначение ребёнку */}
+                {/* ÐÐ°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ€ÐµÐ±Ñ‘Ð½ÐºÑƒ */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">{t("taskCreation.assignChild")}</Label>
                   {children.length === 0 ? (
@@ -280,7 +280,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 </div>
               </section>
 
-              {/* Быстрые шаблоны */}
+              {/* Ð‘Ñ‹ÑÑ‚Ñ€Ñ‹Ðµ ÑˆÐ°Ð±Ð»Ð¾Ð½Ñ‹ */}
               <section className="space-y-3 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-4">
                 <div className="flex items-center justify-between text-sm font-medium">
                   <span className="flex items-center gap-2"><Wand2 className="h-4 w-4 text-primary" /> {t("taskCreation.quickIdeas")}</span>
@@ -289,7 +289,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 <div className="grid gap-2 grid-cols-2">
                   {QUICK_TEMPLATES.map((template) => (
                     <Button
-                      key={template.label}
+                      key={template.labelKey}
                       type="button"
                       variant="secondary"
                       size="sm"
@@ -308,7 +308,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
             </div>
           </ScrollArea>
 
-          {/* Превью справа */}
+          {/* ÐŸÑ€ÐµÐ²ÑŒÑŽ ÑÐ¿Ñ€Ð°Ð²Ð° */}
           <div className="flex flex-col gap-3 pr-1">
             <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sticky top-0">
               <div className="flex items-center justify-between text-[11px] uppercase text-muted-foreground">
@@ -321,7 +321,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
               <h3 className="mt-3 text-lg font-semibold leading-snug">{summary.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">{summary.description}</p>
               
-              {/* Сложность звёздами */}
+              {/* Ð¡Ð»Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒ Ð·Ð²Ñ‘Ð·Ð´Ð°Ð¼Ð¸ */}
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t("tasks.difficulty")}</span>
@@ -346,16 +346,16 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                     onChange={(e) => setSelectedDifficulty(parseInt(e.target.value))}
                     className="w-full border border-input rounded-md px-3 py-2 text-sm"
                   >
-                    <option value={1}>⭐ {t("tasks.difficultyLevels.1")}</option>
-                    <option value={2}>⭐⭐ {t("tasks.difficultyLevels.2")}</option>
-                    <option value={3}>⭐⭐⭐ {t("tasks.difficultyLevels.3")}</option>
-                    <option value={4}>⭐⭐⭐⭐ {t("tasks.difficultyLevels.4")}</option>
-                    <option value={5}>⭐⭐⭐⭐⭐ {t("tasks.difficultyLevels.5")}</option>
+                    <option value={1}>â­ {t("tasks.difficultyLevels.1")}</option>
+                    <option value={2}>â­â­ {t("tasks.difficultyLevels.2")}</option>
+                    <option value={3}>â­â­â­ {t("tasks.difficultyLevels.3")}</option>
+                    <option value={4}>â­â­â­â­ {t("tasks.difficultyLevels.4")}</option>
+                    <option value={5}>â­â­â­â­â­ {t("tasks.difficultyLevels.5")}</option>
                   </select>
                 </div>
               </div>
 
-              {/* Награда: показываем XP и очки (очки нельзя редактировать) */}
+              {/* ÐÐ°Ð³Ñ€Ð°Ð´Ð°: Ð¿Ð¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÐ¼ XP Ð¸ Ð¾Ñ‡ÐºÐ¸ (Ð¾Ñ‡ÐºÐ¸ Ð½ÐµÐ»ÑŒÐ·Ñ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ) */}
               <div className="mt-3 rounded-lg bg-primary/5 px-3 py-2 text-sm">
                 <p className="flex items-center gap-2 font-medium text-primary">
                   <Sparkles className="h-4 w-4" /> {t("taskCreation.reward", { xp: selectedReward })}
@@ -365,7 +365,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                 <p className="text-[11px] text-muted-foreground mt-1">{t("taskCreation.pointsHint")}</p>
               </div>
 
-              {/* Подтверждение */}
+              {/* ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ */}
               <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                 <Check className={cn("h-4 w-4", requiresConfirmation ? "text-green-500" : "text-muted-foreground/40")} />
                 <span>{requiresConfirmation ? t("taskCreation.requiresConfirmation") : t("taskCreation.noConfirmation")}</span>

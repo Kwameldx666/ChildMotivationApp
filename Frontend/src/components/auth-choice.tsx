@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { UserPlus, LogIn, ChevronLeft } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface AuthChoiceProps {
   onNewUser: () => void
@@ -16,6 +17,9 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
 
   return (
     <div className="min-h-screen bg-linear-to-br from-sky-400 via-purple-400 to-purple-500 relative overflow-hidden flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       {/* Decorative background */}
       <div className="absolute inset-0 opacity-20">
         <svg className="w-full h-full" viewBox="0 0 1440 800" preserveAspectRatio="none">

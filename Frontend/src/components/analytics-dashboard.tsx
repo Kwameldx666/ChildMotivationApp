@@ -1,8 +1,15 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   BarChart,
   Bar,
@@ -21,7 +28,7 @@ import {
 import { useI18n } from "@/i18n/provider"
 import { toPng } from "html-to-image"
 import jsPDF from "jspdf"
-import { ChevronLeft, ChevronRight, Filter, Loader2, Download } from "lucide-react"
+import { ChevronLeft, ChevronRight, Filter, Loader2, Download, FileDown, Image as ImageIcon, FileText } from "lucide-react"
 import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
 
 export default function AnalyticsDashboard() {
@@ -33,6 +40,8 @@ export default function AnalyticsDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [windowDays, setWindowDays] = useState(30)
   const exportRef = useRef<HTMLDivElement | null>(null)
+  const allChartsRef = useRef<HTMLDivElement | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     loadAnalytics()
@@ -52,41 +61,7 @@ export default function AnalyticsDashboard() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">{t('analyticsDashboard.loading')}</span>
-      </div>
-    )
-  }
-
-  if (error || !analytics) {
-    return (
-      <div className="text-center p-8">
-        <p className="text-red-500 mb-4">{error || t('analyticsDashboard.noData')}</p>
-        <Button onClick={loadAnalytics}>{t('analyticsDashboard.tryAgain')}</Button>
-      </div>
-    )
-  }
-
-  // Конфигурация графиков
-  const chartsConfig = [
-    { id: 0, titleKey: "analytics.charts.weeklyActivity", type: "bar" },
-    { id: 1, titleKey: "analytics.charts.pointsByChildren", type: "pie" },
-    { id: 2, titleKey: "analytics.charts.difficultyDistribution", type: "pie" },
-    { id: 3, titleKey: "analytics.charts.weeklyProgress", type: "area" },
-    { id: 4, titleKey: "analytics.charts.taskStatus", type: "pie" },
-    { id: 5, titleKey: "analytics.charts.pointsTrend", type: "area" },
-  ]
-
-  const renderChart = (chartId: number) => {
-    switch (chartId) {
-      case 0:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={analytics.weeklyActivity}>
-              <CartesianGrid strokeDasharray="3 3" />
+  const exportAllChartsToPdf = useCallback(async () => {
               <XAxis dataKey="day" />
               <YAxis />
               <Tooltip />
@@ -219,7 +194,7 @@ export default function AnalyticsDashboard() {
     link.click()
   }
 
-  const exportAsPdf = async () => {
+  const exportCurrentAsPdf = async () => {
     if (!exportRef.current) return
     const dataUrl = await toPng(exportRef.current, {
       cacheBust: true,
@@ -244,6 +219,109 @@ export default function AnalyticsDashboard() {
     pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight)
     pdf.save(`analytics_${windowDays}d_${new Date().toISOString().slice(0, 10)}.pdf`)
   }
+
+  const exportAllChartsToPdf = useCallback(async () => {
+    if (!analytics || exporting) return
+    setExporting(true)
+
+    try {
+      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: "a4" })
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 30
+
+      // Title page
+      pdf.setFontSize(24)
+      pdf.text(t('analytics.exportAll.reportTitle'), pageWidth / 2, 60, { align: "center" })
+      pdf.setFontSize(12)
+      pdf.text(
+        `${t('analytics.exportAll.period')}: ${windowDays} ${t('analytics.exportAll.days')}  •  ${new Date().toLocaleDateString()}`,
+        pageWidth / 2, 90, { align: "center" }
+      )
+
+      // Summary stats on title page
+      const statsY = 130
+      pdf.setFontSize(14)
+      const stats = [
+        { label: t('analytics.cards.totalPoints'), value: analytics.totalPoints.toLocaleString() },
+        { label: t('analytics.cards.completedTasks'), value: `${analytics.completedTasks} / ${analytics.totalTasks}` },
+        { label: t('analytics.cards.completionRate'), value: `${analytics.completionRate.toFixed(1)}%` },
+        { label: t('analytics.cards.activeChildren'), value: String(analytics.activeChildren) },
+      ]
+      const colWidth = (pageWidth - margin * 2) / stats.length
+      stats.forEach((stat, i) => {
+        const x = margin + colWidth * i + colWidth / 2
+        pdf.setFontSize(11)
+        pdf.setTextColor(100)
+        pdf.text(stat.label, x, statsY, { align: "center" })
+        pdf.setFontSize(22)
+        pdf.setTextColor(0)
+        pdf.text(stat.value, x, statsY + 28, { align: "center" })
+      })
+
+      // Render all charts into a hidden container and capture each
+      const container = allChartsRef.current
+      if (!container) {
+        setExporting(false)
+        return
+      }
+
+      // Show all-charts container temporarily for capture
+      container.style.display = "block"
+      container.style.position = "absolute"
+      container.style.left = "-9999px"
+      container.style.top = "0"
+      container.style.width = "900px"
+      container.style.backgroundColor = "#ffffff"
+
+      // Wait for charts to render
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const chartNodes = container.querySelectorAll<HTMLElement>("[data-chart-export]")
+
+      for (let i = 0; i < chartNodes.length; i++) {
+        const node = chartNodes[i]
+        pdf.addPage()
+
+        // Chart title
+        const chartTitle = chartsConfig[i]?.titleKey ? t(chartsConfig[i].titleKey) : `Chart ${i + 1}`
+        pdf.setFontSize(18)
+        pdf.setTextColor(0)
+        pdf.text(`${i + 1}. ${chartTitle}`, margin, 40)
+
+        try {
+          const dataUrl = await toPng(node, {
+            cacheBust: true,
+            backgroundColor: "#ffffff",
+            pixelRatio: 2,
+          })
+          const img = new Image()
+          img.src = dataUrl
+          await img.decode()
+
+          const maxW = pageWidth - margin * 2
+          const maxH = pageHeight - 80 - margin
+          const ratio = Math.min(maxW / img.width, maxH / img.height)
+          const imgW = img.width * ratio
+          const imgH = img.height * ratio
+          const x = (pageWidth - imgW) / 2
+          pdf.addImage(dataUrl, "PNG", x, 60, imgW, imgH)
+        } catch (e) {
+          pdf.setFontSize(12)
+          pdf.setTextColor(200, 0, 0)
+          pdf.text(t('analytics.exportAll.renderError'), margin, 80)
+        }
+      }
+
+      container.style.display = "none"
+
+      pdf.save(`analytics_full_report_${windowDays}d_${new Date().toISOString().slice(0, 10)}.pdf`)
+    } catch (err) {
+      console.error("PDF export error:", err)
+    } finally {
+      setExporting(false)
+    }
+  }, [analytics, exporting, windowDays, t])
 
   return (
     <div className="space-y-6">
@@ -272,15 +350,42 @@ export default function AnalyticsDashboard() {
             {t('analytics.periodSelection.90days')}
           </Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportAsPng}>
-            <Download className="w-4 h-4 mr-2" />
-            {t('analytics.export.png')}
+        <div className="flex gap-2 items-center">
+          {/* Primary: Export all to PDF */}
+          <Button
+            size="sm"
+            onClick={exportAllChartsToPdf}
+            disabled={exporting}
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80 text-white shadow-md hover:shadow-lg transition-all"
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileDown className="w-4 h-4" />
+            )}
+            {exporting ? t('analytics.exportAll.generating') : t('analytics.exportAll.button')}
           </Button>
-          <Button variant="outline" size="sm" onClick={exportAsPdf}>
-            <Download className="w-4 h-4 mr-2" />
-            {t('analytics.export.pdf')}
-          </Button>
+
+          {/* Secondary: dropdown for current view export */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Download className="w-4 h-4" />
+                {t('analytics.exportAll.currentView')}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportAsPng} className="gap-2 cursor-pointer">
+                <ImageIcon className="w-4 h-4" />
+                {t('analytics.exportAll.currentPng')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={exportCurrentAsPdf} className="gap-2 cursor-pointer">
+                <FileText className="w-4 h-4" />
+                {t('analytics.exportAll.currentPdf')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -392,6 +497,15 @@ export default function AnalyticsDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Hidden container for rendering all charts during PDF export */}
+      <div ref={allChartsRef} style={{ display: "none" }}>
+        {chartsConfig.map((chart, idx) => (
+          <div key={chart.id} data-chart-export style={{ width: 900, height: 400, padding: 20 }}>
+            {renderChart(idx)}
+          </div>
+        ))}
       </div>
     </div>
   )

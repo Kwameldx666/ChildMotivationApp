@@ -13,6 +13,7 @@ import { ArrowLeft, Plus } from "lucide-react"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { openOAuthPopup } from "@/utils/oauth-popup"
 import { useTranslation } from "@/i18n/provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 
 
@@ -359,6 +360,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       {/* Декоративный фон */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>

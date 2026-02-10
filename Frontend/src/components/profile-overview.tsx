@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { Home, Loader2, LogOut } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 
@@ -160,6 +161,7 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
             <p className="text-sm text-muted-foreground">{t("profileOverview.subtitle")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <LanguageSwitcher variant="outline" size="sm" />
             <Button variant="outline" onClick={onGoDashboard} className="gap-2">
               <Home className="h-4 w-4" />
               {t("profileOverview.toDashboard")}

@@ -2,6 +2,7 @@
 
 import { Users, User } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface RoleSelectorProps {
   onSelectRole: (role: "parent" | "child") => void
@@ -10,7 +11,10 @@ interface RoleSelectorProps {
 export default function RoleSelector({ onSelectRole }: RoleSelectorProps) {
   const { t } = useTranslation()
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-purple-100 to-purple-200">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-purple-100 to-purple-200 relative">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       <div className="w-full max-w-3xl px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-balance mb-3">{t("roleSelector.title")}</h1>
