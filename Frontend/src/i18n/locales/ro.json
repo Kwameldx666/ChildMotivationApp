@@ -743,12 +743,12 @@
       "participatingInTasks": "Participă la sarcini"
     },
     "charts": {
-      "weeklyActivity": "Activitate săptămânală",
-      "pointsByChildren": "Puncte după copii",
-      "difficultyDistribution": "Distribuție dificultate",
-      "weeklyProgress": "Progres săptămânal",
-      "taskStatus": "Stare sarcini",
-      "pointsTrend": "Trend puncte"
+      "activityPulse": "Puls de activitate",
+      "childrenLeaderboard": "Clasament copii",
+      "difficultyRadar": "Harta dificultății",
+      "completionMomentum": "Dinamica progresului",
+      "taskStatusDonut": "Stare sarcini",
+      "pointsGrowth": "Creștere puncte"
     },
     "chartLabels": {
       "tasks": "Sarcini",
@@ -756,16 +756,19 @@
       "completed": "Finalizat",
       "total": "Total",
       "inProgress": "În lucru",
-      "overdue": "Expirat"
+      "overdue": "Expirat",
+      "pending": "În așteptare",
+      "remaining": "Rămase",
+      "completionRate": "Rată finalizare %"
     },
     "quickSwitch": "Comutare rapidă",
     "chartNumbers": {
-      "1": "1. Activitate săptămânală",
-      "2": "2. Puncte după copii",
-      "3": "3. Distribuție dificultate",
-      "4": "4. Progres săptămânal",
+      "1": "1. Puls de activitate",
+      "2": "2. Clasament copii",
+      "3": "3. Harta dificultății",
+      "4": "4. Dinamica progresului",
       "5": "5. Stare sarcini",
-      "6": "6. Trend puncte"
+      "6": "6. Creștere puncte"
     }
   },
   "notifications": {

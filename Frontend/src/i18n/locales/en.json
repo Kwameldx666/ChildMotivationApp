@@ -354,12 +354,12 @@
       "participatingInTasks": "Participating in tasks"
     },
     "charts": {
-      "weeklyActivity": "Weekly Activity",
-      "pointsByChildren": "Points by Children",
-      "difficultyDistribution": "Difficulty Distribution",
-      "weeklyProgress": "Weekly Progress",
-      "taskStatus": "Task Status",
-      "pointsTrend": "Points Trend"
+      "activityPulse": "Activity Pulse",
+      "childrenLeaderboard": "Children Leaderboard",
+      "difficultyRadar": "Difficulty Mastery",
+      "completionMomentum": "Completion Dynamics",
+      "taskStatusDonut": "Task Status",
+      "pointsGrowth": "Points Growth"
     },
     "chartLabels": {
       "tasks": "Tasks",
@@ -367,16 +367,19 @@
       "completed": "Completed",
       "total": "Total",
       "inProgress": "In Progress",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "pending": "Pending",
+      "remaining": "Remaining",
+      "completionRate": "Completion %"
     },
     "quickSwitch": "Quick Switch",
     "chartNumbers": {
-      "1": "1. Weekly Activity",
-      "2": "2. Points by Children",
-      "3": "3. Difficulty Distribution",
-      "4": "4. Weekly Progress",
+      "1": "1. Activity Pulse",
+      "2": "2. Children Leaderboard",
+      "3": "3. Difficulty Mastery",
+      "4": "4. Completion Dynamics",
       "5": "5. Task Status",
-      "6": "6. Points Trend"
+      "6": "6. Points Growth"
     }
   },
   "notifications": {

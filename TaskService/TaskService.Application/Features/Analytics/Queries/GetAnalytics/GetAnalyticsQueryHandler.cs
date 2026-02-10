@@ -27,8 +27,8 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
             .Distinct()
             .Count();
         
-        // Activity by day of week
-        var weeklyActivity = BuildWeeklyActivity(recentTasks);
+        // Activity by day/week
+        var weeklyActivity = BuildWeeklyActivity(recentTasks, request.WindowDays);
         
         // Statistics by children
         var childrenStats = BuildChildrenStats(recentTasks);
@@ -37,13 +37,13 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
         var difficultyDistribution = BuildDifficultyDistribution(recentTasks);
         
         // Progress by week
-        var weeklyProgress = BuildWeeklyProgress(recentTasks);
+        var weeklyProgress = BuildWeeklyProgress(recentTasks, request.WindowDays);
         
         // Task status
         var taskStatus = BuildTaskStatus(recentTasks);
         
         // Points trend
-        var pointsTrend = BuildPointsTrend(recentTasks);
+        var pointsTrend = BuildPointsTrend(recentTasks, request.WindowDays);
         
         return new AnalyticsDto(
             totalPoints,
@@ -60,28 +60,53 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
         );
     }
     
-    private static List<DailyActivityDto> BuildWeeklyActivity(List<Domain.Entities.TaskItem> tasks)
+    private static List<DailyActivityDto> BuildWeeklyActivity(List<Domain.Entities.TaskItem> tasks, int windowDays)
     {
-        var dayNames = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-        var lastWeek = DateTime.UtcNow.AddDays(-7);
-        
-        return Enumerable.Range(0, 7).Select(i =>
+        var entries = new List<DailyActivityDto>();
+        var now = DateTime.UtcNow;
+
+        if (windowDays <= 14)
         {
-            var date = lastWeek.AddDays(i);
-            var dayOfWeek = (int)date.DayOfWeek;
-            var dayName = dayNames[dayOfWeek == 0 ? 6 : dayOfWeek - 1]; // Monday = 0
-            
-            var dayTasks = tasks.Where(t => 
-                t.CompletedAt.HasValue && 
-                t.CompletedAt.Value.Date == date.Date
-            ).ToList();
-            
-            return new DailyActivityDto(
-                dayName,
-                dayTasks.Count,
-                dayTasks.Sum(t => t.RewardPoints)
-            );
-        }).ToList();
+            // Daily granularity
+            for (var i = windowDays - 1; i >= 0; i--)
+            {
+                var date = now.AddDays(-i);
+                var dayTasks = tasks.Where(t =>
+                    t.CompletedAt.HasValue &&
+                    t.CompletedAt.Value.Date == date.Date
+                ).ToList();
+
+                entries.Add(new DailyActivityDto(
+                    date.ToString("dd MMM"),
+                    dayTasks.Count,
+                    dayTasks.Sum(t => t.RewardPoints)
+                ));
+            }
+        }
+        else
+        {
+            // Weekly granularity
+            var totalWeeks = (int)Math.Ceiling(windowDays / 7.0);
+            for (var i = totalWeeks - 1; i >= 0; i--)
+            {
+                var weekEnd = now.AddDays(-7 * i);
+                var weekStart = weekEnd.AddDays(-7);
+
+                var weekTasks = tasks.Where(t =>
+                    t.CompletedAt.HasValue &&
+                    t.CompletedAt.Value >= weekStart &&
+                    t.CompletedAt.Value < weekEnd
+                ).ToList();
+
+                entries.Add(new DailyActivityDto(
+                    weekStart.ToString("dd MMM"),
+                    weekTasks.Count,
+                    weekTasks.Sum(t => t.RewardPoints)
+                ));
+            }
+        }
+
+        return entries;
     }
     
     private static List<ChildStatsDto> BuildChildrenStats(List<Domain.Entities.TaskItem> tasks)
@@ -134,29 +159,49 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
             .ToList();
     }
     
-    private static List<WeeklyProgressDto> BuildWeeklyProgress(List<Domain.Entities.TaskItem> tasks)
+    private static List<WeeklyProgressDto> BuildWeeklyProgress(List<Domain.Entities.TaskItem> tasks, int windowDays)
     {
-        var weeks = new List<WeeklyProgressDto>();
+        var entries = new List<WeeklyProgressDto>();
         var now = DateTime.UtcNow;
-        
-        for (int i = 3; i >= 0; i--)
+
+        if (windowDays <= 14)
         {
-            var weekStart = now.AddDays(-7 * (i + 1));
-            var weekEnd = now.AddDays(-7 * i);
-            
-            var weekTasks = tasks.Where(t => 
-                t.CreatedAt >= weekStart && 
-                t.CreatedAt < weekEnd
-            ).ToList();
-            
-            weeks.Add(new WeeklyProgressDto(
-                $"Week {4 - i}",
-                weekTasks.Count(t => t.Completed),
-                weekTasks.Count
-            ));
+            // Daily granularity for short windows
+            for (var i = windowDays - 1; i >= 0; i--)
+            {
+                var date = now.AddDays(-i);
+                var dayTasks = tasks.Where(t => t.CreatedAt.Date == date.Date).ToList();
+
+                entries.Add(new WeeklyProgressDto(
+                    date.ToString("dd MMM"),
+                    dayTasks.Count(t => t.Completed),
+                    dayTasks.Count
+                ));
+            }
         }
-        
-        return weeks;
+        else
+        {
+            // Weekly granularity
+            var totalWeeks = (int)Math.Ceiling(windowDays / 7.0);
+            for (var i = totalWeeks - 1; i >= 0; i--)
+            {
+                var weekEnd = now.AddDays(-7 * i);
+                var weekStart = weekEnd.AddDays(-7);
+
+                var weekTasks = tasks.Where(t =>
+                    t.CreatedAt >= weekStart &&
+                    t.CreatedAt < weekEnd
+                ).ToList();
+
+                entries.Add(new WeeklyProgressDto(
+                    weekStart.ToString("dd MMM"),
+                    weekTasks.Count(t => t.Completed),
+                    weekTasks.Count
+                ));
+            }
+        }
+
+        return entries;
     }
     
     private static TaskStatusDto BuildTaskStatus(List<Domain.Entities.TaskItem> tasks)
@@ -175,27 +220,48 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
                task.CreatedAt < DateTime.UtcNow.AddDays(-7);
     }
     
-    private static List<PointsTrendDto> BuildPointsTrend(List<Domain.Entities.TaskItem> tasks)
+    private static List<PointsTrendDto> BuildPointsTrend(List<Domain.Entities.TaskItem> tasks, int windowDays)
     {
-        var weeks = new List<PointsTrendDto>();
+        var entries = new List<PointsTrendDto>();
         var now = DateTime.UtcNow;
-        
-        for (int i = 4; i >= 0; i--)
+
+        if (windowDays <= 14)
         {
-            var weekEnd = now.AddDays(-7 * i);
-            var allTasksUntilThen = tasks.Where(t => 
-                t.Completed && 
-                t.CompletedAt <= weekEnd
-            );
-            
-            var cumulativePoints = allTasksUntilThen.Sum(t => t.RewardPoints);
-            
-            weeks.Add(new PointsTrendDto(
-                weekEnd.ToString("dd MMM"),
-                cumulativePoints
-            ));
+            // Daily granularity for short windows
+            for (var i = windowDays - 1; i >= 0; i--)
+            {
+                var date = now.AddDays(-i);
+                var cumulativePoints = tasks.Where(t =>
+                    t.Completed &&
+                    t.CompletedAt.HasValue &&
+                    t.CompletedAt.Value.Date <= date.Date
+                ).Sum(t => t.RewardPoints);
+
+                entries.Add(new PointsTrendDto(
+                    date.ToString("dd MMM"),
+                    cumulativePoints
+                ));
+            }
         }
-        
-        return weeks;
+        else
+        {
+            // Weekly granularity
+            var totalWeeks = (int)Math.Ceiling(windowDays / 7.0);
+            for (var i = totalWeeks - 1; i >= 0; i--)
+            {
+                var weekEnd = now.AddDays(-7 * i);
+                var cumulativePoints = tasks.Where(t =>
+                    t.Completed &&
+                    t.CompletedAt <= weekEnd
+                ).Sum(t => t.RewardPoints);
+
+                entries.Add(new PointsTrendDto(
+                    weekEnd.ToString("dd MMM"),
+                    cumulativePoints
+                ));
+            }
+        }
+
+        return entries;
     }
 }

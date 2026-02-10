@@ -352,12 +352,12 @@
       "participatingInTasks": "Участвуют в задачах"
     },
     "charts": {
-      "weeklyActivity": "Активность в неделю",
-      "pointsByChildren": "Очки по детям",
-      "difficultyDistribution": "Сложность задач",
-      "weeklyProgress": "Прогресс по неделям",
-      "taskStatus": "Статус задач",
-      "pointsTrend": "Тренд накопления очков"
+      "activityPulse": "Пульс активности",
+      "childrenLeaderboard": "Рейтинг детей",
+      "difficultyRadar": "Карта сложности",
+      "completionMomentum": "Динамика прогресса",
+      "taskStatusDonut": "Статус задач",
+      "pointsGrowth": "Рост очков"
     },
     "chartLabels": {
       "tasks": "Задачи",
@@ -365,16 +365,19 @@
       "completed": "Выполнено",
       "total": "Всего",
       "inProgress": "В работе",
-      "overdue": "Просрочено"
+      "overdue": "Просрочено",
+      "pending": "В ожидании",
+      "remaining": "Оставшиеся",
+      "completionRate": "% выполнения"
     },
     "quickSwitch": "Быстрое переключение",
     "chartNumbers": {
-      "1": "1. Активность в неделю",
-      "2": "2. Очки по детям",
-      "3": "3. Сложность задач",
-      "4": "4. Прогресс по неделям",
+      "1": "1. Пульс активности",
+      "2": "2. Рейтинг детей",
+      "3": "3. Карта сложности",
+      "4": "4. Динамика прогресса",
       "5": "5. Статус задач",
-      "6": "6. Тренд накопления очков"
+      "6": "6. Рост очков"
     }
   },
   "notifications": {
