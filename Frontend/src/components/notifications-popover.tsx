@@ -55,48 +55,6 @@ const NOTIFICATION_COLORS: Record<NotificationType, string> = {
   general: "bg-gray-100 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
 }
 
-// Демо-уведомления для тестирования (удалить когда бэкенд будет готов)
-function getDemoNotifications(t: (key: string, params?: Record<string, string | number>) => string): NotificationDto[] {
-  return [
-    {
-      id: "1",
-      userId: "user1",
-      type: "task_completed",
-      title: t("notificationsPopover.demo.taskCompletedTitle"),
-      message: t("notificationsPopover.demo.taskCompletedMessage"),
-      isRead: false,
-      createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "2",
-      userId: "user1",
-      type: "streak_bonus",
-      title: t("notificationsPopover.demo.streakBonusTitle"),
-      message: t("notificationsPopover.demo.streakBonusMessage"),
-      isRead: false,
-      createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "3",
-      userId: "user1",
-      type: "reward_purchased",
-      title: t("notificationsPopover.demo.rewardPurchasedTitle"),
-      message: t("notificationsPopover.demo.rewardPurchasedMessage"),
-      isRead: true,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "4",
-      userId: "user1",
-      type: "level_up",
-      title: t("notificationsPopover.demo.levelUpTitle"),
-      message: t("notificationsPopover.demo.levelUpMessage"),
-      isRead: true,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]
-}
-
 interface NotificationItemProps {
   notification: NotificationDto
   onMarkRead: (id: string) => void
@@ -171,13 +129,8 @@ export function NotificationsPopover() {
   const markRead = useMarkNotificationsRead()
   const markAllRead = useMarkAllNotificationsRead()
 
-  // Используем демо-данные если API недоступен
-  const displayNotifications = useMemo(() => {
-    if (isError || (!isLoading && (!notifications || notifications.length === 0))) {
-      return getDemoNotifications(t)
-    }
-    return notifications ?? []
-  }, [notifications, isLoading, isError])
+  // Use real API data only
+  const displayNotifications = notifications ?? []
 
   const displayUnreadCount = useMemo(() => {
     if (typeof unreadCount === "number") return unreadCount

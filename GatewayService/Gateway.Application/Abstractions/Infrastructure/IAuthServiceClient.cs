@@ -25,4 +25,6 @@ public interface IAuthServiceClient
 
     Task<HttpResponseMessage> CompleteDiscordSignInAsync(CompleteExternalSignInRequest request,
         CancellationToken cancellationToken);
+
+    Task<HttpResponseMessage> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken);
 }

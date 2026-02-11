@@ -8,23 +8,29 @@ public sealed record AnalyticsDto(
     int ActiveChildren,
     double CompletionRate,
     
-    // Activity by day of week
+    // Activity by day of week (aggregated)
     IReadOnlyList<DailyActivityDto> WeeklyActivity,
     
     // Statistics by children
     IReadOnlyList<ChildStatsDto> ChildrenStats,
     
-    // Tasks by category (based on difficulty)
+    // Tasks by category/difficulty (aggregated)
     IReadOnlyList<CategoryDataDto> DifficultyDistribution,
     
-    // Progress by week
+    // Progress by week (aggregated)
     IReadOnlyList<WeeklyProgressDto> WeeklyProgress,
     
-    // Task status
+    // Task status (aggregated)
     TaskStatusDto TaskStatus,
     
-    // Points trend
-    IReadOnlyList<PointsTrendDto> PointsTrend
+    // Points trend (aggregated)
+    IReadOnlyList<PointsTrendDto> PointsTrend,
+    
+    // ── Per-child breakdowns ──
+    IReadOnlyList<ChildBreakdownDto<DailyActivityDto>> PerChildActivity,
+    IReadOnlyList<ChildBreakdownDto<CategoryDataDto>> PerChildDifficulty,
+    IReadOnlyList<ChildBreakdownDto<WeeklyProgressDto>> PerChildProgress,
+    IReadOnlyList<ChildBreakdownDto<PointsTrendDto>> PerChildPointsTrend
 );
 
 public sealed record DailyActivityDto(
@@ -63,4 +69,10 @@ public sealed record TaskStatusDto(
 public sealed record PointsTrendDto(
     string Date,
     int Points
+);
+
+/// <summary>Per-child wrapper — holds child identifier + array of chart data.</summary>
+public sealed record ChildBreakdownDto<T>(
+    string ChildId,
+    IReadOnlyList<T> Data
 );

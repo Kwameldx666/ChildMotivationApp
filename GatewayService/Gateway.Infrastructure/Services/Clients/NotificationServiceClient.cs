@@ -57,4 +57,20 @@ public class NotificationServiceClient(
         return _client.SendHttpRequestAsync<object>(HttpMethod.Delete, requestUri, null, SerializerOptions,
             cancellationToken);
     }
+
+    public Task<HttpResponseMessage> SendTaskNotificationAsync(string endpoint, object request,
+        CancellationToken cancellationToken = default)
+    {
+        var requestUri = $"{_endpoints.SendBase}/{endpoint}";
+        return _client.SendHttpRequestAsync(HttpMethod.Post, requestUri, request, SerializerOptions,
+            cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> SendGeneralNotificationAsync(object request,
+        CancellationToken cancellationToken = default)
+    {
+        var requestUri = $"{_endpoints.SendBase}/general";
+        return _client.SendHttpRequestAsync(HttpMethod.Post, requestUri, request, SerializerOptions,
+            cancellationToken);
+    }
 }

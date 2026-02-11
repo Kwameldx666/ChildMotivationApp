@@ -150,4 +150,8 @@ export const authApi = {
     const state = appStore.getState()
     return mergeSessionWithProfile(data, state.auth.session)
   },
+
+  async deleteAccount() {
+    await apiClient.delete(`${AUTH_BASE_PATH}/account`)
+  },
 }

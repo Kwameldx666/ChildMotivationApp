@@ -149,13 +149,16 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
       const suggestions = response.suggestions || (response as any).Suggestions || []
       if (suggestions && suggestions.length > 0) {
         const suggestion = suggestions[0]
-        setTitle(suggestion.title || (suggestion as any).Title)
-        setDescription(suggestion.description || (suggestion as any).Description)
-        setCost(String(suggestion.cost || (suggestion as any).Cost))
+        const aiTitle = (suggestion.title || (suggestion as any).Title || "").toString().replace(/^undefined\s*/i, "").trim()
+        const aiDescription = (suggestion.description || (suggestion as any).Description || "").toString().replace(/^undefined\s*/i, "").trim()
+        const aiCost = suggestion.cost || (suggestion as any).Cost || 100
+        if (aiTitle) setTitle(aiTitle)
+        if (aiDescription) setDescription(aiDescription)
+        setCost(String(aiCost))
         setStock("1")
         toast({
           title: t("rewardCreation.toast.aiGenerated"),
-          description: t("rewardCreation.toast.aiGeneratedDesc", { title: suggestion.title || (suggestion as any).Title, cost: suggestion.cost || (suggestion as any).Cost }),
+          description: t("rewardCreation.toast.aiGeneratedDesc", { title: aiTitle || "?", cost: aiCost }),
         })
       }
     } catch (error: any) {

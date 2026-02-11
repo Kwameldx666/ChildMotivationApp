@@ -33,4 +33,16 @@ public interface INotificationServiceClient
     /// </summary>
     Task<HttpResponseMessage> DeleteAsync(string userId, Guid notificationId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Send a task notification (fire-and-forget from gateway)
+    /// </summary>
+    Task<HttpResponseMessage> SendTaskNotificationAsync(string endpoint, object request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Send a general notification
+    /// </summary>
+    Task<HttpResponseMessage> SendGeneralNotificationAsync(object request,
+        CancellationToken cancellationToken = default);
 }

@@ -8,6 +8,7 @@ import { clearSession, selectAuthSession, setSession } from "@/features/auth/sto
 import type { UpdateProfilePayload } from "@/features/auth/types"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { useTranslation } from "@/i18n/provider"
+import { userSettingsService } from "@/services/user-settings-service"
 
 export default function ProfilePage() {
   const session = useAppSelector(selectAuthSession)
@@ -77,6 +78,13 @@ export default function ProfilePage() {
     [dispatch, userId],
   )
 
+  const handleDeleteAccount = useCallback(async () => {
+    await authApi.deleteAccount()
+    userSettingsService.clearAllData()
+    dispatch(clearSession())
+    router.replace("/")
+  }, [dispatch, router])
+
   if (!session) {
     return null
   }
@@ -87,6 +95,7 @@ export default function ProfilePage() {
       onGoDashboard={handleGoDashboard}
       onLogout={handleLogout}
       onUpdateProfile={handleProfileUpdate}
+      onDeleteAccount={handleDeleteAccount}
     />
   )
 }

@@ -4,15 +4,19 @@ using AuthService.Application.Features.Authentication.Password.Register;
 using AuthService.Application.Features.Authentication.Password.RevokeToken;
 using AuthService.Application.Features.Cache.PendingUser;
 using AuthService.Application.Features.Cache.Session.Get;
+using AuthService.Domain.Entities;
 using AuthService.Extensions;
+using AuthService.Persistence.Context;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Controllers;
 
 [ApiController]
 [Route("auth-service")]
-public class AuthController(IMediator mediator) : ControllerBase
+public class AuthController(IMediator mediator, UserManager<User> userManager, AuthDbContext dbContext) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterUserCommand request,
@@ -69,5 +73,34 @@ public class AuthController(IMediator mediator) : ControllerBase
     public IActionResult Health()
     {
         return Ok(new { status = "ok" });
+    }
+
+    [HttpDelete("account/{userId:guid}")]
+    public async Task<IActionResult> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+            return NotFound(new { error = "User not found" });
+
+        // Delete all refresh tokens for this user
+        var refreshTokens = await dbContext.RefreshTokens
+            .Where(rt => rt.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        if (refreshTokens.Count > 0)
+        {
+            dbContext.RefreshTokens.RemoveRange(refreshTokens);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        // Delete the user (cascades to identity tables)
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return StatusCode(500, new { error = $"Failed to delete account: {errors}" });
+        }
+
+        return Ok(new { message = "Account deleted successfully" });
     }
 }

@@ -24,13 +24,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   ComposedChart,
   Line,
+  ReferenceLine,
 } from "recharts"
 import { useI18n } from "@/i18n/provider"
 import { toPng } from "html-to-image"
@@ -38,8 +34,10 @@ import jsPDF from "jspdf"
 import {
   ChevronLeft, ChevronRight, Filter, Loader2, Download, FileDown,
   Image as ImageIcon, FileText, TrendingUp, Trophy, Target, Zap, Star, Award,
+  Flame, CalendarDays, Info, Shield, Swords, Crown,
 } from "lucide-react"
 import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
+import { generateMockAnalytics } from "@/services/analytics-mock"
 
 /* ── Shared SVG filters (glow / soft-shadow) injected once ── */
 function SvgFilters() {
@@ -73,7 +71,7 @@ function SvgFilters() {
 }
 
 /* ── Animated number counter ── */
-function AnimatedCounter({ value, suffix = "", className = "" }: { value: number; suffix?: string; className?: string }) {
+function AnimatedCounter({ value, suffix = "", className = "" }: { value: number; suffix?: string; className?: string; decimals?: number }) {
   const [display, setDisplay] = useState(0)
   useEffect(() => {
     let start = 0
@@ -90,6 +88,45 @@ function AnimatedCounter({ value, suffix = "", className = "" }: { value: number
   }, [value])
   return <span className={className}>{display.toLocaleString()}{suffix}</span>
 }
+
+/* ── Per-chart time range control ── */
+function ChartTimeFilter({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+  const { t } = useI18n()
+  const opts = [
+    { label: t('analytics.periodSelection.7days'), days: 7 },
+    { label: t('analytics.periodSelection.30days'), days: 30 },
+    { label: t('analytics.periodSelection.90days'), days: 90 },
+  ]
+  return (
+    <div className="flex items-center gap-1.5 mb-4">
+      <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+      <div className="flex gap-1 bg-gray-100/80 dark:bg-gray-800/60 rounded-lg p-0.5">
+        {opts.map(o => (
+          <button
+            key={o.days}
+            onClick={() => onChange(value === o.days ? null : o.days)}
+            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
+              value === o.days
+                ? 'bg-white dark:bg-gray-700 shadow-sm text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {value && (
+        <button onClick={() => onChange(null)} className="text-[10px] text-muted-foreground hover:text-foreground ml-1">✕</button>
+      )}
+    </div>
+  )
+}
+
+/* ══ DEV: set to true to use mock data for charts ══ */
+const USE_MOCK = false
+
+/* ── Child color palette ── */
+const CHILD_COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#3b82f6']
 
 export default function AnalyticsDashboard() {
   const { t } = useI18n()
@@ -111,8 +148,14 @@ export default function AnalyticsDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const data = await getTaskAnalytics(windowDays)
-      setAnalytics(data)
+      if (USE_MOCK) {
+        // Simulate small network delay
+        await new Promise(r => setTimeout(r, 400))
+        setAnalytics(generateMockAnalytics(windowDays))
+      } else {
+        const data = await getTaskAnalytics(windowDays)
+        setAnalytics(data)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('analyticsDashboard.loadError'))
       console.error('Analytics error:', err)
@@ -122,13 +165,44 @@ export default function AnalyticsDashboard() {
   }
 
   const chartsConfig = [
-    { id: "activityPulse", titleKey: "analytics.charts.activityPulse" },
-    { id: "childrenLeaderboard", titleKey: "analytics.charts.childrenLeaderboard" },
-    { id: "difficultyRadar", titleKey: "analytics.charts.difficultyRadar" },
-    { id: "completionMomentum", titleKey: "analytics.charts.completionMomentum" },
-    { id: "taskStatusDonut", titleKey: "analytics.charts.taskStatusDonut" },
-    { id: "pointsGrowth", titleKey: "analytics.charts.pointsGrowth" },
+    { id: "activityPulse", titleKey: "analytics.charts.activityPulse", descKey: "analytics.chartDescriptions.activityPulse" },
+    { id: "childrenLeaderboard", titleKey: "analytics.charts.childrenLeaderboard", descKey: "analytics.chartDescriptions.childrenLeaderboard" },
+    { id: "difficultyRadar", titleKey: "analytics.charts.difficultyRadar", descKey: "analytics.chartDescriptions.difficultyRadar" },
+    { id: "completionMomentum", titleKey: "analytics.charts.completionMomentum", descKey: "analytics.chartDescriptions.completionMomentum" },
+    { id: "taskStatusDonut", titleKey: "analytics.charts.taskStatusDonut", descKey: "analytics.chartDescriptions.taskStatusDonut" },
+    { id: "pointsGrowth", titleKey: "analytics.charts.pointsGrowth", descKey: "analytics.chartDescriptions.pointsGrowth" },
+    { id: "streakHeatmap", titleKey: "analytics.charts.streakHeatmap", descKey: "analytics.chartDescriptions.streakHeatmap" },
   ]
+
+  /* ── Per-chart time override (null = use global) ── */
+  const [chartTimeOverride, setChartTimeOverride] = useState<Record<number, number | null>>({})
+  /* Cached data for per-chart overrides */
+  const [overrideData, setOverrideData] = useState<Record<number, AnalyticsData>>({})
+  const [overrideLoading, setOverrideLoading] = useState<Record<number, boolean>>({})
+
+  const handleChartTimeChange = async (chartIdx: number, days: number | null) => {
+    setChartTimeOverride(prev => ({ ...prev, [chartIdx]: days }))
+    if (days && days !== windowDays) {
+      setOverrideLoading(prev => ({ ...prev, [chartIdx]: true }))
+      try {
+        if (USE_MOCK) {
+          await new Promise(r => setTimeout(r, 200))
+          setOverrideData(prev => ({ ...prev, [chartIdx]: generateMockAnalytics(days) }))
+        } else {
+          const data = await getTaskAnalytics(days)
+          setOverrideData(prev => ({ ...prev, [chartIdx]: data }))
+        }
+      } catch(e) { console.error(e) }
+      setOverrideLoading(prev => ({ ...prev, [chartIdx]: false }))
+    }
+  }
+
+  /* Get effective data for a chart (override or global) */
+  const getChartData = (chartIdx: number): AnalyticsData | null => {
+    const override = chartTimeOverride[chartIdx]
+    if (override && override !== windowDays && overrideData[chartIdx]) return overrideData[chartIdx]
+    return analytics
+  }
 
   /* ── Glassmorphism tooltip ── */
   const GlassTooltip = ({ active, payload, label }: any) => {
@@ -158,85 +232,105 @@ export default function AnalyticsDashboard() {
     orange: ['#fdba74', '#fb923c', '#f97316', '#ea580c'],
   }
 
-  /* ── Custom dot with glow ring ── */
-  const GlowDot = ({ cx, cy, fill, glowColor }: any) => (
-    <g>
-      <circle cx={cx} cy={cy} r={10} fill={glowColor || fill} opacity={0.15} />
-      <circle cx={cx} cy={cy} r={6} fill="#fff" stroke={fill} strokeWidth={3} />
-      <circle cx={cx} cy={cy} r={2.5} fill={fill} />
-    </g>
-  )
-
   const renderChart = (index: number) => {
-    if (!analytics) return null
+    const chartData = getChartData(index)
+    if (!chartData) return null
+    const isOverrideLoading = overrideLoading[index]
+    if (isOverrideLoading) return <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
 
     const filteredChildrenStats =
       selectedChild === "all"
-        ? analytics.childrenStats
-        : analytics.childrenStats.filter(c => c.childId === selectedChild)
+        ? chartData.childrenStats
+        : chartData.childrenStats.filter(c => c.childId === selectedChild)
 
     const filteredTaskStatus =
       selectedChild === "all"
-        ? analytics.taskStatus
+        ? chartData.taskStatus
         : (() => {
-            const child = analytics.childrenStats.find(c => c.childId === selectedChild)
-            if (!child) return analytics.taskStatus
+            const child = chartData.childrenStats.find(c => c.childId === selectedChild)
+            if (!child) return chartData.taskStatus
             return { completed: child.completedTasks, inProgress: child.pendingTasks, overdue: 0 }
           })()
 
+    // Per-child data helpers
+    const filteredActivity =
+      selectedChild === "all"
+        ? chartData.weeklyActivity
+        : (chartData.perChildActivity?.find(c => c.childId === selectedChild)?.data ?? chartData.weeklyActivity)
+
+    const filteredDifficulty =
+      selectedChild === "all"
+        ? chartData.difficultyDistribution
+        : (chartData.perChildDifficulty?.find(c => c.childId === selectedChild)?.data ?? chartData.difficultyDistribution)
+
+    const filteredProgress =
+      selectedChild === "all"
+        ? chartData.weeklyProgress
+        : (chartData.perChildProgress?.find(c => c.childId === selectedChild)?.data ?? chartData.weeklyProgress)
+
+    const filteredPointsTrend =
+      selectedChild === "all"
+        ? chartData.pointsTrend
+        : (chartData.perChildPointsTrend?.find(c => c.childId === selectedChild)?.data ?? chartData.pointsTrend)
+
+    const chartTimeControl = (
+      <ChartTimeFilter value={chartTimeOverride[index] ?? null} onChange={(v) => handleChartTimeChange(index, v)} />
+    )
+
     switch (index) {
-      /* ━━━━━━━━━━━━━━ 0 ▸ ACTIVITY PULSE ━━━━━━━━━━━━━━ */
-      case 0:
+      /* ━━━━━━━━━━━━━━ 0 ▸ ACTIVITY PULSE — area + trend line ━━━━━━━━━━━━━━ */
+      case 0: {
+        // Convert to area chart with smooth gradient + points overlay + moving average line
+        const actData = filteredActivity.map((d, i, arr) => {
+          // 3-point moving average for the trend
+          const window = arr.slice(Math.max(0, i - 1), i + 2)
+          const trend = Math.round(window.reduce((s, x) => s + x.tasksCompleted, 0) / window.length * 10) / 10
+          return { ...d, trend }
+        })
         return (
-          <ResponsiveContainer width="100%" height={380}>
-            <BarChart data={analytics.weeklyActivity} barGap={6} barSize={windowDays <= 14 ? 28 : 18}>
-              <defs>
-                <linearGradient id="neon-bar-tasks" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c084fc" stopOpacity={1} />
-                  <stop offset="40%" stopColor="#a855f7" stopOpacity={0.95} />
-                  <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.9} />
-                </linearGradient>
-                <linearGradient id="neon-bar-points" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#fcd34d" stopOpacity={1} />
-                  <stop offset="40%" stopColor="#fbbf24" stopOpacity={0.95} />
-                  <stop offset="100%" stopColor="#d97706" stopOpacity={0.85} />
-                </linearGradient>
-                <filter id="bar-glow-p" x="-20%" y="-10%" width="140%" height="130%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#a855f7" floodOpacity="0.35" />
-                </filter>
-                <filter id="bar-glow-a" x="-20%" y="-10%" width="140%" height="130%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#f59e0b" floodOpacity="0.35" />
-                </filter>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.15)" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} dx={-4} />
-              <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(139,92,246,0.04)', radius: 8 }} />
-              <Legend
-                wrapperStyle={{ paddingTop: 16 }}
-                formatter={(value: string) => <span className="text-xs font-medium ml-1">{value}</span>}
-              />
-              <Bar
-                dataKey="tasksCompleted"
-                fill="url(#neon-bar-tasks)"
-                radius={[10, 10, 3, 3]}
-                name={t('analytics.chartLabels.tasks')}
-                animationDuration={1200}
-                animationEasing="ease-out"
-                style={{ filter: 'url(#bar-glow-p)' }}
-              />
-              <Bar
-                dataKey="pointsEarned"
-                fill="url(#neon-bar-points)"
-                radius={[10, 10, 3, 3]}
-                name={t('analytics.chartLabels.points')}
-                animationDuration={1200}
-                animationEasing="ease-out"
-                style={{ filter: 'url(#bar-glow-a)' }}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <>
+            {chartTimeControl}
+            <ResponsiveContainer width="100%" height={380}>
+              <ComposedChart data={actData} barGap={4}>
+                <defs>
+                  <linearGradient id="activity-area-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a855f7" stopOpacity={0.35} />
+                    <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                  </linearGradient>
+                  <linearGradient id="activity-points-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
+                  </linearGradient>
+                  <filter id="trend-line-glow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#06b6d4" floodOpacity="0.5" />
+                  </filter>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(139,92,246,0.04)' }} />
+                <Legend wrapperStyle={{ paddingTop: 16 }} formatter={(v: string) => <span className="text-xs font-medium ml-1">{v}</span>} />
+
+                {/* Tasks area */}
+                <Area yAxisId="left" type="monotone" dataKey="tasksCompleted" stroke="#a855f7" strokeWidth={2.5}
+                  fill="url(#activity-area-gradient)" name={t('analytics.chartLabels.tasks')} animationDuration={1000}
+                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={5} fill="#fff" stroke="#a855f7" strokeWidth={2} /><circle cx={cx} cy={cy} r={2} fill="#a855f7" /></g>}
+                />
+                {/* Points bars overlaid */}
+                <Bar yAxisId="right" dataKey="pointsEarned" fill="url(#activity-points-gradient)" radius={[6, 6, 2, 2]}
+                  barSize={windowDays <= 14 ? 16 : 10} name={t('analytics.chartLabels.points')} animationDuration={1000} opacity={0.85}
+                />
+                {/* Trend line */}
+                <Line yAxisId="left" type="monotone" dataKey="trend" stroke="#06b6d4" strokeWidth={2.5} strokeDasharray="6 3"
+                  dot={false} name={t('analytics.chartLabels.trend')} style={{ filter: 'url(#trend-line-glow)' }} animationDuration={1400}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </>
         )
+      }
 
       /* ━━━━━━━━━━━━━━ 1 ▸ CHILDREN LEADERBOARD ━━━━━━━━━━━━━━ */
       case 1: {
@@ -257,178 +351,195 @@ export default function AnalyticsDashboard() {
         if (!childData.length) return <p className="text-center text-muted-foreground py-12">{t('analyticsDashboard.noData')}</p>
         const maxPoints = Math.max(...childData.map(d => d.points), 1)
         return (
-          <div className="space-y-4 py-2">
-            {childData.map((child, idx) => {
-              const g = childGradients[child.gradientIdx]
-              const pct = Math.round((child.points / maxPoints) * 100)
-              return (
-                <div key={idx} className="group relative">
-                  <div className="flex items-center gap-4">
-                    {/* Rank badge */}
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-lg shrink-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${g.from}, ${g.to})`,
-                        boxShadow: `0 4px 14px ${g.shadow}40`,
-                      }}
-                    >
-                      {idx === 0 ? <Trophy className="w-5 h-5" /> : `#${idx + 1}`}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-semibold text-sm truncate">{child.name}</span>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                          <span className="font-bold text-sm">{child.points.toLocaleString()}</span>
-                        </div>
+          <>
+            {chartTimeControl}
+            <div className="space-y-4 py-2">
+              {childData.map((child, idx) => {
+                const g = childGradients[child.gradientIdx]
+                const pct = Math.round((child.points / maxPoints) * 100)
+                return (
+                  <div key={idx} className="group relative">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-lg shrink-0"
+                        style={{ background: `linear-gradient(135deg, ${g.from}, ${g.to})`, boxShadow: `0 4px 14px ${g.shadow}40` }}
+                      >
+                        {idx === 0 ? <Trophy className="w-5 h-5" /> : `#${idx + 1}`}
                       </div>
-                      {/* Progress bar */}
-                      <div className="h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
-                        <div
-                          className="h-full rounded-full transition-all duration-1000 ease-out relative"
-                          style={{
-                            width: `${pct}%`,
-                            background: `linear-gradient(90deg, ${g.from}, ${g.to})`,
-                            boxShadow: `0 0 12px ${g.shadow}50`,
-                          }}
-                        >
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/30 to-transparent" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="font-semibold text-sm truncate">{child.name}</span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                            <span className="font-bold text-sm">{child.points.toLocaleString()}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
-                        <span>{t('analytics.chartLabels.completed')}: <b className="text-emerald-600">{child.completed}</b></span>
-                        <span>{t('analytics.chartLabels.pending')}: <b className="text-amber-600">{child.pending}</b></span>
+                        <div className="h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+                          <div className="h-full rounded-full transition-all duration-1000 ease-out relative"
+                            style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${g.from}, ${g.to})`, boxShadow: `0 0 12px ${g.shadow}50` }}
+                          >
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/30 to-transparent" />
+                          </div>
+                        </div>
+                        <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                          <span>{t('analytics.chartLabels.completed')}: <b className="text-emerald-600">{child.completed}</b></span>
+                          <span>{t('analytics.chartLabels.pending')}: <b className="text-amber-600">{child.pending}</b></span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          </>
         )
       }
 
-      /* ━━━━━━━━━━━━━━ 2 ▸ DIFFICULTY RADAR ━━━━━━━━━━━━━━ */
+      /* ━━━━━━━━━━━━━━ 2 ▸ DIFFICULTY MAP — horizontal stacked bars per child ━━━━━━━━━━━━━━ */
       case 2: {
-        const radarData = analytics.difficultyDistribution
-        if (!radarData.length) return <p className="text-center text-muted-foreground py-12">{t('analyticsDashboard.noData')}</p>
+        const diffColors: Record<string, string> = {
+          'Очень легко': '#22c55e', 'Легко': '#84cc16', 'Средне': '#eab308', 'Сложно': '#f97316', 'Очень сложно': '#ef4444',
+          'Very Easy': '#22c55e', 'Easy': '#84cc16', 'Medium': '#eab308', 'Hard': '#f97316', 'Very Hard': '#ef4444',
+          'Foarte Ușor': '#22c55e', 'Ușor': '#84cc16', 'Mediu': '#eab308', 'Dificil': '#f97316', 'Foarte Dificil': '#ef4444',
+        }
+
+        if (selectedChild !== "all") {
+          // Single child: show radial bars
+          const radarData = filteredDifficulty
+          if (!radarData.length) return <p className="text-center text-muted-foreground py-12">{t('analyticsDashboard.noData')}</p>
+          return (
+            <>
+              {chartTimeControl}
+              <ResponsiveContainer width="100%" height={380}>
+                <BarChart data={radarData} layout="vertical" barSize={24}>
+                  <defs>
+                    {radarData.map((d, i) => (
+                      <linearGradient key={i} id={`diff-bar-${i}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={d.color} stopOpacity={0.85} />
+                        <stop offset="100%" stopColor={d.color} stopOpacity={1} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} width={100} />
+                  <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={1000} name={t('analytics.chartLabels.tasks')}>
+                    {radarData.map((d, i) => <Cell key={i} fill={`url(#diff-bar-${i})`} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </>
+          )
+        }
+
+        // All children: comparative stacked horizontal bars
+        const diffNames = chartData.difficultyDistribution.map(d => d.name)
+        const childDiffData = (chartData.perChildDifficulty ?? []).map((child, ci) => {
+          const childName = chartData.childrenStats.find(c => c.childId === child.childId)?.childName ?? child.childId
+          const row: any = { name: childName }
+          for (const dn of diffNames) {
+            const found = child.data.find(d => d.name === dn)
+            row[dn] = found?.value ?? 0
+          }
+          return row
+        })
+
+        if (!childDiffData.length) {
+          // Fallback: aggregate radar
+          return (
+            <>
+              {chartTimeControl}
+              <ResponsiveContainer width="100%" height={380}>
+                <BarChart data={filteredDifficulty} layout="vertical" barSize={24}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} width={100} />
+                  <Tooltip content={<GlassTooltip />} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} name={t('analytics.chartLabels.tasks')}>
+                    {filteredDifficulty.map((d, i) => <Cell key={i} fill={d.color} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </>
+          )
+        }
+
         return (
-          <ResponsiveContainer width="100%" height={400}>
-            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="72%">
-              <defs>
-                <linearGradient id="radar-neon" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c084fc" stopOpacity={0.5} />
-                  <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.08} />
-                </linearGradient>
-                <linearGradient id="radar-stroke-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#c084fc" />
-                  <stop offset="100%" stopColor="#7c3aed" />
-                </linearGradient>
-                <filter id="radar-glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
-                  <feFlood floodColor="#8b5cf6" floodOpacity="0.3" result="color" />
-                  <feComposite in="color" in2="blur" operator="in" result="glow" />
-                  <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
-                </filter>
-              </defs>
-              <PolarGrid stroke="rgba(148,163,184,0.2)" gridType="polygon" />
-              <PolarAngleAxis
-                dataKey="name"
-                tick={({ payload, x, y, textAnchor }: any) => (
-                  <text x={x} y={y} textAnchor={textAnchor} fill="#64748b" fontSize={12} fontWeight={600}>
-                    {payload.value}
-                  </text>
-                )}
-              />
-              <PolarRadiusAxis tick={false} axisLine={false} />
-              {/* Ghost outer layer */}
-              <Radar
-                dataKey="value"
-                stroke="#c084fc"
-                fill="none"
-                strokeWidth={1}
-                strokeDasharray="4 4"
-                strokeOpacity={0.4}
-              />
-              {/* Main filled radar */}
-              <Radar
-                name={t('analytics.chartLabels.tasks')}
-                dataKey="value"
-                stroke="url(#radar-stroke-grad)"
-                fill="url(#radar-neon)"
-                strokeWidth={3}
-                dot={({ cx, cy }: any) => (
-                  <g key={`${cx}-${cy}`}>
-                    <circle cx={cx} cy={cy} r={8} fill="#8b5cf6" opacity={0.15} />
-                    <circle cx={cx} cy={cy} r={5} fill="#fff" stroke="#8b5cf6" strokeWidth={2.5} />
-                    <circle cx={cx} cy={cy} r={2} fill="#8b5cf6" />
-                  </g>
-                )}
-                animationDuration={1200}
-                style={{ filter: 'url(#radar-glow)' }}
-              />
-              <Tooltip content={<GlassTooltip />} />
-            </RadarChart>
-          </ResponsiveContainer>
+          <>
+            {chartTimeControl}
+            <ResponsiveContainer width="100%" height={Math.max(280, childDiffData.length * 70)}>
+              <BarChart data={childDiffData} layout="vertical" barSize={20}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#334155', fontWeight: 600 }} axisLine={false} tickLine={false} width={80} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                <Legend wrapperStyle={{ paddingTop: 12 }} formatter={(v: string) => <span className="text-xs font-medium ml-1">{v}</span>} />
+                {diffNames.map((dn, i) => (
+                  <Bar key={dn} dataKey={dn} stackId="diff" fill={diffColors[dn] ?? CHILD_COLORS[i % CHILD_COLORS.length]}
+                    radius={i === diffNames.length - 1 ? [0, 8, 8, 0] : [0, 0, 0, 0]}
+                    animationDuration={1000} name={dn}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </>
         )
       }
 
-      /* ━━━━━━━━━━━━━━ 3 ▸ COMPLETION DYNAMICS ━━━━━━━━━━━━━━ */
+      /* ━━━━━━━━━━━━━━ 3 ▸ COMPLETION DYNAMICS — clean % area with goal line ━━━━━━━━━━━━━━ */
       case 3: {
-        const momentumData = analytics.weeklyProgress.map(w => ({
+        const momentumData = filteredProgress.map(w => ({
           week: w.week,
+          rate: w.total > 0 ? Math.round((w.completed / w.total) * 100) : 0,
           completed: w.completed,
           total: w.total,
-          rate: w.total > 0 ? Math.round((w.completed / w.total) * 100) : 0,
         }))
+        const avgRate = momentumData.length > 0
+          ? Math.round(momentumData.reduce((s, d) => s + d.rate, 0) / momentumData.length)
+          : 0
         return (
-          <ResponsiveContainer width="100%" height={380}>
-            <ComposedChart data={momentumData}>
-              <defs>
-                <linearGradient id="dyn-area-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#34d399" stopOpacity={0.4} />
-                  <stop offset="60%" stopColor="#10b981" stopOpacity={0.1} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
-                </linearGradient>
-                <linearGradient id="dyn-total-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#93c5fd" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.03} />
-                </linearGradient>
-                <linearGradient id="rate-line-grad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#f43f5e" />
-                  <stop offset="50%" stopColor="#ef4444" />
-                  <stop offset="100%" stopColor="#f97316" />
-                </linearGradient>
-                <filter id="line-glow-red" x="-20%" y="-30%" width="140%" height="160%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#ef4444" floodOpacity="0.4" />
-                </filter>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-              <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-              <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
-              <Tooltip content={<GlassTooltip />} />
-              <Legend
-                wrapperStyle={{ paddingTop: 16 }}
-                formatter={(value: string) => <span className="text-xs font-medium ml-1">{value}</span>}
-              />
-              <Area yAxisId="left" type="monotone" dataKey="total" stroke="#60a5fa" strokeWidth={2} fill="url(#dyn-total-fill)" name={t('analytics.chartLabels.total')} animationDuration={1000} />
-              <Area yAxisId="left" type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2.5} fill="url(#dyn-area-fill)" name={t('analytics.chartLabels.completed')} animationDuration={1000} />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="rate"
-                stroke="url(#rate-line-grad)"
-                strokeWidth={3.5}
-                dot={(props: any) => <GlowDot {...props} fill="#ef4444" glowColor="#ef4444" />}
-                activeDot={{ r: 8, fill: '#ef4444', stroke: '#fff', strokeWidth: 3 }}
-                name={t('analytics.chartLabels.completionRate')}
-                animationDuration={1400}
-                style={{ filter: 'url(#line-glow-red)' }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <>
+            {chartTimeControl}
+            <div className="flex items-center gap-4 mb-3 px-1">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black text-emerald-600">{avgRate}%</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('analytics.chartLabels.avgRate')}</p>
+                </div>
+              </div>
+              <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{t('analytics.chartLabels.completionPercent')}</span>
+                <span className="flex items-center gap-1"><span className="w-6 h-0 border-t-2 border-dashed border-amber-400" />{t('analytics.chartLabels.goal')} 80%</span>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={340}>
+              <AreaChart data={momentumData}>
+                <defs>
+                  <linearGradient id="completion-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
+                    <stop offset="50%" stopColor="#10b981" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                  </linearGradient>
+                  <filter id="completion-glow"><feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#10b981" floodOpacity="0.4" /></filter>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.1)" vertical={false} />
+                <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} unit="%" />
+                <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '6 4' }} />
+                <ReferenceLine y={80} yAxisId={0} stroke="#f59e0b" strokeDasharray="8 4" strokeWidth={2} label={{ value: '80%', position: 'right', fill: '#f59e0b', fontSize: 11, fontWeight: 700 }} />
+                <Area type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3}
+                  fill="url(#completion-area)" name={t('analytics.chartLabels.completionPercent')} animationDuration={1200}
+                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={6} fill="#10b981" opacity={0.15} /><circle cx={cx} cy={cy} r={4} fill="#fff" stroke="#10b981" strokeWidth={2} /></g>}
+                  style={{ filter: 'url(#completion-glow)' }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </>
         )
       }
 
@@ -446,73 +557,29 @@ export default function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <defs>
-                  <linearGradient id="donut-g" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#6ee7b7" />
-                    <stop offset="100%" stopColor="#059669" />
-                  </linearGradient>
-                  <linearGradient id="donut-a" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#fcd34d" />
-                    <stop offset="100%" stopColor="#d97706" />
-                  </linearGradient>
-                  <linearGradient id="donut-r" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#fda4af" />
-                    <stop offset="100%" stopColor="#dc2626" />
-                  </linearGradient>
-                  <filter id="donut-shadow" x="-15%" y="-15%" width="130%" height="140%">
-                    <feDropShadow dx="0" dy="3" stdDeviation="6" floodOpacity="0.15" />
-                  </filter>
+                  <linearGradient id="donut-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#6ee7b7" /><stop offset="100%" stopColor="#059669" /></linearGradient>
+                  <linearGradient id="donut-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fcd34d" /><stop offset="100%" stopColor="#d97706" /></linearGradient>
+                  <linearGradient id="donut-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fda4af" /><stop offset="100%" stopColor="#dc2626" /></linearGradient>
+                  <filter id="donut-shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="6" floodOpacity="0.15" /></filter>
                 </defs>
-                {/* Decorative thin outer ring */}
-                <Pie
-                  data={[{ value: 1 }]}
-                  cx="50%" cy="50%"
-                  innerRadius={128} outerRadius={132}
-                  fill="none" stroke="rgba(148,163,184,0.15)" strokeWidth={1}
-                  dataKey="value"
-                  isAnimationActive={false}
-                >
+                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={128} outerRadius={132} fill="none" stroke="rgba(148,163,184,0.15)" strokeWidth={1} dataKey="value" isAnimationActive={false}>
                   <Cell fill="rgba(148,163,184,0.08)" />
                 </Pie>
-                {/* Main donut */}
-                <Pie
-                  data={statusData}
-                  cx="50%" cy="50%"
-                  innerRadius={80} outerRadius={122}
-                  paddingAngle={5}
-                  dataKey="value"
-                  cornerRadius={12}
-                  animationDuration={1200}
-                  animationEasing="ease-out"
-                  style={{ filter: 'url(#donut-shadow)' }}
-                >
-                  {statusData.map((entry, i) => (
-                    <Cell key={`cell-${i}`} fill={`url(#${entry.gradient})`} stroke="none" />
-                  ))}
+                <Pie data={statusData} cx="50%" cy="50%" innerRadius={80} outerRadius={122} paddingAngle={5} dataKey="value" cornerRadius={12} animationDuration={1200} animationEasing="ease-out" style={{ filter: 'url(#donut-shadow)' }}>
+                  {statusData.map((entry, i) => <Cell key={`cell-${i}`} fill={`url(#${entry.gradient})`} stroke="none" />)}
                 </Pie>
-                {/* Decorative thin inner ring */}
-                <Pie
-                  data={[{ value: 1 }]}
-                  cx="50%" cy="50%"
-                  innerRadius={72} outerRadius={75}
-                  fill="none"
-                  dataKey="value"
-                  isAnimationActive={false}
-                >
+                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={72} outerRadius={75} fill="none" dataKey="value" isAnimationActive={false}>
                   <Cell fill="rgba(148,163,184,0.06)" />
                 </Pie>
                 <Tooltip content={<GlassTooltip />} />
               </PieChart>
             </ResponsiveContainer>
-            {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <div className="relative">
-                <span className="text-5xl font-black tracking-tighter bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-700 bg-clip-text text-transparent drop-shadow-sm">
-                  <AnimatedCounter value={pct} suffix="%" />
-                </span>
-              </div>
+              <span className="text-5xl font-black tracking-tighter bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-700 bg-clip-text text-transparent drop-shadow-sm">
+                <AnimatedCounter value={pct} suffix="%" />
+              </span>
               <span className="text-xs font-medium text-muted-foreground mt-1 uppercase tracking-widest">{t('analytics.chartLabels.completed')}</span>
             </div>
-            {/* Legend pills */}
             <div className="flex justify-center gap-4 -mt-4">
               {statusData.map((d, i) => (
                 <div key={i} className="flex items-center gap-1.5">
@@ -525,47 +592,396 @@ export default function AnalyticsDashboard() {
         )
       }
 
-      /* ━━━━━━━━━━━━━━ 5 ▸ POINTS GROWTH ━━━━━━━━━━━━━━ */
-      case 5:
+      /* ━━━━━━━━━━━━━━ 5 ▸ POINTS GROWTH — multi-child or single ━━━━━━━━━━━━━━ */
+      case 5: {
+        // If viewing all children and per-child data is available, show multi-line
+        const hasPerChild = selectedChild === "all" && chartData.perChildPointsTrend?.length > 0
+
+        if (hasPerChild) {
+          // Merge all children's points into a single dataset keyed by date
+          const dateMap = new Map<string, any>()
+          for (const cd of chartData.perChildPointsTrend) {
+            const childName = chartData.childrenStats.find(c => c.childId === cd.childId)?.childName ?? cd.childId
+            for (const pt of cd.data) {
+              if (!dateMap.has(pt.date)) dateMap.set(pt.date, { date: pt.date })
+              dateMap.get(pt.date)![childName] = pt.points
+            }
+          }
+          const merged = Array.from(dateMap.values())
+          const childNames = chartData.perChildPointsTrend.map(cd =>
+            chartData.childrenStats.find(c => c.childId === cd.childId)?.childName ?? cd.childId
+          )
+
+          return (
+            <>
+              {chartTimeControl}
+              <ResponsiveContainer width="100%" height={380}>
+                <AreaChart data={merged}>
+                  <defs>
+                    {childNames.map((cn, i) => (
+                      <linearGradient key={cn} id={`growth-child-${i}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={CHILD_COLORS[i % CHILD_COLORS.length]} stopOpacity={0.3} />
+                        <stop offset="100%" stopColor={CHILD_COLORS[i % CHILD_COLORS.length]} stopOpacity={0.02} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
+                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#a855f7', strokeWidth: 1, strokeDasharray: '6 4' }} />
+                  <Legend wrapperStyle={{ paddingTop: 16 }} formatter={(v: string) => <span className="text-xs font-medium ml-1">{v}</span>} />
+                  {childNames.map((cn, i) => (
+                    <Area key={cn} type="monotone" dataKey={cn} stroke={CHILD_COLORS[i % CHILD_COLORS.length]}
+                      strokeWidth={2.5} fill={`url(#growth-child-${i})`} name={cn} animationDuration={1200}
+                      dot={false} activeDot={{ r: 5, fill: CHILD_COLORS[i % CHILD_COLORS.length], stroke: '#fff', strokeWidth: 2 }}
+                    />
+                  ))}
+                </AreaChart>
+              </ResponsiveContainer>
+            </>
+          )
+        }
+
+        // Single child or fallback
         return (
-          <ResponsiveContainer width="100%" height={380}>
-            <AreaChart data={analytics.pointsTrend}>
-              <defs>
-                <linearGradient id="growth-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c084fc" stopOpacity={0.5} />
-                  <stop offset="30%" stopColor="#a855f7" stopOpacity={0.25} />
-                  <stop offset="70%" stopColor="#8b5cf6" stopOpacity={0.08} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.01} />
-                </linearGradient>
-                <linearGradient id="growth-stroke" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#c084fc" />
-                  <stop offset="50%" stopColor="#a855f7" />
-                  <stop offset="100%" stopColor="#7c3aed" />
-                </linearGradient>
-                <filter id="area-glow" x="-10%" y="-20%" width="120%" height="150%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#8b5cf6" floodOpacity="0.3" />
-                </filter>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#a855f7', strokeWidth: 1, strokeDasharray: '6 4' }} />
-              <Area
-                type="monotone"
-                dataKey="points"
-                stroke="url(#growth-stroke)"
-                strokeWidth={3.5}
-                fill="url(#growth-fill)"
-                dot={(props: any) => <GlowDot {...props} fill="#8b5cf6" glowColor="#a855f7" />}
-                activeDot={{ r: 9, fill: '#7c3aed', stroke: '#fff', strokeWidth: 3.5 }}
-                name={t('analytics.chartLabels.points')}
-                animationDuration={1400}
-                animationEasing="ease-out"
-                style={{ filter: 'url(#area-glow)' }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <>
+            {chartTimeControl}
+            <ResponsiveContainer width="100%" height={380}>
+              <AreaChart data={filteredPointsTrend}>
+                <defs>
+                  <linearGradient id="growth-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#c084fc" stopOpacity={0.5} />
+                    <stop offset="30%" stopColor="#a855f7" stopOpacity={0.25} />
+                    <stop offset="70%" stopColor="#8b5cf6" stopOpacity={0.08} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.01} />
+                  </linearGradient>
+                  <linearGradient id="growth-stroke" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#c084fc" />
+                    <stop offset="50%" stopColor="#a855f7" />
+                    <stop offset="100%" stopColor="#7c3aed" />
+                  </linearGradient>
+                  <filter id="area-glow"><feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#8b5cf6" floodOpacity="0.3" /></filter>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#a855f7', strokeWidth: 1, strokeDasharray: '6 4' }} />
+                <Area type="monotone" dataKey="points" stroke="url(#growth-stroke)" strokeWidth={3.5}
+                  fill="url(#growth-fill)" name={t('analytics.chartLabels.points')} animationDuration={1400}
+                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={8} fill="#a855f7" opacity={0.12} /><circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="#8b5cf6" strokeWidth={2.5} /><circle cx={cx} cy={cy} r={2} fill="#8b5cf6" /></g>}
+                  style={{ filter: 'url(#area-glow)' }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </>
         )
+      }
+
+      /* ━━━━━━━━━━━━━━ 6 ▸ QUEST JOURNEY — gamified streak adventure ━━━━━━━━━━━━━━ */
+      case 6: {
+        // If "all" family is selected, show combined family quest with per-child breakdown
+        const isFamily = selectedChild === "all"
+
+        // For family view, aggregate all children's data
+        const allChildActivities = isFamily && chartData.perChildActivity?.length
+          ? chartData.perChildActivity
+          : null
+
+        const days = filteredActivity
+        const maxTasks = Math.max(...days.map(d => d.tasksCompleted), 1)
+        const totalTasksCount = days.reduce((s, d) => s + d.tasksCompleted, 0)
+        const totalPointsCount = days.reduce((s, d) => s + d.pointsEarned, 0)
+        const activeDays = days.filter(d => d.tasksCompleted > 0).length
+        const currentStreak = (() => {
+          let streak = 0
+          for (let i = days.length - 1; i >= 0; i--) {
+            if (days[i].tasksCompleted > 0) streak++
+            else break
+          }
+          return streak
+        })()
+        const bestStreak = (() => {
+          let best = 0, cur = 0
+          for (const d of days) {
+            if (d.tasksCompleted > 0) { cur++; best = Math.max(best, cur) }
+            else cur = 0
+          }
+          return best
+        })()
+
+        // XP & level system
+        const xp = totalTasksCount * 10 + totalPointsCount
+        const levelThresholds = [0, 50, 150, 350, 700, 1200, 2000, 3500, 5500, 8000, 12000]
+        const level = levelThresholds.filter(th => xp >= th).length
+        const currentLevelMin = levelThresholds[level - 1] ?? 0
+        const nextLevelXp = levelThresholds[level] ?? currentLevelMin + 2000
+        const levelProgress = Math.min(100, Math.round(((xp - currentLevelMin) / (nextLevelXp - currentLevelMin)) * 100))
+
+        // Achievements
+        const achievements = [
+          { key: 'firstStep', icon: <Star className="w-4 h-4" />, threshold: 1, color: 'from-green-400 to-emerald-500', unlocked: activeDays >= 1 },
+          { key: 'onFire', icon: <Flame className="w-4 h-4" />, threshold: 3, color: 'from-orange-400 to-red-500', unlocked: bestStreak >= 3 },
+          { key: 'unstoppable', icon: <Swords className="w-4 h-4" />, threshold: 7, color: 'from-blue-400 to-indigo-500', unlocked: bestStreak >= 7 },
+          { key: 'legendary', icon: <Shield className="w-4 h-4" />, threshold: 14, color: 'from-purple-400 to-violet-600', unlocked: bestStreak >= 14 },
+          { key: 'mythical', icon: <Crown className="w-4 h-4" />, threshold: 30, color: 'from-amber-400 to-yellow-500', unlocked: bestStreak >= 30 },
+        ]
+
+        // Quest path: last 14 days shown as path nodes
+        const pathDays = days.slice(-14)
+        const nodeSize = 44
+
+        // Level colors
+        const getLevelColor = (lvl: number) => {
+          if (lvl <= 2) return { bg: 'from-green-500 to-emerald-600', text: 'text-emerald-700', ring: 'ring-emerald-400' }
+          if (lvl <= 4) return { bg: 'from-blue-500 to-indigo-600', text: 'text-blue-700', ring: 'ring-blue-400' }
+          if (lvl <= 6) return { bg: 'from-purple-500 to-violet-600', text: 'text-purple-700', ring: 'ring-purple-400' }
+          if (lvl <= 8) return { bg: 'from-amber-500 to-orange-600', text: 'text-amber-700', ring: 'ring-amber-400' }
+          return { bg: 'from-red-500 to-rose-600', text: 'text-red-700', ring: 'ring-red-400' }
+        }
+        const lvlColor = getLevelColor(level)
+
+        return (
+          <>
+            {chartTimeControl}
+            <div className="space-y-5">
+
+              {/* ── Level + XP bar ── */}
+              <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900/50 dark:via-gray-800/30 dark:to-gray-900/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-violet-400/10 to-purple-600/5 rounded-full blur-xl" />
+                <div className="flex items-center gap-4">
+                  {/* Level badge */}
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${lvlColor.bg} flex items-center justify-center shadow-xl relative`}>
+                    <span className="text-2xl font-black text-white">{level}</span>
+                    <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center`}>
+                      <Star className="w-3 h-3 text-amber-500 fill-amber-400" />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-sm font-bold ${lvlColor.text} dark:text-white`}>{t('analytics.chartLabels.level')} {level}</span>
+                      <span className="text-xs text-muted-foreground font-mono">{xp.toLocaleString()} / {nextLevelXp.toLocaleString()} {t('analytics.chartLabels.xp')}</span>
+                    </div>
+                    <div className="h-4 rounded-full bg-gray-200/80 dark:bg-gray-700/60 overflow-hidden relative">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${lvlColor.bg} transition-all duration-1000 ease-out relative`}
+                        style={{ width: `${levelProgress}%` }}
+                      >
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/30 to-transparent" />
+                        <div className="absolute inset-0 rounded-full overflow-hidden">
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_50%,transparent_100%)] animate-[shimmer_2s_infinite]" style={{ animationName: 'shimmer' }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between mt-1 text-[10px] text-muted-foreground">
+                      <span>{levelProgress}%</span>
+                      <span>{(nextLevelXp - xp).toLocaleString()} {t('analytics.chartLabels.xp')} {t('analytics.chartLabels.remaining')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Streak + Stats row ── */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/20 border border-orange-200/60 dark:border-orange-900/30 relative overflow-hidden">
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-orange-400/20 to-red-500/10 rounded-full blur-lg" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow">
+                      <Flame className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-[11px] font-medium text-muted-foreground">{t('analytics.chartLabels.currentStreak')}</span>
+                  </div>
+                  <p className="text-2xl font-black text-orange-600 dark:text-orange-400">{currentStreak} <span className="text-xs font-medium text-muted-foreground">{t('analytics.chartLabels.days')}</span></p>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/20 border border-purple-200/60 dark:border-purple-900/30 relative overflow-hidden">
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-purple-400/20 to-violet-500/10 rounded-full blur-lg" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-400 to-violet-600 flex items-center justify-center shadow">
+                      <Trophy className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-[11px] font-medium text-muted-foreground">{t('analytics.chartLabels.bestStreak')}</span>
+                  </div>
+                  <p className="text-2xl font-black text-purple-600 dark:text-purple-400">{bestStreak} <span className="text-xs font-medium text-muted-foreground">{t('analytics.chartLabels.days')}</span></p>
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/20 border border-emerald-200/60 dark:border-emerald-900/30 relative overflow-hidden">
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-emerald-400/20 to-green-500/10 rounded-full blur-lg" />
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow">
+                      <CalendarDays className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-[11px] font-medium text-muted-foreground">{t('analytics.chartLabels.activeDays')}</span>
+                  </div>
+                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{activeDays}<span className="text-sm font-medium text-muted-foreground">/{days.length}</span></p>
+                </div>
+              </div>
+
+              {/* ── Quest Path (last 14 days as game map) ── */}
+              <div className="p-4 rounded-2xl bg-gradient-to-b from-slate-50/80 to-white dark:from-gray-900/60 dark:to-gray-800/30 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-2 mb-4">
+                  <Swords className="w-4 h-4 text-violet-500" />
+                  <span className="text-sm font-bold">{t('analytics.chartLabels.questPath')}</span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">{t('analytics.chartLabels.days').replace('days','').trim()} {pathDays.length}</span>
+                </div>
+
+                {/* Winding path */}
+                <div className="relative">
+                  {/* Connector lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+                    {pathDays.map((_, i) => {
+                      if (i === 0) return null
+                      const cols = Math.min(7, pathDays.length)
+                      const row = Math.floor(i / cols)
+                      const prevRow = Math.floor((i - 1) / cols)
+                      const col = row % 2 === 0 ? (i % cols) : (cols - 1 - (i % cols))
+                      const prevCol = prevRow % 2 === 0 ? ((i - 1) % cols) : (cols - 1 - ((i - 1) % cols))
+                      const gap = 8
+                      const x1 = prevCol * (nodeSize + gap) + nodeSize / 2
+                      const y1 = prevRow * (nodeSize + gap + 12) + nodeSize / 2
+                      const x2 = col * (nodeSize + gap) + nodeSize / 2
+                      const y2 = row * (nodeSize + gap + 12) + nodeSize / 2
+                      const active = pathDays[i].tasksCompleted > 0 && pathDays[i - 1].tasksCompleted > 0
+                      return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={active ? '#a855f7' : '#e2e8f0'} strokeWidth={active ? 3 : 2} strokeDasharray={active ? 'none' : '6 4'} strokeLinecap="round" opacity={active ? 0.6 : 0.4} />
+                    })}
+                  </svg>
+
+                  {/* Nodes arranged in a winding path */}
+                  {(() => {
+                    const cols = Math.min(7, pathDays.length)
+                    const rowsArr: typeof pathDays[] = []
+                    for (let i = 0; i < pathDays.length; i += cols) rowsArr.push(pathDays.slice(i, i + cols))
+
+                    return (
+                      <div className="space-y-3 relative" style={{ zIndex: 1 }}>
+                        {rowsArr.map((row, ri) => (
+                          <div key={ri} className={`flex gap-2 ${ri % 2 === 1 ? 'flex-row-reverse' : ''} justify-center`}>
+                            {row.map((day, di) => {
+                              const intensity = day.tasksCompleted / maxTasks
+                              const isActive = day.tasksCompleted > 0
+                              const isLast = ri === rowsArr.length - 1 && di === row.length - 1
+                              const nodeColor = !isActive
+                                ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                : intensity > 0.75
+                                  ? 'bg-gradient-to-br from-amber-400 to-orange-500 border-amber-300 shadow-lg shadow-amber-400/30'
+                                  : intensity > 0.5
+                                    ? 'bg-gradient-to-br from-violet-400 to-purple-600 border-violet-300 shadow-lg shadow-violet-400/30'
+                                    : intensity > 0.25
+                                      ? 'bg-gradient-to-br from-blue-400 to-indigo-500 border-blue-300 shadow-md shadow-blue-400/20'
+                                      : 'bg-gradient-to-br from-emerald-400 to-green-500 border-emerald-300 shadow-md shadow-emerald-400/20'
+
+                              return (
+                                <div key={di} className="group relative">
+                                  <div
+                                    className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-default ${nodeColor} ${isLast ? 'ring-2 ring-violet-400/50 ring-offset-2 dark:ring-offset-gray-900' : ''}`}
+                                  >
+                                    {isActive ? (
+                                      <span className="text-white text-xs font-bold drop-shadow-sm">{day.tasksCompleted}</span>
+                                    ) : (
+                                      <span className="text-gray-400 dark:text-gray-600 text-xs">—</span>
+                                    )}
+                                  </div>
+                                  {isLast && (
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white dark:border-gray-900 animate-pulse" />
+                                  )}
+                                  {/* Tooltip */}
+                                  <div className="absolute -top-14 left-1/2 -translate-x-1/2 hidden group-hover:block z-20 bg-gray-900 text-white text-[10px] px-3 py-2 rounded-xl whitespace-nowrap shadow-xl border border-gray-700">
+                                    <p className="font-bold">{day.day}</p>
+                                    <p>{isActive ? `${day.tasksCompleted} ${t('analytics.chartLabels.tasksCompleted')}, ${day.pointsEarned} ${t('analytics.chartLabels.points').toLowerCase()}` : t('analytics.chartLabels.noActivity')}</p>
+                                    <div className="absolute w-2 h-2 bg-gray-900 rotate-45 -bottom-1 left-1/2 -translate-x-1/2 border-r border-b border-gray-700" />
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
+                </div>
+              </div>
+
+              {/* ── Achievements ── */}
+              <div className="p-4 rounded-2xl bg-gradient-to-b from-amber-50/50 to-white dark:from-amber-950/20 dark:to-gray-900/30 border border-amber-100/60 dark:border-amber-900/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <Award className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm font-bold">{t('analytics.chartLabels.achievements')}</span>
+                </div>
+                <div className="flex gap-3 flex-wrap">
+                  {achievements.map(a => (
+                    <div key={a.key} className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
+                      a.unlocked
+                        ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-md'
+                        : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-40 grayscale'
+                    }`}>
+                      <div className={`w-10 h-10 rounded-xl ${a.unlocked ? `bg-gradient-to-br ${a.color}` : 'bg-gray-300 dark:bg-gray-700'} flex items-center justify-center shadow-lg text-white`}>
+                        {a.icon}
+                      </div>
+                      <span className="text-[11px] font-bold">{t(`analytics.chartLabels.${a.key}`)}</span>
+                      <span className="text-[9px] text-muted-foreground">{t(`analytics.chartLabels.${a.key}Desc`)}</span>
+                      {a.unlocked && (
+                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow border-2 border-white dark:border-gray-800">
+                          <span className="text-white text-[9px] font-bold">✓</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Family mode: per-child activity breakdown ── */}
+              {isFamily && allChildActivities && allChildActivities.length > 0 && (
+                <div className="p-4 rounded-2xl bg-gradient-to-b from-violet-50/50 to-white dark:from-violet-950/20 dark:to-gray-900/30 border border-violet-100/60 dark:border-violet-900/30">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Trophy className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-bold">{t('analytics.chartLabels.familyQuest')}</span>
+                  </div>
+                  <div className="space-y-3">
+                    {allChildActivities.map((child, ci) => {
+                      const childName = chartData.childrenStats.find(c => c.childId === child.childId)?.childName ?? child.childId
+                      const childActive = child.data.filter(d => d.tasksCompleted > 0).length
+                      const childTotalTasks = child.data.reduce((s, d) => s + d.tasksCompleted, 0)
+                      const childStreak = (() => {
+                        let s = 0
+                        for (let i = child.data.length - 1; i >= 0; i--) {
+                          if (child.data[i].tasksCompleted > 0) s++
+                          else break
+                        }
+                        return s
+                      })()
+                      const childXp = childTotalTasks * 10 + child.data.reduce((s, d) => s + d.pointsEarned, 0)
+                      const childLevel = levelThresholds.filter(th => childXp >= th).length
+                      const color = CHILD_COLORS[ci % CHILD_COLORS.length]
+
+                      return (
+                        <div key={child.childId} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/60 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg" style={{ background: color, boxShadow: `0 4px 14px ${color}40` }}>
+                            {childLevel}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-semibold truncate">{childName}</span>
+                              <div className="flex items-center gap-2 text-xs shrink-0">
+                                <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-500" />{childStreak}d</span>
+                                <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-400 fill-amber-400" />{childXp}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 text-[11px] text-muted-foreground">
+                              <span>{t('analytics.chartLabels.level')} {childLevel}</span>
+                              <span>•</span>
+                              <span>{childActive}/{child.data.length} {t('analytics.chartLabels.activeDays').toLowerCase()}</span>
+                              <span>•</span>
+                              <span>{childTotalTasks} {t('analytics.chartLabels.tasks').toLowerCase()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )
+      }
 
       default:
         return null
@@ -903,7 +1319,13 @@ export default function AnalyticsDashboard() {
                 <div className="w-2 h-6 rounded-full bg-gradient-to-b from-violet-500 to-purple-600" />
                 {t(chartsConfig[currentChart].titleKey)}
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1 ml-4">
+              <div className="flex items-center gap-1.5 mt-1.5 ml-4">
+                <Info className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />
+                <p className="text-xs text-muted-foreground leading-snug">
+                  {t(chartsConfig[currentChart].descKey)}
+                </p>
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 mt-1 ml-4">
                 {t('analyticsDashboard.chartOf', { current: currentChart + 1, total: chartsConfig.length })}
               </p>
             </div>

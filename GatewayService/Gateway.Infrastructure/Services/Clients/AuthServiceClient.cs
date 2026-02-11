@@ -130,4 +130,13 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             SerializerOptions,
             cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync<object>(
+            HttpMethod.Delete,
+            $"{_endpoints.DeleteAccount}/{userId}",
+            options: SerializerOptions,
+            cancellationToken: cancellationToken);
+    }
 }

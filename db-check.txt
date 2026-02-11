@@ -1,0 +1,11 @@
+﻿docker : ERROR:  column "id" does not exist
+At line:1 char:1
++ docker compose exec -T postgres-shop psql -U shop_owner -d shop_db -c ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR:  column "id" does not exis 
+   t:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+LINE 1: SELECT Id, Name, LEFT(Description, 50) as desc_preview FROM ...
+               ^
+HINT:  Perhaps you meant to reference the column "products.Id".

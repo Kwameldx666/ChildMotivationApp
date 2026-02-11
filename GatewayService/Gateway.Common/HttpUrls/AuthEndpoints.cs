@@ -17,4 +17,6 @@ public class AuthEndpoints
 
     public string DiscordAuthorize { get; set; } = string.Empty;
     public string DiscordComplete { get; set; } = string.Empty;
+
+    public string DeleteAccount { get; set; } = "auth-service/account";
 }

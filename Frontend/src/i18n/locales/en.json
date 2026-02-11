@@ -359,7 +359,17 @@
       "difficultyRadar": "Difficulty Mastery",
       "completionMomentum": "Completion Dynamics",
       "taskStatusDonut": "Task Status",
-      "pointsGrowth": "Points Growth"
+      "pointsGrowth": "Points Growth",
+      "streakHeatmap": "Quest Journey"
+    },
+    "chartDescriptions": {
+      "activityPulse": "How many tasks are completed each day and how many points are earned. The dashed line shows the average trend.",
+      "childrenLeaderboard": "A ranking of children by points earned — who is the most active this period.",
+      "difficultyRadar": "Distribution of tasks by difficulty level — shows what kind of tasks the child completes most often.",
+      "completionMomentum": "What percentage of assigned tasks are completed each week. The dashed line shows the 80% target.",
+      "taskStatusDonut": "Current status of all tasks — how many are completed, in progress, or overdue.",
+      "pointsGrowth": "How earned points change day by day — growth dynamics over the chosen period.",
+      "streakHeatmap": "A quest adventure! Track daily streaks, earn achievements, and level up through consistent activity."
     },
     "chartLabels": {
       "tasks": "Tasks",
@@ -370,7 +380,37 @@
       "overdue": "Overdue",
       "pending": "Pending",
       "remaining": "Remaining",
-      "completionRate": "Completion %"
+      "completionRate": "Completion %",
+      "trend": "Trend",
+      "avgRate": "Average",
+      "completionPercent": "Completion %",
+      "goal": "Goal",
+      "currentStreak": "Current Streak",
+      "bestStreak": "Best Streak",
+      "activeDays": "Active Days",
+      "days": "days",
+      "less": "Less",
+      "more": "More",
+      "level": "Level",
+      "xp": "XP",
+      "questPath": "Quest Path",
+      "achievements": "Achievements",
+      "firstStep": "First Step",
+      "firstStepDesc": "Complete your first day",
+      "onFire": "On Fire!",
+      "onFireDesc": "3-day streak",
+      "unstoppable": "Unstoppable",
+      "unstoppableDesc": "7-day streak",
+      "legendary": "Legendary",
+      "legendaryDesc": "14-day streak",
+      "mythical": "Mythical",
+      "mythicalDesc": "30-day streak",
+      "today": "Today",
+      "tasksCompleted": "tasks completed",
+      "streak": "streak",
+      "noActivity": "Rest day",
+      "familyQuest": "Family Quest",
+      "memberActivity": "Member activity"
     },
     "quickSwitch": "Quick Switch",
     "chartNumbers": {
@@ -379,7 +419,8 @@
       "3": "3. Difficulty Mastery",
       "4": "4. Completion Dynamics",
       "5": "5. Task Status",
-      "6": "6. Points Growth"
+      "6": "6. Points Growth",
+      "7": "7. Quest Journey"
     }
   },
   "notifications": {
@@ -2354,6 +2395,23 @@
       "goToDashboard": "Go to Dashboard",
       "logout": "Log Out",
       "tips": "Update your profile to make the app more personalized"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "deleteButton": "Delete Account",
+      "confirmTitle": "Are you absolutely sure?",
+      "confirmDescription": "This will permanently delete your account and all data associated with it:",
+      "willDelete": {
+        "profile": "Your profile and personal information",
+        "family": "Family connections and settings",
+        "tasks": "All tasks and progress history",
+        "data": "All rewards, achievements and statistics"
+      },
+      "typeConfirm": "Type DELETE to confirm:",
+      "confirmDelete": "Delete My Account",
+      "cancel": "Cancel",
+      "error": "Failed to delete account. Please try again."
     }
   },
   "paymentModal": {

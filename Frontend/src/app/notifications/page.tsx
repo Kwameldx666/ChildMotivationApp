@@ -1,153 +1,101 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Bell, Trash2, CheckCheck, Filter, Search } from "lucide-react"
+import { ArrowLeft, Bell, Trash2, CheckCheck, Search, Loader2, Check, Target, Gift, Trophy, Zap, Star, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AppRoute } from "@/routes/AppRoute"
 import { useTranslation } from "@/i18n/provider"
+import { cn } from "@/lib/utils"
+import {
+  useNotifications,
+  useUnreadNotificationsCount,
+  useMarkNotificationsRead,
+  useMarkAllNotificationsRead,
+  useDeleteNotification,
+} from "@/services/notifications-queries"
+import type { NotificationType, NotificationDto } from "@/services/notifications-service"
 
-interface Notification {
-  id: string
-  type: "task" | "reward" | "achievement" | "level" | "family" | "system"
-  title: string
-  message: string
-  time: string
-  timestamp: Date
-  read: boolean
-}
-
-const NOTIFICATION_ICONS: Record<string, string> = {
-  task: "📝",
-  reward: "🎁",
-  achievement: "🏆",
-  level: "⬆️",
-  family: "👨‍👩‍👧‍👦",
-  system: "🔔",
+const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
+  task_created: Target,
+  task_completed: Check,
+  task_updated: Target,
+  task_assigned: Target,
+  reward_purchased: Gift,
+  achievement_unlocked: Trophy,
+  streak_bonus: Zap,
+  level_up: Star,
+  general: Info,
 }
 
 const NOTIFICATION_COLORS: Record<string, string> = {
-  task: "bg-blue-500/10 text-blue-700 border-blue-500/30",
-  reward: "bg-purple-500/10 text-purple-700 border-purple-500/30",
-  achievement: "bg-amber-500/10 text-amber-700 border-amber-500/30",
-  level: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
-  family: "bg-pink-500/10 text-pink-700 border-pink-500/30",
-  system: "bg-slate-500/10 text-slate-700 border-slate-500/30",
+  task_created: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+  task_completed: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  task_updated: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400",
+  task_assigned: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+  reward_purchased: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  achievement_unlocked: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
+  streak_bonus: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+  level_up: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+  general: "bg-gray-100 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
 }
 
-// Generate demo notification history data
-const generateDemoNotifications = (t: (key: string) => string): Notification[] => {
-  const now = new Date()
-  return [
-    {
-      id: "1",
-      type: "task",
-      title: t("notificationsPage.demo.newTask.title"),
-      message: t("notificationsPage.demo.newTask.message"),
-      time: t("notificationsPage.demo.newTask.time"),
-      timestamp: new Date(now.getTime() - 1 * 60 * 60 * 1000),
-      read: false,
-    },
-    {
-      id: "2",
-      type: "reward",
-      title: t("notificationsPage.demo.rewardReceived.title"),
-      message: t("notificationsPage.demo.rewardReceived.message"),
-      time: t("notificationsPage.demo.rewardReceived.time"),
-      timestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000),
-      read: false,
-    },
-    {
-      id: "3",
-      type: "achievement",
-      title: t("notificationsPage.demo.newAchievement.title"),
-      message: t("notificationsPage.demo.newAchievement.message"),
-      time: t("notificationsPage.demo.newAchievement.time"),
-      timestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "4",
-      type: "level",
-      title: t("notificationsPage.demo.newLevel.title"),
-      message: t("notificationsPage.demo.newLevel.message"),
-      time: t("notificationsPage.demo.newLevel.time"),
-      timestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "5",
-      type: "task",
-      title: t("notificationsPage.demo.taskCompleted.title"),
-      message: t("notificationsPage.demo.taskCompleted.message"),
-      time: t("notificationsPage.demo.taskCompleted.time"),
-      timestamp: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "6",
-      type: "family",
-      title: t("notificationsPage.demo.newMember.title"),
-      message: t("notificationsPage.demo.newMember.message"),
-      time: t("notificationsPage.demo.newMember.time"),
-      timestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "7",
-      type: "reward",
-      title: t("notificationsPage.demo.newRewardInShop.title"),
-      message: t("notificationsPage.demo.newRewardInShop.message"),
-      time: t("notificationsPage.demo.newRewardInShop.time"),
-      timestamp: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "8",
-      type: "achievement",
-      title: t("notificationsPage.demo.streak.title"),
-      message: t("notificationsPage.demo.streak.message"),
-      time: t("notificationsPage.demo.streak.time"),
-      timestamp: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-    {
-      id: "9",
-      type: "system",
-      title: t("notificationsPage.demo.welcome.title"),
-      message: t("notificationsPage.demo.welcome.message"),
-      time: t("notificationsPage.demo.welcome.time"),
-      timestamp: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
-      read: true,
-    },
-  ]
+// Map backend types to filter categories
+function getFilterCategory(type: string): string {
+  if (type.startsWith("task_")) return "task"
+  if (type === "reward_purchased") return "reward"
+  if (type === "achievement_unlocked" || type === "streak_bonus" || type === "level_up") return "achievement"
+  return "system"
+}
+
+function formatTimeAgo(dateString: string, t: (key: string, params?: Record<string, string | number>) => string, locale: string): string {
+  try {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return t("notificationsPopover.justNow")
+    if (diffMins < 60) return t("notificationsPopover.minutesAgo", { count: diffMins })
+    if (diffHours < 24) return t("notificationsPopover.hoursAgo", { count: diffHours })
+    if (diffDays < 7) return t("notificationsPopover.daysAgo", { count: diffDays })
+    const dateLocale = locale === "ru" ? "ru-RU" : locale === "ro" ? "ro-RO" : "en-US"
+    return date.toLocaleDateString(dateLocale, { day: "numeric", month: "short" })
+  } catch {
+    return ""
+  }
 }
 
 export default function NotificationsPage() {
   const router = useRouter()
-  const { t } = useTranslation()
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const { t, locale } = useTranslation()
   const [filter, setFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
 
-  useEffect(() => {
-    setNotifications(generateDemoNotifications(t))
-  }, [t])
+  // Real API queries
+  const { data: notifications, isLoading } = useNotifications()
+  const { data: unreadCountData } = useUnreadNotificationsCount()
+  const markRead = useMarkNotificationsRead()
+  const markAllRead = useMarkAllNotificationsRead()
+  const deleteNotification = useDeleteNotification()
 
-  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications])
+  const allNotifications = notifications ?? []
+  const unreadCount = typeof unreadCountData === "number" ? unreadCountData : allNotifications.filter(n => !n.isRead).length
 
   const filteredNotifications = useMemo(() => {
-    let result = notifications
+    let result = allNotifications
 
     if (filter !== "all") {
       if (filter === "unread") {
-        result = result.filter((n) => !n.read)
+        result = result.filter((n) => !n.isRead)
       } else {
-        result = result.filter((n) => n.type === filter)
+        result = result.filter((n) => getFilterCategory(n.type) === filter)
       }
     }
 
@@ -161,26 +109,18 @@ export default function NotificationsPage() {
     }
 
     return result
-  }, [notifications, filter, searchQuery])
+  }, [allNotifications, filter, searchQuery])
 
   const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    markAllRead.mutate()
   }
 
   const handleDeleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-  }
-
-  const handleClearAll = () => {
-    if (window.confirm(t("notificationsPage.confirmDeleteAll"))) {
-      setNotifications([])
-    }
+    deleteNotification.mutate(id)
   }
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
+    markRead.mutate([id])
   }
 
   return (
@@ -195,14 +135,19 @@ export default function NotificationsPage() {
               </Button>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
-                  <Button variant="outline" size="sm" onClick={handleMarkAllRead} className="gap-2">
-                    <CheckCheck className="h-4 w-4" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleMarkAllRead}
+                    disabled={markAllRead.isPending}
+                    className="gap-2"
+                  >
+                    {markAllRead.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCheck className="h-4 w-4" />
+                    )}
                     <span className="hidden sm:inline">{t("notificationsPage.readAll")}</span>
-                  </Button>
-                )}
-                {notifications.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={handleClearAll} className="text-destructive hover:text-destructive">
-                    {t("notificationsPage.clearAll")}
                   </Button>
                 )}
               </div>
@@ -221,7 +166,7 @@ export default function NotificationsPage() {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-6">
-          {/* Поиск и фильтры */}
+          {/* Search & filters */}
           <div className="mb-6 space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -246,8 +191,12 @@ export default function NotificationsPage() {
             </Tabs>
           </div>
 
-          {/* Список уведомлений */}
-          {filteredNotifications.length === 0 ? (
+          {/* Loading state */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredNotifications.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -261,50 +210,56 @@ export default function NotificationsPage() {
             </Card>
           ) : (
             <div className="space-y-3">
-              {filteredNotifications.map((notif) => (
-                <Card
-                  key={notif.id}
-                  className={`transition-all cursor-pointer hover:shadow-md ${
-                    !notif.read ? "border-primary/50 bg-primary/5" : ""
-                  }`}
-                  onClick={() => handleMarkAsRead(notif.id)}
-                >
-                  <CardContent className="py-4">
-                    <div className="flex items-start gap-4">
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl ${NOTIFICATION_COLORS[notif.type]}`}
-                      >
-                        {NOTIFICATION_ICONS[notif.type]}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className={`font-semibold ${!notif.read ? "text-foreground" : "text-muted-foreground"}`}>
-                              {notif.title}
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-0.5">{notif.message}</p>
-                          </div>
-                          {!notif.read && (
-                            <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
-                          )}
+              {filteredNotifications.map((notif) => {
+                const Icon = NOTIFICATION_ICONS[notif.type] ?? Bell
+                const colorClass = NOTIFICATION_COLORS[notif.type] ?? NOTIFICATION_COLORS.general
+                const timeAgo = formatTimeAgo(notif.createdAt, t, locale)
+
+                return (
+                  <Card
+                    key={notif.id}
+                    className={cn(
+                      "transition-all cursor-pointer hover:shadow-md",
+                      !notif.isRead && "border-primary/50 bg-primary/5"
+                    )}
+                    onClick={() => !notif.isRead && handleMarkAsRead(notif.id)}
+                  >
+                    <CardContent className="py-4">
+                      <div className="flex items-start gap-4">
+                        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", colorClass)}>
+                          <Icon className="h-5 w-5" />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2">{notif.time}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className={cn("font-semibold", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
+                                {notif.title}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-0.5">{notif.message}</p>
+                            </div>
+                            {!notif.isRead && (
+                              <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">{timeAgo}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="shrink-0 h-8 w-8 p-0 hover:text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteNotification(notif.id)
+                          }}
+                          disabled={deleteNotification.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 h-8 w-8 p-0 hover:text-destructive"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteNotification(notif.id)
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
           )}
         </main>

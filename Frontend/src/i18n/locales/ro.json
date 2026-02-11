@@ -748,7 +748,17 @@
       "difficultyRadar": "Harta dificultății",
       "completionMomentum": "Dinamica progresului",
       "taskStatusDonut": "Stare sarcini",
-      "pointsGrowth": "Creștere puncte"
+      "pointsGrowth": "Creștere puncte",
+      "streakHeatmap": "Calea eroului"
+    },
+    "chartDescriptions": {
+      "activityPulse": "Câte sarcini sunt finalizate zilnic și câte puncte sunt câștigate. Linia punctată arată tendința medie.",
+      "childrenLeaderboard": "Clasamentul copiilor după puncte câștigate — cine este cel mai activ în această perioadă.",
+      "difficultyRadar": "Distribuția sarcinilor pe nivel de dificultate — arată ce tip de sarcini finalizează copilul cel mai des.",
+      "completionMomentum": "Ce procent din sarcinile atribuite sunt finalizate săptămânal. Linia punctată arată obiectivul de 80%.",
+      "taskStatusDonut": "Starea actuală a tuturor sarcinilor — câte sunt finalizate, în lucru sau expirate.",
+      "pointsGrowth": "Cum se schimbă punctele câștigate zi de zi — dinamica creșterii pe perioada aleasă.",
+      "streakHeatmap": "O aventură de tip quest! Urmărește seriile zilnice, obține realizări și avansează în nivel."
     },
     "chartLabels": {
       "tasks": "Sarcini",
@@ -759,7 +769,37 @@
       "overdue": "Expirat",
       "pending": "În așteptare",
       "remaining": "Rămase",
-      "completionRate": "Rată finalizare %"
+      "completionRate": "Rată finalizare %",
+      "trend": "Tendință",
+      "avgRate": "Media",
+      "completionPercent": "% finalizare",
+      "goal": "Obiectiv",
+      "currentStreak": "Seria curentă",
+      "bestStreak": "Cea mai bună serie",
+      "activeDays": "Zile active",
+      "days": "zile",
+      "less": "Mai puțin",
+      "more": "Mai mult",
+      "level": "Nivel",
+      "xp": "XP",
+      "questPath": "Calea questului",
+      "achievements": "Realizări",
+      "firstStep": "Primul pas",
+      "firstStepDesc": "Finalizează prima zi",
+      "onFire": "În flăcări!",
+      "onFireDesc": "Serie de 3 zile",
+      "unstoppable": "De neoprit",
+      "unstoppableDesc": "Serie de 7 zile",
+      "legendary": "Legendar",
+      "legendaryDesc": "Serie de 14 zile",
+      "mythical": "Mitic",
+      "mythicalDesc": "Serie de 30 zile",
+      "today": "Astăzi",
+      "tasksCompleted": "sarcini finalizate",
+      "streak": "serie",
+      "noActivity": "Zi de odihnă",
+      "familyQuest": "Quest familial",
+      "memberActivity": "Activitatea membrului"
     },
     "quickSwitch": "Comutare rapidă",
     "chartNumbers": {
@@ -768,7 +808,8 @@
       "3": "3. Harta dificultății",
       "4": "4. Dinamica progresului",
       "5": "5. Stare sarcini",
-      "6": "6. Creștere puncte"
+      "6": "6. Creștere puncte",
+      "7": "7. Calea eroului"
     }
   },
   "notifications": {
@@ -2352,6 +2393,23 @@
       "goToDashboard": "La panou",
       "logout": "Deconectare",
       "tips": "Actualizați-vă profilul pentru o experiență mai personalizată"
+    },
+    "dangerZone": {
+      "title": "Zonă periculoasă",
+      "description": "Ștergeți permanent contul și toate datele asociate. Această acțiune nu poate fi anulată.",
+      "deleteButton": "Șterge contul",
+      "confirmTitle": "Sunteți absolut sigur?",
+      "confirmDescription": "Aceasta va șterge permanent contul și toate datele asociate:",
+      "willDelete": {
+        "profile": "Profilul și informațiile personale",
+        "family": "Conexiunile și setările familiei",
+        "tasks": "Toate sarcinile și istoricul progresului",
+        "data": "Toate recompensele, realizările și statisticile"
+      },
+      "typeConfirm": "Tastați DELETE pentru confirmare:",
+      "confirmDelete": "Șterge contul meu",
+      "cancel": "Anulare",
+      "error": "Nu s-a putut șterge contul. Încercați din nou."
     }
   },
   "paymentModal": {

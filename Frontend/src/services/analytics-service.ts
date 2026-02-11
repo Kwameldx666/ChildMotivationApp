@@ -38,6 +38,11 @@ export interface PointsTrend {
   points: number
 }
 
+export interface ChildBreakdown<T> {
+  childId: string
+  data: T[]
+}
+
 export interface AnalyticsData {
   totalPoints: number
   completedTasks: number
@@ -50,6 +55,11 @@ export interface AnalyticsData {
   weeklyProgress: WeeklyProgress[]
   taskStatus: TaskStatus
   pointsTrend: PointsTrend[]
+  // Per-child breakdowns
+  perChildActivity: ChildBreakdown<DailyActivity>[]
+  perChildDifficulty: ChildBreakdown<CategoryData>[]
+  perChildProgress: ChildBreakdown<WeeklyProgress>[]
+  perChildPointsTrend: ChildBreakdown<PointsTrend>[]
 }
 
 export async function getTaskAnalytics(windowDays: number = 30): Promise<AnalyticsData> {

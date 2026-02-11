@@ -9,7 +9,10 @@ namespace Gateway.Features.Controllers;
 [ApiController]
 [Authorize]
 [Route("api-gateway/[controller]")]
-public class TasksController(ITaskServiceClient taskClient) : ControllerBase
+public class TasksController(
+    ITaskServiceClient taskClient,
+    INotificationServiceClient notificationClient,
+    ILogger<TasksController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -52,7 +55,23 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
         };
 
         using var response = await taskClient.CreateAsync(upstreamPayload, cancellationToken);
-        return await response.ToActionResultAsync();
+        var result = await response.ToActionResultAsync();
+
+        // Fire notification to assigned child (best effort)
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(payload.AssignedToUserId))
+        {
+            await FireNotificationSafe("task/created", new
+            {
+                userId = payload.AssignedToUserId,
+                taskId = Guid.NewGuid().ToString(),
+                title = payload.Title ?? "",
+                description = payload.Description ?? "",
+                assignedTo = payload.AssignedToUserId,
+                assignedBy = userId
+            });
+        }
+
+        return result;
     }
 
     [HttpPut("{id:guid}")]
@@ -73,8 +92,26 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
     [HttpPost("{id:guid}/complete")]
     public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
     {
+        var userId = User.GetUserId();
+
         using var response = await taskClient.CompleteAsync(id, cancellationToken);
-        return await response.ToActionResultAsync();
+        var result = await response.ToActionResultAsync();
+
+        // Fire notification (best effort)
+        if (response.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(userId))
+        {
+            await FireNotificationSafe("task/completed", new
+            {
+                userId,
+                taskId = id.ToString(),
+                title = "Task",
+                description = "",
+                assignedTo = userId,
+                assignedBy = ""
+            });
+        }
+
+        return result;
     }
 
     [HttpPost("{id:guid}/evidence")]
@@ -111,5 +148,17 @@ public class TasksController(ITaskServiceClient taskClient) : ControllerBase
                        ?? $"evidence-{id}";
 
         return File(bytes, contentType, fileName);
+    }
+
+    private async Task FireNotificationSafe(string endpoint, object payload)
+    {
+        try
+        {
+            using var r = await notificationClient.SendTaskNotificationAsync(endpoint, payload);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to send task notification via {Endpoint} (non-fatal)", endpoint);
+        }
     }
 }

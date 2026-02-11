@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using NotificationService.Application.Extensions;
 using NotificationService.Infrastructure.Extensions;
+using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +42,24 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Auto-create database tables
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetService<NotificationDbContext>();
+    if (db is not null)
+    {
+        try
+        {
+            await db.Database.EnsureCreatedAsync();
+            app.Logger.LogInformation("Notification database initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning(ex, "Could not initialize notification database, falling back to in-memory storage");
+        }
+    }
+}
+
 var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
 
 if (app.Environment.IsDevelopment())
@@ -64,6 +84,7 @@ app.MapHub<NotificationHub>("/hubs/notifications");
 // Health check endpoints
 app.MapGet("/_ping", () => Results.Ok("pong"));
 app.MapGet("/notification-service/_ping", () => Results.Ok("pong"));
+app.MapGet("/notification-service/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {

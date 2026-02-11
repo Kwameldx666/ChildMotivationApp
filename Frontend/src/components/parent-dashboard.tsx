@@ -76,13 +76,21 @@ export default function ParentDashboard({
     title: string
     description: string
     cost: number
-    icon: string
     stock: number
   }) => {
     try {
+      // Defensive: strip any "undefined" prefix that might leak from AI suggestions
+      const cleanName = (reward.title ?? "").toString().replace(/^undefined\s*/i, "").trim()
+      const cleanDesc = (reward.description ?? "").toString().replace(/^undefined\s*/i, "").trim()
+      
+      if (!cleanName) {
+        toast({ title: t("parentDashboard.rewardAddErrorTitle"), description: "Name is required", variant: "destructive" })
+        return
+      }
+
       await createProduct.mutateAsync({
-        name: `${reward.icon} ${reward.title}`.trim(),
-        description: reward.description ? `${reward.icon} ${reward.description}`.trim() : reward.description,
+        name: cleanName,
+        description: cleanDesc || null,
         price: reward.cost,
         stock: reward.stock,
         isActive: true,

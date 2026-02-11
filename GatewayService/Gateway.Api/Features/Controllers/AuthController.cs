@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Features.Auth.DTOs;
 using Gateway.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gateway.Features.Controllers;
@@ -152,6 +153,24 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
     {
         ClearAuthCookies();
         return Ok();
+    }
+
+    [Authorize]
+    [HttpDelete("account")]
+    public async Task<IActionResult> DeleteAccount(CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var userGuid))
+            return Unauthorized("User identifier is missing in the token.");
+
+        using var response = await authClient.DeleteAccountAsync(userGuid, cancellationToken);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            ClearAuthCookies();
+        }
+
+        return await response.ToActionResultAsync();
     }
 
     private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)

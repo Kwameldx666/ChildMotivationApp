@@ -8,6 +8,14 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
 {
     public async Task<AnalyticsDto> Handle(GetAnalyticsQuery request, CancellationToken cancellationToken)
     {
+        // In dev/mock mode, return realistic generated data instead of querying the DB
+        var useMock = string.Equals(
+            Environment.GetEnvironmentVariable("ANALYTICS_USE_MOCK"), "true",
+            StringComparison.OrdinalIgnoreCase);
+
+        if (useMock)
+            return AnalyticsMockDataProvider.Generate(request.WindowDays);
+
         var cutoffDate = DateTime.UtcNow.AddDays(-request.WindowDays);
         
         // Get all tasks for the user
@@ -45,6 +53,28 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
         // Points trend
         var pointsTrend = BuildPointsTrend(recentTasks, request.WindowDays);
         
+        // Per-child breakdowns
+        var childGroups = recentTasks
+            .Where(t => !string.IsNullOrEmpty(t.AssignedToUserId))
+            .GroupBy(t => t.AssignedToUserId!)
+            .ToList();
+
+        var perChildActivity = childGroups.Select(g =>
+            new ChildBreakdownDto<DailyActivityDto>(g.Key, BuildWeeklyActivity(g.ToList(), request.WindowDays))
+        ).ToList();
+
+        var perChildDifficulty = childGroups.Select(g =>
+            new ChildBreakdownDto<CategoryDataDto>(g.Key, BuildDifficultyDistribution(g.ToList()))
+        ).ToList();
+
+        var perChildProgress = childGroups.Select(g =>
+            new ChildBreakdownDto<WeeklyProgressDto>(g.Key, BuildWeeklyProgress(g.ToList(), request.WindowDays))
+        ).ToList();
+
+        var perChildPointsTrend = childGroups.Select(g =>
+            new ChildBreakdownDto<PointsTrendDto>(g.Key, BuildPointsTrend(g.ToList(), request.WindowDays))
+        ).ToList();
+
         return new AnalyticsDto(
             totalPoints,
             completedTasks,
@@ -56,7 +86,11 @@ public sealed class GetAnalyticsQueryHandler(ITaskRepository taskRepository)
             difficultyDistribution,
             weeklyProgress,
             taskStatus,
-            pointsTrend
+            pointsTrend,
+            perChildActivity,
+            perChildDifficulty,
+            perChildProgress,
+            perChildPointsTrend
         );
     }
     

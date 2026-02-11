@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { Home, Loader2, LogOut } from "lucide-react"
+import { Home, Loader2, LogOut, Trash2, AlertTriangle } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 
 interface ProfileOverviewProps {
@@ -17,6 +17,7 @@ interface ProfileOverviewProps {
   onLogout: () => void
   onGoDashboard: () => void
   onUpdateProfile: (payload: UpdateProfilePayload) => Promise<AuthSession>
+  onDeleteAccount?: () => Promise<void>
 }
 
 type ProfileFormState = {
@@ -26,7 +27,7 @@ type ProfileFormState = {
   age: string
 }
 
-export default function ProfileOverview({ session, onLogout, onGoDashboard, onUpdateProfile }: ProfileOverviewProps) {
+export default function ProfileOverview({ session, onLogout, onGoDashboard, onUpdateProfile, onDeleteAccount }: ProfileOverviewProps) {
   const { t } = useTranslation()
   const { profile, user, family } = session
 
@@ -38,6 +39,9 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
   })
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteStatus, setDeleteStatus] = useState<"idle" | "deleting" | "error">("idle")
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
   useEffect(() => {
     setFormState({
@@ -304,6 +308,100 @@ export default function ProfileOverview({ session, onLogout, onGoDashboard, onUp
             </CardContent>
           </Card>
         </div>
+
+        {/* Danger Zone - Delete Account */}
+        {profile.role === "parent" && onDeleteAccount && (
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <CardTitle className="text-destructive flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                {t("profileOverview.dangerZone.title")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {t("profileOverview.dangerZone.description")}
+              </p>
+              {!showDeleteConfirm ? (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t("profileOverview.dangerZone.deleteButton")}
+                </Button>
+              ) : (
+                <div className="space-y-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-destructive">
+                        {t("profileOverview.dangerZone.confirmTitle")}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profileOverview.dangerZone.confirmDescription")}
+                      </p>
+                      <ul className="text-sm text-muted-foreground list-disc ml-4 space-y-1">
+                        <li>{t("profileOverview.dangerZone.willDelete.profile")}</li>
+                        <li>{t("profileOverview.dangerZone.willDelete.family")}</li>
+                        <li>{t("profileOverview.dangerZone.willDelete.tasks")}</li>
+                        <li>{t("profileOverview.dangerZone.willDelete.data")}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="delete-confirm" className="text-sm">
+                      {t("profileOverview.dangerZone.typeConfirm")}
+                    </Label>
+                    <Input
+                      id="delete-confirm"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      className="border-destructive/50"
+                    />
+                  </div>
+                  {deleteStatus === "error" && (
+                    <p className="text-sm text-destructive">{t("profileOverview.dangerZone.error")}</p>
+                  )}
+                  <div className="flex gap-3">
+                    <Button
+                      variant="destructive"
+                      disabled={deleteConfirmText !== "DELETE" || deleteStatus === "deleting"}
+                      onClick={async () => {
+                        setDeleteStatus("deleting")
+                        try {
+                          await onDeleteAccount()
+                        } catch {
+                          setDeleteStatus("error")
+                        }
+                      }}
+                      className="gap-2"
+                    >
+                      {deleteStatus === "deleting" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      {t("profileOverview.dangerZone.confirmDelete")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowDeleteConfirm(false)
+                        setDeleteConfirmText("")
+                        setDeleteStatus("idle")
+                      }}
+                    >
+                      {t("profileOverview.dangerZone.cancel")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
