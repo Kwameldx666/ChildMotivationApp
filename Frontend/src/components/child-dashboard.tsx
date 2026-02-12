@@ -33,7 +33,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import { openAiChat } from "@/components/ai-chat-widget"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
@@ -157,7 +157,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               <NotificationsPopover />
               <Button
                 className="gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30"
-                onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+                onClick={() => openAiChat()}
               >
                 <MessageSquare className="h-4 w-4" />
                 {t("childDashboard.aiChat")}
@@ -340,6 +340,10 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
           </TabsContent>
 
           <TabsContent value="profile" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-bold mb-1">{t("child.navigation.profile")}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{t("child.messages.manageProfile")}</p>
+            </div>
             <ChildProfile
               childId={userId}
               name={userProfile.name}

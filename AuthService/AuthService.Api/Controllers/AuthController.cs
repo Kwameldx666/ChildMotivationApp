@@ -1,3 +1,5 @@
+using AuthService.Application.Features.Authentication.Password.ChangeEmail;
+using AuthService.Application.Features.Authentication.Password.ChangePassword;
 using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
 using AuthService.Application.Features.Authentication.Password.Register;
@@ -102,5 +104,27 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         }
 
         return Ok(new { message = "Account deleted successfully" });
+    }
+
+    [HttpPost("change-password/{userId:guid}")]
+    public async Task<IActionResult> ChangePasswordAsync(
+        Guid userId,
+        [FromBody] ChangePasswordCommand request,
+        CancellationToken cancellationToken)
+    {
+        var command = request with { UserId = userId };
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("change-email/{userId:guid}")]
+    public async Task<IActionResult> ChangeEmailAsync(
+        Guid userId,
+        [FromBody] ChangeEmailCommand request,
+        CancellationToken cancellationToken)
+    {
+        var command = request with { UserId = userId };
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
     }
 }

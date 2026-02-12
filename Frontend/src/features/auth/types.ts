@@ -130,3 +130,13 @@ export interface UpdateProfilePayload {
   avatar?: string | null
   age?: number | null
 }
+
+export interface ChangePasswordPayload {
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ChangeEmailPayload {
+  newEmail: string
+  password: string
+}

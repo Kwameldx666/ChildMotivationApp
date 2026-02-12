@@ -11,6 +11,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { I18nProvider } from '@/i18n/provider'
 import { appStore, persistor } from '@/store/appStore'
 import { theme } from '@/theme'
+import AiChatWidget from '@/components/ai-chat-widget'
 
 interface AppProvidersProps {
   children: ReactNode
@@ -49,6 +50,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             >
               <CssVarsProvider theme={theme} defaultMode="light">
                 {children}
+                <AiChatWidget />
                 <Toaster position="top-right" richColors closeButton duration={4000} />
                 {process.env.NODE_ENV !== 'production' ? (
                   <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />

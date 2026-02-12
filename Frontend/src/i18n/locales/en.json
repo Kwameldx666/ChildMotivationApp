@@ -531,7 +531,8 @@
     "messages": {
       "completeTask": "Complete tasks to earn experience and points",
       "earnRewards": "Spend your points on rewards",
-      "viewAchievements": "View your achievements and milestones"
+      "viewAchievements": "View your achievements and milestones",
+      "manageProfile": "Manage your avatar, settings, and appearance"
     }
   },
   "chat": {
@@ -632,6 +633,34 @@
       "familyLabel": "Family: {family}",
       "description": "The assistant uses role and family context to generate responses for all scenarios: task creation, reward recommendations, rule explanations, family chat messages."
     }
+  },
+  "aiWidget": {
+    "openChat": "Open AI assistant",
+    "title": "AI Assistant",
+    "assistantName": "AI Assistant",
+    "online": "Online",
+    "thinking": "Thinking…",
+    "greeting": "Hi",
+    "greetingSuffix": "How can I help you today?",
+    "startersLabel": "Quick start",
+    "starters": {
+      "tasks": "Create tasks",
+      "tasksPrompt": "Create a set of age-appropriate tasks for the child for this week.",
+      "rewards": "Suggest rewards",
+      "rewardsPrompt": "Suggest creative rewards up to 500 points that motivate the child.",
+      "talk": "Conversation tips",
+      "talkPrompt": "How to talk to the child about low motivation without pressure?",
+      "summary": "Week summary",
+      "summaryPrompt": "Summarize the child's progress this week with key achievements."
+    },
+    "inputPlaceholder": "Type your message…",
+    "newChat": "New conversation",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "close": "Close",
+    "actions": "Available actions",
+    "executing": "Executing…",
+    "poweredBy": "Powered by AI · FamilyQuest"
   },
   "childTaskPlanner": {
     "title": "Calendar & Planning",
@@ -2164,6 +2193,14 @@
     "avatar": "Avatar",
     "profileId": "Profile ID",
     "familyCode": "Family code:",
+    "pageTitle": "Profile - {{name}}",
+    "pageSubtitle": "View your achievements and stats",
+    "changePhoto": "Change Photo",
+    "photoDialogDescription": "Choose an emoji or upload a photo to update your avatar",
+    "chooseEmoji": "Choose an emoji:",
+    "uploadPhotoFile": "Upload a photo:",
+    "uploadPrompt": "Click to upload or drag and drop",
+    "photoUploadError": "Failed to upload photo",
     "rank": {
       "novice": "Novice",
       "seeker": "Seeker",
@@ -2175,7 +2212,8 @@
       "mode": "Mode",
       "light": "Light",
       "dark": "Dark",
-      "colorTheme": "Color theme"
+      "colorTheme": "Color theme",
+      "chooseColor": "Choose your favorite color"
     },
     "stats": {
       "currentStreak": "Current Streak",
@@ -2361,6 +2399,8 @@
     "title": "My Profile",
     "subtitle": "Manage your personal information",
     "updateError": "Failed to update profile",
+    "avatarUploadError": "Failed to upload avatar. Please try again.",
+    "changeAvatar": "Change Avatar",
     "noFamily": "No family",
     "yearsOld": "years old",
     "toDashboard": "Go to Dashboard",
@@ -2377,13 +2417,23 @@
       "namePlaceholder": "Enter your name",
       "lastName": "Last name",
       "lastNamePlaceholder": "Enter your last name",
-      "avatarLabel": "Avatar (emoji or URL)",
-      "avatarPlaceholder": "Enter emoji or image URL",
+      "avatarLabel": "Avatar",
       "age": "Age",
+      "editTitle": "Edit Profile",
+      "accountInfo": "Account Information",
       "save": "Save changes",
       "success": "Profile updated successfully",
       "error": "Failed to update profile",
       "hint": "No changes to save"
+    },
+    "avatarPicker": {
+      "title": "Change Avatar",
+      "subtitle": "Choose an emoji or upload a photo",
+      "chooseEmoji": "Choose an emoji",
+      "uploadPhoto": "Or upload a photo",
+      "chooseFile": "Choose Photo",
+      "uploading": "Uploading…",
+      "hint": "PNG, JPEG or WebP. Max 2 MB."
     },
     "family": {
       "title": "Family",
@@ -2412,6 +2462,34 @@
       "confirmDelete": "Delete My Account",
       "cancel": "Cancel",
       "error": "Failed to delete account. Please try again."
+    },
+    "tabs": {
+      "profile": "Profile",
+      "tasks": "Tasks",
+      "rewards": "Rewards",
+      "analytics": "Analytics",
+      "children": "Children",
+      "chat": "Chat",
+      "settings": "Settings"
+    },
+    "security": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "changeEmail": "Change Email",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "updatePassword": "Update Password",
+      "passwordChanged": "Password changed!",
+      "changePasswordError": "Failed to change password",
+      "passwordsMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "newEmail": "New email address",
+      "passwordToConfirm": "Current password to confirm",
+      "updateEmail": "Update Email",
+      "emailChanged": "Email changed!",
+      "changeEmailError": "Failed to change email",
+      "invalidEmail": "Please enter a valid email address"
     }
   },
   "paymentModal": {

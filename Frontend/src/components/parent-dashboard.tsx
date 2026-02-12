@@ -31,7 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import { openAiChat } from "@/components/ai-chat-widget"
 
 interface ParentDashboardProps {
   userId?: string
@@ -150,7 +150,7 @@ export default function ParentDashboard({
             <NotificationsPopover />
             <Button
               className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-              onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+              onClick={() => openAiChat()}
             >
               <Sparkles className="h-4 w-4" />
               {t("parentDashboard.aiChat")}
@@ -158,7 +158,7 @@ export default function ParentDashboard({
             <Button
               size="icon"
               className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-              onClick={() => router.push(routeRecord[AppRouteId.AiAssistant].path)}
+              onClick={() => openAiChat()}
               aria-label={t("parentDashboard.aiChat")}
             >
               <Sparkles className="h-4 w-4" />

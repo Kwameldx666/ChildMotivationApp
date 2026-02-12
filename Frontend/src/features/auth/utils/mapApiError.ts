@@ -1,12 +1,41 @@
 import { ApiErrorResponse, isAxiosError } from '@/api/api'
 import { ApiError } from '@/services/api/http-client'
 
+/**
+ * Список технических ошибок, которые не нужно показывать пользователю
+ */
+const TECHNICAL_ERROR_KEYWORDS = [
+  'The request contains invalid data',
+  'Correct the request data',
+  'BadRequest',
+  'relation',
+  'could not',
+  'failed to',
+  'unable to',
+  'internal server error',
+  'unexpected error',
+  'exception',
+  'stack trace',
+  'at line',
+  'in file',
+  'connection timeout',
+  'database',
+]
+
+/**
+ * Проверяет, является ли сообщение об ошибке техническим
+ */
+function isTechnicalError(message: string): boolean {
+  const lowerMessage = message.toLowerCase()
+  return TECHNICAL_ERROR_KEYWORDS.some(keyword => lowerMessage.includes(keyword.toLowerCase()))
+}
+
 function extractErrorMessages(source: unknown): string[] {
   if (!source) return []
 
   if (typeof source === 'string') {
     const trimmed = source.trim()
-    return trimmed ? [trimmed] : []
+    return trimmed && !isTechnicalError(trimmed) ? [trimmed] : []
   }
 
   if (Array.isArray(source)) {
@@ -17,7 +46,7 @@ function extractErrorMessages(source: unknown): string[] {
     const record = source as Record<string, unknown>
     const collected: string[] = []
 
-    if ('message' in record) {
+    if ('message' in record && typeof record.message === 'string' && !isTechnicalError(record.message)) {
       collected.push(...extractErrorMessages(record.message))
     }
 
@@ -25,8 +54,13 @@ function extractErrorMessages(source: unknown): string[] {
       collected.push(...extractErrorMessages(record.errors))
     }
 
+    // Ищем пользовательские сообщения об ошибках
     for (const [key, value] of Object.entries(record)) {
-      if (key === 'message' || key === 'errors') continue
+      if (key === 'message' || key === 'errors' || key === 'error' || key === 'detail' || key === 'details') continue
+      
+      // Пропускаем технические поля
+      if (['statusCode', 'status', 'code', 'type', 'stack', 'trace'].includes(key.toLowerCase())) continue
+      
       collected.push(...extractErrorMessages(value))
     }
 
@@ -37,9 +71,18 @@ function extractErrorMessages(source: unknown): string[] {
 }
 
 function normalizeErrorMessages(messages: string[]): string | null {
-  const normalized = Array.from(new Set(messages.map((message) => message.trim()).filter(Boolean)))
+  // Фильтруем технические ошибки
+  const userFriendlyMessages = messages
+    .map((message) => message.trim())
+    .filter(msg => msg && !isTechnicalError(msg))
+    .filter(Boolean)
+
+  const normalized = Array.from(new Set(userFriendlyMessages))
+  
   if (normalized.length === 0) return null
-  return normalized.join('\n')
+  
+  // Показываем максимум 2 ошибки, чтобы не перегружать UI
+  return normalized.slice(0, 2).join('\n')
 }
 
 export function mapApiError(error: unknown, fallback: string) {
@@ -65,6 +108,14 @@ export function mapApiError(error: unknown, fallback: string) {
     if (error.status >= 500) return fallback
   }
 
-  if (error instanceof Error) return error.message
+  if (error instanceof Error) {
+    // Фильтруем технические детали из Error messages
+    const message = error.message
+    if (message && !isTechnicalError(message)) {
+      return message
+    }
+    return fallback
+  }
+  
   return fallback
 }

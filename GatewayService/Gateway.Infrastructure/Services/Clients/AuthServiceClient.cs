@@ -139,4 +139,24 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             options: SerializerOptions,
             cancellationToken: cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> ChangePasswordAsync(Guid userId, object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            $"{_endpoints.ChangePassword}/{userId}",
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> ChangeEmailAsync(Guid userId, object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            $"{_endpoints.ChangeEmail}/{userId}",
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

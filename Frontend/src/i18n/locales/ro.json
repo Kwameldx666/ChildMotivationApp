@@ -60,6 +60,34 @@
     "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
     "passwordsDoNotMatch": "Parolele nu se potrivesc"
   },
+  "aiWidget": {
+    "openChat": "Deschide asistentul AI",
+    "title": "Asistent AI",
+    "assistantName": "Asistent AI",
+    "online": "Online",
+    "thinking": "Se gândește…",
+    "greeting": "Salut",
+    "greetingSuffix": "Cu ce te pot ajuta astăzi?",
+    "startersLabel": "Start rapid",
+    "starters": {
+      "tasks": "Creează sarcini",
+      "tasksPrompt": "Creează un set de sarcini adecvate vârstei copilului pentru această săptămână.",
+      "rewards": "Sugerează recompense",
+      "rewardsPrompt": "Sugerează recompense creative de până la 500 de puncte care motivează copilul.",
+      "talk": "Sfaturi de comunicare",
+      "talkPrompt": "Cum să vorbesc cu copilul despre motivația scăzută fără presiune?",
+      "summary": "Rezumatul săptămânii",
+      "summaryPrompt": "Rezumă progresul copilului din această săptămână cu realizările cheie."
+    },
+    "inputPlaceholder": "Scrie un mesaj…",
+    "newChat": "Conversație nouă",
+    "expand": "Extinde",
+    "collapse": "Restrânge",
+    "close": "Închide",
+    "actions": "Acțiuni disponibile",
+    "executing": "Se execută…",
+    "poweredBy": "Alimentat de AI · FamilyQuest"
+  },
   "childTaskPlanner": {
     "title": "Calendar și planificare",
     "subtitle": "Alege o zi și planifică sarcini — astfel e mai ușor să ții seria și să câștigi puncte.",
@@ -920,7 +948,8 @@
     "messages": {
       "completeTask": "Completează sarcini și câștigă experiență și puncte",
       "earnRewards": "Cheltuiește-ți punctele pe recompense",
-      "viewAchievements": "Vezi realizările și recordurile tale"
+      "viewAchievements": "Vezi realizările și recordurile tale",
+      "manageProfile": "Gestionează-ți avatarul, setările și aspectul"
     }
   },
   "chat": {
@@ -2162,6 +2191,14 @@
     "avatar": "Avatar",
     "profileId": "ID profil",
     "familyCode": "Codul familiei:",
+    "pageTitle": "Profil - {{name}}",
+    "pageSubtitle": "Vizualizează realizările și statisticile tale",
+    "changePhoto": "Schimbă fotografia",
+    "photoDialogDescription": "Alege un emoji sau încarcă o fotografie pentru a-ți actualiza avatarul",
+    "chooseEmoji": "Alege un emoji:",
+    "uploadPhotoFile": "Încarcă o fotografie:",
+    "uploadPrompt": "Fă clic pentru a încărca sau trage și plasează",
+    "photoUploadError": "Nu s-a putut încărca fotografia",
     "rank": {
       "novice": "Novice",
       "seeker": "Explorator",
@@ -2173,7 +2210,8 @@
       "mode": "Mod",
       "light": "Deschis",
       "dark": "Închis",
-      "colorTheme": "Temă de culori"
+      "colorTheme": "Temă de culori",
+      "chooseColor": "Alege culoarea ta preferată"
     },
     "stats": {
       "currentStreak": "Serie curentă",
@@ -2359,6 +2397,8 @@
     "title": "Profilul meu",
     "subtitle": "Gestionează informațiile personale",
     "updateError": "Nu s-a putut actualiza profilul",
+    "avatarUploadError": "Nu s-a putut încărca avatarul. Încercați din nou.",
+    "changeAvatar": "Schimbă avatarul",
     "noFamily": "Fără familie",
     "yearsOld": "ani",
     "toDashboard": "La panou",
@@ -2375,13 +2415,23 @@
       "namePlaceholder": "Introduceți prenumele",
       "lastName": "Nume de familie",
       "lastNamePlaceholder": "Introduceți numele de familie",
-      "avatarLabel": "Avatar (emoji sau URL)",
-      "avatarPlaceholder": "Introduceți emoji sau URL imagine",
+      "avatarLabel": "Avatar",
       "age": "Vârstă",
+      "editTitle": "Editează profilul",
+      "accountInfo": "Informații despre cont",
       "save": "Salvează modificările",
       "success": "Profil actualizat cu succes",
       "error": "Nu s-a putut actualiza profilul",
       "hint": "Nu există modificări de salvat"
+    },
+    "avatarPicker": {
+      "title": "Schimbă avatarul",
+      "subtitle": "Alege un emoji sau încarcă o fotografie",
+      "chooseEmoji": "Alege un emoji",
+      "uploadPhoto": "Sau încarcă o fotografie",
+      "chooseFile": "Alege fotografia",
+      "uploading": "Se încarcă…",
+      "hint": "PNG, JPEG sau WebP. Maxim 2 MB."
     },
     "family": {
       "title": "Familie",
@@ -2410,6 +2460,34 @@
       "confirmDelete": "Șterge contul meu",
       "cancel": "Anulare",
       "error": "Nu s-a putut șterge contul. Încercați din nou."
+    },
+    "tabs": {
+      "profile": "Profil",
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "analytics": "Analize",
+      "children": "Copii",
+      "chat": "Chat",
+      "settings": "Setări"
+    },
+    "security": {
+      "title": "Securitate",
+      "changePassword": "Schimbă parola",
+      "changeEmail": "Schimbă emailul",
+      "currentPassword": "Parola curentă",
+      "newPassword": "Parola nouă",
+      "confirmPassword": "Confirmă parola nouă",
+      "updatePassword": "Actualizează parola",
+      "passwordChanged": "Parola a fost schimbată!",
+      "changePasswordError": "Nu s-a putut schimba parola",
+      "passwordsMismatch": "Parolele nu coincid",
+      "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+      "newEmail": "Adresa de email nouă",
+      "passwordToConfirm": "Parola curentă pentru confirmare",
+      "updateEmail": "Actualizează emailul",
+      "emailChanged": "Emailul a fost schimbat!",
+      "changeEmailError": "Nu s-a putut schimba emailul",
+      "invalidEmail": "Introduceți o adresă de email validă"
     }
   },
   "paymentModal": {

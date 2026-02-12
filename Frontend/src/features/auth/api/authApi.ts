@@ -3,6 +3,8 @@ import { appStore } from '@/store/appStore'
 import type {
   AuthPayload,
   AuthSession,
+  ChangeEmailPayload,
+  ChangePasswordPayload,
   LoginPayload,
   RegisterPayload,
   UpdateProfilePayload,
@@ -153,5 +155,13 @@ export const authApi = {
 
   async deleteAccount() {
     await apiClient.delete(`${AUTH_BASE_PATH}/account`)
+  },
+
+  async changePassword(payload: ChangePasswordPayload) {
+    await apiClient.post(`${AUTH_BASE_PATH}/change-password`, payload)
+  },
+
+  async changeEmail(payload: ChangeEmailPayload) {
+    await apiClient.post(`${AUTH_BASE_PATH}/change-email`, payload)
   },
 }

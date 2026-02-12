@@ -1,46 +1,33 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import AIChatPage from "@/components/ai-chat-page"
-import { AppRoute } from "@/routes/AppRoute"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import { openAiChat } from "@/components/ai-chat-widget"
 import { selectAuthSession } from "@/features/auth/store/authSlice"
 import { useAppSelector } from "@/store/hooks"
-import type { UserRole } from "@/features/auth/types"
+import { AppRouteId, routeRecord } from "@/routes/config"
 
-const ALLOWED_ROLES: UserRole[] = ["parent", "child"]
-
+/**
+ * The /ai route now redirects to the appropriate dashboard
+ * and opens the floating AI chat widget automatically.
+ */
 export default function AiAssistantRoute() {
   const session = useAppSelector(selectAuthSession)
   const router = useRouter()
 
-  const fallbackTarget = routeRecord[AppRouteId.Welcome].path
-  const backTarget = useMemo(() => {
-    if (!session?.profile.role) return fallbackTarget
-    if (session.profile.role === "parent") {
-      return routeRecord[AppRouteId.ParentDashboard].path
-    }
-    if (session.profile.role === "child") {
-      return routeRecord[AppRouteId.ChildDashboard].path
-    }
-    return fallbackTarget
-  }, [fallbackTarget, session?.profile.role])
+  useEffect(() => {
+    // Open the floating widget
+    openAiChat()
 
-  const handleBack = () => {
-    router.push(backTarget)
-  }
+    // Redirect to dashboard
+    if (session?.profile.role === "child") {
+      router.replace(routeRecord[AppRouteId.ChildDashboard].path)
+    } else if (session?.profile.role === "parent") {
+      router.replace(routeRecord[AppRouteId.ParentDashboard].path)
+    } else {
+      router.replace(routeRecord[AppRouteId.Welcome].path)
+    }
+  }, [router, session?.profile.role])
 
-  return (
-    <AppRoute requiredRoles={ALLOWED_ROLES} redirectTo={fallbackTarget}>
-      {session ? (
-        <AIChatPage
-          userName={session.profile.name}
-          role={session.profile.role}
-          familyName={session.family?.name ?? null}
-          onBack={handleBack}
-        />
-      ) : null}
-    </AppRoute>
-  )
+  return null
 }
