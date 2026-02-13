@@ -34,6 +34,12 @@
     "about": "Despre",
     "dark": "Închis",
     "light": "Deschis",
+    "saving": "Se salvează...",
+    "saved": "Salvat!",
+    "saveChanges": "Salvează modificările",
+    "confirmDelete": "Da, șterge",
+    "child": "Copil",
+    "parent": "Părinte",
     "name": "Nume",
     "price": "Preț",
     "daysRemaining": "{days} zile rămase"
@@ -710,6 +716,37 @@
       }
     }
   },
+  "featureGate": {
+    "lockedTitle": "Funcție blocată",
+    "requiresPlan": "Necesită planul {plan}",
+    "description": "Actualizează abonamentul pentru a debloca {feature} și multe altele.",
+    "whatYouGet": "Ce vei primi",
+    "upgrade": "Upgrade",
+    "upgradeTo": "Treci la {plan}",
+    "taskLimitReached": "Limita de sarcini pe zi atinsă ({count}/{limit}). Fă upgrade.",
+    "childrenLimitReached": "Limita de copii atinsă ({count}/{limit}). Fă upgrade.",
+    "featureNames": {
+      "aiAssistant": "Asistent AI",
+      "advancedAnalytics": "Analitice avansate",
+      "customRewards": "Recompense personalizate",
+      "prioritySupport": "Suport prioritar",
+      "familySharing": "Acces familial",
+      "offlineMode": "Mod offline",
+      "maxChildren": "Mai mulți copii",
+      "maxTasksPerDay": "Mai multe sarcini pe zi"
+    },
+    "benefits": {
+      "basic1": "Sugestii inteligente de sarcini AI",
+      "basic2": "Până la 5 profiluri de copii",
+      "basic3": "Până la 50 de sarcini pe zi",
+      "premium1": "Analitice și rapoarte avansate",
+      "premium2": "Creare de recompense personalizate",
+      "premium3": "Mod offline și suport prioritar",
+      "family1": "Copii și sarcini nelimitate",
+      "family2": "Acces familial pe mai multe dispozitive",
+      "family3": "Manager personal și acces API"
+    }
+  },
   "achievements": {
     "title": "Realizări",
     "unlocked": "Deblocat!",
@@ -1063,6 +1100,8 @@
   "rewardCreation": {
     "title": "Creează o recompensă nouă",
     "subtitle": "Adăugați o recompensă manual sau folosiți AI pentru a genera idei",
+    "modeAi": "Cu ajutorul AI",
+    "modeManual": "Manual",
     "selectType": "Selectați tipul recompensei",
     "points": "puncte",
     "examplesLabel": "Exemple:",
@@ -1852,7 +1891,36 @@
     "redirecting": "Se redirecționează..."
   },
   "profilePage": {
-    "noActiveSession": "Nicio sesiune activă"
+    "noActiveSession": "Nicio sesiune activă",
+    "title": "Profil",
+    "editProfile": "Editează profilul",
+    "accountSettings": "Cont și securitate",
+    "theme": "Temă",
+    "language": "Limbă",
+    "tapToChange": "Apasă pentru a schimba fotografia",
+    "name": "Prenume",
+    "lastName": "Nume de familie",
+    "age": "Vârstă",
+    "email": "Email",
+    "role": "Rol",
+    "familyCode": "Codul familiei",
+    "enterName": "Introduceți prenumele",
+    "enterLastName": "Introduceți numele de familie",
+    "dangerZone": "Zona periculoasă",
+    "deleteAccount": "Șterge contul",
+    "deleteConfirm": "Aceasta va șterge permanent contul tău și toate datele asociate. Această acțiune nu poate fi anulată.",
+    "changePhoto": "Schimbă fotografia",
+    "security": "Securitate",
+    "changePassword": "Schimbă parola",
+    "currentPassword": "Parola curentă",
+    "newPassword": "Parola nouă",
+    "confirmNewPassword": "Confirmă parola nouă",
+    "passwordMismatch": "Parolele nu se potrivesc",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+    "changeEmail": "Schimbă emailul",
+    "newEmail": "Email nou",
+    "confirmWithPassword": "Confirmă cu parola",
+    "invalidEmail": "Adresă de email invalidă"
   },
   "routes": {
     "welcome": "Bine ai venit",
@@ -2175,6 +2243,19 @@
     "uploadImage": "Încarcă imagine",
     "userNotFound": "Utilizator negăsit",
     "avatarUploadError": "Nu s-a putut încărca avatarul",
+    "level": "Nv.",
+    "done": "Gata",
+    "heroMessage": "Completează sarcini, câștigă recompense și avansează!",
+    "greetingMorning": "Bună dimineața",
+    "greetingAfternoon": "Bună ziua",
+    "greetingEvening": "Bună seara",
+    "nav": {
+      "tasks": "Sarcini",
+      "quests": "Misiuni",
+      "shop": "Magazin",
+      "achievements": "Premii",
+      "me": "Eu"
+    },
     "rewards": {
       "stickers": "Stickere și mici recompense",
       "toy": "Jucărie mică sau dulce",
@@ -2186,6 +2267,12 @@
       "tip3": "Cere părinților o recompensă specială după o serie de 7 zile!",
       "tip4": "Împarte sarcinile mari în pași mici — e mai ușor așa!"
     }
+  },
+  "gameHub": {
+    "title": "Centrul misiunilor",
+    "subtitle": "Completează misiuni, colectează stickere și urcă în clasament!",
+    "dayStreak": "zile la rând",
+    "bonus": "bonus"
   },
   "childProfile": {
     "avatar": "Avatar",

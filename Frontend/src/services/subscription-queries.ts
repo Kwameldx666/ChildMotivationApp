@@ -10,13 +10,18 @@ export const subscriptionKeys = {
 
 /**
  * Хук для получения текущей подписки пользователя
+ * Подписка — статичная информация, кэшируем агрессивно
  */
 export function useCurrentSubscription() {
   return useQuery({
     queryKey: subscriptionKeys.current(),
     queryFn: () => subscriptionService.getCurrentSubscription(),
-    staleTime: 5 * 60 * 1000, // 5 минут
+    staleTime: 30 * 60 * 1000, // 30 минут — подписка меняется редко
+    gcTime: 60 * 60 * 1000, // 1 час в кэше
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    placeholderData: (prev) => prev, // показывать старые данные пока загружаются новые
   })
 }
 

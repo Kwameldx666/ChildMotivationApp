@@ -3,6 +3,7 @@
 /* cspell:disable */
 
 import { useEffect, useMemo, useState } from "react"
+import { resolveAvatarUrl } from "@/lib/avatar-utils"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -32,6 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { openAiChat } from "@/components/ai-chat-widget"
+import { FeatureGate } from "@/components/feature-gate"
+import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 
 interface ParentDashboardProps {
   userId?: string
@@ -62,6 +65,7 @@ export default function ParentDashboard({
   const safeFamilyCode = familyCode ?? "—"
   const createProduct = useCreateProduct()
   const { toast } = useToast()
+  const { hasFeature } = useSubscriptionGate()
 
   useEffect(() => {
     const cb = () => setIsTaskModalOpen(true)
@@ -108,17 +112,10 @@ export default function ParentDashboard({
   }
 
   const avatarImageUrl = useMemo(() => {
-    const value = userProfile.avatar?.trim()
-    if (!value) {
-      return null
-    }
-
-    try {
-      const parsed = new URL(value)
-      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null
-    } catch {
-      return null
-    }
+    const resolved = resolveAvatarUrl(userProfile.avatar)
+    if (!resolved) return null
+    if (resolved.startsWith('http://') || resolved.startsWith('https://') || resolved.startsWith('data:')) return resolved
+    return null
   }, [userProfile.avatar])
 
   const avatarFallbackSymbol = useMemo(() => {
@@ -148,21 +145,25 @@ export default function ParentDashboard({
             <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
             <NotificationsPopover />
-            <Button
-              className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-              onClick={() => openAiChat()}
-            >
-              <Sparkles className="h-4 w-4" />
-              {t("parentDashboard.aiChat")}
-            </Button>
-            <Button
-              size="icon"
-              className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-              onClick={() => openAiChat()}
-              aria-label={t("parentDashboard.aiChat")}
-            >
-              <Sparkles className="h-4 w-4" />
-            </Button>
+            {hasFeature('aiAssistant') && (
+              <>
+                <Button
+                  className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
+                  onClick={() => openAiChat()}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {t("parentDashboard.aiChat")}
+                </Button>
+                <Button
+                  size="icon"
+                  className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
+                  onClick={() => openAiChat()}
+                  aria-label={t("parentDashboard.aiChat")}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </Button>
+              </>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
@@ -266,7 +267,13 @@ export default function ParentDashboard({
               <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.analytics.title")}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.analytics.subtitle")}</p>
             </div>
-            <AnalyticsDashboard />
+            <FeatureGate
+              feature="advancedAnalytics"
+              blurred
+              onUpgrade={() => setActiveTab("settings")}
+            >
+              <AnalyticsDashboard />
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="children" className="space-y-4">

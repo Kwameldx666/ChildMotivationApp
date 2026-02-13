@@ -72,7 +72,7 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
-    public Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, Stream fileStream, string fileName,
+    public async Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, Stream fileStream, string fileName,
         string contentType, CancellationToken cancellationToken)
     {
         var requestUri = BuildProfilePath(userId) + "/avatar";
@@ -83,12 +83,18 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         content.Add(streamContent, "file", fileName);
 
-        var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
+        using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
         {
             Content = content
         };
 
-        return _client.SendAsync(request, cancellationToken);
+        return await _client.SendAsync(request, cancellationToken);
+    }
+
+    public Task<HttpResponseMessage> GetAvatarFileAsync(string fileName, CancellationToken cancellationToken)
+    {
+        var requestUri = $"avatars/{fileName}";
+        return _client.GetAsync(requestUri, cancellationToken);
     }
 
     // Subscription methods
@@ -105,7 +111,7 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
 
     public Task<HttpResponseMessage> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var basePath = _endpoints.Subscription ?? "user-service/subscription";
+        var basePath = _endpoints.Subscription;
         var requestUri = basePath.Contains("{userId}")
             ? basePath.Replace("{userId}", userId.ToString())
             : $"{basePath.TrimEnd('/')}/{userId}";
@@ -120,7 +126,7 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     public Task<HttpResponseMessage> ChangeSubscriptionAsync(ChangeSubscriptionRequest request,
         CancellationToken cancellationToken)
     {
-        var requestUri = _endpoints.SubscriptionChange ?? "user-service/subscription/change";
+        var requestUri = _endpoints.SubscriptionChange;
         return _client.SendHttpRequestAsync(
             HttpMethod.Post,
             requestUri,

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 namespace AuthService.Controllers;
 
 [Route("auth-service/discord")]
-public class DiscordAuthController(IMediator mediator, IOptions<DiscordOptions> discordOptions) : ControllerBase
+public class  DiscordAuthController(IMediator mediator, IOptions<DiscordOptions> discordOptions) : ControllerBase
 {
     [HttpGet("authorize")]
     public async Task<IActionResult> GetDiscordAuthorizationUrlAsync(CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
 using Gateway.Application.Abstractions.Infrastructure;
+using Gateway.Authorization;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ namespace Gateway.Features.Controllers;
 [ApiController]
 [Authorize]
 [Route("api-gateway/analytics")]
+[RequiresSubscription(SubscriptionFeatures.AdvancedAnalytics)]
 public class AnalyticsController(ITaskServiceClient taskClient) : ControllerBase
 {
     [HttpGet("tasks")]

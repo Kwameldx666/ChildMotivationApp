@@ -148,12 +148,13 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
     }
   }
 
-  // Показываем загрузку
-  if (isLoading) {
+  // Показываем загрузку только при первом запросе (нет кэша)
+  if (isLoading && !subscription) {
     return (
       <Card className="overflow-hidden">
+        <div className={cn("h-2 bg-gradient-to-r", tier.gradient)} />
         <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
     )

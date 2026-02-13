@@ -175,9 +175,9 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
           </div>
 
           {settings.notificationsEnabled && (
-            <div className="bg-accent/10 border border-accent rounded-lg p-3 space-y-3">
+            <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-3">
               <div>
-                <Label htmlFor="nightStart" className="text-sm">
+                <Label htmlFor="nightStart" className="text-sm text-foreground">
                   {t("notifications.nightModeStart")}
                 </Label>
                 <Input
@@ -185,10 +185,11 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   type="time"
                   value={settings.nightModeStart}
                   onChange={(e) => handleSettingChange("nightModeStart", e.target.value)}
+                  className="text-foreground bg-background border-border"
                 />
               </div>
               <div>
-                <Label htmlFor="nightEnd" className="text-sm">
+                <Label htmlFor="nightEnd" className="text-sm text-foreground">
                   {t("notifications.nightModeEnd")}
                 </Label>
                 <Input
@@ -196,6 +197,7 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
                   type="time"
                   value={settings.nightModeEnd}
                   onChange={(e) => handleSettingChange("nightModeEnd", e.target.value)}
+                  className="text-foreground bg-background border-border"
                 />
               </div>
               <p className="text-xs text-muted-foreground">

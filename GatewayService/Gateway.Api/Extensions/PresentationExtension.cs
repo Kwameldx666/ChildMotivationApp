@@ -24,6 +24,7 @@ internal static class PresentationExtension
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddMemoryCache();
         services.AddPolicies();
         services.AddCorsPolicy(configuration);
         services.AddSwaggerGenWithAuth();

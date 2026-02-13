@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Zap, Calendar, Trophy, Info } from "lucide-react"
+import { Loader2, Plus, Zap, Calendar, Trophy, Info, Sparkles, PenLine } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useToast } from "@/hooks/use-toast"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useShopProducts } from "@/services/shop-queries"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
+import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 
 // Система категорий наград для мотивации детей
 type RewardCategory = "instant" | "medium" | "big"
@@ -86,6 +87,8 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
   const { toast } = useToast()
   const { data: familyMembers = [] } = useFamilyMembers()
   const { data: existingProducts = [] } = useShopProducts()
+  const { hasFeature } = useSubscriptionGate()
+  const canUseAi = hasFeature('aiAssistant')
   
   const children = familyMembers.filter(m => m.role === 'child')
   const REWARD_CATEGORIES = getRewardCategories(t)
@@ -98,6 +101,7 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
   const [selectedChildId, setSelectedChildId] = useState<string>("")
   const [customPrompt, setCustomPrompt] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null)
+  const [creationMode, setCreationMode] = useState<"ai" | "manual">(canUseAi ? "ai" : "manual")
 
   // При выборе категории устанавливаем рекомендуемую цену
   const handleCategorySelect = (categoryId: RewardCategory) => {
@@ -224,7 +228,43 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
         </DialogHeader>
 
         <div className="space-y-4 py-4 overflow-y-auto flex-1 px-1">
-          {/* Выбор категории награды */}
+          {/* AI / Manual mode toggle */}
+          <div className="flex rounded-xl border border-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setCreationMode("ai")}
+              disabled={disabled}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all",
+                creationMode === "ai"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                  : canUseAi
+                    ? "bg-background text-muted-foreground hover:bg-muted/50"
+                    : "bg-background text-muted-foreground/50 cursor-not-allowed"
+              )}
+              title={!canUseAi ? t("featureGate.requiresPlan", { plan: t("subscription.basic") }) : undefined}
+            >
+              <Sparkles className="w-4 h-4" />
+              {t("rewardCreation.modeAi")}
+              {!canUseAi && <span className="text-[10px] opacity-70">({t("subscription.basic")}+)</span>}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreationMode("manual")}
+              disabled={disabled}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all",
+                creationMode === "manual"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-background text-muted-foreground hover:bg-muted/50"
+              )}
+            >
+              <PenLine className="w-4 h-4" />
+              {t("rewardCreation.modeManual")}
+            </button>
+          </div>
+
+          {/* Выбор категории награды — shown in both modes */}
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
               <Info className="w-4 h-4 text-muted-foreground" />
@@ -271,8 +311,8 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
             )}
           </div>
 
-          {/* Выбор ребенка для персонализации */}
-          {children.length > 0 && (
+          {/* Выбор ребенка для персонализации — AI mode only */}
+          {creationMode === "ai" && children.length > 0 && (
             <div className="space-y-2">
               <Label htmlFor="child-select">{t("rewardCreation.forWhom")}</Label>
               <select
@@ -295,7 +335,8 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
             </div>
           )}
 
-          {/* Дополнительный промпт */}
+          {/* Дополнительный промпт — AI mode only */}
+          {creationMode === "ai" && (
           <div className="space-y-2">
             <Label htmlFor="custom-prompt">{t("rewardCreation.aiHint")}</Label>
             <Textarea
@@ -308,13 +349,16 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
               className="resize-none break-words overflow-wrap-anywhere w-full"
             />
           </div>
+          )}
 
+          {creationMode === "ai" && (
           <Button
             type="button"
             variant="outline"
             className="w-full gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
             onClick={handleAiGenerate}
-            disabled={disabled}
+            disabled={disabled || !canUseAi}
+            title={!canUseAi ? t("featureGate.requiresPlan", { plan: t("subscription.basic") }) : undefined}
           >
             {isAiGenerating ? (
               <>
@@ -324,12 +368,14 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
               </>
             ) : (
               <>
+                <Sparkles className="w-4 h-4" />
                 {t("rewardCreation.generateWithAi")}
               </>
             )}
           </Button>
+          )}
 
-          {isAiGenerating && (
+          {creationMode === "ai" && isAiGenerating && (
             <div className="text-center text-xs text-muted-foreground animate-pulse">
               {t("rewardCreation.aiAnalyzing")}
             </div>

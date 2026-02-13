@@ -8,6 +8,8 @@ import { Check, Copy, RefreshCw, Users, ChevronRight } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
 import type { FamilyMember } from "@/services/family-service"
+import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
+import { UpgradePrompt } from "@/components/upgrade-prompt"
 
 interface ChildrenManagementProps {
   familyCode?: string | null
@@ -33,6 +35,7 @@ const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
   const router = useRouter()
   const { t } = useTranslation()
+  const { isWithinLimit, getLimit, currentTier } = useSubscriptionGate()
   const normalizedFamilyCode =
     familyCode && familyCode.trim() && familyCode !== "—" ? familyCode.trim() : null
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
@@ -115,6 +118,15 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
 
   return (
     <div className="space-y-4">
+      {/* Children limit warning */}
+      {!isWithinLimit('maxChildren', children.length) && (
+        <UpgradePrompt
+          feature={t("featureGate.featureNames.maxChildren")}
+          requiredTier={currentTier === "free" ? "basic" : currentTier === "basic" ? "premium" : "family"}
+          compact
+        />
+      )}
+
       <Card>
         <CardContent className="py-6 flex flex-col gap-3">
           <p className="text-sm text-muted-foreground">

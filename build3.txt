@@ -1,0 +1,328 @@
+﻿docker :  Image childmotivationapp-ai-service Building 
+At line:1 char:33
++ ... BUILDKIT_PROGRESS="plain"; docker compose build frontend 2>&1 | Out-F ...
++                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Image childmot...rvice Building  
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image childmotivationapp-shop-service Building 
+ Image childmotivationapp-auth-service Building 
+ Image childmotivationapp-user-service Building 
+ Image childmotivationapp-frontend Building 
+ Image childmotivationapp-gateway-service Building 
+ Image childmotivationapp-task-service Building 
+ Image childmotivationapp-notification-service Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 4.46kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.20kB 0.0s done
+#2 DONE 0.1s
+
+#3 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#3 ...
+
+#4 [auth] docker/dockerfile:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#3 DONE 1.4s
+
+#5 docker-image://docker.io/docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
+#5 resolve docker.io/docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6 0.1s done
+#5 CACHED
+
+#6 [internal] load metadata for docker.io/library/node:20-alpine
+#6 ...
+
+#7 [auth] library/node:pull token for registry-1.docker.io
+#7 DONE 0.0s
+
+#6 [internal] load metadata for docker.io/library/node:20-alpine
+#6 DONE 1.1s
+
+#8 [internal] load .dockerignore
+#8 transferring context: 143B done
+#8 DONE 0.2s
+
+#9 [internal] load build context
+#9 DONE 0.0s
+
+#10 [base 1/2] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#10 resolve docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#10 resolve docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8 0.4s done
+#10 DONE 0.4s
+
+#9 [internal] load build context
+#9 transferring context: 50.30kB 0.3s done
+#9 ...
+
+#10 [base 1/2] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#10 DONE 1.0s
+
+#9 [internal] load build context
+#9 DONE 0.6s
+
+#11 [base 2/2] WORKDIR /app
+#11 DONE 0.9s
+
+#12 [runner 3/8] RUN corepack enable
+#12 ...
+
+#13 [build 1/4] RUN corepack enable
+#13 DONE 4.1s
+
+#14 [deps 2/3] COPY Frontend/package.json Frontend/pnpm-lock.yaml ./
+#14 ...
+
+#12 [runner 3/8] RUN corepack enable
+#12 DONE 4.4s
+
+#14 [deps 2/3] COPY Frontend/package.json Frontend/pnpm-lock.yaml ./
+#14 DONE 1.5s
+
+#15 [deps 3/3] RUN pnpm install --frozen-lockfile
+#15 1.714 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.29.3.tgz
+#15 5.944 Lockfile is up to date, resolution step is skipped
+#15 6.043 Progress: resolved 1, reused 0, downloaded 0, added 0
+#15 6.522 Packages: +315
+#15 6.522 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#15 7.059 Progress: resolved 315, reused 0, downloaded 0, added 0
+#15 8.061 Progress: resolved 315, reused 0, downloaded 58, added 55
+#15 8.839 ΓÇëWARNΓÇë Tarball download average speed 37 KiB/s (size 42 KiB) is below 50 KiB/s: https://registry.npmjs.org/@floating-ui/core/-/core-1.7.3.tgz (GET)
+#15 9.061 Progress: resolved 315, reused 0, downloaded 122, added 122
+#15 9.135 ΓÇëWARNΓÇë Tarball download average speed 22 KiB/s (size 35 KiB) is below 50 KiB/s: https://registry.npmjs.org/@emotion/babel-plugin/-/babel-plugin-11.13.5.tgz (GET)
+#15 10.06 Progress: resolved 315, reused 0, downloaded 169, added 168
+#15 10.67 ΓÇëWARNΓÇë Tarball download average speed 44 KiB/s (size 46 KiB) is below 50 KiB/s: https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz (GET)
+#15 10.95 ΓÇëWARNΓÇë Tarball download average speed 28 KiB/s (size 52 KiB) is below 50 KiB/s: https://registry.npmjs.org/@swc/helpers/-/helpers-0.5.15.tgz (GET)
+#15 11.06 Progress: resolved 315, reused 0, downloaded 207, added 207
+#15 11.52 ΓÇëWARNΓÇë Tarball download average speed 16 KiB/s (size 44 KiB) is below 50 KiB/s: https://registry.npmjs.org/@radix-ui/react-navigation-menu/-/react-navigation-menu-1.2.3.tgz (GET)
+#15 12.06 Progress: resolved 315, reused 0, downloaded 224, added 224
+#15 12.19 ΓÇëWARNΓÇë Tarball download average speed 41 KiB/s (size 116 KiB) is below 50 KiB/s: https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz (GET)
+#15 13.06 Progress: resolved 315, reused 0, downloaded 250, added 250
+#15 13.28 ΓÇëWARNΓÇë Tarball download average speed 45 KiB/s (size 196 KiB) is below 50 KiB/s: https://registry.npmjs.org/immer/-/immer-11.0.1.tgz (GET)
+#15 14.06 Progress: resolved 315, reused 0, downloaded 265, added 262
+#15 14.11 ΓÇëWARNΓÇë Tarball download average speed 23 KiB/s (size 73 KiB) is below 50 KiB/s: https://registry.npmjs.org/utrie/-/utrie-1.0.2.tgz (GET)
+#15 14.13 ΓÇëWARNΓÇë Tarball download average speed 23 KiB/s (size 162 KiB) is below 50 KiB/s: https://registry.npmjs.org/@emotion/react/-/react-11.14.0.tgz (GET)
+#15 14.63 ΓÇëWARNΓÇë Tarball download average speed 31 KiB/s (size 215 KiB) is below 50 KiB/s: https://registry.npmjs.org/@mui/styled-engine/-/styled-engine-5.18.0.tgz (GET)
+#15 15.04 ΓÇëWARNΓÇë Tarball download average speed 30 KiB/s (size 186 KiB) is below 50 KiB/s: https://registry.npmjs.org/react-redux/-/react-redux-9.2.0.tgz (GET)
+#15 15.07 Progress: resolved 315, reused 0, downloaded 285, added 284
+#15 15.43 ΓÇëWARNΓÇë Tarball download average speed 43 KiB/s (size 208 KiB) is below 50 KiB/s: https://registry.npmjs.org/dompurify/-/dompurify-3.3.1.tgz (GET)
+#15 16.07 Progress: resolved 315, reused 0, downloaded 288, added 288
+#15 16.48 ΓÇëWARNΓÇë Tarball download average speed 27 KiB/s (size 83 KiB) is below 50 KiB/s: https://registry.npmjs.org/lightningcss/-/lightningcss-1.30.2.tgz (GET)
+#15 16.59 ΓÇëWARNΓÇë Tarball download average speed 25 KiB/s (size 178 KiB) is below 50 KiB/s: https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.34.5.tgz (GET)
+#15 16.78 ΓÇëWARNΓÇë Tarball download average speed 37 KiB/s (size 281 KiB) is below 50 KiB/s: https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.90.12.tgz (GET)
+#15 17.07 Progress: resolved 315, reused 0, downloaded 292, added 292
+#15 18.07 Progress: resolved 315, reused 0, downloaded 294, added 294
+#15 19.34 Progress: resolved 315, reused 0, downloaded 295, added 294
+#15 20.34 Progress: resolved 315, reused 0, downloaded 295, added 295
+#15 21.34 Progress: resolved 315, reused 0, downloaded 297, added 297
+#15 22.35 Progress: resolved 315, reused 0, downloaded 298, added 298
+#15 23.35 Progress: resolved 315, reused 0, downloaded 300, added 300
+#15 26.44 Progress: resolved 315, reused 0, downloaded 301, added 300
+#15 27.45 Progress: resolved 315, reused 0, downloaded 303, added 302
+#15 28.45 Progress: resolved 315, reused 0, downloaded 304, added 304
+#15 37.66 Progress: resolved 315, reused 0, downloaded 305, added 304
+#15 38.66 Progress: resolved 315, reused 0, downloaded 305, added 305
+#15 64.60 Progress: resolved 315, reused 0, downloaded 306, added 305
+#15 65.60 Progress: resolved 315, reused 0, downloaded 306, added 306
+#15 66.60 Progress: resolved 315, reused 0, downloaded 308, added 308
+#15 67.60 Progress: resolved 315, reused 0, downloaded 309, added 309
+#15 74.41 Progress: resolved 315, reused 0, downloaded 310, added 309
+#15 75.41 Progress: resolved 315, reused 0, downloaded 310, added 310
+#15 107.3 Progress: resolved 315, reused 0, downloaded 311, added 310
+#15 108.3 Progress: resolved 315, reused 0, downloaded 311, added 311
+#15 110.3 Progress: resolved 315, reused 0, downloaded 312, added 311
+#15 111.3 Progress: resolved 315, reused 0, downloaded 312, added 312
+#15 235.3 Progress: resolved 315, reused 0, downloaded 313, added 312
+#15 236.3 Progress: resolved 315, reused 0, downloaded 313, added 313
+#15 301.0 Progress: resolved 315, reused 0, downloaded 314, added 313
+#15 301.6 Progress: resolved 315, reused 0, downloaded 315, added 315, done
+#15 302.1 
+#15 302.1 dependencies:
+#15 302.1 + @emotion/react 11.14.0
+#15 302.1 + @emotion/styled 11.14.1
+#15 302.1 + @hookform/resolvers 3.10.0
+#15 302.1 + @mui/joy 5.0.0-beta.52
+#15 302.1 + @radix-ui/react-accordion 1.2.2
+#15 302.1 + @radix-ui/react-alert-dialog 1.1.4
+#15 302.1 + @radix-ui/react-aspect-ratio 1.1.1
+#15 302.1 + @radix-ui/react-avatar 1.1.2
+#15 302.1 + @radix-ui/react-checkbox 1.1.3
+#15 302.1 + @radix-ui/react-collapsible 1.1.2
+#15 302.1 + @radix-ui/react-context-menu 2.2.4
+#15 302.1 + @radix-ui/react-dialog 1.1.4
+#15 302.1 + @radix-ui/react-dropdown-menu 2.1.4
+#15 302.1 + @radix-ui/react-hover-card 1.1.4
+#15 302.1 + @radix-ui/react-label 2.1.1
+#15 302.1 + @radix-ui/react-menubar 1.1.4
+#15 302.1 + @radix-ui/react-navigation-menu 1.2.3
+#15 302.1 + @radix-ui/react-popover 1.1.4
+#15 302.1 + @radix-ui/react-progress 1.1.1
+#15 302.1 + @radix-ui/react-radio-group 1.2.2
+#15 302.1 + @radix-ui/react-scroll-area 1.2.2
+#15 302.1 + @radix-ui/react-select 2.1.4
+#15 302.1 + @radix-ui/react-separator 1.1.1
+#15 302.1 + @radix-ui/react-slider 1.2.2
+#15 302.1 + @radix-ui/react-slot 1.1.1
+#15 302.1 + @radix-ui/react-switch 1.1.2
+#15 302.1 + @radix-ui/react-tabs 1.1.2
+#15 302.1 + @radix-ui/react-toast 1.2.4
+#15 302.1 + @radix-ui/react-toggle 1.1.1
+#15 302.1 + @radix-ui/react-toggle-group 1.1.1
+#15 302.1 + @radix-ui/react-tooltip 1.1.6
+#15 302.1 + @reduxjs/toolkit 2.11.2
+#15 302.1 + @tanstack/react-query 5.90.12
+#15 302.1 + @tanstack/react-query-devtools 5.91.1
+#15 302.1 + @vercel/analytics 1.3.1
+#15 302.1 + autoprefixer 10.4.23
+#15 302.1 + axios 1.13.2
+#15 302.1 + class-variance-authority 0.7.1
+#15 302.1 + clsx 2.1.1
+#15 302.1 + cmdk 1.0.4
+#15 302.1 + date-fns 4.1.0
+#15 302.1 + embla-carousel-react 8.5.1
+#15 302.1 + html-to-image 1.11.13
+#15 302.1 + input-otp 1.4.1
+#15 302.1 + jspdf 4.0.0
+#15 302.1 + lucide-react 0.454.0
+#15 302.1 + next 16.0.10
+#15 302.1 + next-themes 0.4.6
+#15 302.1 + react 19.2.0
+#15 302.1 + react-day-picker 9.8.0
+#15 302.1 + react-dom 19.2.0
+#15 302.1 + react-hook-form 7.69.0
+#15 302.1 + react-redux 9.2.0
+#15 302.1 + react-resizable-panels 2.1.9
+#15 302.1 + recharts 2.15.4
+#15 302.1 + redux 5.0.1
+#15 302.1 + redux-persist 6.0.0
+#15 302.1 + sonner 1.7.4
+#15 302.1 + tailwind-merge 3.4.0
+#15 302.1 + tailwindcss-animate 1.0.7
+#15 302.1 + vaul 1.1.2
+#15 302.1 + zod 3.25.76
+#15 302.1 
+#15 302.1 devDependencies:
+#15 302.1 + @tailwindcss/postcss 4.1.18
+#15 302.1 + @types/node 22.19.3
+#15 302.1 + @types/react 19.2.7
+#15 302.1 + @types/react-dom 19.2.3
+#15 302.1 + postcss 8.5.6
+#15 302.1 + tailwindcss 4.1.18
+#15 302.1 + tw-animate-css 1.3.3
+#15 302.1 + typescript 5.9.3
+#15 302.1 
+#15 302.1 Γò¡ Warning ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓò«
+#15 302.1 Γöé                                                                              Γöé
+#15 302.1 Γöé   Ignored build scripts: core-js@3.48.0, sharp@0.34.5.                       Γöé
+#15 302.1 Γöé   Run "pnpm approve-builds" to pick which dependencies should be allowed     Γöé
+#15 302.1 Γöé   to run scripts.                                                            Γöé
+#15 302.1 Γöé                                                                              Γöé
+#15 302.1 Γò░ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓò»
+#15 302.4 Done in 4m 57.3s using pnpm v10.29.3
+#15 DONE 303.1s
+
+#16 [runner 4/8] COPY --from=deps /app/node_modules ./node_modules
+#16 ...
+
+#17 [build 2/4] COPY --from=deps /app/node_modules ./node_modules
+#17 DONE 15.2s
+
+#16 [runner 4/8] COPY --from=deps /app/node_modules ./node_modules
+#16 DONE 15.2s
+
+#18 [build 3/4] COPY Frontend/ .
+#18 DONE 0.7s
+
+#19 [build 4/4] RUN pnpm build
+#19 1.161 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.29.3.tgz
+#19 6.808 
+#19 6.808 > my-v0-project@0.1.0 build /app
+#19 6.808 > next build
+#19 6.808 
+#19 7.192 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 7.901 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#19 7.901 This information is used to shape Next.js' roadmap and prioritize features.
+#19 7.901 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#19 7.901 https://nextjs.org/telemetry
+#19 7.901 
+#19 7.925    Γû▓ Next.js 16.0.10 (Turbopack)
+#19 7.925 
+#19 8.041    Creating an optimized production build ...
+#19 8.306 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 60.19  Γ£ô Compiled successfully in 52s
+#19 60.20    Skipping validation of types
+#19 60.46    Collecting page data using 15 workers ...
+#19 62.41 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.42 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.57 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.57 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.58 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.58 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.58 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.59 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.60 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.60 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.60 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 62.61 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 63.23    Generating static pages using 15 workers (0/10) ...
+#19 64.56 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+#19 65.58    Generating static pages using 15 workers (2/10) 
+#19 65.58    Generating static pages using 15 workers (4/10) 
+#19 65.58    Generating static pages using 15 workers (7/10) 
+#19 65.67  Γ£ô Generating static pages using 15 workers (10/10) in 2.4s
+#19 65.71    Finalizing page optimization ...
+#19 65.76 
+#19 65.76 Route (app)
+#19 65.76 Γöî Γùï /
+#19 65.76 Γö£ Γùï /_not-found
+#19 65.76 Γö£ Γùï /ai
+#19 65.76 Γö£ Γùï /auth
+#19 65.76 Γö£ Γùï /dashboard/child
+#19 65.76 Γö£ ╞Æ /dashboard/child/[id]
+#19 65.76 Γö£ Γùï /dashboard/parent
+#19 65.76 Γö£ Γùï /dashboard/tasks/new
+#19 65.76 Γö£ ╞Æ /join/[code]
+#19 65.76 Γö£ Γùï /notifications
+#19 65.76 Γöö Γùï /profile
+#19 65.76 
+#19 65.76 
+#19 65.76 Γùï  (Static)   prerendered as static content
+#19 65.76 ╞Æ  (Dynamic)  server-rendered on demand
+#19 65.76 
+#19 DONE 66.9s
+
+#20 [runner 5/8] COPY --from=build /app/.next ./.next
+#20 DONE 1.6s
+
+#21 [runner 6/8] COPY --from=build /app/public ./public
+#21 DONE 0.1s
+
+#22 [runner 7/8] COPY --from=build /app/package.json ./package.json
+#22 DONE 0.1s
+
+#23 [runner 8/8] COPY --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml
+#23 DONE 0.1s
+
+#24 exporting to image
+#24 exporting layers
+#24 exporting layers 29.7s done
+#24 exporting manifest sha256:c999a6c3b2486220bd2aeb87800478d639271ac362ac2bf0693f93c5573ba0a5
+#24 exporting manifest sha256:c999a6c3b2486220bd2aeb87800478d639271ac362ac2bf0693f93c5573ba0a5 0.3s done
+#24 exporting config sha256:46711f322d4ba2a0f2b0ed85ed988702b31ef1a534eaf7b0f8a8c95d596d2c4c
+#24 exporting config sha256:46711f322d4ba2a0f2b0ed85ed988702b31ef1a534eaf7b0f8a8c95d596d2c4c 0.3s done
+#24 exporting attestation manifest sha256:d7f8e7595f5663a13e83f7b9b958fc1ee9199ff3a356505b9a97c7370dc61dc0
+#24 exporting attestation manifest sha256:d7f8e7595f5663a13e83f7b9b958fc1ee9199ff3a356505b9a97c7370dc61dc0 0.7s done
+#24 exporting manifest list sha256:20c4ad427c01cae62d111655b1292eb3993aa1e7257ae338bd2e64786cb7f6aa
+#24 exporting manifest list sha256:20c4ad427c01cae62d111655b1292eb3993aa1e7257ae338bd2e64786cb7f6aa 0.3s done
+#24 naming to docker.io/library/childmotivationapp-frontend:latest 0.1s done
+#24 unpacking to docker.io/library/childmotivationapp-frontend:latest
+#24 unpacking to docker.io/library/childmotivationapp-frontend:latest 29.2s done
+#24 DONE 61.3s
+
+#25 resolving provenance for metadata file
+#25 DONE 0.1s
+ Image childmotivationapp-frontend Built 

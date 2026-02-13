@@ -78,6 +78,8 @@ services:
       ASPNETCORE_URLS: http://+:8080
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+    volumes:
+      - avatar_data:/app/wwwroot/avatars
     ports:
       - "8082:8080"
 
@@ -273,3 +275,4 @@ volumes:
   postgres_task_data:
   postgres_shop_data:
   task_evidence:
+  avatar_data:

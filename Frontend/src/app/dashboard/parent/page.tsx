@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import ParentDashboard from "@/components/parent-dashboard"
 import { authApi } from "@/features/auth/api/authApi"
+import { resolveAvatarUrl } from "@/lib/avatar-utils"
 import { clearSession, selectAuthSession, setSession } from "@/features/auth/store/authSlice"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { AppRoute } from "@/routes/AppRoute"
@@ -46,8 +47,9 @@ export default function ParentDashboardPage() {
       return "🙂"
     }
 
-    if (session.profile.avatar?.trim()) {
-      return session.profile.avatar.trim()
+    const resolved = resolveAvatarUrl(session.profile.avatar)
+    if (resolved) {
+      return resolved
     }
 
     const initial = session.profile.name?.trim()?.charAt(0)?.toUpperCase()

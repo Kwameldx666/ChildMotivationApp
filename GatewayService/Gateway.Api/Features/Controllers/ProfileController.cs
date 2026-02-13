@@ -60,4 +60,17 @@ public class ProfileController(IUserServiceClient userServiceClient) : Controlle
                 cancellationToken);
         return await response.ToActionResultAsync();
     }
+
+    [AllowAnonymous]
+    [HttpGet("avatars/{fileName}")]
+    public async Task<IActionResult> GetAvatarAsync(string fileName, CancellationToken cancellationToken)
+    {
+        var response = await userServiceClient.GetAvatarFileAsync(fileName, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            return NotFound();
+
+        var contentType = response.Content.Headers.ContentType?.MediaType ?? "image/png";
+        var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        return File(stream, contentType);
+    }
 }

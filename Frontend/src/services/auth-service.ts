@@ -96,7 +96,7 @@ export const authService = {
   async uploadAvatar(userId: string, file: File) {
     const form = new FormData()
     form.append('file', file)
-    await httpClient.post(`/api/profile/${userId}/avatar`, form)
+    await httpClient.post(`/api-gateway/profile/${userId}/avatar`, form)
   },
 
   async logout() {

@@ -33,7 +33,13 @@
     "language": "Language",
     "theme": "Theme",
     "dark": "Dark",
-    "light": "Light"
+    "light": "Light",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "saveChanges": "Save Changes",
+    "confirmDelete": "Yes, Delete",
+    "child": "Child",
+    "parent": "Parent"
   },
   "auth": {
     "signIn": "Sign In",
@@ -291,6 +297,37 @@
           "Priority support"
         ]
       }
+    }
+  },
+  "featureGate": {
+    "lockedTitle": "Feature Locked",
+    "requiresPlan": "Requires {plan} plan",
+    "description": "Upgrade your subscription to unlock {feature} and more.",
+    "whatYouGet": "What you'll get",
+    "upgrade": "Upgrade",
+    "upgradeTo": "Upgrade to {plan}",
+    "taskLimitReached": "Daily task limit reached ({count}/{limit}). Upgrade for more.",
+    "childrenLimitReached": "Children limit reached ({count}/{limit}). Upgrade for more.",
+    "featureNames": {
+      "aiAssistant": "AI Assistant",
+      "advancedAnalytics": "Advanced Analytics",
+      "customRewards": "Custom Rewards",
+      "prioritySupport": "Priority Support",
+      "familySharing": "Family Sharing",
+      "offlineMode": "Offline Mode",
+      "maxChildren": "More Children",
+      "maxTasksPerDay": "More Tasks Per Day"
+    },
+    "benefits": {
+      "basic1": "AI-powered task suggestions",
+      "basic2": "Up to 5 children profiles",
+      "basic3": "Up to 50 tasks per day",
+      "premium1": "Advanced analytics & reports",
+      "premium2": "Custom rewards creation",
+      "premium3": "Offline mode & priority support",
+      "family1": "Unlimited children & tasks",
+      "family2": "Family sharing across devices",
+      "family3": "Personal manager & API access"
     }
   },
   "achievements": {
@@ -1065,6 +1102,8 @@
   "rewardCreation": {
     "title": "Create new reward",
     "subtitle": "Add a reward manually or use AI to generate ideas",
+    "modeAi": "AI Assisted",
+    "modeManual": "Manual",
     "selectType": "Select reward type",
     "points": "points",
     "examplesLabel": "Examples:",
@@ -1854,7 +1893,36 @@
     "redirecting": "Redirecting..."
   },
   "profilePage": {
-    "noActiveSession": "No active session"
+    "noActiveSession": "No active session",
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "accountSettings": "Account & Security",
+    "theme": "Theme",
+    "language": "Language",
+    "tapToChange": "Tap to change photo",
+    "name": "First Name",
+    "lastName": "Last Name",
+    "age": "Age",
+    "email": "Email",
+    "role": "Role",
+    "familyCode": "Family Code",
+    "enterName": "Enter your name",
+    "enterLastName": "Enter your last name",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete Account",
+    "deleteConfirm": "This will permanently delete your account and all associated data. This action cannot be undone.",
+    "changePhoto": "Change Photo",
+    "security": "Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "changeEmail": "Change Email",
+    "newEmail": "New Email",
+    "confirmWithPassword": "Confirm with password",
+    "invalidEmail": "Invalid email address"
   },
   "routes": {
     "welcome": "Welcome",
@@ -2177,6 +2245,19 @@
     "uploadImage": "Upload image",
     "userNotFound": "User not found",
     "avatarUploadError": "Failed to upload avatar",
+    "level": "Lv.",
+    "done": "Done",
+    "heroMessage": "Complete tasks, earn rewards, and level up!",
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "nav": {
+      "tasks": "Tasks",
+      "quests": "Quests",
+      "shop": "Shop",
+      "achievements": "Awards",
+      "me": "Me"
+    },
     "rewards": {
       "stickers": "Stickers & extras",
       "toy": "Small toy or treat",
@@ -2188,6 +2269,12 @@
       "tip3": "Ask parents for a special reward after a 7-day streak!",
       "tip4": "Break big tasks into small steps — it's easier that way!"
     }
+  },
+  "gameHub": {
+    "title": "Quest Center",
+    "subtitle": "Complete missions, collect stickers, and climb the leaderboard!",
+    "dayStreak": "day streak",
+    "bonus": "bonus"
   },
   "childProfile": {
     "avatar": "Avatar",

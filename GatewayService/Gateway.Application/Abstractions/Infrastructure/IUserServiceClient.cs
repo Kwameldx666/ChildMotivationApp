@@ -15,6 +15,8 @@ public interface IUserServiceClient
     Task<HttpResponseMessage> UploadAvatarAsync(Guid userId, Stream fileStream, string fileName, string contentType,
         CancellationToken cancellationToken);
 
+    Task<HttpResponseMessage> GetAvatarFileAsync(string fileName, CancellationToken cancellationToken);
+
     // Subscription
     Task<HttpResponseMessage> GetCurrentSubscriptionAsync(CancellationToken cancellationToken);
     Task<HttpResponseMessage> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken);

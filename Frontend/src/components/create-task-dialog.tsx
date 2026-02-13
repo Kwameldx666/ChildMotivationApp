@@ -1,19 +1,20 @@
 "use client"
 
-import { FormEvent, useState, useEffect, useCallback } from "react"
+import { FormEvent, useState, useEffect, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useCreateTask } from "@/services/tasks-queries"
+import { useCreateTask, useTasks } from "@/services/tasks-queries"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Check, Loader2, Sparkles, Camera, CameraOff, User, Clock, Zap, Tag, FileText } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
+import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 
 const QUICK_IDEAS = [
   { emoji: "🧹", text: "createTaskDialog.quickIdeas.cleanRoom" },
@@ -47,6 +48,20 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   const { toast } = useToast()
   const { t } = useTranslation()
   const createTask = useCreateTask()
+  const { hasFeature, isWithinLimit, getLimit } = useSubscriptionGate()
+  const canUseAi = hasFeature('aiAssistant')
+
+  // Count today's tasks for limit check
+  const { data: allTasks = [] } = useTasks()
+  const todayTaskCount = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10)
+    return allTasks.filter((task: any) => {
+      const created = task.createdAt ?? task.created_at ?? ''
+      return created.slice(0, 10) === today
+    }).length
+  }, [allTasks])
+  const taskLimitReached = !isWithinLimit('maxTasksPerDay', todayTaskCount)
+  const maxTasksPerDay = getLimit('maxTasksPerDay')
 
   const [description, setDescription] = useState("")
   const [title, setTitle] = useState("")
@@ -54,7 +69,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   const [dueDate, setDueDate] = useState("")
   const [requiresConfirmation, setRequiresConfirmation] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [useAi, setUseAi] = useState(true)
+  const [useAi, setUseAi] = useState(canUseAi)
   const [difficulty, setDifficulty] = useState(2)
 
   const { data: familyMembers = [] } = useFamilyMembers()
@@ -82,9 +97,10 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   // Разрешаем создание:
   // - С ИИ: описание >= 3 символов
   // - Без ИИ: название >= 3 и описание >= 3
-  const canSubmit = useAi 
+  // - Лимит задач в день не превышен
+  const canSubmit = !taskLimitReached && (useAi 
     ? (description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild))
-    : (title.trim().length >= 3 && description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild))
+    : (title.trim().length >= 3 && description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild)))
 
   const handleQuickIdea = (idea: typeof QUICK_IDEAS[0]) => {
     setDescription(t(idea.text))
@@ -164,6 +180,15 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
         <DialogHeader className="px-5 pt-5 pb-4">
           <DialogTitle className="text-base font-medium">{t("createTaskDialog.title")}</DialogTitle>
         </DialogHeader>
+
+        {/* Task limit warning */}
+        {taskLimitReached && (
+          <div className="mx-5 mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+            <span className="text-sm text-amber-900 dark:text-amber-100">
+              {t("featureGate.taskLimitReached", { limit: maxTasksPerDay, count: todayTaskCount })}
+            </span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col">
           {/* С ИИ: одно поле для описания идеи */}
@@ -358,19 +383,26 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
           {/* Футер */}
           <div className="flex items-center justify-between border-t border-border/40 bg-muted/20 px-5 py-3">
             {/* AI toggle */}
-            <button
-              type="button"
-              onClick={() => setUseAi(!useAi)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all",
-                useAi 
-                  ? "bg-primary/10 text-primary" 
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {useAi ? <Sparkles className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
-              {useAi ? t("createTaskDialog.withAi") : t("createTaskDialog.quick")}
-            </button>
+            {canUseAi ? (
+              <button
+                type="button"
+                onClick={() => setUseAi(!useAi)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all",
+                  useAi 
+                    ? "bg-primary/10 text-primary" 
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                {useAi ? <Sparkles className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
+                {useAi ? t("createTaskDialog.withAi") : t("createTaskDialog.quick")}
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">
+                <Zap className="h-3 w-3" />
+                {t("createTaskDialog.quick")}
+              </span>
+            )}
 
             <Button 
               type="submit" 

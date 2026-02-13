@@ -89,25 +89,25 @@ const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; hint: stri
 const STATUS_META: Record<TaskStatus, { label: string; badge: string; icon: LucideIcon; journeyIndex: number }> = {
 	pending: {
 		label: "tasksList.status.pending",
-		badge: "bg-slate-900/5 text-slate-700 ring-1 ring-slate-200",
+		badge: "bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700",
 		icon: Circle,
 		journeyIndex: 0,
 	},
 	in_progress: {
 		label: "tasksList.status.inProgress",
-		badge: "bg-blue-500/10 text-blue-700 ring-1 ring-blue-200",
+		badge: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800",
 		icon: Clock,
 		journeyIndex: 1,
 	},
 	completed: {
 		label: "tasksList.status.completed",
-		badge: "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-200",
+		badge: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800",
 		icon: CheckCircle2,
 		journeyIndex: 3,
 	},
 	overdue: {
 		label: "tasksList.status.overdue",
-		badge: "bg-red-500/10 text-red-700 ring-1 ring-red-200",
+		badge: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800",
 		icon: AlertCircle,
 		journeyIndex: 2,
 	},
@@ -479,12 +479,12 @@ export default function TasksList({ userType }: TasksListProps) {
 									onClick={() => setActiveFilter(filter.id)}
 									className={cn(
 										"rounded-full border px-4 py-2 text-sm transition",
-										isActive ? "border-slate-900 bg-slate-900 text-white shadow" : "border-border/70 bg-card/70 text-muted-foreground hover:border-foreground/40",
+										isActive ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:bg-muted",
 									)}
 								>
 									<div className="text-left">
 										<p className="text-sm font-semibold">{t(filter.label)}</p>
-										<p className="text-[11px] text-muted-foreground">{t(filter.hint)}</p>
+										<p className={cn("text-[11px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground")}>{t(filter.hint)}</p>
 									</div>
 								</button>
 							)
@@ -645,13 +645,13 @@ export default function TasksList({ userType }: TasksListProps) {
 							{t("common.close")}
 						</button>
 						
-						<div className="bg-white rounded-lg overflow-hidden">
-							<div className="p-4 bg-gradient-to-r from-primary to-secondary text-white">
+						<div className="bg-card rounded-lg overflow-hidden shadow-2xl border border-border">
+							<div className="p-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
 								<h3 className="font-bold text-lg">{viewingEvidence.task.title}</h3>
 								<p className="text-sm opacity-90">{t("tasksList.evidenceViewer.subtitle")}</p>
 							</div>
 							
-							<div className="bg-black flex items-center justify-center" style={{ maxHeight: '70vh' }}>
+							<div className="bg-black/90 flex items-center justify-center" style={{ maxHeight: '70vh' }}>
 								{viewingEvidence.type.startsWith('image/') ? (
 									<img
 										src={viewingEvidence.url}
@@ -668,7 +668,7 @@ export default function TasksList({ userType }: TasksListProps) {
 								) : null}
 							</div>
 							
-							<div className="p-4 flex gap-2 justify-end bg-gray-50">
+							<div className="p-4 flex gap-2 justify-end bg-muted border-t border-border">
 								<Button
 									variant="outline"
 									onClick={() => {
@@ -822,6 +822,20 @@ function TaskRow({
 										</span>
 									)}
 								</span>
+								{/* Evidence mini indicator in collapsed view */}
+								{requiresEvidence && evidenceReady && (
+									<>
+										<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+										<button
+											type="button"
+											onClick={(e) => { e.stopPropagation(); onViewEvidence() }}
+											className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer"
+										>
+											<Eye className="h-3 w-3" />
+											<span className="font-medium">{t("tasksList.evidence.photoLabel")}</span>
+										</button>
+									</>
+								)}
 							</div>
 						</div>
 

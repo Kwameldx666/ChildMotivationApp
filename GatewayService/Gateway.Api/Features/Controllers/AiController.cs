@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Features.Ai.DTOs;
+using Gateway.Authorization;
 using Gateway.Contracts.Ai;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ namespace Gateway.Features.Controllers;
 [ApiController]
 [Authorize]
 [Route("api-gateway/ai")]
+[RequiresSubscription(SubscriptionFeatures.AiAssistant)]
 public sealed class AiController(
     IAiServiceClient aiClient,
     ITaskServiceClient taskClient,

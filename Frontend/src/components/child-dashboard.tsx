@@ -1,42 +1,37 @@
 "use client"
 
-// cspell:disable
-
 import { useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import { resolveAvatarUrl } from "@/lib/avatar-utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle, ShoppingBag, Award, LogOut, User, Zap, BookOpen, MessageSquare, IdCard, MessageCircle } from "lucide-react"
+import {
+  CheckCircle2, LogOut, User, MessageSquare,
+  Flame, Star, Trophy, Target, Crown, Sparkles,
+  Gift, Settings,
+} from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
 import AchievementTree from "./achievement-tree"
-import DailyMissions from "./daily-missions"
-import StickerCollection from "./sticker-collection"
-import FamilyChat from "./family-chat"
+import GameHub from "./game-hub"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
+import { openAiChat } from "@/components/ai-chat-widget"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
-import { openAiChat } from "@/components/ai-chat-widget"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LanguageSwitcher } from "@/components/language-switcher"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
+/* ═══════════ Types ═══════════ */
 
 interface ChildDashboardProps {
   userId: string
@@ -54,400 +49,422 @@ interface ChildDashboardProps {
   onLogout: () => void
 }
 
+/* ═══════════ Game Tabs ═══════════ */
+
+const TABS = [
+  { id: "tasks",        labelKey: "childDashboard.nav.tasks",        Icon: CheckCircle2, emoji: "⚡", grad: "from-emerald-400 to-teal-500",  ring: "ring-emerald-400/40", glow: "shadow-emerald-500/25", dot: "bg-emerald-400" },
+  { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400"  },
+  { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400"  },
+  { id: "achievements", labelKey: "childDashboard.nav.achievements", Icon: Trophy,       emoji: "🏆", grad: "from-amber-400 to-yellow-500",  ring: "ring-amber-400/40",   glow: "shadow-amber-500/25",   dot: "bg-amber-400"   },
+  { id: "profile",      labelKey: "childDashboard.nav.me",           Icon: User,         emoji: "😊", grad: "from-blue-400 to-indigo-500",   ring: "ring-blue-400/40",    glow: "shadow-blue-500/25",    dot: "bg-blue-400"    },
+] as const
+
+/* ═══════════ Helpers ═══════════ */
+
+const getRank = (level: number) => {
+  if (level >= 20) return { key: "legend", emoji: "👑", grad: "from-yellow-400 to-amber-500" }
+  if (level >= 10) return { key: "master", emoji: "⚔️", grad: "from-violet-400 to-purple-500" }
+  if (level >= 5)  return { key: "seeker", emoji: "🔍", grad: "from-blue-400 to-cyan-500" }
+  return { key: "novice", emoji: "🌱", grad: "from-emerald-400 to-green-500" }
+}
+
+const getGreetingKey = () => {
+  const h = new Date().getHours()
+  if (h < 12) return "childDashboard.greetingMorning"
+  if (h < 17) return "childDashboard.greetingAfternoon"
+  return "childDashboard.greetingEvening"
+}
+
+/* ═══════════ Component ═══════════ */
+
 export default function ChildDashboard({ userId, userProfile, familyCode, onLogout }: ChildDashboardProps) {
-  const router = useRouter()
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
-  const xp = stats?.xp ?? 0
-  const level = stats?.level ?? 1
-  const points = stats?.points ?? 0
-  const streak = stats?.streak ?? 0
-  const streakMultiplier = stats?.streakMultiplier ?? 1
-  const rewardProgress = stats?.rewardProgress ?? {
-    instantReward: { pointsNeeded: 30, tasksNeeded: 3, description: t("childDashboard.rewards.stickers") },
-    mediumReward: { pointsNeeded: 120, daysNeeded: 8, description: t("childDashboard.rewards.toy") },
-    bigReward: { pointsNeeded: 350, weeksNeeded: 4, description: t("childDashboard.rewards.gift") },
-  }
-  const [hudCollapsed, setHudCollapsed] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
 
-  // CHANGE: Added state management for modals and AI features
-  const [showAIHelper, setShowAIHelper] = useState(false)
-  const [showTaskDetails, setShowTaskDetails] = useState(false)
+  const points  = stats?.points ?? 0
+  const streak  = stats?.streak ?? 0
+  const xp      = stats?.xp ?? 0
+  const level   = stats?.level ?? 1
+  const done    = stats?.tasksCompleted ?? 0
+  const xpIn    = xp % 100
+  const xpPct   = Math.min(100, xpIn)
+  const rank    = getRank(level)
+
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
-  const [aiMessage, setAiMessage] = useState("")
-  const [selectedTask, setSelectedTask] = useState<any>(null)
+  const { hasFeature } = useSubscriptionGate()
 
-  const handleScroll = (e: any) => {
-    const scrollTop = e.target.scrollTop
-    setScrolled(scrollTop > 50)
-    setHudCollapsed(scrollTop > 200)
-  }
-
-  {/* cspell:disable */}
-  // CHANGE: AI Helper function
-  const handleAIHelper = () => {
-    const suggestions = [
-      t("childDashboard.aiSuggestions.tip1"),
-      t("childDashboard.aiSuggestions.tip2"),
-      t("childDashboard.aiSuggestions.tip3"),
-      t("childDashboard.aiSuggestions.tip4"),
-    ]
-    setAiMessage(suggestions[Math.floor(Math.random() * suggestions.length)])
-  }
+  // Floating particles state
+  const [particles] = useState(() =>
+    Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      emoji: ["✨", "⭐", "💫", "🌟", "🔮", "💎"][i],
+      x: 10 + Math.random() * 80,
+      delay: Math.random() * 4,
+      dur: 3 + Math.random() * 3,
+    }))
+  )
 
   const avatarImageUrl = useMemo(() => {
-    const value = userProfile.avatar?.trim()
-    if (!value) {
-      return null
-    }
-
-    try {
-      const parsed = new URL(value)
-      return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null
-    } catch {
-      return null
-    }
+    const resolved = resolveAvatarUrl(userProfile.avatar)
+    if (!resolved) return null
+    if (resolved.startsWith("http") || resolved.startsWith("data:")) return resolved
+    return null
   }, [userProfile.avatar])
 
-  const avatarFallbackSymbol = useMemo(() => {
-    const value = userProfile.avatar?.trim()
-    if (value && !avatarImageUrl) {
-      return value
-    }
-
-    const nameInitial = userProfile.name?.trim()?.charAt(0)?.toUpperCase()
-    return nameInitial || "🙂"
+  const avatarFallback = useMemo(() => {
+    const v = userProfile.avatar?.trim()
+    if (v && !avatarImageUrl) return v
+    return userProfile.name?.trim()?.charAt(0)?.toUpperCase() || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
-  const renderInlineStat = (label: string, value: string, accentClass: string) => (
-    <div className="text-center">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      {statsLoading ? <Skeleton className="h-5 w-12 mx-auto" /> : <p className={`font-bold text-lg ${accentClass}`}>{value}</p>}
-    </div>
-  )
+  // XP ring geometry (viewBox 120×120, r=52)
+  const R = 52, C = 2 * Math.PI * R
 
-  const renderCardStat = (label: string, value: string, accentClass: string) => (
-    <Card className="bg-card border-border">
-      <CardContent className="pt-4">
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
-          {statsLoading ? <Skeleton className="h-8 w-20 mx-auto" /> : <p className={`text-3xl font-bold ${accentClass}`}>{value}</p>}
-        </div>
-      </CardContent>
-    </Card>
-  )
+  const curTab = TABS.find(t => t.id === activeTab)!
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* CHANGE: Changed header from sticky to fixed so it scrolls naturally but stays visible at top */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border py-6 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold">{t("child.greeting", { name: userProfile.name })}</h1>
-              <p className="text-sm text-muted-foreground">{t("child.subtitle")}</p>
-            </div>
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
 
-            {/* CHANGE: Stats displayed in normal row instead of compacting on scroll */}
-            <div className="flex flex-wrap items-center gap-4">
-              <LanguageSwitcher variant="outline" size="sm" />
-              <ThemeToggle />
-              <NotificationsPopover />
-              <Button
-                className="gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30"
-                onClick={() => openAiChat()}
-              >
-                <MessageSquare className="h-4 w-4" />
-                {t("childDashboard.aiChat")}
-              </Button>
-              {renderInlineStat(t("child.stats.level"), String(level), "text-primary")}
-              {renderInlineStat(t("child.stats.experience"), `${xp}`, "text-accent")}
-              {renderInlineStat(t("child.stats.points"), `${points}`, "text-secondary")}
-              {renderInlineStat(t("child.stats.streak"), `${streak}`, "text-orange-500")}
-            </div>
+      {/* ═══ FLOATING PARTICLES (decorative) ═══ */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
+        {particles.map(p => (
+          <span
+            key={p.id}
+            className="absolute text-lg opacity-[0.06] dark:opacity-[0.04] animate-float-gentle select-none"
+            style={{ left: `${p.x}%`, top: "-24px", animationDelay: `${p.delay}s`, animationDuration: `${p.dur}s` }}
+          >
+            {p.emoji}
+          </span>
+        ))}
+      </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <Avatar className="h-8 w-8">
-                    {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("childDashboard.profileAvatar")} />}
-                    <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {userProfile.age && `${userProfile.age} ${t("child.stats.age")} • `}
-                      {t("child.stats.familyCode")}: {familyCode}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setShowAvatarPicker(true)}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{t("child.navigation.changeAvatar")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={event => {
-                    event.preventDefault()
-                    router.push("/profile")
-                  }}
-                >
-                  <IdCard className="mr-2 h-4 w-4" />
-                  <span>{t("child.navigation.profile")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>{t("child.navigation.logout")}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+      {/* ═══════════════════════════════════════════════
+           STATUS BAR — minimal, game HUD style
+         ═══════════════════════════════════════════════ */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/15">
+        <div className="max-w-3xl mx-auto px-4 flex items-center h-12 gap-3">
+          {/* Greeting */}
+          <p className="text-sm font-bold truncate flex-1 min-w-0">
+            {t(getGreetingKey())}, <span className="text-foreground">{userProfile.name}</span>
+          </p>
+
+          {/* Points coin */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-400/20">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0">
+              <Star className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
+              {statsLoading ? "·" : points.toLocaleString()}
+            </span>
           </div>
 
-          {/* CHANGE: Full HUD stats in grid below header, scrolls naturally */}
-          <div className="grid grid-cols-4 gap-4 mb-4">
-            {renderCardStat(t("child.stats.level"), String(level), "text-primary")}
-            {renderCardStat(t("child.stats.experience"), `${xp}`, "text-accent")}
-            {renderCardStat(t("child.stats.points"), `${points}`, "text-secondary")}
-            <Card className="bg-card border-border">
-              <CardContent className="pt-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("child.stats.streak")}</p>
-                  {statsLoading ? (
-                    <Skeleton className="h-8 w-20 mx-auto" />
-                  ) : (
-                    <>
-                      <p className="text-3xl font-bold text-orange-500">{t("childDashboard.streakDays", { count: streak })}</p>
-                      {streakMultiplier > 1 && (
-                        <p className="text-xs text-green-500 mt-1">
-                          {t("childDashboard.bonusMultiplier", { value: streakMultiplier.toFixed(1) })}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Прогресс до наград */}
-          {!statsLoading && (
-            <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-lg p-4 border border-violet-500/20">
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-5 h-5 text-violet-500" />
-                <h3 className="font-semibold text-sm">{t("childDashboard.rewardProgress")}</h3>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-500">{rewardProgress.instantReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
-                  <p className="text-xs text-green-500 mt-1">{t("childDashboard.tasksNeeded", { count: rewardProgress.instantReward.tasksNeeded })}</p>
-                  <p className="text-[10px] text-muted-foreground">{rewardProgress.instantReward.description}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-amber-500">{rewardProgress.mediumReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
-                  <p className="text-xs text-amber-500 mt-1">{t("childDashboard.daysNeeded", { count: rewardProgress.mediumReward.daysNeeded })}</p>
-                  <p className="text-[10px] text-muted-foreground">{rewardProgress.mediumReward.description}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-500">{rewardProgress.bigReward.pointsNeeded}</p>
-                  <p className="text-xs text-muted-foreground">{t("childDashboard.pointsLabel")}</p>
-                  <p className="text-xs text-purple-500 mt-1">{t("childDashboard.weeksNeeded", { count: rewardProgress.bigReward.weeksNeeded })}</p>
-                  <p className="text-[10px] text-muted-foreground">{rewardProgress.bigReward.description}</p>
-                </div>
-              </div>
+          {/* Streak */}
+          {streak > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/10 border border-orange-400/20">
+              <Flame className={cn("h-4 w-4 text-orange-500", streak >= 3 && "animate-streak-flame")} />
+              <span className="text-sm font-black text-orange-600 dark:text-orange-400">{streak}</span>
             </div>
           )}
+
+          {/* Settings gear */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="h-8 w-8 rounded-full bg-muted/40 hover:bg-muted flex items-center justify-center transition-colors">
+                <Settings className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5">
+              <div className="flex items-center justify-center gap-1 py-1.5">
+                <LanguageSwitcher variant="ghost" size="sm" />
+                <ThemeToggle />
+                <NotificationsPopover />
+                {hasFeature("aiAssistant") && (
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-xl" onClick={() => openAiChat()}>
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowAvatarPicker(true)} className="rounded-xl text-sm">
+                <User className="mr-2 h-4 w-4" /> {t("child.navigation.changeAvatar")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onLogout} className="rounded-xl text-sm text-destructive focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" /> {t("child.navigation.logout")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-[480px]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 mb-6 h-auto p-1 bg-muted">
-            <TabsTrigger value="tasks" className="flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("tasks.title")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="missions" className="flex items-center gap-1">
-              <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("childDashboard.missions")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-1">
-              <Award className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("achievements.title")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="stickers" className="flex items-center gap-1">
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("child.navigation.stickers")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="shop" className="flex items-center gap-1">
-              <ShoppingBag className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("child.navigation.shop")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center gap-1">
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("child.navigation.chat")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-1">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("child.navigation.profile")}</span>
-            </TabsTrigger>
-          </TabsList>
+      {/* ═══════════════════════════════════════════════
+           CHARACTER ZONE — avatar + level + XP hero
+         ═══════════════════════════════════════════════ */}
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-2">
+        <div className="flex flex-col items-center text-center">
 
-          <TabsContent value="tasks" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold mb-1">{t("child.navigation.tasks")}</h2>
-                <p className="text-sm text-muted-foreground mb-4">{t("child.messages.completeTask")}</p>
-              </div>
-              {/* CHANGE: Added AI helper button */}
-              <Button
-                onClick={handleAIHelper}
-                className="gap-2 bg-linear-to-r from-purple-500 to-pink-500 text-white"
-              >
-                <MessageSquare className="w-4 h-4" />
-                {t("childDashboard.aiHelper")}
-              </Button>
-            </div>
-            <TasksList userType="child" />
-          </TabsContent>
+          {/* Large Avatar with XP Ring */}
+          <button
+            onClick={() => setShowAvatarPicker(true)}
+            className="relative group mb-3"
+            aria-label={t("child.navigation.changeAvatar")}
+          >
+            {/* Glow behind avatar */}
+            <div className={cn(
+              "absolute inset-0 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity",
+              "bg-gradient-to-br", rank.grad,
+            )} />
 
-          <TabsContent value="missions" className="space-y-4">
-            <DailyMissions />
-          </TabsContent>
-
-          <TabsContent value="achievements" className="space-y-4">
-            <AchievementTree />
-          </TabsContent>
-
-          <TabsContent value="stickers" className="space-y-4">
-            <StickerCollection />
-          </TabsContent>
-
-          <TabsContent value="shop" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("child.navigation.rewards")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t("child.messages.earnRewards")}</p>
-            </div>
-            <RewardsShop userType="child" />
-          </TabsContent>
-
-          <TabsContent value="profile" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("child.navigation.profile")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t("child.messages.manageProfile")}</p>
-            </div>
-            <ChildProfile
-              childId={userId}
-              name={userProfile.name}
-              avatarSymbol={avatarFallbackSymbol}
-              avatarImageUrl={avatarImageUrl}
-              familyCode={familyCode}
-              stats={stats}
-              statsLoading={statsLoading}
-            />
-          </TabsContent>
-          <TabsContent value="chat" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-bold mb-1">{t("childDashboard.familyChat")}</h2>
-                <p className="text-sm text-muted-foreground">{t("childDashboard.familyChatDescription")}</p>
-              </div>
-            </div>
-            <div className="max-w-4xl mx-auto">
-              <FamilyChat 
-                familyId={familyCode} 
-                currentUserId={userId}
-                currentUserName={userProfile.name}
-                currentUserAvatar={userProfile.avatar}
-                userRole="child"
+            <svg className="w-28 h-28 sm:w-32 sm:h-32 -rotate-90 relative z-10" viewBox="0 0 120 120" aria-hidden>
+              {/* Track */}
+              <circle cx="60" cy="60" r={R} fill="none" strokeWidth="5" className="stroke-muted/20" />
+              {/* XP fill */}
+              <circle
+                cx="60" cy="60" r={R} fill="none" strokeWidth="6"
+                stroke="url(#xpGrad)"
+                strokeLinecap="round"
+                strokeDasharray={`${(xpPct / 100) * C} ${C}`}
+                className="transition-all duration-1000 ease-out"
+                style={{ filter: "drop-shadow(0 0 8px rgba(139,92,246,0.5))" }}
               />
+              <defs>
+                <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#8B5CF6" />
+                  <stop offset="50%" stopColor="#D946EF" />
+                  <stop offset="100%" stopColor="#F472B6" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Avatar center */}
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <Avatar className="h-20 w-20 sm:h-[92px] sm:w-[92px] ring-4 ring-background shadow-xl group-hover:scale-105 transition-transform duration-300">
+                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" />}
+                <AvatarFallback className="text-3xl sm:text-4xl bg-gradient-to-br from-violet-100 to-pink-100 dark:from-violet-900/60 dark:to-pink-900/60 font-bold">
+                  {avatarFallback}
+                </AvatarFallback>
+              </Avatar>
             </div>
-          </TabsContent>        </Tabs>
+
+            {/* Level badge */}
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-30">
+              <div className={cn(
+                "px-3 py-1 rounded-full text-white text-xs font-black",
+                "bg-gradient-to-r shadow-lg ring-2 ring-background",
+                rank.grad,
+              )}>
+                {t("childDashboard.level")} {level}
+              </div>
+            </div>
+          </button>
+
+          {/* Rank title */}
+          <div className="flex items-center gap-1.5 mt-1 mb-2">
+            <span className="text-lg">{rank.emoji}</span>
+            <span className={cn("text-sm font-bold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
+              {t(`childProfile.rank.${rank.key}`)}
+            </span>
+          </div>
+
+          {/* XP Progress Bar */}
+          <div className="w-full max-w-xs">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-bold text-muted-foreground">XP</span>
+              <span className="text-[11px] font-bold text-muted-foreground tabular-nums">{xpIn}/100</span>
+            </div>
+            <div className="h-3 rounded-full bg-muted/30 overflow-hidden relative">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 animate-xp-fill relative"
+                style={{ width: `${xpPct}%` }}
+              >
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer" />
+              </div>
+              {/* Glow at tip */}
+              {xpPct > 5 && (
+                <div
+                  className="absolute top-0 h-full w-3 rounded-full bg-white/60 blur-sm"
+                  style={{ left: `calc(${xpPct}% - 6px)` }}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Quick stats row */}
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-1">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+              </div>
+              <span className="text-lg font-black leading-none">{done}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">{t("childDashboard.done")}</span>
+            </div>
+            <div className="w-px h-8 bg-border/30" />
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-1">
+                <Sparkles className="h-5 w-5 text-violet-500" />
+              </div>
+              <span className="text-lg font-black leading-none">{xp}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">XP</span>
+            </div>
+            <div className="w-px h-8 bg-border/30" />
+            <div className="flex flex-col items-center">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-1">
+                <Star className="h-5 w-5 text-amber-500" />
+              </div>
+              <span className="text-lg font-black leading-none">{points}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">{t("childDashboard.nav.shop")}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════
+           GAME NAVIGATION — desktop horizontal bar
+         ═══════════════════════════════════════════════ */}
+      <div className="hidden md:block max-w-3xl mx-auto px-4 mt-4 mb-3">
+        <nav className="flex items-center gap-2 p-1.5 rounded-2xl bg-muted/30 border border-border/20">
+          {TABS.map(tab => {
+            const active = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200",
+                  active
+                    ? ["bg-background shadow-lg", tab.glow, "scale-[1.02]"]
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50",
+                )}
+              >
+                {active ? (
+                  <span className="text-lg animate-tab-pop">{tab.emoji}</span>
+                ) : (
+                  <tab.Icon className="h-4 w-4" />
+                )}
+                <span className={cn(active && "bg-gradient-to-r bg-clip-text text-transparent", active && tab.grad)}>
+                  {t(tab.labelKey)}
+                </span>
+              </button>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* ═══════════════════════════════════════════════
+           CONTENT
+         ═══════════════════════════════════════════════ */}
+      <main className="relative z-10 max-w-3xl mx-auto px-4 pb-24 md:pb-8 pt-1">
+        <div className={cn(activeTab === "tasks" ? "block" : "hidden")}><TasksList userType="child" /></div>
+        <div className={cn(activeTab === "quests" ? "block" : "hidden")}><GameHub /></div>
+        <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" /></div>
+        <div className={cn(activeTab === "achievements" ? "block" : "hidden")}><AchievementTree /></div>
+        <div className={cn(activeTab === "profile" ? "block" : "hidden")}>
+          <ChildProfile
+            childId={userId}
+            name={userProfile.name}
+            avatarSymbol={avatarFallback}
+            avatarImageUrl={avatarImageUrl}
+            familyCode={familyCode}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
+        </div>
       </main>
 
-      {/* CHANGE: AI Helper Modal */}
-      <Dialog open={showAIHelper} onOpenChange={setShowAIHelper}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("childDashboard.aiHelper")}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-linear-to-r from-purple-100 to-pink-100 p-4 rounded-lg">
-              <p className="text-sm font-medium">{aiMessage || t("childDashboard.loadingAdvice")}</p>
-            </div>
-            <Button onClick={handleAIHelper} className="w-full">
-              {t("childDashboard.getMoreAdvice")}
-            </Button>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAIHelper(false)}>
-              {t("common.close")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* ═══════════════════════════════════════════════
+           MOBILE BOTTOM NAV — floating game bar
+         ═══════════════════════════════════════════════ */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <div className="mx-4 mb-4">
+          <nav className={cn(
+            "flex items-center justify-around h-[60px] rounded-[20px]",
+            "bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl",
+            "border border-white/40 dark:border-slate-700/30",
+            "shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+          )}>
+            {TABS.map(tab => {
+              const active = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="relative flex flex-col items-center justify-center h-full w-full"
+                >
+                  {/* Active glow dot */}
+                  {active && (
+                    <div className={cn("absolute -top-1.5 w-1.5 h-1.5 rounded-full", tab.dot, "shadow-sm")} />
+                  )}
+                  <div className={cn(
+                    "flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200",
+                    active
+                      ? ["bg-gradient-to-br text-white shadow-lg", tab.grad, tab.glow, "scale-110"]
+                      : "text-muted-foreground/50",
+                  )}>
+                    {active ? (
+                      <span className="text-lg animate-tab-pop">{tab.emoji}</span>
+                    ) : (
+                      <tab.Icon className="h-5 w-5" />
+                    )}
+                  </div>
+                  <span className={cn(
+                    "text-[9px] font-bold mt-0.5 leading-none transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground/40",
+                  )}>
+                    {t(tab.labelKey)}
+                  </span>
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+      </div>
 
-      {/* CHANGE: Avatar Picker Modal */}
+      {/* ═══ AVATAR PICKER DIALOG ═══ */}
       <Dialog open={showAvatarPicker} onOpenChange={setShowAvatarPicker}>
-        <DialogContent>
+        <DialogContent className="max-w-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle>{t("childDashboard.chooseAvatar")}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              {t("childDashboard.chooseAvatar")}
+            </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-4 gap-4">
-            {["👦", "👧", "🧒", "👨‍🦱", "👩‍🦱", "🧑", "👨‍🎨", "👩‍💼", "🧑‍💻", "👨‍⚕️", "👩‍⚕️", "🧑‍🍳"].map((avatar) => (
+          <div className="grid grid-cols-4 gap-2">
+            {["👦", "👧", "🧒", "👨‍🦱", "👩‍🦱", "🧑", "👨‍🎨", "👩‍💼", "🧑‍💻", "👨‍⚕️", "👩‍⚕️", "🧑‍🍳"].map((av) => (
               <button
-                key={avatar}
-                onClick={() => {
-                  setShowAvatarPicker(false)
-                }}
-                className="text-4xl p-2 rounded-lg hover:bg-primary/10 transition-colors"
+                key={av}
+                onClick={() => setShowAvatarPicker(false)}
+                className="text-3xl p-2.5 rounded-2xl hover:bg-primary/10 hover:scale-110 active:scale-90 transition-all border border-transparent hover:border-primary/20 hover:shadow-lg"
               >
-                {avatar}
+                {av}
               </button>
             ))}
           </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-muted-foreground mb-2">{t("childDashboard.uploadImage")}</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="text-sm"
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                try {
-                  // Try to get current user id from local cache
-                  let userId: string | undefined
-                  const raw = localStorage.getItem('familyapp_current_user')
-                  if (raw) userId = JSON.parse(raw).id
-                  if (!userId) {
-                    alert(t('childDashboard.userNotFound'))
-                    return
-                  }
-
-                  const { authService } = await import('@/services/auth-service')
-                  await authService.uploadAvatar(userId, file)
-                  // Simple UX: reload to pick up new avatar
-                  window.location.reload()
-                } catch (err) {
-                  console.error(err)
-                  alert(t('childDashboard.avatarUploadError'))
-                }
-              }}
-            />
+          <div className="mt-2">
+            <label className="block text-sm font-semibold text-muted-foreground mb-1.5">{t("childDashboard.uploadImage")}</label>
+            <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl cursor-pointer border-border hover:bg-primary/5 hover:border-primary/40 transition-all">
+              <span className="text-2xl mb-1">📷</span>
+              <span className="text-xs text-muted-foreground font-medium">{t("childProfile.uploadPrompt")}</span>
+              <input
+                type="file" accept="image/*" className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  try {
+                    let uid: string | undefined
+                    const raw = localStorage.getItem("familyapp_current_user")
+                    if (raw) uid = JSON.parse(raw).id
+                    if (!uid) { alert(t("childDashboard.userNotFound")); return }
+                    const { authService } = await import("@/services/auth-service")
+                    await authService.uploadAvatar(uid, file)
+                    window.location.reload()
+                  } catch (err) { console.error(err); alert(t("childDashboard.avatarUploadError")) }
+                }}
+              />
+            </label>
           </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAvatarPicker(false)}>
+            <Button variant="outline" className="rounded-xl" onClick={() => setShowAvatarPicker(false)}>
               {t("common.cancel")}
             </Button>
           </DialogFooter>
@@ -456,5 +473,3 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
     </div>
   )
 }
-
-// cspell:enable
