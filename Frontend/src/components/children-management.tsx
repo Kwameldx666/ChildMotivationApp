@@ -4,18 +4,24 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Check, Copy, RefreshCw, Users, ChevronRight } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import { Check, Copy, RefreshCw, Users, ChevronRight, Plus, Loader2, UserPlus } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
 import type { FamilyMember } from "@/services/family-service"
 import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
+import { authApi } from "@/features/auth/api/authApi"
+import { toast } from "sonner"
 
 interface ChildrenManagementProps {
   familyCode?: string | null
 }
 
 const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
+const CHILD_AVATARS = ["👦", "👧", "🧒", "🦄", "🐱", "🐶", "🦊", "🐻", "🐼", "🐸"]
 
 const resolveAvatar = (member: FamilyMember, index: number) => {
   const value = member.avatar?.trim()
@@ -32,6 +38,196 @@ const formatMemberName = (member: FamilyMember) => {
 
 const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 
+/* ─── Add Child Modal ─── */
+function AddChildModal({
+  familyCode,
+  onClose,
+  onSuccess,
+  t,
+}: {
+  familyCode: string
+  onClose: () => void
+  onSuccess: () => void
+  t: (key: string, params?: Record<string, string>) => string
+}) {
+  const [childName, setChildName] = useState("")
+  const [childLastName, setChildLastName] = useState("")
+  const [childEmail, setChildEmail] = useState("")
+  const [childPassword, setChildPassword] = useState("")
+  const [childAge, setChildAge] = useState("8")
+  const [childAvatar, setChildAvatar] = useState(CHILD_AVATARS[0])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const isValid =
+    childName.trim().length > 0 &&
+    childLastName.trim().length > 0 &&
+    childEmail.trim().length > 0 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(childEmail) &&
+    childPassword.length >= 6
+
+  const handleSubmit = async () => {
+    if (!isValid || isSubmitting) return
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+      await authApi.register({
+        email: childEmail.trim(),
+        password: childPassword,
+        role: "child",
+        profile: {
+          name: childName.trim(),
+          lastName: childLastName.trim(),
+          avatar: childAvatar,
+          age: Number(childAge),
+        },
+        family: {
+          code: familyCode.toUpperCase(),
+        },
+      })
+      toast.success(t("addChild.success"))
+      onSuccess()
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ??
+        err?.response?.data?.title ??
+        err?.message ??
+        t("addChild.error")
+      setError(msg)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <CardContent className="pt-6 space-y-4">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">{t("addChild.title")}</h2>
+              <p className="text-xs text-muted-foreground">{t("addChild.subtitle")}</p>
+            </div>
+          </div>
+
+          {/* Name */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")}</Label>
+              <Input
+                value={childName}
+                onChange={(e) => setChildName(e.target.value)}
+                placeholder={t("addChild.firstNamePlaceholder")}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium mb-1 block">{t("addChild.lastName")}</Label>
+              <Input
+                value={childLastName}
+                onChange={(e) => setChildLastName(e.target.value)}
+                placeholder={t("addChild.lastNamePlaceholder")}
+              />
+            </div>
+          </div>
+
+          {/* Credentials */}
+          <div>
+            <Label className="text-sm font-medium mb-1 block">{t("addChild.email")}</Label>
+            <Input
+              type="email"
+              value={childEmail}
+              onChange={(e) => setChildEmail(e.target.value)}
+              placeholder={t("addChild.emailPlaceholder")}
+            />
+            <p className="text-xs text-muted-foreground mt-1">{t("addChild.emailHint")}</p>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium mb-1 block">{t("addChild.password")}</Label>
+            <Input
+              type="password"
+              value={childPassword}
+              onChange={(e) => setChildPassword(e.target.value)}
+              placeholder={t("addChild.passwordPlaceholder")}
+            />
+            <p className="text-xs text-muted-foreground mt-1">{t("addChild.passwordHint")}</p>
+          </div>
+
+          {/* Age slider */}
+          <div>
+            <Label className="text-sm font-medium mb-1 block">{t("addChild.age")}</Label>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl font-bold text-primary w-8 text-center">{childAge}</span>
+              <Slider
+                min={5}
+                max={16}
+                step={1}
+                value={[Number(childAge)]}
+                onValueChange={(vals) => setChildAge(String(vals[0]))}
+                className="flex-1"
+              />
+            </div>
+          </div>
+
+          {/* Avatar picker */}
+          <div>
+            <Label className="text-sm font-medium mb-1 block">{t("addChild.avatar")}</Label>
+            <div className="flex flex-wrap gap-2">
+              {CHILD_AVATARS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setChildAvatar(a)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all ${
+                    childAvatar === a
+                      ? "bg-primary/15 ring-2 ring-primary"
+                      : "bg-muted hover:bg-muted/80"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              className="flex-1 gap-2"
+              onClick={handleSubmit}
+              disabled={!isValid || isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t("addChild.creating")}
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  {t("addChild.createButton")}
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
   const router = useRouter()
   const { t } = useTranslation()
@@ -42,6 +238,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
     enabled: Boolean(normalizedFamilyCode),
   })
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [showAddChild, setShowAddChild] = useState(false)
 
   const children = useMemo(() => {
     if (!data) return []
@@ -105,14 +302,32 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
 
   if (children.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center space-y-3">
-          <p className="text-sm text-muted-foreground">{t("family.noChildren")}</p>
-          <p className="text-xs text-muted-foreground">
-            {t("family.noChildrenDescription")}
-          </p>
-        </CardContent>
-      </Card>
+      <>
+        <Card>
+          <CardContent className="py-12 text-center space-y-4">
+            <UserPlus className="w-10 h-10 mx-auto text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">{t("family.noChildren")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("addChild.emptyHint")}
+            </p>
+            <Button className="gap-2" onClick={() => setShowAddChild(true)}>
+              <Plus className="w-4 h-4" />
+              {t("addChild.addButton")}
+            </Button>
+          </CardContent>
+        </Card>
+        {showAddChild && normalizedFamilyCode && (
+          <AddChildModal
+            familyCode={normalizedFamilyCode}
+            onClose={() => setShowAddChild(false)}
+            onSuccess={() => {
+              setShowAddChild(false)
+              refetch()
+            }}
+            t={t}
+          />
+        )}
+      </>
     )
   }
 
@@ -191,6 +406,31 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
           </Card>
         ))}
       </div>
+
+      {/* Add child button */}
+      {isWithinLimit('maxChildren', children.length) && (
+        <Button
+          variant="outline"
+          className="w-full gap-2 border-dashed"
+          onClick={() => setShowAddChild(true)}
+        >
+          <Plus className="w-4 h-4" />
+          {t("addChild.addButton")}
+        </Button>
+      )}
+
+      {/* Add child modal */}
+      {showAddChild && normalizedFamilyCode && (
+        <AddChildModal
+          familyCode={normalizedFamilyCode}
+          onClose={() => setShowAddChild(false)}
+          onSuccess={() => {
+            setShowAddChild(false)
+            refetch()
+          }}
+          t={t}
+        />
+      )}
     </div>
   )
 }

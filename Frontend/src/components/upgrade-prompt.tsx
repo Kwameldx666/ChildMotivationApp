@@ -1,6 +1,6 @@
 "use client"
 
-import { Crown, Lock, Sparkles, ArrowRight } from "lucide-react"
+import { Crown, Lock, Sparkles, ArrowRight, Zap, Users } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/i18n/provider"
@@ -34,14 +34,20 @@ export function UpgradePrompt({
 
   const tierColors: Record<string, string> = {
     basic: "from-blue-500 to-indigo-600",
-    premium: "from-amber-500 to-orange-600",
-    family: "from-purple-500 to-pink-600",
+    premium: "from-purple-500 to-pink-600",
+    family: "from-amber-500 to-orange-600",
   }
 
   const tierIcons: Record<string, typeof Crown> = {
-    basic: Sparkles,
+    basic: Zap,
     premium: Crown,
-    family: Crown,
+    family: Users,
+  }
+
+  const tierPrices: Record<string, string> = {
+    basic: "49 lei",
+    premium: "99 lei",
+    family: "149 lei",
   }
 
   const gradient = tierColors[requiredTier] ?? tierColors.premium
@@ -62,13 +68,15 @@ export function UpgradePrompt({
           <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
             {t("featureGate.requiresPlan", { plan: t(`subscription.${requiredTier}`) })}
           </p>
+          <p className="text-xs text-amber-700/70 dark:text-amber-300/70">
+            {t("featureGate.startingAt", { price: tierPrices[requiredTier] ?? "49 lei" })}
+          </p>
         </div>
         {onUpgrade && (
           <Button
             size="sm"
-            variant="outline"
             onClick={onUpgrade}
-            className="shrink-0 border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300"
+            className={cn("shrink-0 bg-gradient-to-r text-white hover:opacity-90", gradient)}
           >
             {t("featureGate.upgrade")}
           </Button>
@@ -115,6 +123,10 @@ export function UpgradePrompt({
             </li>
           </ul>
         </div>
+        {/* Price hint */}
+        <p className="text-xs text-muted-foreground mb-3 text-center">
+          {t("featureGate.startingAt", { price: tierPrices[requiredTier] ?? "49 lei" })}
+        </p>
         {onUpgrade && (
           <Button
             onClick={onUpgrade}

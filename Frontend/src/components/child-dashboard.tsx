@@ -126,6 +126,13 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">
 
+      {/* ═══ GRADIENT MESH BACKGROUND ═══ */}
+      <div className="fixed inset-0 pointer-events-none z-0" aria-hidden>
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-violet-500/[0.04] dark:bg-violet-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "8s" }} />
+        <div className="absolute top-1/3 -right-40 w-80 h-80 rounded-full bg-pink-500/[0.04] dark:bg-pink-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
+        <div className="absolute bottom-20 left-1/4 w-72 h-72 rounded-full bg-amber-500/[0.04] dark:bg-amber-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "12s", animationDelay: "4s" }} />
+      </div>
+
       {/* ═══ FLOATING PARTICLES (decorative) ═══ */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
         {particles.map(p => (
@@ -143,11 +150,21 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
            STATUS BAR — minimal, game HUD style
          ═══════════════════════════════════════════════ */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/15">
+        {/* Gradient accent stripe */}
+        <div className={cn("h-1 bg-gradient-to-r", rank.grad)} />
         <div className="max-w-3xl mx-auto px-4 flex items-center h-12 gap-3">
-          {/* Greeting */}
-          <p className="text-sm font-bold truncate flex-1 min-w-0">
-            {t(getGreetingKey())}, <span className="text-foreground">{userProfile.name}</span>
-          </p>
+          {/* Greeting + Level badge */}
+          <div className="flex items-center gap-2 truncate flex-1 min-w-0">
+            <div className={cn(
+              "shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black text-white",
+              "bg-gradient-to-br", rank.grad,
+            )}>
+              {level}
+            </div>
+            <p className="text-sm font-bold truncate">
+              {t(getGreetingKey())}, <span className="text-foreground">{userProfile.name}</span>
+            </p>
+          </div>
 
           {/* Points coin */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-400/20">
@@ -316,6 +333,43 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               <span className="text-[10px] text-muted-foreground font-semibold">{t("childDashboard.nav.shop")}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════
+           DAILY MOTIVATION CARD
+         ═══════════════════════════════════════════════ */}
+      <div className="relative z-10 max-w-3xl mx-auto px-4 mt-4">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-violet-500/5 border border-primary/10">
+          {/* Next level progress */}
+          <div className="shrink-0 flex flex-col items-center">
+            <div className={cn(
+              "w-12 h-12 rounded-2xl flex items-center justify-center text-xl",
+              "bg-gradient-to-br shadow-lg text-white",
+              rank.grad,
+            )}>
+              {rank.emoji}
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("childDashboard.nextLevel")}</p>
+            <p className="text-sm font-bold truncate">
+              {t("childDashboard.xpToNext", { xp: String(100 - xpIn) })}
+            </p>
+            <div className="mt-1.5 h-2 rounded-full bg-muted/30 overflow-hidden">
+              <div
+                className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700", rank.grad)}
+                style={{ width: `${xpPct}%` }}
+              />
+            </div>
+          </div>
+          {/* Streak highlight */}
+          {streak >= 3 && (
+            <div className="shrink-0 flex flex-col items-center px-2">
+              <Flame className="h-6 w-6 text-orange-500 animate-streak-flame" />
+              <span className="text-[10px] font-black text-orange-500">{streak}🔥</span>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Bot,
   Check,
@@ -21,6 +21,7 @@ import type { AiAction } from "@/services/ai-service"
 import { useTranslation } from "@/i18n/provider"
 import { selectAuthSession } from "@/features/auth/store/authSlice"
 import { useAppSelector } from "@/store/hooks"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 /* ─── quick starters shown when conversation is empty ─── */
 function QuickStarters({
@@ -47,17 +48,84 @@ function QuickStarters({
   )
 }
 
+/* ─── lightweight inline markdown for AI responses ─── */
+function renderMarkdown(text: string): React.ReactNode {
+  // Split on newlines to handle line-level markdown
+  const lines = text.split("\n")
+  const elements: React.ReactNode[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Bullet lists
+    if (/^\s*[-•*]\s/.test(line)) {
+      const content = line.replace(/^\s*[-•*]\s/, "")
+      elements.push(
+        <div key={i} className="flex gap-1.5 items-start">
+          <span className="mt-1.5 h-1 w-1 rounded-full bg-current shrink-0 opacity-60" />
+          <span>{inlineFormat(content)}</span>
+        </div>
+      )
+      continue
+    }
+
+    // Numbered lists
+    if (/^\s*\d+[.)]\s/.test(line)) {
+      const num = line.match(/^\s*(\d+)/)?.[1] ?? ""
+      const content = line.replace(/^\s*\d+[.)]\s/, "")
+      elements.push(
+        <div key={i} className="flex gap-1.5 items-start">
+          <span className="text-xs font-semibold opacity-70 mt-0.5 shrink-0">{num}.</span>
+          <span>{inlineFormat(content)}</span>
+        </div>
+      )
+      continue
+    }
+
+    // Empty lines → space
+    if (!line.trim()) {
+      elements.push(<div key={i} className="h-1" />)
+      continue
+    }
+
+    // Regular text
+    elements.push(<div key={i}>{inlineFormat(line)}</div>)
+  }
+
+  return <div className="space-y-0.5">{elements}</div>
+}
+
+/** Format inline markdown: **bold**, *italic*, `code` */
+function inlineFormat(text: string): React.ReactNode {
+  // Pattern: **bold**, *italic*, `code`
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+    }
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return <em key={i}>{part.slice(1, -1)}</em>
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={i} className="rounded bg-foreground/10 px-1 py-0.5 text-xs font-mono">{part.slice(1, -1)}</code>
+    }
+    return part
+  })
+}
+
 /* ─── single message bubble ─── */
 function MessageBubble({
   message,
   t,
   onExecuteAction,
   onDismissAction,
+  actionFilter,
 }: {
   message: ChatMessage
   t: (key: string, params?: Record<string, string>) => string
   onExecuteAction: (a: AiAction) => Promise<void>
   onDismissAction: (a: AiAction) => void
+  actionFilter?: (a: AiAction) => boolean
 }) {
   const isUser = message.role === "user"
 
@@ -84,23 +152,28 @@ function MessageBubble({
               : "rounded-bl-md bg-muted text-foreground",
           )}
         >
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          <p className="whitespace-pre-wrap">
+            {isUser ? message.content : renderMarkdown(message.content)}
+          </p>
         </div>
 
         {/* inline actions */}
-        {!isUser && message.actions && message.actions.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 px-1 pt-0.5">
-            {message.actions.map((action, idx) => (
-              <WidgetActionButton
-                key={`${message.id}-a-${idx}`}
-                action={action}
-                onExecute={onExecuteAction}
-                onDismiss={onDismissAction}
-                t={t}
-              />
-            ))}
-          </div>
-        )}
+        {!isUser && message.actions && message.actions.length > 0 && (() => {
+          const filtered = actionFilter ? message.actions.filter(actionFilter) : message.actions
+          return filtered.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 px-1 pt-0.5">
+              {filtered.map((action, idx) => (
+                <WidgetActionButton
+                  key={`${message.id}-a-${idx}`}
+                  action={action}
+                  onExecute={onExecuteAction}
+                  onDismiss={onDismissAction}
+                  t={t}
+                />
+              ))}
+            </div>
+          ) : null
+        })()}
 
         <span className="px-1 text-[10px] text-muted-foreground/60">
           {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -193,8 +266,9 @@ export function openAiChat() {
    Main floating widget
    ═══════════════════════════════════════════════ */
 export default function AiChatWidget() {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const session = useAppSelector(selectAuthSession)
+  const { settings } = useUserSettings()
 
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -219,11 +293,13 @@ export default function AiChatWidget() {
   }, [t, userName])
 
   const context = useMemo(() => {
-    const base: Record<string, string> = { locale: "ru-RU", audience: role }
+    const localeMap: Record<string, string> = { en: "en-US", ru: "ru-RU", ro: "ro-RO" }
+    const base: Record<string, string> = { locale: localeMap[locale] ?? locale, audience: role }
     if (userName) base.displayName = userName
     if (familyName) base.familyName = familyName
+    if (settings.aiTone) base.tone = settings.aiTone
     return base
-  }, [role, userName, familyName])
+  }, [role, userName, familyName, locale, settings.aiTone])
 
   const {
     messages,
@@ -235,7 +311,7 @@ export default function AiChatWidget() {
     reset,
     executeAction,
     dismissAction,
-  } = useAiChat({ greeting, context, maxHistory: 10 })
+  } = useAiChat({ greeting, context, maxHistory: 10, t })
 
   /* ── quick starters ── */
   const starters = useMemo(
@@ -289,8 +365,9 @@ export default function AiChatWidget() {
     setInput("")
   }
 
-  /* ── don't render for unauthenticated users ── */
+  /* ── don't render for unauthenticated users or when AI is disabled ── */
   if (!session) return null
+  if (!settings.aiChatEnabled) return null
 
   const unreadHint = messages.length > 1 && !open
 
@@ -389,6 +466,13 @@ export default function AiChatWidget() {
                     t={t}
                     onExecuteAction={executeAction}
                     onDismissAction={dismissAction}
+                    actionFilter={(a) => {
+                      const taskTypes = ["CreateTask", "CreateTasks"]
+                      const rewardTypes = ["CreateReward", "CreateRewards"]
+                      if (taskTypes.includes(a.type) && !settings.aiCanCreateTasks) return false
+                      if (rewardTypes.includes(a.type) && !settings.aiCanCreateRewards) return false
+                      return true
+                    }}
                   />
                 ))}
 
@@ -406,25 +490,34 @@ export default function AiChatWidget() {
               </div>
             </div>
 
-            {/* ─── Pending Actions ─── */}
-            {pendingActions.length > 0 && (
-              <div className="border-t bg-primary/5 px-3 py-2">
-                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                  {t("aiWidget.actions")}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {pendingActions.map((a, i) => (
-                    <WidgetActionButton
-                      key={`pa-${i}`}
-                      action={a}
-                      onExecute={executeAction}
-                      onDismiss={dismissAction}
-                      t={t}
-                    />
-                  ))}
+            {/* ─── Pending Actions (filtered by AI permissions) ─── */}
+            {(() => {
+              const taskTypes = ["CreateTask", "CreateTasks"]
+              const rewardTypes = ["CreateReward", "CreateRewards"]
+              const filtered = pendingActions.filter((a) => {
+                if (taskTypes.includes(a.type) && !settings.aiCanCreateTasks) return false
+                if (rewardTypes.includes(a.type) && !settings.aiCanCreateRewards) return false
+                return true
+              })
+              return filtered.length > 0 ? (
+                <div className="border-t bg-primary/5 px-3 py-2">
+                  <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    {t("aiWidget.actions")}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {filtered.map((a, i) => (
+                      <WidgetActionButton
+                        key={`pa-${i}`}
+                        action={a}
+                        onExecute={executeAction}
+                        onDismiss={dismissAction}
+                        t={t}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : null
+            })()}
 
             {/* ─── Follow‑ups ─── */}
             {followUps.length > 0 && (

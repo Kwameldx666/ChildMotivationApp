@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode, Loader2 } from "lucide-react"
+import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode, Loader2, Bot, Sparkles, CheckCircle2, XCircle } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useTranslation } from "@/i18n/provider"
 import {
@@ -209,6 +209,87 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
       </Card>
 
       {/* Appearance */}
+
+      {/* AI Chatbot Control */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bot className="w-5 h-5 text-primary" />
+            {t("aiControl.title")}
+          </CardTitle>
+          <CardDescription>{t("aiControl.description")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <Label className="font-medium">{t("aiControl.enableChat")}</Label>
+                <p className="text-xs text-muted-foreground">{t("aiControl.enableChatDesc")}</p>
+              </div>
+            </div>
+            <Switch
+              checked={settings.aiChatEnabled}
+              onCheckedChange={(value) => handleSettingChange("aiChatEnabled", value)}
+            />
+          </div>
+
+          {settings.aiChatEnabled && (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="font-medium">{t("aiControl.canCreateTasks")}</Label>
+                    <p className="text-xs text-muted-foreground">{t("aiControl.canCreateTasksDesc")}</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={settings.aiCanCreateTasks}
+                  onCheckedChange={(value) => handleSettingChange("aiCanCreateTasks", value)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="font-medium">{t("aiControl.canCreateRewards")}</Label>
+                    <p className="text-xs text-muted-foreground">{t("aiControl.canCreateRewardsDesc")}</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={settings.aiCanCreateRewards}
+                  onCheckedChange={(value) => handleSettingChange("aiCanCreateRewards", value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-medium">{t("aiControl.tone")}</Label>
+                <p className="text-xs text-muted-foreground">{t("aiControl.toneDesc")}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["friendly", "educational", "strict"] as const).map((tone) => (
+                    <button
+                      key={tone}
+                      type="button"
+                      onClick={() => handleSettingChange("aiTone", tone)}
+                      className={`py-2 px-3 rounded-xl border text-xs font-medium transition-all ${
+                        settings.aiTone === tone
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground hover:border-primary/40"
+                      }`}
+                    >
+                      {t(`aiControl.tone_${tone}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Appearance (rest) */}
       <Card>
         <CardHeader>
           <CardTitle>{t("settings.appearance")}</CardTitle>

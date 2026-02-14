@@ -291,6 +291,7 @@
     },
     "familyName": "Numele familiei",
     "familyCodeAuto": "Codul familiei se va genera automat după înregistrare.",
+    "addChildLater": "După înregistrare, puteți adăuga copii din panoul de control",
     "familyCode": "Codul familiei",
     "familyCodePlaceholder": "ABC123",
     "submitFillRequired": "Completează câmpurile obligatorii",
@@ -648,73 +649,83 @@
     "chooseYourPlan": "Alege planul tău",
     "upgradeDescription": "Îmbunătățiți abonamentul pentru a accesa funcții avansate",
     "selectPlan": "Selectează",
+    "switchToYearlySave": "Treci la anual și economisești 15%",
     "plansInclude": "Planurile includ:",
     "plans": {
       "free": {
         "name": "Free",
-        "tagline": "Pentru a începe",
+        "tagline": "Încercați aplicația cu familia",
         "price": "Gratuit",
         "features": [
-          "Până la 2 copii",
-          "Până la 10 sarcini pe zi",
-          "Chat familial",
-          "Recompense de bază",
-          "Urmărire activitate"
+          "1 profil de copil",
+          "Crearea sarcinilor manual",
+          "Recompense de bază cu stele",
+          "Chat familial"
         ]
       },
       "basic": {
         "name": "Basic",
-        "tagline": "Pentru familii active",
-        "price": "15",
-        "priceAmount": "15 lei",
-        "yearlyPrice": "155",
+        "tagline": "Ajutor zilnic cu treburile și motivația",
+        "price": "49",
+        "priceAmount": "49 lei",
+        "yearlyPrice": "499",
+        "yearlyMonthlyPrice": "41 lei",
         "yearlyDiscount": "-15%",
         "features": [
-          "Până la 5 copii",
-          "Până la 30 sarcini pe zi",
-          "Generare sarcini AI",
-          "Recompense extinse",
-          "Analitică progres",
+          "Copii nelimitați",
+          "AI generează sarcini pe vârstă",
+          "Magazin recompense — copilul cheltuie puncte",
+          "Confirmare foto a sarcinilor",
+          "Sumar săptămânal al progresului",
           "Suport email"
         ]
       },
       "premium": {
         "name": "Premium",
-        "tagline": "Capabilități maxime",
-        "price": "30",
-        "priceAmount": "30 lei",
-        "yearlyPrice": "310",
-        "yearlyDiscount": "-15%",
+        "tagline": "Perspective care ajută în creșterea copiilor",
+        "price": "99",
+        "priceAmount": "99 lei",
+        "yearlyPrice": "999",
+        "yearlyMonthlyPrice": "83 lei",
+        "yearlyDiscount": "-16%",
         "features": [
-          "Până la 10 copii",
-          "Până la 100 sarcini pe zi",
-          "Asistent AI avansat",
-          "Analitică detaliată",
-          "Suport prioritar",
-          "Mod offline",
-          "Teme personalizate",
-          "Șabloane sarcini"
+          "Tot din Basic",
+          "AI adaptează sarcinile la comportamentul copilului",
+          "Analiză detaliată — puncte forte și slabe",
+          "Rapoarte PDF (pentru profesori sau psiholog)",
+          "Sarcini recurente și programare inteligentă",
+          "Teme și șabloane personalizate",
+          "Suport prioritar (răspuns în 24h)"
         ]
       },
       "family": {
         "name": "Family",
-        "tagline": "Pentru familii mari",
-        "price": "50",
-        "priceAmount": "50 lei",
-        "yearlyPrice": "515",
-        "yearlyDiscount": "-15%",
+        "tagline": "Ambii părinți, bunicii și bona — sincronizați",
+        "price": "149",
+        "priceAmount": "149 lei",
+        "yearlyPrice": "1499",
+        "yearlyMonthlyPrice": "124 lei",
+        "yearlyDiscount": "-17%",
         "features": [
-          "Copii nelimitați",
-          "Sarcini nelimitate",
-          "Toate funcțiile Premium",
-          "Acces familial",
-          "Manager personal",
-          "Acces API",
-          "Integrări personalizate",
-          "Suport prioritar"
+          "Tot din Premium",
+          "Până la 5 conturi de adulți",
+          "Fiecare adult cu login propriu",
+          "Notificări push pentru toți adulții",
+          "Feed comun de activitate familială",
+          "Manager dedicat de suport"
         ]
       }
-    }
+    },
+    "trial": {
+      "badge": "7 zile gratuit",
+      "startTrial": "Începe perioada de probă",
+      "trialActive": "Perioadă de probă",
+      "trialDaysLeft": "{days} zile rămase din perioada de probă",
+      "trialDescription": "Încearcă Basic gratuit 7 zile. Anulare oricând.",
+      "trialExpired": "Perioada de probă a expirat"
+    },
+    "downgradeBlocked": "Aveți deja un plan superior",
+    "cannotDowngrade": "Trecerea la un plan inferior nu este disponibilă. Contactați suportul."
   },
   "featureGate": {
     "lockedTitle": "Funcție blocată",
@@ -723,6 +734,7 @@
     "whatYouGet": "Ce vei primi",
     "upgrade": "Upgrade",
     "upgradeTo": "Treci la {plan}",
+    "startingAt": "De la {price}/lună",
     "taskLimitReached": "Limita de sarcini pe zi atinsă ({count}/{limit}). Fă upgrade.",
     "childrenLimitReached": "Limita de copii atinsă ({count}/{limit}). Fă upgrade.",
     "featureNames": {
@@ -1009,7 +1021,12 @@
     "thinking": "Gândesc...",
     "error": "Nu s-a putut obține răspunsul",
     "suggestions": "Sugestii",
-    "actions": "Acțiuni recomandate"
+    "actions": "Acțiuni recomandate",
+    "fallbackReply": "Vă rugăm să clarificați cererea, am pierdut contextul.",
+    "fetchError": "Nu s-a putut obține răspunsul AI. Încercați din nou.",
+    "actionSuccess": "Acțiunea a fost efectuată cu succes!",
+    "actionFailed": "Nu s-a putut efectua acțiunea",
+    "actionError": "Eroare la efectuarea acțiunii"
   },
   "aiChatPage": {
     "quickActions": {
@@ -1484,7 +1501,17 @@
     "tierFamily": "Familie",
     "subscriptionCancelled": "Abonament anulat",
     "switchedToFree": "Ați trecut la planul gratuit",
-    "cancelError": "Nu s-a putut anula abonamentul"
+    "cancelError": "Nu s-a putut anula abonamentul",
+    "viewPlans": "Alege un plan",
+    "validUntil": "Valabil până la",
+    "includedFeatures": "Funcțiile tale",
+    "featureAI": "Asistent AI",
+    "featureAnalytics": "Analitice avansate",
+    "featureRewards": "Recompense personalizate",
+    "featureSupport": "Suport prioritar",
+    "limitChildren": "Limită copii",
+    "limitTasks": "Limită sarcini",
+    "perDay": "/zi"
   },
   "taskDetails": {
     "description": "Descriere",
@@ -1506,7 +1533,8 @@
     "tryAgain": "Încearcă din nou",
     "chartOf": "Grafic {current} din {total}",
     "wholeFamily": "Toată familia",
-    "quickSwitch": "Comutare rapidă"
+    "quickSwitch": "Comutare rapidă",
+    "child": "Copil"
   },
   "parentalControl": {
     "title": "Control parental",
@@ -1519,6 +1547,21 @@
     "spendingLimit": "Limită de cheltuieli",
     "maxPointsPerDay": "Maximum puncte pe zi",
     "saveSettings": "Salvează setările"
+  },
+  "aiControl": {
+    "title": "Asistent AI",
+    "description": "Controlați cum interacționează asistentul AI cu familia",
+    "enableChat": "Activare chat AI",
+    "enableChatDesc": "Permite utilizarea asistentului AI în chatul familiei",
+    "canCreateTasks": "AI poate crea sarcini",
+    "canCreateTasksDesc": "Permite AI-ului să sugereze și să creeze sarcini direct",
+    "canCreateRewards": "AI poate crea recompense",
+    "canCreateRewardsDesc": "Permite AI-ului să sugereze și să creeze recompense direct",
+    "tone": "Tonul AI",
+    "toneDesc": "Alegeți stilul de comunicare al AI-ului",
+    "tone_friendly": "Prietenos",
+    "tone_educational": "Educativ",
+    "tone_strict": "Strict"
   },
   "notificationsCenter": {
     "title": "Notificări",
@@ -1610,12 +1653,12 @@
     "goHome": "Acasă",
     "inviteTitle": "Invitație în familie!",
     "inviteSubtitle": "Ați fost invitat să vă alăturați unei familii",
-    "benefit1": "Alăturați-vă familiei și începeți să îndepliniți sarcini",
-    "benefit2": "Câștigați puncte și primiți recompense",
-    "benefit3": "Urmăriți-vă progresul și realizările",
-    "joinButton": "Alătură-te familiei",
+    "parentAddsChild": "Copiii sunt adăugați de părinți din panoul de control",
+    "shareCodeWithParent": "Partajați acest cod cu părintele pentru a vă putea adăuga",
+    "parentDashboardAdd": "Părintele va crea contul dvs. și va partaja datele de autentificare",
+    "goToLogin": "Mergi la autentificare",
     "cancel": "Anulare",
-    "footerNote": "Pentru a vă alătura, trebuie să creați un cont sau să vă autentificați"
+    "footerNote": "Rugați-l pe părinte să vă adauge din panoul de control"
   },
   "taskCompletion": {
     "title": "Confirmarea finalizării",
@@ -1894,7 +1937,11 @@
     "noActiveSession": "Nicio sesiune activă",
     "title": "Profil",
     "editProfile": "Editează profilul",
+    "editProfileSub": "Nume, fotografie, date personale",
     "accountSettings": "Cont și securitate",
+    "accountSettingsSub": "Email, parolă, zona de pericol",
+    "family": "Familie",
+    "code": "Cod",
     "theme": "Temă",
     "language": "Limbă",
     "tapToChange": "Apasă pentru a schimba fotografia",
@@ -2245,6 +2292,8 @@
     "avatarUploadError": "Nu s-a putut încărca avatarul",
     "level": "Nv.",
     "done": "Gata",
+    "nextLevel": "Nivelul următor",
+    "xpToNext": "{xp} XP până la avansare",
     "heroMessage": "Completează sarcini, câștigă recompense și avansează!",
     "greetingMorning": "Bună dimineața",
     "greetingAfternoon": "Bună ziua",
@@ -2581,20 +2630,41 @@
     "title": "Plată",
     "description": "Abonament {tierName} la ${price}/lună",
     "errorTitle": "Eroare de validare",
-    "fillAllFields": "Vă rugăm completați toate câmpurile",
+    "fillAllFields": "Vă rugăm completați toate datele cardului",
     "paymentSuccess": "Plată reușită",
     "subscriptionActivatedToast": "Abonamentul {tierName} a fost activat!",
     "successTitle": "Abonament activat!",
-    "successDescription": "Mulțumim! Abonamentul dvs. este acum activ.",
+    "successDescription": "Mulțumim! Abonamentul dvs. este activ, toate funcțiile sunt deblocate.",
     "cardDetails": "Detalii card",
-    "cardSecure": "Informațiile de plată sunt securizate",
+    "cardSecure": "Informațiile de plată sunt criptate și securizate",
     "cardNumber": "Număr card",
     "cardholderName": "Numele titularului",
     "expiryDate": "Data expirării",
-    "totalAmount": "Suma totală",
+    "totalAmount": "Total",
     "cancel": "Anulează",
     "processing": "Se procesează...",
-    "pay": "Plătește ${price}"
+    "pay": "Plătește ${price}",
+    "subscribingTo": "Abonare la",
+    "billingCycle": "Perioada de facturare",
+    "monthly": "Lunar",
+    "yearly": "Anual",
+    "mo": "lună",
+    "year": "an",
+    "plan": "Plan",
+    "billing": "Facturare",
+    "perYear": "pe an",
+    "perMonthShort": "pe lună",
+    "continueToPayment": "Continuă la plată",
+    "backToPlan": "Înapoi la plan",
+    "agreeToTerms": "Accept termenii serviciului și politica de reînnoire automată. Puteți anula oricând.",
+    "processingPayment": "Se procesează plata...",
+    "doNotClose": "Vă rugăm nu închideți această fereastră",
+    "secureTransaction": "Tranzacție criptată securizată",
+    "activated": "Activat",
+    "nowAvailable": "Acum disponibil",
+    "featureAI": "Asistent AI și sugestii inteligente",
+    "featureAnalytics": "Analitice avansate și rapoarte",
+    "featureFamily": "Acces familial nelimitat"
   },
   "stickerCollection": {
     "lion": "Leu",
@@ -2618,5 +2688,27 @@
     "seriesPercent": "{percent}% colectat",
     "outOf": "{unlocked} din {total} colectate",
     "locked": "Blocat"
+  },
+  "addChild": {
+    "title": "Adăugați copil",
+    "subtitle": "Creați un cont pentru copilul dvs.",
+    "firstName": "Prenume",
+    "firstNamePlaceholder": "Prenumele copilului",
+    "lastName": "Nume",
+    "lastNamePlaceholder": "Numele copilului",
+    "email": "Email",
+    "emailPlaceholder": "copil@exemplu.com",
+    "emailHint": "Folosit pentru autentificarea copilului — puteți folosi emailul dvs. cu sufix +copil",
+    "password": "Parolă",
+    "passwordPlaceholder": "Minim 6 caractere",
+    "passwordHint": "Comunicați aceste date copilului pentru autentificare",
+    "age": "Vârstă",
+    "avatar": "Avatar",
+    "createButton": "Adăugați copil",
+    "creating": "Se creează...",
+    "success": "Copilul a fost adăugat cu succes!",
+    "error": "Nu s-a putut adăuga copilul. Încercați din nou.",
+    "addButton": "Adăugați copil",
+    "emptyHint": "Adăugați primul copil pentru a începe cu sarcini și recompense"
   }
 }

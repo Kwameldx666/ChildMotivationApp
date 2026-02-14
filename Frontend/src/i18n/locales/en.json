@@ -231,73 +231,83 @@
     "chooseYourPlan": "Choose Your Plan",
     "upgradeDescription": "Upgrade your subscription to access advanced features",
     "selectPlan": "Select Plan",
+    "switchToYearlySave": "Switch to yearly to save 15%",
     "plansInclude": "Plans include:",
     "plans": {
       "free": {
         "name": "Free",
-        "tagline": "Get started",
+        "tagline": "Try the app with your family",
         "price": "Free",
         "features": [
-          "Up to 2 children",
-          "Up to 10 tasks per day",
-          "Family chat",
-          "Basic rewards",
-          "Activity tracking"
+          "1 child profile",
+          "Create & assign tasks manually",
+          "Basic star rewards",
+          "Family chat"
         ]
       },
       "basic": {
         "name": "Basic",
-        "tagline": "For active families",
-        "price": "15",
-        "priceAmount": "$15",
-        "yearlyPrice": "155",
+        "tagline": "Daily help with chores & motivation",
+        "price": "49",
+        "priceAmount": "49 lei",
+        "yearlyPrice": "499",
+        "yearlyMonthlyPrice": "41 lei",
         "yearlyDiscount": "-15%",
         "features": [
-          "Up to 5 children",
-          "Up to 30 tasks per day",
-          "AI task generation",
-          "Extended rewards",
-          "Progress analytics",
+          "Unlimited children",
+          "AI generates age-appropriate tasks",
+          "Reward shop — kids spend earned points",
+          "Photo proof of completed tasks",
+          "Weekly progress summary",
           "Email support"
         ]
       },
       "premium": {
         "name": "Premium",
-        "tagline": "Maximum capabilities",
-        "price": "30",
-        "priceAmount": "$30",
-        "yearlyPrice": "310",
-        "yearlyDiscount": "-15%",
+        "tagline": "Insights that help you raise kids better",
+        "price": "99",
+        "priceAmount": "99 lei",
+        "yearlyPrice": "999",
+        "yearlyMonthlyPrice": "83 lei",
+        "yearlyDiscount": "-16%",
         "features": [
-          "Up to 10 children",
-          "Up to 100 tasks per day",
-          "Advanced AI assistant",
-          "Detailed analytics",
-          "Priority support",
-          "Offline mode",
-          "Custom themes",
-          "Task templates"
+          "Everything in Basic",
+          "AI adapts tasks to child's behavior",
+          "Detailed analytics — strengths & weak spots",
+          "PDF reports (for teachers or therapists)",
+          "Recurring tasks & smart scheduling",
+          "Custom themes & task templates",
+          "Priority support (24h response)"
         ]
       },
       "family": {
         "name": "Family",
-        "tagline": "For large families",
-        "price": "50",
-        "priceAmount": "$50",
-        "yearlyPrice": "515",
-        "yearlyDiscount": "-15%",
+        "tagline": "Both parents, grandparents & nanny in sync",
+        "price": "149",
+        "priceAmount": "149 lei",
+        "yearlyPrice": "1499",
+        "yearlyMonthlyPrice": "124 lei",
+        "yearlyDiscount": "-17%",
         "features": [
-          "Unlimited children",
-          "Unlimited tasks",
-          "All Premium features",
-          "Family access",
-          "Personal manager",
-          "API access",
-          "Custom integrations",
-          "Priority support"
+          "Everything in Premium",
+          "Up to 5 caregiver accounts",
+          "Each adult gets their own login",
+          "Push notifications for all caregivers",
+          "Shared family activity feed",
+          "Dedicated support manager"
         ]
       }
-    }
+    },
+    "trial": {
+      "badge": "7-day free trial",
+      "startTrial": "Start Free Trial",
+      "trialActive": "Trial Active",
+      "trialDaysLeft": "{days} trial days left",
+      "trialDescription": "Try Basic features free for 7 days. Cancel anytime.",
+      "trialExpired": "Trial expired"
+    },
+    "downgradeBlocked": "You already have a higher plan",
+    "cannotDowngrade": "Downgrade is not available. Contact support to change plans."
   },
   "featureGate": {
     "lockedTitle": "Feature Locked",
@@ -306,6 +316,7 @@
     "whatYouGet": "What you'll get",
     "upgrade": "Upgrade",
     "upgradeTo": "Upgrade to {plan}",
+    "startingAt": "Starting at {price}/month",
     "taskLimitReached": "Daily task limit reached ({count}/{limit}). Upgrade for more.",
     "childrenLimitReached": "Children limit reached ({count}/{limit}). Upgrade for more.",
     "featureNames": {
@@ -592,7 +603,12 @@
     "thinking": "Thinking...",
     "error": "Failed to get response",
     "suggestions": "Suggestions",
-    "actions": "Suggested Actions"
+    "actions": "Suggested Actions",
+    "fallbackReply": "Could you please clarify your request? I lost the context.",
+    "fetchError": "Failed to get AI response. Please try again.",
+    "actionSuccess": "Action completed successfully!",
+    "actionFailed": "Failed to perform the action",
+    "actionError": "Error while performing the action"
   },
   "aiChatPage": {
     "quickActions": {
@@ -905,6 +921,7 @@
     },
     "familyName": "Family name",
     "familyCodeAuto": "Family code will be generated automatically after registration.",
+    "addChildLater": "After registration, you can add children from your dashboard",
     "familyCode": "Family code",
     "familyCodePlaceholder": "ABC123",
     "submitFillRequired": "Fill required fields",
@@ -1486,7 +1503,17 @@
     "tierFamily": "Family",
     "subscriptionCancelled": "Subscription cancelled",
     "switchedToFree": "You have switched to the free plan",
-    "cancelError": "Failed to cancel subscription"
+    "cancelError": "Failed to cancel subscription",
+    "viewPlans": "View Plans",
+    "validUntil": "Valid until",
+    "includedFeatures": "Your Features",
+    "featureAI": "AI Assistant",
+    "featureAnalytics": "Advanced Analytics",
+    "featureRewards": "Custom Rewards",
+    "featureSupport": "Priority Support",
+    "limitChildren": "Children limit",
+    "limitTasks": "Tasks limit",
+    "perDay": "/day"
   },
   "taskDetails": {
     "description": "Description",
@@ -1508,7 +1535,8 @@
     "tryAgain": "Try again",
     "chartOf": "Chart {current} of {total}",
     "wholeFamily": "Whole family",
-    "quickSwitch": "Quick switch"
+    "quickSwitch": "Quick switch",
+    "child": "Child"
   },
   "parentalControl": {
     "title": "Parental Control",
@@ -1521,6 +1549,21 @@
     "spendingLimit": "Spending Limit",
     "maxPointsPerDay": "Maximum points per day",
     "saveSettings": "Save settings"
+  },
+  "aiControl": {
+    "title": "AI Assistant",
+    "description": "Control how the AI assistant interacts with your family",
+    "enableChat": "Enable AI Chat",
+    "enableChatDesc": "Allow the AI assistant to be used in the family chat",
+    "canCreateTasks": "AI Can Create Tasks",
+    "canCreateTasksDesc": "Allow AI to suggest and create tasks directly",
+    "canCreateRewards": "AI Can Create Rewards",
+    "canCreateRewardsDesc": "Allow AI to suggest and create rewards directly",
+    "tone": "AI Tone",
+    "toneDesc": "Choose how the AI communicates",
+    "tone_friendly": "Friendly",
+    "tone_educational": "Educational",
+    "tone_strict": "Strict"
   },
   "notificationsCenter": {
     "title": "Notifications",
@@ -1612,12 +1655,12 @@
     "goHome": "Go to Home",
     "inviteTitle": "Family Invitation!",
     "inviteSubtitle": "You have been invited to join a family",
-    "benefit1": "Join the family and start completing tasks",
-    "benefit2": "Earn points and receive rewards",
-    "benefit3": "Track your progress and achievements",
-    "joinButton": "Join the Family",
+    "parentAddsChild": "Children are added by parents from their dashboard",
+    "shareCodeWithParent": "Share this code with the parent so they can add you",
+    "parentDashboardAdd": "The parent will create your account and share login details",
+    "goToLogin": "Go to Login",
     "cancel": "Cancel",
-    "footerNote": "To join, you will need to create an account or sign in"
+    "footerNote": "Ask your parent to add you from their dashboard"
   },
   "taskCompletion": {
     "title": "Confirm Completion",
@@ -1896,7 +1939,11 @@
     "noActiveSession": "No active session",
     "title": "Profile",
     "editProfile": "Edit Profile",
+    "editProfileSub": "Name, photo, personal info",
     "accountSettings": "Account & Security",
+    "accountSettingsSub": "Email, password, danger zone",
+    "family": "Family",
+    "code": "Code",
     "theme": "Theme",
     "language": "Language",
     "tapToChange": "Tap to change photo",
@@ -2247,6 +2294,8 @@
     "avatarUploadError": "Failed to upload avatar",
     "level": "Lv.",
     "done": "Done",
+    "nextLevel": "Next Level",
+    "xpToNext": "{xp} XP to level up",
     "heroMessage": "Complete tasks, earn rewards, and level up!",
     "greetingMorning": "Good morning",
     "greetingAfternoon": "Good afternoon",
@@ -2583,20 +2632,41 @@
     "title": "Payment",
     "description": "Subscribe to {tierName} plan for ${price}/month",
     "errorTitle": "Validation Error",
-    "fillAllFields": "Please fill in all fields",
+    "fillAllFields": "Please fill in all card fields",
     "paymentSuccess": "Payment Successful",
     "subscriptionActivatedToast": "{tierName} subscription activated!",
     "successTitle": "Subscription Activated!",
-    "successDescription": "Thank you! Your subscription is now active.",
+    "successDescription": "Thank you! Your subscription is now active and all features are unlocked.",
     "cardDetails": "Card Details",
-    "cardSecure": "Your payment information is secure",
+    "cardSecure": "Your payment information is encrypted and secure",
     "cardNumber": "Card number",
     "cardholderName": "Cardholder name",
     "expiryDate": "Expiry date",
-    "totalAmount": "Total amount",
+    "totalAmount": "Total",
     "cancel": "Cancel",
     "processing": "Processing...",
-    "pay": "Pay ${price}"
+    "pay": "Pay ${price}",
+    "subscribingTo": "Subscribing to",
+    "billingCycle": "Billing Cycle",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "mo": "mo",
+    "year": "year",
+    "plan": "Plan",
+    "billing": "Billing",
+    "perYear": "per year",
+    "perMonthShort": "per month",
+    "continueToPayment": "Continue to Payment",
+    "backToPlan": "Back to plan",
+    "agreeToTerms": "I agree to the Terms of Service and auto-renewal policy. You can cancel anytime.",
+    "processingPayment": "Processing your payment...",
+    "doNotClose": "Please don't close this window",
+    "secureTransaction": "Secure encrypted transaction",
+    "activated": "Activated",
+    "nowAvailable": "Now Available",
+    "featureAI": "AI Assistant & Smart Suggestions",
+    "featureAnalytics": "Advanced Analytics & Reports",
+    "featureFamily": "Unlimited Family Sharing"
   },
   "stickerCollection": {
     "lion": "Lion",
@@ -2620,5 +2690,27 @@
     "seriesPercent": "{percent}% collected",
     "outOf": "{unlocked} of {total} collected",
     "locked": "Locked"
+  },
+  "addChild": {
+    "title": "Add Child",
+    "subtitle": "Create an account for your child",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Child's first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Child's last name",
+    "email": "Email",
+    "emailPlaceholder": "child@example.com",
+    "emailHint": "Used for child login – can be parent's email with +child suffix",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "passwordHint": "Share these credentials with your child for login",
+    "age": "Age",
+    "avatar": "Avatar",
+    "createButton": "Add Child",
+    "creating": "Creating...",
+    "success": "Child added successfully!",
+    "error": "Failed to add child. Please try again.",
+    "addButton": "Add Child",
+    "emptyHint": "Add your first child to get started with tasks and rewards"
   }
 }

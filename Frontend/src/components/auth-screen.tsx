@@ -140,23 +140,11 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     setInfo(null)
   }, [initialMode])
 
-  // Загружаем pendingFamilyCode и режим из localStorage (для приглашений)
+  // Clean up any stale join mode data from old invite links
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const pendingCode = localStorage.getItem("pendingFamilyCode")
-      const pendingMode = localStorage.getItem("pendingJoinMode")
-      
-      if (pendingCode) {
-        setChildFamilyCode(pendingCode)
-        localStorage.removeItem("pendingFamilyCode")
-      }
-      
-      if (pendingMode === "child") {
-        setRole("child")
-        setMode("register")
-        setIsJoiningByInvite(true) // Блокируем выбор роли
-        localStorage.removeItem("pendingJoinMode")
-      }
+      localStorage.removeItem("pendingFamilyCode")
+      localStorage.removeItem("pendingJoinMode")
     }
   }, [])
 
@@ -185,15 +173,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     if (!email || !password) return true
     if (!isValidEmail(email)) return true
     if (!name.trim() || !lastName.trim()) return true
-    if (role === "parent" && !familyName.trim()) return true
-    if (role === "child" && !childFamilyCode.trim()) return true
-    if (role === "child" && !age.trim()) return true // Обязательное поле возраста
-    if (role === "child" && age.trim()) {
-      const parsed = Number(age)
-      if (Number.isNaN(parsed) || parsed < 1 || parsed > 120) return true
-    }
+    if (!familyName.trim()) return true
     return false
-  }, [mode, isLoading, email, password, name, lastName, familyName, childFamilyCode, age, role])
+  }, [mode, isLoading, email, password, name, lastName, familyName])
 
   const handleBack = () => {
     setError(null)
@@ -292,55 +274,26 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
         setError(t("authScreen.errors.familyNameRequired"))
         return
       }
-    } else {
-      if (!childFamilyCode.trim()) {
-        setError(t("authScreen.errors.familyCodeRequired"))
-        return
-      }
-      if (interests.length === 0) {
-        setError(t("authScreen.errors.interestsRequired"))
-        return
-      }
-    }
-
-    const parsedAge = age.trim() ? Number(age) : undefined
-    if (role === "child" && age.trim() && (Number.isNaN(parsedAge) || parsedAge! < 1 || parsedAge! > 120)) {
-      setError(t("authScreen.errors.ageInvalid"))
-      return
     }
 
     const profilePayload = {
       name: name.trim(),
       lastName: lastName.trim(),
       avatar,
-      ...(role === "child" && parsedAge ? { age: parsedAge } : {}),
-      ...(role === "child" && interests.length > 0 ? { interests } : {}),
     }
 
     setIsLoading(true)
     try {
-      if (role === "parent") {
-        await authApi.register({
-          email,
-          password,
-          role: "parent",
-          profile: profilePayload,
-          family: {
-            name: familyName.trim(),
-            emblem: familyEmblem,
-          },
-        })
-      } else {
-        await authApi.register({
-          email,
-          password,
-          role: "child",
-          profile: profilePayload,
-          family: {
-            code: childFamilyCode.trim().toUpperCase(),
-          },
-        })
-      }
+      await authApi.register({
+        email,
+        password,
+        role: "parent",
+        profile: profilePayload,
+        family: {
+          name: familyName.trim(),
+          emblem: familyEmblem,
+        },
+      })
       setInfo(t("authScreen.info.registerSuccess"))
       setMode("login")
       setError(null)
@@ -348,9 +301,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       setEmailTouched(false)
       setNameTouched(false)
       setLastNameTouched(false)
-      setFamilyNameTouched(false)
-      setChildFamilyCodeTouched(false)
-      setAgeTouched(false) 
+      setFamilyNameTouched(false) 
     } catch (serviceError) {
       setError(mapApiError(serviceError, t("authScreen.errors.registerFailed")))
     } finally {
@@ -417,36 +368,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
                 {mode === "register" && (
                   <>
-                    <div className="text-center mb-2">
-                      <p className="text-sm font-semibold text-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 p-2 rounded-lg">
-                        {t("authScreen.rolePrompt")}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        type="button"
-                        variant={role === "parent" ? "default" : "outline"}
-                        onClick={() => setRole("parent")}
-                        disabled={isJoiningByInvite}
-                      >
-                        {t("authScreen.roles.parent")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={role === "child" ? "default" : "outline"}
-                        onClick={() => setRole("child")}
-                        disabled={isJoiningByInvite}
-                      >
-                        {t("authScreen.roles.child")}
-                      </Button>
-                    </div>
-                    
-                    {isJoiningByInvite && (
-                      <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded-lg">
-                        {t("authScreen.inviteNote")}
-                      </p>
-                    )}
+                    {/* Role is always parent – children are added by parents from dashboard */}
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
@@ -479,131 +401,21 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                       </div>
                     </div>
 
-                    {role === "child" && (
-                      <>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.age")}</Label>
-                            <div className="pt-2 pb-1">
-                              <div className="flex justify-between items-center mb-3">
-                                <span className="text-2xl font-bold text-purple-600">{age || '5'}</span>
-                                <span className="text-xs text-gray-500">{t("authScreen.years")}</span>
-                              </div>
-                              <Slider
-                                min={5}
-                              max={16}
-                              step={1}
-                              value={[Number(age) || 5]}
-                              onValueChange={(vals) => {
-                                setAge(String(vals[0]))
-                                setAgeTouched(true)
-                              }}
-                              className="w-full"
-                            />
-                            <div className="flex justify-between mt-1">
-                              <span className="text-xs text-gray-500">5</span>
-                              <span className="text-xs text-gray-500">16</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div>
-                            <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.avatar")}</Label>
-                            <div className="flex items-center gap-3">
-                              {/* Превью аватара */}
-                              <div className="w-16 h-16 rounded-full border-2 border-purple-300 flex items-center justify-center overflow-hidden bg-purple-50 flex-shrink-0">
-                                {avatar.startsWith('data:') ? (
-                                  <img src={avatar} alt={t("authScreen.avatarAlt")} className="w-full h-full object-cover" />
-                                ) : (
-                                  <span className="text-3xl">{avatar}</span>
-                                )}
-                              </div>
-                              
-                              {/* Кнопка загрузки */}
-                              <div className="flex-1">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  id="avatar-upload"
-                                  className="hidden"
-                                  onChange={async (e) => {
-                                    const f = e.target.files?.[0]
-                                    if (!f) return
-                                    const reader = new FileReader()
-                                    reader.onload = () => {
-                                      const result = reader.result as string | null
-                                      if (result) setAvatar(result)
-                                    }
-                                    reader.readAsDataURL(f)
-                                  }}
-                                />
-                                <label
-                                  htmlFor="avatar-upload"
-                                  className="w-full h-10 px-4 py-2 bg-white border-2 border-purple-300 hover:border-purple-500 text-purple-600 hover:text-purple-700 font-semibold rounded-md cursor-pointer transition-all flex items-center justify-center gap-2"
-                                >
-                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                  <span className="text-sm">{t("authScreen.uploadPhoto")}</span>
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Минималистичный выбор интересов */}
-                        <div>
-                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.interestsTitle")}</Label>
-                          <p className="text-xs text-gray-600 mb-2">{t("authScreen.interestsSubtitle")}</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            {interestsOptions.map((interest) => (
-                              <label
-                                key={interest.id}
-                                className={`flex items-center gap-2 p-2 rounded-lg border-2 cursor-pointer transition-all ${
-                                  interests.includes(interest.id)
-                                    ? 'border-purple-500 bg-purple-50'
-                                    : 'border-gray-300 bg-white hover:border-purple-300'
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={interests.includes(interest.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setInterests(prev => [...prev, interest.id])
-                                    } else {
-                                      setInterests(prev => prev.filter(i => i !== interest.id))
-                                    }
-                                  }}
-                                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                                />
-                                <span className="text-lg">{interest.emoji}</span>
-                                <span className="text-sm text-gray-800">{interest.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                          {(submitAttempted) && interests.length === 0 && (
-                            <p className="text-xs text-destructive mt-1">{t("authScreen.errors.interestsRequired")}</p>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    {role === "parent" ? (
-                      <>
-                        <div>
-                          <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyName")}</Label>
-                          <Input 
-                            required 
-                            aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} 
-                            value={familyName} 
-                            onChange={(e) => setFamilyName(e.target.value)} 
-                            onBlur={() => setFamilyNameTouched(true)}
-                            className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
-                          />
-                          {(familyNameTouched || submitAttempted) && !familyName.trim() && (
-                            <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
-                          )}
-                        </div>
+                    {/* Parent-only: family name + avatar */}
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyName")}</Label>
+                      <Input 
+                        required 
+                        aria-invalid={(familyNameTouched || submitAttempted) && !familyName.trim()} 
+                        value={familyName} 
+                        onChange={(e) => setFamilyName(e.target.value)} 
+                        onBlur={() => setFamilyNameTouched(true)}
+                        className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                      />
+                      {(familyNameTouched || submitAttempted) && !familyName.trim() && (
+                        <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
+                      )}
+                    </div>
                         
                         {/* Аватар для родителя */}
                         <div>
@@ -668,24 +480,11 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                         </div>
                         
                         <p className="text-xs text-gray-600">{t("authScreen.familyCodeAuto")}</p>
-                      </>
-                    ) : (
-                      <div>
-                        <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("authScreen.familyCode")}</Label>
-                        <Input
-                          required
-                          aria-invalid={(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim()}
-                          value={childFamilyCode}
-                          onChange={(e) => setChildFamilyCode(e.target.value.toUpperCase())}
-                          onBlur={() => setChildFamilyCodeTouched(true)}
-                          placeholder={t("authScreen.familyCodePlaceholder")}
-                          className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
-                        />
-                        {(childFamilyCodeTouched || submitAttempted) && !childFamilyCode.trim() && (
-                          <p className="text-xs text-destructive mt-1">{t("authScreen.requiredField")}</p>
-                        )}
-                      </div>
-                    )}
+
+                    <p className="text-xs text-muted-foreground bg-muted/50 dark:bg-muted/20 p-2.5 rounded-lg flex items-center gap-2">
+                      <span>👶</span>
+                      {t("authScreen.addChildLater")}
+                    </p>
                   </>
                 )}
 

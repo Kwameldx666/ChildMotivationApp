@@ -7,6 +7,11 @@ export interface UserSettings {
   soundEnabled: boolean
   nightModeStart: string
   nightModeEnd: string
+  // AI chatbot control
+  aiChatEnabled: boolean
+  aiCanCreateTasks: boolean
+  aiCanCreateRewards: boolean
+  aiTone: 'friendly' | 'educational' | 'strict'
 }
 
 const defaultSettings: UserSettings = {
@@ -14,6 +19,10 @@ const defaultSettings: UserSettings = {
   soundEnabled: true,
   nightModeStart: "22:00",
   nightModeEnd: "08:00",
+  aiChatEnabled: true,
+  aiCanCreateTasks: true,
+  aiCanCreateRewards: true,
+  aiTone: 'friendly',
 }
 
 /**

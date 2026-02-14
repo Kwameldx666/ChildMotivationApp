@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2 } from "lucide-react"
+import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2, Zap, BarChart3, Gift, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
 import PremiumPricing from "./premium-pricing"
@@ -20,6 +20,13 @@ import { useToast } from "@/hooks/use-toast"
 import { useCurrentSubscription, useChangeSubscription, useCancelSubscription } from "@/services/subscription-queries"
 import type { SubscriptionDto } from "@/services/subscription-service"
 
+const TIER_ORDER: Record<string, number> = {
+  free: 0,
+  basic: 1,
+  premium: 2,
+  family: 3,
+}
+
 interface SubscriptionManagerProps {
   currentTier?: "free" | "basic" | "premium" | "family"
   onUpgrade?: (tier: string) => void
@@ -30,35 +37,42 @@ const tierInfo = {
     nameKey: "subscriptionManager.tierFree",
     icon: Star,
     color: "text-slate-600",
-    gradient: "from-slate-100 to-slate-200"
+    gradient: "from-slate-100 to-slate-200",
+    darkGradient: "dark:from-slate-800 dark:to-slate-700"
   },
   basic: {
     nameKey: "subscriptionManager.tierBasic",
     icon: Sparkles,
     color: "text-blue-600",
     gradient: "from-blue-100 to-cyan-200",
-    price: 4.99
+    darkGradient: "dark:from-blue-900/40 dark:to-cyan-900/40",
+    price: 49,
+    yearlyPrice: 499
   },
   premium: {
     nameKey: "subscriptionManager.tierPremium",
     icon: Crown,
     color: "text-purple-600",
     gradient: "from-purple-100 to-pink-200",
-    price: 9.99
+    darkGradient: "dark:from-purple-900/40 dark:to-pink-900/40",
+    price: 99,
+    yearlyPrice: 999
   },
   family: {
     nameKey: "subscriptionManager.tierFamily",
     icon: Users,
     color: "text-amber-600",
     gradient: "from-amber-100 to-orange-200",
-    price: 14.99
+    darkGradient: "dark:from-amber-900/40 dark:to-orange-900/40",
+    price: 149,
+    yearlyPrice: 1499
   }
 }
 
 export default function SubscriptionManager({ currentTier: propTier, onUpgrade }: SubscriptionManagerProps) {
   const [showPricingDialog, setShowPricingDialog] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<{ id: string; name: string; price: number } | null>(null)
+  const [selectedTier, setSelectedTier] = useState<{ id: string; name: string; price: number; yearlyPrice?: number } | null>(null)
   const { toast } = useToast()
   const { t } = useTranslation()
   
@@ -81,22 +95,14 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
       return
     }
 
-    if (tierId === "free") {
-      // Для перехода на бесплатный - отмена подписки
-      try {
-        await cancelSubscription.mutateAsync()
-        toast({
-          title: t("subscription.subscriptionCancelled"),
-          description: t("subscription.free"),
-        })
-        onUpgrade?.("free")
-      } catch (err) {
-        toast({
-          title: t("common.error"),
-          description: t("errors.validationError"),
-          variant: "destructive",
-        })
-      }
+    // Block downgrade — if selected tier is lower than current
+    const selectedOrder = TIER_ORDER[tierId] ?? 0
+    const currentOrder = TIER_ORDER[currentTier] ?? 0
+    if (selectedOrder < currentOrder) {
+      toast({
+        title: t("subscription.downgradeBlocked"),
+        description: t("subscription.cannotDowngrade"),
+      })
       return
     }
 
@@ -105,7 +111,8 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
       setSelectedTier({
         id: tierId,
         name: t(tierData.nameKey),
-        price: tierData.price
+        price: tierData.price,
+        yearlyPrice: tierData.yearlyPrice
       })
       setShowPricingDialog(false)
       setShowPaymentModal(true)
@@ -213,7 +220,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-lg border bg-card">
-                  <p className="text-sm text-muted-foreground mb-1">{t("subscription.currentPlan")}</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t("subscriptionManager.validUntil")}</p>
                   <p className="font-semibold">
                     {subscription?.endDate ? formatEndDate(subscription.endDate) : t("common.none")}
                   </p>
@@ -234,13 +241,61 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                 </div>
               </div>
 
+              {/* Feature access indicators */}
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  {t("subscriptionManager.includedFeatures")}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Zap className={cn("h-4 w-4", subscription?.hasAIAssistant ? "text-amber-500" : "text-muted-foreground/30")} />
+                    <span className={cn(subscription?.hasAIAssistant ? "text-foreground" : "text-muted-foreground line-through")}>
+                      {t("subscriptionManager.featureAI")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <BarChart3 className={cn("h-4 w-4", subscription?.hasAdvancedAnalytics ? "text-blue-500" : "text-muted-foreground/30")} />
+                    <span className={cn(subscription?.hasAdvancedAnalytics ? "text-foreground" : "text-muted-foreground line-through")}>
+                      {t("subscriptionManager.featureAnalytics")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Gift className={cn("h-4 w-4", subscription?.hasCustomRewards ? "text-pink-500" : "text-muted-foreground/30")} />
+                    <span className={cn(subscription?.hasCustomRewards ? "text-foreground" : "text-muted-foreground line-through")}>
+                      {t("subscriptionManager.featureRewards")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <ShieldCheck className={cn("h-4 w-4", subscription?.hasPrioritySupport ? "text-green-500" : "text-muted-foreground/30")} />
+                    <span className={cn(subscription?.hasPrioritySupport ? "text-foreground" : "text-muted-foreground line-through")}>
+                      {t("subscriptionManager.featureSupport")}
+                    </span>
+                  </div>
+                </div>
+                {/* Limits */}
+                <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("subscriptionManager.limitChildren")}</span>
+                    <span className="font-medium text-foreground">
+                      {subscription?.maxChildren === 0 ? "∞" : subscription?.maxChildren}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t("subscriptionManager.limitTasks")}</span>
+                    <span className="font-medium text-foreground">
+                      {subscription?.maxTasksPerDay === 0 ? "∞" : subscription?.maxTasksPerDay}{t("subscriptionManager.perDay")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowPricingDialog(true)} className="flex-1">
                   {t("subscription.changePlan")}
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="flex-1"
+                  className="flex-1 text-destructive hover:text-destructive"
                   onClick={handleCancelSubscription}
                   disabled={cancelSubscription.isPending}
                 >
@@ -255,26 +310,35 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
           )}
 
           {currentTier === "free" && (
-            <div className="space-y-2 pt-4 border-t">
+            <div className="space-y-3 pt-4 border-t">
               <p className="font-medium text-sm mb-3">{t("subscription.upgradeBenefits")}</p>
-              <div className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30">
+                  <Zap className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
                   <span className="text-sm">{t("subscription.benefit1")}</span>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30">
+                  <BarChart3 className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                   <span className="text-sm">{t("subscription.benefit2")}</span>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-pink-50 dark:bg-pink-950/20 border border-pink-100 dark:border-pink-900/30">
+                  <Gift className="h-4 w-4 text-pink-500 mt-0.5 shrink-0" />
                   <span className="text-sm">{t("subscription.benefit3")}</span>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900/30">
+                  <ShieldCheck className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                   <span className="text-sm">{t("subscription.benefit4")}</span>
                 </div>
               </div>
+              {/* Quick upgrade CTA */}
+              <Button
+                onClick={() => setShowPricingDialog(true)}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white gap-2 h-11"
+              >
+                <Crown className="h-4 w-4" />
+                {t("subscriptionManager.viewPlans")}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </CardContent>
@@ -298,7 +362,9 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
         open={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         tierName={selectedTier?.name || ""}
+        tierId={selectedTier?.id}
         price={selectedTier?.price || 0}
+        yearlyPrice={selectedTier?.yearlyPrice}
         onSuccess={handlePaymentSuccess}
       />
     </>

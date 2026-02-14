@@ -205,9 +205,22 @@ export default function ChildProfile({
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.18),transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(0,0,0,0.12),transparent_60%)]" />
         {/* Decorative shapes */}
-        <div className="absolute top-4 right-8 w-24 h-24 rounded-full bg-white/10 blur-2xl" />
-        <div className="absolute bottom-4 left-12 w-32 h-32 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute top-1/2 left-1/3 w-16 h-16 rounded-full bg-yellow-400/15 blur-xl" />
+        <div className="absolute top-4 right-8 w-24 h-24 rounded-full bg-white/10 blur-2xl animate-pulse" style={{ animationDuration: "6s" }} />
+        <div className="absolute bottom-4 left-12 w-32 h-32 rounded-full bg-white/5 blur-3xl animate-pulse" style={{ animationDuration: "8s", animationDelay: "2s" }} />
+        <div className="absolute top-1/2 left-1/3 w-16 h-16 rounded-full bg-yellow-400/15 blur-xl animate-pulse" style={{ animationDuration: "5s", animationDelay: "1s" }} />
+
+        {/* Floating sparkle particles */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden>
+          {["✨", "⭐", "💫", "🌟"].map((emoji, i) => (
+            <span
+              key={i}
+              className="absolute text-lg opacity-20 animate-float-gentle select-none"
+              style={{ left: `${15 + i * 20}%`, top: "-20px", animationDelay: `${i * 1.5}s`, animationDuration: `${4 + i}s` }}
+            >
+              {emoji}
+            </span>
+          ))}
+        </div>
 
         <div className="relative z-10 px-6 pt-10 pb-8 flex flex-col items-center gap-5">
           {/* Avatar with animated ring */}
@@ -266,6 +279,29 @@ export default function ChildProfile({
               {t("childProfile.familyCode")} <span className="text-white/90 font-bold">{familyCode}</span>
             </p>
           )}
+
+          {/* Rank ladder preview */}
+          <div className="flex items-center gap-1 mt-1">
+            {rankLadder.map((r, i) => {
+              const isActive = metrics.level >= r.threshold
+              const isCurrent = r === currentRank
+              return (
+                <div
+                  key={r.key}
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm transition-all ${
+                    isCurrent
+                      ? "bg-white/30 ring-2 ring-yellow-400 scale-110 shadow-lg"
+                      : isActive
+                        ? "bg-white/20"
+                        : "bg-white/5 opacity-50"
+                  }`}
+                  title={t(r.key)}
+                >
+                  {r.emoji}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
 

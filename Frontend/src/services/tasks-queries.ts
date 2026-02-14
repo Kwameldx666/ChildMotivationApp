@@ -13,8 +13,11 @@ export function useTasks() {
     queryKey: ['tasks', ...scopedKey],
     queryFn: () => tasksService.list(),
     enabled: Boolean(session),
-    staleTime: 1000 * 60 * 5, // 5 minutes - данные остаются свежими дольше
-    gcTime: 1000 * 60 * 10, // 10 minutes - хранятся в памяти дольше
+    staleTime: 1000 * 30,          // 30 seconds before considered stale
+    gcTime: 1000 * 60 * 10,        // 10 minutes in cache
+    refetchInterval: 1000 * 30,    // poll every 30s when tab is focused
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   })
 }
 

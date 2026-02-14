@@ -996,43 +996,99 @@ export default function AnalyticsDashboard() {
     setCurrentChart((prev) => (prev - 1 + chartsConfig.length) % chartsConfig.length)
   }
 
+  /**
+   * Prepare a DOM subtree for html-to-image capture:
+   * - Replace `bg-clip-text text-transparent` gradient text with solid fallback
+   * - Force white background and dark text for consistent exports
+   * Returns a cleanup function to restore original styles.
+   */
+  const prepareForCapture = (root: HTMLElement): (() => void) => {
+    const restorers: Array<() => void> = []
+
+    // Fix gradient text (bg-clip-text text-transparent) — invisible in rasterised capture
+    root.querySelectorAll<HTMLElement>(".text-transparent").forEach((el) => {
+      const prev = el.style.cssText
+      el.style.color = "#1a1a2e"
+      el.style.webkitTextFillColor = "#1a1a2e"
+      el.style.backgroundClip = "unset"
+      el.style.webkitBackgroundClip = "unset"
+      el.style.background = "none"
+      restorers.push(() => { el.style.cssText = prev })
+    })
+
+    // Force light-mode appearance on cards
+    root.querySelectorAll<HTMLElement>(".dark\\:from-violet-950\\/40, .dark\\:from-blue-950\\/40, .dark\\:from-emerald-950\\/40, .dark\\:from-amber-950\\/40").forEach((el) => {
+      const prev = el.style.cssText
+      el.style.backgroundColor = "#ffffff"
+      el.style.color = "#1a1a2e"
+      restorers.push(() => { el.style.cssText = prev })
+    })
+
+    // Ensure muted-foreground text is visible
+    root.querySelectorAll<HTMLElement>(".text-muted-foreground").forEach((el) => {
+      const prev = el.style.cssText
+      el.style.color = "#6b7280"
+      restorers.push(() => { el.style.cssText = prev })
+    })
+
+    return () => restorers.forEach((fn) => fn())
+  }
+
+  /** Build export filename with child name if filtered */
+  const exportFileName = (ext: string, prefix = "analytics") => {
+    const childSuffix = selectedChild !== "all"
+      ? `_${analytics?.childrenStats.find(c => c.childId === selectedChild)?.childName ?? "child"}`
+      : ""
+    return `${prefix}${childSuffix}_${windowDays}d_${new Date().toISOString().slice(0, 10)}.${ext}`
+  }
+
   const exportAsPng = async () => {
     if (!exportRef.current) return
-    const dataUrl = await toPng(exportRef.current, {
-      cacheBust: true,
-      backgroundColor: "#ffffff",
-      pixelRatio: 2,
-    })
-    const link = document.createElement("a")
-    link.href = dataUrl
-    link.download = `analytics_${windowDays}d_${new Date().toISOString().slice(0, 10)}.png`
-    link.click()
+    const restore = prepareForCapture(exportRef.current)
+    try {
+      const dataUrl = await toPng(exportRef.current, {
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+        pixelRatio: 2,
+      })
+      const link = document.createElement("a")
+      link.href = dataUrl
+      link.download = exportFileName("png")
+      link.click()
+    } finally {
+      restore()
+    }
   }
 
   const exportCurrentAsPdf = async () => {
     if (!exportRef.current) return
-    const dataUrl = await toPng(exportRef.current, {
-      cacheBust: true,
-      backgroundColor: "#ffffff",
-      pixelRatio: 2,
-    })
+    const restore = prepareForCapture(exportRef.current)
+    try {
+      const dataUrl = await toPng(exportRef.current, {
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+        pixelRatio: 2,
+      })
 
-    const img = new Image()
-    img.src = dataUrl
-    await img.decode()
+      const img = new Image()
+      img.src = dataUrl
+      await img.decode()
 
-    const pdf = new jsPDF({ orientation: "p", unit: "px", format: "a4" })
-    const pageWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
+      const pdf = new jsPDF({ orientation: "p", unit: "px", format: "a4" })
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
 
-    const ratio = Math.min(pageWidth / img.width, pageHeight / img.height)
-    const imgWidth = img.width * ratio
-    const imgHeight = img.height * ratio
-    const x = (pageWidth - imgWidth) / 2
-    const y = 20
+      const ratio = Math.min(pageWidth / img.width, pageHeight / img.height)
+      const imgWidth = img.width * ratio
+      const imgHeight = img.height * ratio
+      const x = (pageWidth - imgWidth) / 2
+      const y = 20
 
-    pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight)
-    pdf.save(`analytics_${windowDays}d_${new Date().toISOString().slice(0, 10)}.pdf`)
+      pdf.addImage(dataUrl, "PNG", x, y, imgWidth, imgHeight)
+      pdf.save(exportFileName("pdf"))
+    } finally {
+      restore()
+    }
   }
 
   const exportAllChartsToPdf = useCallback(async () => {
@@ -1049,10 +1105,15 @@ export default function AnalyticsDashboard() {
       pdf.setFontSize(24)
       pdf.text(t('analytics.exportAll.reportTitle'), pageWidth / 2, 60, { align: "center" })
       pdf.setFontSize(12)
-      pdf.text(
-        `${t('analytics.exportAll.period')}: ${windowDays} ${t('analytics.exportAll.days')}  •  ${new Date().toLocaleDateString()}`,
-        pageWidth / 2, 90, { align: "center" }
-      )
+      const childLabel = selectedChild !== "all"
+        ? analytics.childrenStats.find(c => c.childId === selectedChild)?.childName ?? ""
+        : ""
+      const subtitleParts = [
+        `${t('analytics.exportAll.period')}: ${windowDays} ${t('analytics.exportAll.days')}`,
+        childLabel ? `${t('analyticsDashboard.child')}: ${childLabel}` : "",
+        new Date().toLocaleDateString(),
+      ].filter(Boolean).join("  •  ")
+      pdf.text(subtitleParts, pageWidth / 2, 90, { align: "center" })
 
       // Summary stats on title page
       const statsY = 130
@@ -1092,6 +1153,7 @@ export default function AnalyticsDashboard() {
       // Wait for charts to render
       await new Promise((resolve) => setTimeout(resolve, 500))
 
+      const restoreExport = prepareForCapture(container)
       const chartNodes = container.querySelectorAll<HTMLElement>("[data-chart-export]")
 
       for (let i = 0; i < chartNodes.length; i++) {
@@ -1128,15 +1190,16 @@ export default function AnalyticsDashboard() {
         }
       }
 
+      restoreExport()
       container.style.display = "none"
 
-      pdf.save(`analytics_full_report_${windowDays}d_${new Date().toISOString().slice(0, 10)}.pdf`)
+      pdf.save(exportFileName("pdf", "analytics_full_report"))
     } catch (err) {
       console.error("PDF export error:", err)
     } finally {
       setExporting(false)
     }
-  }, [analytics, exporting, windowDays, t])
+  }, [analytics, exporting, windowDays, selectedChild, t])
 
   if (loading) {
     return (

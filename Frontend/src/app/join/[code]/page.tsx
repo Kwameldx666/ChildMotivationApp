@@ -25,10 +25,7 @@ export default function JoinFamilyPage() {
   }, [familyCode])
 
   const handleJoin = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pendingFamilyCode", familyCode)
-      localStorage.setItem("pendingJoinMode", "child")
-    }
+    // Navigate to login – parent adds child from dashboard
     router.push("/")
   }
 
@@ -119,19 +116,19 @@ export default function JoinFamilyPage() {
               </Badge>
             </div>
 
-            {/* Info */}
+            {/* Info – parent-managed flow */}
             <div className="space-y-3 text-sm text-muted-foreground bg-violet-50 dark:bg-violet-950/50 rounded-lg p-4 w-full">
               <p className="flex items-start gap-2">
-                <span className="text-lg">✨</span>
-                <span>{t("joinPage.benefit1")}</span>
+                <span className="text-lg">👨‍👩‍👧‍👦</span>
+                <span>{t("joinPage.parentAddsChild")}</span>
               </p>
               <p className="flex items-start gap-2">
-                <span className="text-lg">🏆</span>
-                <span>{t("joinPage.benefit2")}</span>
+                <span className="text-lg">📋</span>
+                <span>{t("joinPage.shareCodeWithParent")}</span>
               </p>
               <p className="flex items-start gap-2">
-                <span className="text-lg">📊</span>
-                <span>{t("joinPage.benefit3")}</span>
+                <span className="text-lg">✅</span>
+                <span>{t("joinPage.parentDashboardAdd")}</span>
               </p>
             </div>
 
@@ -142,7 +139,7 @@ export default function JoinFamilyPage() {
                 size="lg"
                 className="w-full gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg shadow-violet-500/50 text-base"
               >
-                {t("joinPage.joinButton")}
+                {t("joinPage.goToLogin")}
                 <ArrowRight className="w-5 h-5" />
               </Button>
               <Button 

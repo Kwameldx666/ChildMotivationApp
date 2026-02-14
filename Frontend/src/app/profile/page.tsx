@@ -198,7 +198,7 @@ export default function ProfilePage() {
   /* ═══════════ MAIN ═══════════ */
   if (section === "main") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background flex flex-col">
+      <div className="min-h-screen bg-gradient-to-b from-primary/8 via-background to-background flex flex-col">
         <header className="flex items-center justify-between px-4 py-3 sticky top-0 z-10 bg-background/60 backdrop-blur-md">
           <Button variant="ghost" size="icon" onClick={goDashboard} className="rounded-full">
             <ArrowLeft className="h-5 w-5" />
@@ -211,13 +211,16 @@ export default function ProfilePage() {
           <div className="max-w-md mx-auto px-5 space-y-5">
 
             {/* Hero card */}
-            <div className="relative rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border p-6 pt-8 flex flex-col items-center gap-4 overflow-hidden">
-              <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-xs font-medium text-primary">
+            <div className="relative rounded-3xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/10 p-6 pt-8 flex flex-col items-center gap-4 overflow-hidden shadow-lg shadow-primary/5">
+              {/* Decorative blobs */}
+              <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
+              <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-primary/15 text-xs font-medium text-primary shadow-sm">
                 <span>{roleEmoji}</span> {roleLabel}
               </div>
               <div className="relative">
                 <div
-                  className="w-[88px] h-[88px] rounded-full ring-[3px] ring-primary/20 ring-offset-2 ring-offset-background overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:ring-primary/40 transition-all"
+                  className="w-24 h-24 rounded-full ring-[3px] ring-primary/25 ring-offset-[3px] ring-offset-background overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:ring-primary/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-primary/10"
                   onClick={handleAvatarPick}
                 >
                   {isUploading ? (
@@ -232,22 +235,48 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={handleAvatarPick}
-                  className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                  className="absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 transition-transform"
                 >
                   <Camera className="h-3.5 w-3.5" />
                 </button>
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-              <div className="text-center space-y-0.5">
-                <h2 className="text-lg font-semibold leading-tight">{profile.name} {profile.lastName}</h2>
+              <div className="text-center space-y-1">
+                <h2 className="text-xl font-bold leading-tight">{profile.name} {profile.lastName}</h2>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
+              </div>
+
+              {/* Mini stats row */}
+              <div className="flex gap-3 w-full mt-1">
+                {session.family?.name && (
+                  <div className="flex-1 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 px-3 py-2 text-center">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("profilePage.family")}</p>
+                    <p className="text-sm font-semibold truncate">{session.family.name}</p>
+                  </div>
+                )}
+                {session.family?.code && (
+                  <div className="flex-1 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 px-3 py-2 text-center">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("profilePage.code")}</p>
+                    <p className="text-sm font-mono font-semibold tracking-wide">{session.family.code}</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Actions */}
             <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y">
-              <MenuItem icon={<Edit3 className="h-[18px] w-[18px]" />} label={t("profilePage.editProfile")} onClick={() => setSection("edit")} />
-              <MenuItem icon={<Shield className="h-[18px] w-[18px]" />} label={t("profilePage.accountSettings")} onClick={() => setSection("account")} />
+              <MenuItem
+                icon={<div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center"><Edit3 className="h-[18px] w-[18px] text-blue-500" /></div>}
+                label={t("profilePage.editProfile")}
+                sublabel={t("profilePage.editProfileSub") || ""}
+                onClick={() => setSection("edit")}
+              />
+              <MenuItem
+                icon={<div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center"><Shield className="h-[18px] w-[18px] text-violet-500" /></div>}
+                label={t("profilePage.accountSettings")}
+                sublabel={t("profilePage.accountSettingsSub") || ""}
+                onClick={() => setSection("account")}
+              />
             </div>
 
             {/* Appearance */}
@@ -544,15 +573,18 @@ export default function ProfilePage() {
 
 /* ═══════════ Sub-components ═══════════ */
 
-function MenuItem({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+function MenuItem({ icon, label, sublabel, onClick }: { icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void }) {
   return (
     <button
       className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors active:bg-muted active:scale-[0.99]"
       onClick={onClick}
     >
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="flex-1 text-sm font-medium">{label}</span>
-      <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+      <span className="shrink-0">{icon}</span>
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-medium block">{label}</span>
+        {sublabel && <span className="text-[11px] text-muted-foreground">{sublabel}</span>}
+      </div>
+      <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
     </button>
   )
 }

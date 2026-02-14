@@ -18,6 +18,8 @@ interface UseAiChatOptions {
   greeting?: string
   context?: Record<string, string>
   maxHistory?: number
+  /** Translation function for error messages, fallbacks, etc. */
+  t?: (key: string, params?: Record<string, string>) => string
 }
 
 interface UseAiChatResult {
@@ -66,6 +68,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
   const greeting = options?.greeting?.trim()
   const maxHistory = options?.maxHistory ?? 12
   const preparedContext = useMemo(() => sanitizeContext(options?.context), [options?.context])
+  const t = options?.t ?? ((key: string) => key)
 
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
     greeting
@@ -123,7 +126,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
         const assistantMessage: ChatMessage = {
           id: response.conversationId ? `${response.conversationId}-${Date.now()}` : generateMessageId(),
           role: 'assistant',
-          content: response.reply?.trim() || 'Уточните запрос, пожалуйста, я потерял контекст.',
+          content: response.reply?.trim() || t('aiChat.fallbackReply'),
           timestamp: response.generatedAt ? new Date(response.generatedAt) : new Date(),
           actions: response.actions ?? [],
         }
@@ -135,7 +138,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
         setLastReplyAt(assistantMessage.timestamp)
       } catch (error) {
         console.error('[ai-chat] Failed to fetch reply', error)
-        toast.error('Не удалось получить ответ ИИ. Попробуйте ещё раз.')
+        toast.error(t('aiChat.fetchError'))
       } finally {
         setIsThinking(false)
       }
@@ -152,14 +155,14 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
       })
 
       if (result.success) {
-        toast.success(result.message ?? `Действие "${action.label}" выполнено!`)
+        toast.success(result.message ?? t('aiChat.actionSuccess'))
         setPendingActions(prev => prev.filter(a => a !== action))
       } else {
-        toast.error(result.message ?? 'Не удалось выполнить действие')
+        toast.error(result.message ?? t('aiChat.actionFailed'))
       }
     } catch (error) {
       console.error('[ai-chat] Failed to execute action', error)
-      toast.error('Ошибка при выполнении действия')
+      toast.error(t('aiChat.actionError'))
     }
   }, [preparedContext])
 
