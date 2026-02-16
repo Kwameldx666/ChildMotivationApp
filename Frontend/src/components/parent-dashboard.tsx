@@ -7,12 +7,11 @@ import { resolveAvatarUrl } from "@/lib/avatar-utils"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Users, Settings, BarChart3, Gift, LogOut, User, Sparkles, MessageCircle } from "lucide-react"
+import { Plus, Settings, BarChart3, Gift, LogOut, User, MessageCircle } from "lucide-react"
 import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "@/components/tasks-list"
 import RewardsShop from "@/components/rewards-shop"
 import AnalyticsDashboard from "@/components/analytics-dashboard"
-import ChildrenManagement from "@/components/children-management"
 import ParentSettings from "@/components/parent-settings"
 import RewardCreationModal from "@/components/reward-creation-modal"
 import { CreateTaskDialog } from "@/components/create-task-dialog"
@@ -32,9 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { openAiChat } from "@/components/ai-chat-widget"
 import { FeatureGate } from "@/components/feature-gate"
-import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 
 interface ParentDashboardProps {
   userId?: string
@@ -65,7 +62,6 @@ export default function ParentDashboard({
   const safeFamilyCode = familyCode ?? "—"
   const createProduct = useCreateProduct()
   const { toast } = useToast()
-  const { hasFeature } = useSubscriptionGate()
 
   useEffect(() => {
     const cb = () => setIsTaskModalOpen(true)
@@ -145,25 +141,6 @@ export default function ParentDashboard({
             <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
             <NotificationsPopover />
-            {hasFeature('aiAssistant') && (
-              <>
-                <Button
-                  className="hidden sm:inline-flex gap-2 bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-                  onClick={() => openAiChat()}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {t("parentDashboard.aiChat")}
-                </Button>
-                <Button
-                  size="icon"
-                  className="sm:hidden bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg shadow-emerald-500/40"
-                  onClick={() => openAiChat()}
-                  aria-label={t("parentDashboard.aiChat")}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </Button>
-              </>
-            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
@@ -204,7 +181,7 @@ export default function ParentDashboard({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 mb-6 h-auto p-1 bg-muted">
+          <TabsList className="grid w-full grid-cols-5 mb-6 h-auto p-1 bg-muted">
             <TabsTrigger value="tasks" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.tasks")}</span>
@@ -216,10 +193,6 @@ export default function ParentDashboard({
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.analytics")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="children" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.children")}</span>
             </TabsTrigger>
             <TabsTrigger value="chat" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
@@ -250,10 +223,7 @@ export default function ParentDashboard({
 
           <TabsContent value="rewards" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-bold">{t("parentDashboard.sections.rewards.title")}</h2>
-                <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.rewards.subtitle")}</p>
-              </div>
+              <h2 className="text-xl font-bold">{t("parentDashboard.sections.rewards.title")}</h2>
               <Button className="gap-2" onClick={() => setIsRewardModalOpen(true)}>
                 <Plus className="w-4 h-4" />
                 {t("parentDashboard.sections.rewards.newAction")}
@@ -276,22 +246,12 @@ export default function ParentDashboard({
             </FeatureGate>
           </TabsContent>
 
-          <TabsContent value="children" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.children.title")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                {t("parentDashboard.sections.children.subtitle")}
-              </p>
-            </div>
-            <ChildrenManagement familyCode={familyCode} />
-          </TabsContent>
-
           <TabsContent value="settings" className="space-y-4">
             <div>
               <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.settings.title")}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.settings.subtitle")}</p>
             </div>
-            <ParentSettings familyName={familyName} familyCode={safeFamilyCode} />
+            <ParentSettings familyName={familyName} familyCode={safeFamilyCode} familyCodeRaw={familyCode} />
           </TabsContent>
 
           <TabsContent value="chat" className="space-y-4">

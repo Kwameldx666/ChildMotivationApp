@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import type { AuthSession, Screen } from '@/features/app/types'
 import { authApi } from '@/features/auth/api/authApi'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -13,6 +14,7 @@ export function useAppState() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [isBootstrapping, setIsBootstrapping] = useState(true)
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const session = useAppSelector(selectAuthSession)
   const sessionRef = useRef<AuthSession | null>(session)
 
@@ -78,10 +80,11 @@ export function useAppState() {
     } catch (error) {
       console.error('[app] Failed to logout', error)
     } finally {
+      queryClient.clear()
       dispatch(clearSession())
       setScreen('welcome')
     }
-  }, [dispatch])
+  }, [dispatch, queryClient])
 
   return {
     screen,

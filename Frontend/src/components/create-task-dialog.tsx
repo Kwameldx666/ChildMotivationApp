@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useCreateTask, useTasks } from "@/services/tasks-queries"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { Check, Loader2, Sparkles, Camera, CameraOff, User, Clock, Zap, Tag, FileText } from "lucide-react"
+import { Check, Loader2, Sparkles, Camera, CameraOff, Star, Calendar, ChevronDown, ChevronUp } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
@@ -29,15 +28,6 @@ const DIFFICULTY_POINTS: Record<number, number> = {
   1: 5, 2: 10, 3: 15, 4: 25, 5: 40,
 }
 
-const CATEGORIES = [
-  { id: 'home', label: 'tasks.categories.home', emoji: '🏠' },
-  { id: 'study', label: 'tasks.categories.study', emoji: '📚' },
-  { id: 'health', label: 'tasks.categories.health', emoji: '💪' },
-  { id: 'creativity', label: 'tasks.categories.creativity', emoji: '🎨' },
-  { id: 'social', label: 'tasks.categories.social', emoji: '🤝' },
-  { id: 'other', label: 'tasks.categories.other', emoji: '✨' },
-] as const
-
 interface CreateTaskDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -51,7 +41,6 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   const { hasFeature, isWithinLimit, getLimit } = useSubscriptionGate()
   const canUseAi = hasFeature('aiAssistant')
 
-  // Count today's tasks for limit check
   const { data: allTasks = [] } = useTasks()
   const todayTaskCount = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10)
@@ -63,47 +52,67 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   const taskLimitReached = !isWithinLimit('maxTasksPerDay', todayTaskCount)
   const maxTasksPerDay = getLimit('maxTasksPerDay')
 
-  const [description, setDescription] = useState("")
   const [title, setTitle] = useState("")
-  const [category, setCategory] = useState("home")
+  const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
   const [requiresConfirmation, setRequiresConfirmation] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [useAi, setUseAi] = useState(canUseAi)
+  const [isAiGenerating, setIsAiGenerating] = useState(false)
   const [difficulty, setDifficulty] = useState(2)
+  const [showExtra, setShowExtra] = useState(false)
 
   const { data: familyMembers = [] } = useFamilyMembers()
   const children = familyMembers.filter(member => member.role === 'child')
-
   const [selectedChild, setSelectedChild] = useState<string | undefined>(undefined)
-  
+
   useEffect(() => {
-    if (children.length === 1) {
-      setSelectedChild(children[0].id)
-    }
+    if (children.length === 1) setSelectedChild(children[0].id)
   }, [children])
 
-  // Сброс при закрытии
   useEffect(() => {
     if (!open) {
-      setDescription("")
       setTitle("")
-      setCategory("home")
+      setDescription("")
       setDueDate("")
       setDifficulty(2)
+      setShowExtra(false)
+      setIsAiGenerating(false)
     }
   }, [open])
 
-  // Разрешаем создание:
-  // - С ИИ: описание >= 3 символов
-  // - Без ИИ: название >= 3 и описание >= 3
-  // - Лимит задач в день не превышен
-  const canSubmit = !taskLimitReached && (useAi 
-    ? (description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild))
-    : (title.trim().length >= 3 && description.trim().length >= 3 && (children.length === 0 || children.length === 1 || !!selectedChild)))
+  const canSubmit = !taskLimitReached
+    && title.trim().length >= 2
+    && (children.length <= 1 || !!selectedChild)
 
-  const handleQuickIdea = (idea: typeof QUICK_IDEAS[0]) => {
-    setDescription(t(idea.text))
+  /* Generate with AI — fills in title/description/difficulty from a short prompt */
+  const handleAiGenerate = async () => {
+    if (isAiGenerating) return
+    const prompt = (title.trim() || description.trim())
+    if (!prompt) return
+
+    setIsAiGenerating(true)
+    try {
+      const childInfo = children.find(c => c.id === selectedChild) ?? children[0]
+      const resp = await aiService.getTaskSuggestions({
+        childId: childInfo?.id,
+        childAge: (childInfo as any)?.age ?? undefined,
+        tone: 'дружелюбный',
+        language: 'ru',
+        taskDescription: prompt,
+      })
+      const first = resp?.suggestions?.[0]
+      if (first) {
+        if (first.title) setTitle(first.title)
+        if (first.description) setDescription(first.description)
+        if (first.difficulty) setDifficulty(Math.min(Math.max(first.difficulty, 1), 5))
+        toast({ title: t("createTaskDialog.aiFilledToast") })
+      }
+    } catch (err) {
+      console.warn('[create-task] AI generation failed', err)
+      toast({ title: t("common.error"), description: t("createTaskDialog.aiError"), variant: "destructive" })
+    } finally {
+      setIsAiGenerating(false)
+    }
   }
 
   const handleSubmit = async (event?: FormEvent) => {
@@ -113,38 +122,11 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
     try {
       setIsSubmitting(true)
 
-      let finalTitle = useAi ? description.trim() : title.trim()
-      let finalDescription = description.trim()
-      let finalDifficulty = difficulty
-
-      if (useAi) {
-        try {
-          const childInfo = children.find(c => c.id === selectedChild) ?? children[0]
-          const suggestionsResp = await aiService.getTaskSuggestions({
-            childId: childInfo?.id,
-            childAge: (childInfo as any)?.age ?? undefined,
-            tone: 'дружелюбный',
-            language: 'ru',
-            taskDescription: description.trim()
-          })
-
-          const first = suggestionsResp?.suggestions?.[0]
-          if (first) {
-            finalTitle = first.title || finalTitle
-            finalDescription = first.description || finalDescription
-            finalDifficulty = Math.min(Math.max(first.difficulty ?? difficulty, 1), 5)
-          }
-        } catch (err) {
-          // Если AI не сработал - используем введённый текст
-          console.warn('[create-task] AI failed, using raw input', err)
-        }
-      }
-
       await createTask.mutateAsync({
-        title: finalTitle.length > 50 ? finalTitle.substring(0, 50) : finalTitle,
-        description: finalDescription,
+        title: title.trim().substring(0, 50),
+        description: description.trim() || title.trim(),
         confirmationType: requiresConfirmation ? "photo" : "none",
-        difficulty: finalDifficulty,
+        difficulty,
         dueDate: dueDate || undefined,
         assignedToUserId: selectedChild || undefined,
       })
@@ -172,252 +154,206 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
 
   const computedXP = 60 + 20 * difficulty
   const computedPoints = DIFFICULTY_POINTS[difficulty]
+  const busy = isSubmitting || isAiGenerating
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 p-0 overflow-hidden">
-        {/* Заголовок */}
-        <DialogHeader className="px-5 pt-5 pb-4">
-          <DialogTitle className="text-base font-medium">{t("createTaskDialog.title")}</DialogTitle>
+      <DialogContent className="max-w-md gap-0 p-0 overflow-hidden rounded-2xl">
+        <DialogHeader className="px-5 pt-5 pb-3">
+          <DialogTitle className="text-lg font-semibold">{t("createTaskDialog.title")}</DialogTitle>
         </DialogHeader>
 
         {/* Task limit warning */}
         {taskLimitReached && (
-          <div className="mx-5 mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
-            <span className="text-sm text-amber-900 dark:text-amber-100">
-              {t("featureGate.taskLimitReached", { limit: maxTasksPerDay, count: todayTaskCount })}
-            </span>
+          <div className="mx-5 mb-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-800 dark:text-amber-200">
+            {t("featureGate.taskLimitReached", { limit: maxTasksPerDay, count: todayTaskCount })}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col">
-          {/* С ИИ: одно поле для описания идеи */}
-          {useAi ? (
-            <>
-              <div className="px-5 pb-4">
-                <Textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={t("createTaskDialog.describePlaceholder")}
-                  rows={2}
-                  className="resize-none border-0 bg-muted/30 p-3 text-base placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
-                  autoFocus
-                />
-              </div>
-
-              {/* Быстрые идеи */}
-              {description.length === 0 && (
-                <div className="px-5 pb-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {QUICK_IDEAS.map((idea) => (
-                      <button
-                        key={idea.text}
-                        type="button"
-                        onClick={() => handleQuickIdea(idea)}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1.5 text-xs transition-colors hover:bg-muted"
-                      >
-                        <span>{idea.emoji}</span>
-                        <span>{t(idea.text)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Без ИИ: название задачи */}
-              <div className="px-5 pb-3">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.titleLabel")}</span>
-                </div>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={t("createTaskDialog.titlePlaceholder")}
-                  className="border-0 bg-muted/30 p-3 text-base placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
-                  autoFocus
-                />
-              </div>
-
-              {/* Без ИИ: описание */}
-              <div className="px-5 pb-3">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.descriptionLabel")}</span>
-                </div>
-                <Textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder={t("createTaskDialog.descriptionPlaceholder")}
-                  rows={2}
-                  className="resize-none border-0 bg-muted/30 p-3 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/50"
-                />
-              </div>
-
-              {/* Без ИИ: категория */}
-              <div className="border-t border-border/40 px-5 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                    <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="h-8 border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.emoji} {t(cat.label)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{t("createTaskDialog.categoryLabel")}</span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Выбор ребёнка (всегда показываем если есть дети) */}
-          {children.length > 0 && (
-            <div className="border-t border-border/40 px-5 py-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                  <User className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                {children.length === 1 ? (
-                  <span className="text-sm text-muted-foreground">
-                    {t("createTaskDialog.forChild")} {children[0].name} {children[0].lastName || ''}
-                  </span>
-                ) : (
-                  <Select value={selectedChild ?? ''} onValueChange={(v) => setSelectedChild(v || undefined)}>
-                    <SelectTrigger className="h-8 flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0">
-                      <SelectValue placeholder={t("createTaskDialog.selectChild")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {children.map((child) => (
-                        <SelectItem key={child.id} value={child.id}>
-                          {child.name} {child.lastName || ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Срок выполнения (обязательно) */}
-          <div className="border-t border-border/40 px-5 py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-              </div>
-              <div className="flex-1">
-                <Input
-                  type="datetime-local"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  min={new Date().toISOString().slice(0, 16)}
-                  className="h-8 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
-                  placeholder={t("createTaskDialog.dateTimePlaceholder")}
-                />
-              </div>
-              <span className="text-xs text-muted-foreground">{t("createTaskDialog.deadline")}</span>
-            </div>
-          </div>
-
-          {/* Фото-подтверждение (обязательно) */}
-          <div className="border-t border-border/40 px-5 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                  requiresConfirmation ? "bg-primary/10" : "bg-muted"
-                )}>
-                  {requiresConfirmation 
-                    ? <Camera className="h-3.5 w-3.5 text-primary" />
-                    : <CameraOff className="h-3.5 w-3.5 text-muted-foreground" />
-                  }
-                </div>
-                <span className="text-sm">{t("createTaskDialog.photoConfirmation")}</span>
-              </div>
-              <Switch
-                checked={requiresConfirmation}
-                onCheckedChange={setRequiresConfirmation}
+          <div className="px-5 pb-4 space-y-3">
+            {/* Title */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">{t("createTaskDialog.titleLabel")}</label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t("createTaskDialog.titlePlaceholder")}
+                className="rounded-xl bg-muted/30 h-11 text-base"
+                disabled={busy}
+                autoFocus
               />
             </div>
+
+            {/* Quick ideas — shown when title is empty */}
+            {title.length === 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_IDEAS.map((idea) => (
+                  <button
+                    key={idea.text}
+                    type="button"
+                    onClick={() => setTitle(t(idea.text))}
+                    className="inline-flex items-center gap-1 rounded-lg bg-muted/40 px-2.5 py-1.5 text-xs transition-colors hover:bg-primary/10 hover:text-primary"
+                  >
+                    <span>{idea.emoji}</span>
+                    <span>{t(idea.text)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Description */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1.5 block">{t("createTaskDialog.descriptionLabel")}</label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t("createTaskDialog.descriptionPlaceholder")}
+                rows={2}
+                className="resize-none rounded-xl bg-muted/30 p-3 text-sm"
+                disabled={busy}
+              />
+            </div>
+
+            {/* Difficulty stars */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-2 block">{t("createTaskDialog.difficultyLabel")}</label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setDifficulty(level)}
+                    className="p-0.5 transition-transform hover:scale-110"
+                    disabled={busy}
+                  >
+                    <Star
+                      className={cn(
+                        "h-7 w-7 transition-colors",
+                        level <= difficulty
+                          ? "text-amber-400 fill-amber-400"
+                          : "text-muted-foreground/20"
+                      )}
+                    />
+                  </button>
+                ))}
+                <span className="ml-2 text-xs text-muted-foreground">
+                  {computedPoints} {t("createTaskDialog.pts")} · {computedXP} XP
+                </span>
+              </div>
+            </div>
+
+            {/* AI generate button — optional helper */}
+            {canUseAi && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAiGenerate}
+                disabled={busy || (!title.trim() && !description.trim())}
+                className="w-full rounded-xl h-10 gap-2 border-dashed border-primary/40 text-primary hover:bg-primary/5"
+              >
+                {isAiGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("createTaskDialog.aiThinking")}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    {t("createTaskDialog.generateWithAi")}
+                  </>
+                )}
+              </Button>
+            )}
           </div>
 
-          {/* Сложность (только без ИИ) */}
-          {!useAi && (
-            <div className="border-t border-border/40 px-5 py-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                  <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-                </div>
-                <div className="flex-1">
-                  <Select value={difficulty.toString()} onValueChange={(v) => setDifficulty(parseInt(v))}>
-                    <SelectTrigger className="h-8 border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">⭐ {t("tasks.difficultyLevels.1")}</SelectItem>
-                      <SelectItem value="2">⭐⭐ {t("tasks.difficultyLevels.2")}</SelectItem>
-                      <SelectItem value="3">⭐⭐⭐ {t("tasks.difficultyLevels.3")}</SelectItem>
-                      <SelectItem value="4">⭐⭐⭐⭐ {t("tasks.difficultyLevels.4")}</SelectItem>
-                      <SelectItem value="5">⭐⭐⭐⭐⭐ {t("tasks.difficultyLevels.5")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <span className="text-xs text-muted-foreground">{t("createTaskDialog.xpAndPoints", { xp: computedXP, points: computedPoints })}</span>
+          {/* Child selector — only if multiple children */}
+          {children.length > 1 && (
+            <div className="border-t border-border/30 px-5 py-3">
+              <label className="text-xs text-muted-foreground mb-1.5 block">{t("createTaskDialog.selectChild")}</label>
+              <div className="flex flex-wrap gap-2">
+                {children.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => setSelectedChild(child.id)}
+                    className={cn(
+                      "rounded-xl px-4 py-2 text-sm font-medium transition-all",
+                      selectedChild === child.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    {child.name}
+                  </button>
+                ))}
               </div>
             </div>
           )}
-
-          {/* Футер */}
-          <div className="flex items-center justify-between border-t border-border/40 bg-muted/20 px-5 py-3">
-            {/* AI toggle */}
-            {canUseAi ? (
-              <button
-                type="button"
-                onClick={() => setUseAi(!useAi)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all",
-                  useAi 
-                    ? "bg-primary/10 text-primary" 
-                    : "bg-muted text-muted-foreground"
-                )}
-              >
-                {useAi ? <Sparkles className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
-                {useAi ? t("createTaskDialog.withAi") : t("createTaskDialog.quick")}
-              </button>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">
-                <Zap className="h-3 w-3" />
-                {t("createTaskDialog.quick")}
+          {children.length === 1 && (
+            <div className="border-t border-border/30 px-5 py-2.5">
+              <span className="text-sm text-muted-foreground">
+                {t("createTaskDialog.forChild")} <span className="font-medium text-foreground">{children[0].name}</span>
               </span>
-            )}
+            </div>
+          )}
 
-            <Button 
-              type="submit" 
-              size="sm"
-              disabled={!canSubmit || isSubmitting}
-              className="gap-1.5 px-4"
+          {/* Collapsible extra options */}
+          <div className="border-t border-border/30">
+            <button
+              type="button"
+              onClick={() => setShowExtra(!showExtra)}
+              className="flex w-full items-center justify-between px-5 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span>{t("createTaskDialog.extraOptions")}</span>
+              {showExtra ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+
+            {showExtra && (
+              <div className="px-5 pb-3 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <Input
+                    type="datetime-local"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    min={new Date().toISOString().slice(0, 16)}
+                    className="h-9 rounded-lg text-sm flex-1"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {requiresConfirmation
+                      ? <Camera className="h-4 w-4 text-primary" />
+                      : <CameraOff className="h-4 w-4 text-muted-foreground" />
+                    }
+                    <span className="text-sm">{t("createTaskDialog.photoConfirmation")}</span>
+                  </div>
+                  <Switch
+                    checked={requiresConfirmation}
+                    onCheckedChange={setRequiresConfirmation}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Submit button */}
+          <div className="border-t border-border/30 p-4">
+            <Button
+              type="submit"
+              disabled={!canSubmit || busy}
+              className="w-full h-12 rounded-xl text-base font-medium gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {useAi ? t("createTaskDialog.aiThinking") : t("createTaskDialog.creating")}
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  {t("createTaskDialog.creating")}
                 </>
               ) : (
                 <>
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-5 w-5" />
                   {t("common.create")}
                 </>
               )}

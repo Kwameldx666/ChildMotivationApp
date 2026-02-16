@@ -16,12 +16,12 @@ export function useCurrentSubscription() {
   return useQuery({
     queryKey: subscriptionKeys.current(),
     queryFn: () => subscriptionService.getCurrentSubscription(),
-    staleTime: 30 * 60 * 1000, // 30 минут — подписка меняется редко
-    gcTime: 60 * 60 * 1000, // 1 час в кэше
+    staleTime: 5 * 60 * 1000, // 5 минут — баланс между свежестью и нагрузкой
+    gcTime: 10 * 60 * 1000, // 10 минут в кэше
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always', // всегда перезапрашивать при маунте — чтобы не показывать чужую подписку
     refetchOnReconnect: false,
-    placeholderData: (prev) => prev, // показывать старые данные пока загружаются новые
+    placeholderData: (prev) => prev,
   })
 }
 

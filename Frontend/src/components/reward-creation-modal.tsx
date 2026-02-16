@@ -1,79 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, Plus, Zap, Calendar, Trophy, Info, Sparkles, PenLine } from "lucide-react"
+import { Loader2, Plus, Sparkles, Star, ChevronDown, Pencil } from "lucide-react"
 import { aiService } from "@/services/ai-service"
 import { useToast } from "@/hooks/use-toast"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useShopProducts } from "@/services/shop-queries"
-import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
 import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
+import { cn } from "@/lib/utils"
 
-// Система категорий наград для мотивации детей
-type RewardCategory = "instant" | "medium" | "big"
+/* Cost presets: category → default points */
+const COST_PRESETS = [
+  { id: "instant", default: 30, emoji: "⚡" },
+  { id: "medium", default: 150, emoji: "🎯" },
+  { id: "big", default: 400, emoji: "🏆" },
+] as const
 
-interface RewardCategoryConfig {
-  id: RewardCategory
-  label: string
-  description: string
-  icon: typeof Zap
-  examples: string[]
-  minPoints: number
-  maxPoints: number
-  recommendedPoints: number
-  color: string
-  bgColor: string
-  borderColor: string
-}
-
-const getRewardCategories = (t: (key: string) => string): RewardCategoryConfig[] => [
-  {
-    id: "instant",
-    label: t("rewardCreation.categories.instant.label"),
-    description: t("rewardCreation.categories.instant.description"),
-    icon: Zap,
-    examples: t("rewardCreation.categories.instant.examples").split(", "),
-    minPoints: 20,
-    maxPoints: 40,
-    recommendedPoints: 30,
-    color: "text-emerald-600 dark:text-emerald-400",
-    bgColor: "bg-emerald-500/10",
-    borderColor: "border-emerald-500/40",
-  },
-  {
-    id: "medium",
-    label: t("rewardCreation.categories.medium.label"),
-    description: t("rewardCreation.categories.medium.description"),
-    icon: Calendar,
-    examples: t("rewardCreation.categories.medium.examples").split(", "),
-    minPoints: 100,
-    maxPoints: 150,
-    recommendedPoints: 120,
-    color: "text-blue-600 dark:text-blue-400",
-    bgColor: "bg-blue-500/10",
-    borderColor: "border-blue-500/40",
-  },
-  {
-    id: "big",
-    label: t("rewardCreation.categories.big.label"),
-    description: t("rewardCreation.categories.big.description"),
-    icon: Trophy,
-    examples: t("rewardCreation.categories.big.examples").split(", "),
-    minPoints: 300,
-    maxPoints: 500,
-    recommendedPoints: 350,
-    color: "text-purple-600 dark:text-purple-400",
-    bgColor: "bg-purple-500/10",
-    borderColor: "border-purple-500/40",
-  },
-]
+type CostCategory = typeof COST_PRESETS[number]["id"] | null
 
 interface RewardCreationModalProps {
   open: boolean
@@ -89,99 +38,69 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
   const { data: existingProducts = [] } = useShopProducts()
   const { hasFeature } = useSubscriptionGate()
   const canUseAi = hasFeature('aiAssistant')
-  
+
   const children = familyMembers.filter(m => m.role === 'child')
-  const REWARD_CATEGORIES = getRewardCategories(t)
-  
+
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [cost, setCost] = useState("")
   const [stock, setStock] = useState("1")
   const [isAiGenerating, setIsAiGenerating] = useState(false)
-  const [selectedChildId, setSelectedChildId] = useState<string>("")
-  const [customPrompt, setCustomPrompt] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<RewardCategory | null>(null)
-  const [creationMode, setCreationMode] = useState<"ai" | "manual">(canUseAi ? "ai" : "manual")
+  const [costCategory, setCostCategory] = useState<CostCategory>(null)
+  const [customCost, setCustomCost] = useState(false)
 
-  // При выборе категории устанавливаем рекомендуемую цену
-  const handleCategorySelect = (categoryId: RewardCategory) => {
-    setSelectedCategory(categoryId)
-    const category = REWARD_CATEGORIES.find(c => c.id === categoryId)
-    if (category) {
-      setCost(String(category.recommendedPoints))
-    }
-  }
+  // AI guidance state
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null)
+  const [aiHint, setAiHint] = useState("")
+  const [aiExpanded, setAiExpanded] = useState(false)
 
-  // Получаем текущую категорию по цене
-  const getCategoryByPrice = (price: number): RewardCategoryConfig | null => {
-    if (price <= 50) return REWARD_CATEGORIES[0]
-    if (price <= 200) return REWARD_CATEGORIES[1]
-    return REWARD_CATEGORIES[2]
-  }
-
-  // Проверяем соответствие цены категории
-  const isPriceInCategoryRange = (): boolean => {
-    if (!selectedCategory || !cost) return true
-    const category = REWARD_CATEGORIES.find(c => c.id === selectedCategory)
-    if (!category) return true
-    const priceNum = parseInt(cost, 10)
-    return priceNum >= category.minPoints && priceNum <= category.maxPoints
-  }
+  const selectedChild = children.find(c => c.id === selectedChildId)
 
   const handleAiGenerate = async () => {
     setIsAiGenerating(true)
     try {
-      const selectedChild = selectedChildId ? children.find(c => c.id === selectedChildId) : children[0]
-      const childInterests = (selectedChild as any)?.interests || []
-      const recentlyPurchasedRewards = existingProducts.slice(0, 5).map(p => p.name)
-      
-      // Создаем параметры запроса
-      const requestParams: any = {
+      const recentRewards = existingProducts.slice(0, 5).map(p => p.name)
+      const child = selectedChild || children[0]
+
+      // Build occasion string with child info + user hint
+      const parts: string[] = []
+      if (child) parts.push(`Child: ${child.name}${child.age ? `, age ${child.age}` : ""}`)
+      if (aiHint.trim()) parts.push(aiHint.trim())
+      const occasion = parts.length ? parts.join(". ") : undefined
+
+      const response = await aiService.getRewardSuggestions({
         maxSuggestions: 1,
-        childId: selectedChild?.id,
-        interests: childInterests,
-        recentlyPurchasedRewards,
-      }
-      
-      // Добавляем кастомный промпт если есть
-      if (customPrompt.trim()) {
-        requestParams.occasion = customPrompt.trim()
-      }
-      
-      const response = await aiService.getRewardSuggestions(requestParams)
-      // Бэкенд возвращает Suggestions с заглавной буквы
+        childId: child?.id,
+        interests: [],
+        recentlyPurchasedRewards: recentRewards,
+        occasion,
+      })
+
       const suggestions = response.suggestions || (response as any).Suggestions || []
-      if (suggestions && suggestions.length > 0) {
-        const suggestion = suggestions[0]
-        const aiTitle = (suggestion.title || (suggestion as any).Title || "").toString().replace(/^undefined\s*/i, "").trim()
-        const aiDescription = (suggestion.description || (suggestion as any).Description || "").toString().replace(/^undefined\s*/i, "").trim()
-        const aiCost = suggestion.cost || (suggestion as any).Cost || 100
+      if (suggestions.length > 0) {
+        const s = suggestions[0]
+        const aiTitle = (s.title || (s as any).Title || "").toString().replace(/^undefined\s*/i, "").trim()
+        const aiDesc = (s.description || (s as any).Description || "").toString().replace(/^undefined\s*/i, "").trim()
+        const aiCost = s.cost || (s as any).Cost || 100
         if (aiTitle) setTitle(aiTitle)
-        if (aiDescription) setDescription(aiDescription)
+        if (aiDesc) setDescription(aiDesc)
         setCost(String(aiCost))
-        setStock("1")
-        toast({
-          title: t("rewardCreation.toast.aiGenerated"),
-          description: t("rewardCreation.toast.aiGeneratedDesc", { title: aiTitle || "?", cost: aiCost }),
-        })
+        // Match the AI cost to a category, or enter custom mode
+        const matched = COST_PRESETS.find(p => Math.abs(p.default - aiCost) <= p.default * 0.3)
+        if (matched) {
+          setCostCategory(matched.id)
+          setCustomCost(false)
+        } else {
+          setCostCategory(null)
+          setCustomCost(true)
+        }
+        toast({ title: t("rewardCreation.toast.aiGenerated") })
       }
     } catch (error: any) {
       console.error('[reward-creation-modal] AI generation failed', error)
-      
-      // Определяем тип ошибки для более понятного сообщения
-      let errorMessage = t("rewardCreation.errors.default")
-      
-      if (error?.message?.includes('Timeout') || error?.message?.includes('timeout')) {
-        errorMessage = t("rewardCreation.errors.timeout")
-      } else if (error?.code === 500 || error?.description?.includes('Timeout')) {
-        errorMessage = t("rewardCreation.errors.serverOverloaded")
-      } else if (error?.message) {
-        errorMessage = error.message
-      }
-      
       toast({
         title: t("rewardCreation.toast.generationError"),
-        description: errorMessage,
+        description: error?.message || t("rewardCreation.errors.default"),
         variant: "destructive",
       })
     } finally {
@@ -189,16 +108,8 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
     }
   }
 
-  // Убрана автоматическая генерация при открытии модала
-  // useEffect(() => {
-  //   if (open && !title && !description) {
-  //     handleAiGenerate()
-  //   }
-  // }, [open])
-
   const handleSubmit = async () => {
-    if (!title || !description || !cost || !stock) return
-
+    if (!title || !cost) return
     try {
       await onSubmit({
         title,
@@ -206,271 +117,256 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
         cost: Number.parseInt(cost, 10),
         stock: Math.max(1, Number.parseInt(stock, 10) || 1),
       })
-
       setTitle("")
       setDescription("")
       setCost("")
       setStock("1")
+      setAiHint("")
+      setSelectedChildId(null)
+      setCostCategory(null)
+      setCustomCost(false)
       onClose()
     } catch (error) {
       console.error("[reward-creation-modal] Failed to submit reward", error)
     }
   }
 
-  const disabled = isSubmitting || isAiGenerating
+  const busy = isSubmitting || isAiGenerating
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>{t("rewardCreation.title")}</DialogTitle>
-          <DialogDescription>{t("rewardCreation.subtitle")}</DialogDescription>
+      <DialogContent className="sm:max-w-md rounded-2xl p-0 overflow-hidden">
+        <DialogHeader className="px-5 pt-5 pb-2">
+          <DialogTitle className="text-lg font-semibold">{t("rewardCreation.title")}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4 overflow-y-auto flex-1 px-1">
-          {/* AI / Manual mode toggle */}
-          <div className="flex rounded-xl border border-border overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setCreationMode("ai")}
-              disabled={disabled}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all",
-                creationMode === "ai"
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                  : canUseAi
-                    ? "bg-background text-muted-foreground hover:bg-muted/50"
-                    : "bg-background text-muted-foreground/50 cursor-not-allowed"
-              )}
-              title={!canUseAi ? t("featureGate.requiresPlan", { plan: t("subscription.basic") }) : undefined}
-            >
-              <Sparkles className="w-4 h-4" />
-              {t("rewardCreation.modeAi")}
-              {!canUseAi && <span className="text-[10px] opacity-70">({t("subscription.basic")}+)</span>}
-            </button>
-            <button
-              type="button"
-              onClick={() => setCreationMode("manual")}
-              disabled={disabled}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all",
-                creationMode === "manual"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:bg-muted/50"
-              )}
-            >
-              <PenLine className="w-4 h-4" />
-              {t("rewardCreation.modeManual")}
-            </button>
+        <div className="px-5 pb-5 space-y-4">
+          {/* Name */}
+          <div>
+            <Label className="text-xs text-muted-foreground">{t("rewardCreation.rewardName")}</Label>
+            <Input
+              className="mt-1.5 rounded-xl h-11 bg-muted/30 text-base"
+              placeholder={t("rewardCreation.rewardNamePlaceholder")}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={busy}
+              autoFocus
+            />
           </div>
 
-          {/* Выбор категории награды — shown in both modes */}
-          <div className="space-y-3">
-            <Label className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-muted-foreground" />
-              {t("rewardCreation.selectType")}
+          {/* Description */}
+          <div>
+            <Label className="text-xs text-muted-foreground">{t("rewardCreation.description")}</Label>
+            <Textarea
+              className="mt-1.5 rounded-xl resize-none bg-muted/30 text-sm"
+              rows={2}
+              placeholder={t("rewardCreation.descriptionPlaceholder")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+
+          {/* Cost — category picker */}
+          <div>
+            <Label className="text-xs text-muted-foreground flex items-center gap-1">
+              <Star className="h-3.5 w-3.5 text-amber-500" />
+              {t("rewardCreation.costInPoints")}
             </Label>
-            <div className="grid grid-cols-3 gap-2">
-              {REWARD_CATEGORIES.map((category) => {
-                const Icon = category.icon
-                const isSelected = selectedCategory === category.id
+            <div className="grid grid-cols-3 gap-2 mt-1.5">
+              {COST_PRESETS.map(preset => {
+                const active = costCategory === preset.id && !customCost
                 return (
                   <button
-                    key={category.id}
+                    key={preset.id}
                     type="button"
-                    onClick={() => handleCategorySelect(category.id)}
-                    disabled={disabled}
+                    disabled={busy}
+                    onClick={() => {
+                      setCostCategory(preset.id)
+                      setCost(String(preset.default))
+                      setCustomCost(false)
+                    }}
                     className={cn(
-                      "p-3 rounded-xl border-2 transition-all text-left",
-                      isSelected
-                        ? `${category.bgColor} ${category.borderColor} ${category.color}`
-                        : "border-border hover:border-primary/40 bg-background"
+                      "flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border text-center transition-all",
+                      active
+                        ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                        : "border-border bg-muted/30 hover:border-primary/40"
                     )}
                   >
-                    <div className="text-lg mb-1">{category.label.split(" ")[0]}</div>
-                    <div className={cn("text-xs font-medium", isSelected ? category.color : "text-muted-foreground")}>
-                      {category.minPoints}–{category.maxPoints === 500 ? "500+" : category.maxPoints} {t("rewardCreation.points")}
-                    </div>
+                    <span className="text-base leading-none">{preset.emoji}</span>
+                    <span className="text-[11px] font-medium leading-tight">
+                      {t(`rewardCreation.categories.${preset.id}.label`).replace(/^[^\s]+\s/, "")}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">~{preset.default} {t("rewardCreation.points")}</span>
                   </button>
                 )
               })}
             </div>
-            {selectedCategory && (
-              <div className={cn(
-                "rounded-xl p-3 border",
-                REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.bgColor,
-                REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.borderColor
-              )}>
-                <p className="text-xs font-medium mb-2">
-                  {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.description}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  <strong>{t("rewardCreation.examplesLabel")}</strong> {REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.examples.join(", ")}
-                </p>
+            {/* Fine-tune: show inline input */}
+            {cost && (
+              <div className="flex items-center gap-2 mt-2">
+                {customCost ? (
+                  <Input
+                    type="number"
+                    min="1"
+                    step="5"
+                    className="rounded-xl h-9 bg-muted/30 w-28 text-sm"
+                    value={cost}
+                    onChange={(e) => {
+                      setCost(e.target.value)
+                      setCostCategory(null)
+                    }}
+                    disabled={busy}
+                    autoFocus
+                  />
+                ) : (
+                  <span className="text-sm font-medium tabular-nums">
+                    {cost} {t("rewardCreation.points")}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setCustomCost(v => !v)}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  <Pencil className="h-3 w-3" />
+                  {customCost ? t("common.done") : t("rewardCreation.adjustCost")}
+                </button>
               </div>
             )}
-          </div>
-
-          {/* Выбор ребенка для персонализации — AI mode only */}
-          {creationMode === "ai" && children.length > 0 && (
-            <div className="space-y-2">
-              <Label htmlFor="child-select">{t("rewardCreation.forWhom")}</Label>
-              <select
-                id="child-select"
-                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                value={selectedChildId}
-                onChange={(e) => setSelectedChildId(e.target.value)}
-                disabled={disabled}
-              >
-                <option value="">{t("rewardCreation.forAllChildren")}</option>
-                {children.map((child) => (
-                  <option key={child.id} value={child.id}>
-                    {child.name} {child.lastName}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">
-                {t("rewardCreation.aiConsidersInterests")}
+            {costCategory && !customCost && (
+              <p className="text-[10px] text-muted-foreground mt-1.5">
+                {t(`rewardCreation.categories.${costCategory}.examples`)}
               </p>
-            </div>
-          )}
-
-          {/* Дополнительный промпт — AI mode only */}
-          {creationMode === "ai" && (
-          <div className="space-y-2">
-            <Label htmlFor="custom-prompt">{t("rewardCreation.aiHint")}</Label>
-            <Textarea
-              id="custom-prompt"
-              placeholder={t("rewardCreation.aiHintPlaceholder")}
-              rows={2}
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              disabled={disabled}
-              className="resize-none break-words overflow-wrap-anywhere w-full"
-            />
-          </div>
-          )}
-
-          {creationMode === "ai" && (
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
-            onClick={handleAiGenerate}
-            disabled={disabled || !canUseAi}
-            title={!canUseAi ? t("featureGate.requiresPlan", { plan: t("subscription.basic") }) : undefined}
-          >
-            {isAiGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{t("rewardCreation.generating")}</span>
-                <span className="text-xs opacity-75">{t("rewardCreation.generatingTime")}</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                {t("rewardCreation.generateWithAi")}
-              </>
             )}
-          </Button>
-          )}
+          </div>
 
-          {creationMode === "ai" && isAiGenerating && (
-            <div className="text-center text-xs text-muted-foreground animate-pulse">
-              {t("rewardCreation.aiAnalyzing")}
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="reward-title">{t("rewardCreation.rewardName")}</Label>
+          {/* Stock */}
+          <div>
+            <Label className="text-xs text-muted-foreground">{t("rewardCreation.stockCount")}</Label>
             <Input
-              id="reward-title"
-              placeholder={t("rewardCreation.rewardNamePlaceholder")}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              disabled={isSubmitting}
+              type="number"
+              min="1"
+              className="mt-1.5 rounded-xl h-11 bg-muted/30 w-24"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              disabled={busy}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="reward-description">{t("rewardCreation.description")}</Label>
-            <Textarea
-              id="reward-description"
-              placeholder={t("rewardCreation.descriptionPlaceholder")}
-              rows={3}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
+          {/* AI section — collapsible */}
+          {canUseAi && (
+            <div className="rounded-xl border border-dashed border-primary/30 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setAiExpanded(v => !v)}
+                disabled={busy}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-primary hover:bg-primary/5 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  {t("rewardCreation.generateWithAi")}
+                </span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", aiExpanded && "rotate-180")} />
+              </button>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="reward-cost">{t("rewardCreation.costInPoints")}</Label>
-              <Input
-                id="reward-cost"
-                type="number"
-                min="1"
-                step="10"
-                value={cost}
-                onChange={(event) => setCost(event.target.value)}
-                disabled={isSubmitting}
-                className={cn(!isPriceInCategoryRange() && "border-amber-500")}
-              />
-              {selectedCategory && cost && !isPriceInCategoryRange() && (
-                <p className="text-xs text-amber-600 flex items-center gap-1">
-                  <Info className="w-3 h-3" />
-                  {t("rewardCreation.recommendedRange", { min: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.minPoints ?? 0, max: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.maxPoints ?? 0 })}
-                </p>
-              )}
-              {selectedCategory && (
-                <p className="text-xs text-muted-foreground">
-                  {t("rewardCreation.recommended", { points: REWARD_CATEGORIES.find(c => c.id === selectedCategory)?.recommendedPoints ?? 0 })}
-                </p>
+              {aiExpanded && (
+                <div className="px-4 pb-4 space-y-3 border-t border-dashed border-primary/20 pt-3">
+                  {/* Child selector */}
+                  {children.length > 0 && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t("rewardCreation.forWhom")}</Label>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedChildId(null)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                            selectedChildId === null
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-muted/50 text-muted-foreground border-border hover:border-primary/40"
+                          )}
+                        >
+                          {t("rewardCreation.forAllChildren")}
+                        </button>
+                        {children.map(child => (
+                          <button
+                            key={child.id}
+                            type="button"
+                            onClick={() => setSelectedChildId(child.id)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                              selectedChildId === child.id
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted/50 text-muted-foreground border-border hover:border-primary/40"
+                            )}
+                          >
+                            {child.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI hint */}
+                  <div>
+                    <Label className="text-xs text-muted-foreground">{t("rewardCreation.aiHint")}</Label>
+                    <Input
+                      className="mt-1.5 rounded-xl h-10 bg-muted/30 text-sm"
+                      placeholder={selectedChild
+                        ? t("rewardCreation.aiHintPlaceholderChild")
+                        : t("rewardCreation.aiHintPlaceholder")
+                      }
+                      value={aiHint}
+                      onChange={(e) => setAiHint(e.target.value)}
+                      disabled={busy}
+                    />
+                  </div>
+
+                  {/* Generate button */}
+                  <Button
+                    type="button"
+                    variant="default"
+                    onClick={handleAiGenerate}
+                    disabled={busy}
+                    className="w-full rounded-xl h-10 gap-2"
+                  >
+                    {isAiGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t("rewardCreation.generating")}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        {t("rewardCreation.generateWithAi")}
+                      </>
+                    )}
+                  </Button>
+                </div>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="reward-stock">{t("rewardCreation.stockCount")}</Label>
-              <Input
-                id="reward-stock"
-                type="number"
-                min="1"
-                step="1"
-                value={stock}
-                onChange={(event) => setStock(event.target.value)}
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
+          )}
 
-          {/* Подсказка о мотивации */}
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-            <p className="text-xs font-medium text-primary mb-1">{t("rewardCreation.motivationTip")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("rewardCreation.motivationTipText")}
-            </p>
+          {/* Actions */}
+          <div className="flex gap-2 pt-1">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl h-11"
+              onClick={onClose}
+              disabled={busy}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              className="flex-1 rounded-xl h-11 gap-2"
+              onClick={handleSubmit}
+              disabled={!title || !cost || busy}
+            >
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {isSubmitting ? t("rewardCreation.saving") : t("rewardCreation.createReward")}
+            </Button>
           </div>
-        </div>
-
-        <div className="flex gap-2 flex-shrink-0 pt-4 border-t">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="flex-1 bg-transparent"
-            disabled={isSubmitting}
-          >
-            {t("common.cancel")}
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!title || !description || !cost || !stock || isSubmitting}
-            className="flex-1 gap-2"
-          >
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {isSubmitting ? t("rewardCreation.saving") : t("rewardCreation.createReward")}
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -4,6 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -34,7 +41,7 @@ import jsPDF from "jspdf"
 import {
   ChevronLeft, ChevronRight, Filter, Loader2, Download, FileDown,
   Image as ImageIcon, FileText, TrendingUp, Trophy, Target, Zap, Star, Award,
-  Flame, CalendarDays, Info, Shield, Swords, Crown,
+  Flame, CalendarDays, Info, Shield, Swords, Crown, Check, Users, CheckSquare, Square,
 } from "lucide-react"
 import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
 import { generateMockAnalytics } from "@/services/analytics-mock"
@@ -139,6 +146,12 @@ export default function AnalyticsDashboard() {
   const exportRef = useRef<HTMLDivElement | null>(null)
   const allChartsRef = useRef<HTMLDivElement | null>(null)
   const [exporting, setExporting] = useState(false)
+
+  /* ── Export dialog state ── */
+  const [showExportDialog, setShowExportDialog] = useState(false)
+  const [exportChildFilter, setExportChildFilter] = useState("all")
+  const [exportChartSelection, setExportChartSelection] = useState<boolean[]>([])
+  const exportTitleRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     loadAnalytics()
@@ -1096,110 +1109,155 @@ export default function AnalyticsDashboard() {
     setExporting(true)
 
     try {
+      // Use exportChildFilter from the dialog (user's selected child for export)
+      const childForExport = exportChildFilter
+      const childLabel = childForExport !== "all"
+        ? analytics.childrenStats.find(c => c.childId === childForExport)?.childName ?? ""
+        : t('analyticsDashboard.wholeFamily')
+
+      // Temporarily switch selectedChild for chart rendering
+      const prevSelectedChild = selectedChild
+      setSelectedChild(childForExport)
+
+      // Wait for charts to re-render with new child filter
+      await new Promise((resolve) => setTimeout(resolve, 300))
+
       const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: "a4" })
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 30
+      const margin = 20
 
-      // Title page
-      pdf.setFontSize(24)
-      pdf.text(t('analytics.exportAll.reportTitle'), pageWidth / 2, 60, { align: "center" })
-      pdf.setFontSize(12)
-      const childLabel = selectedChild !== "all"
-        ? analytics.childrenStats.find(c => c.childId === selectedChild)?.childName ?? ""
-        : ""
-      const subtitleParts = [
-        `${t('analytics.exportAll.period')}: ${windowDays} ${t('analytics.exportAll.days')}`,
-        childLabel ? `${t('analyticsDashboard.child')}: ${childLabel}` : "",
-        new Date().toLocaleDateString(),
-      ].filter(Boolean).join("  •  ")
-      pdf.text(subtitleParts, pageWidth / 2, 90, { align: "center" })
+      // ── Title page: render as HTML and capture as image ──
+      const titleContainer = exportTitleRef.current
+      if (titleContainer) {
+        // Populate dynamic content
+        const titleEl = titleContainer.querySelector('[data-export-title]')
+        const subtitleEl = titleContainer.querySelector('[data-export-subtitle]')
+        const dateEl = titleContainer.querySelector('[data-export-date]')
+        const childEl = titleContainer.querySelector('[data-export-child]')
+        const statsEls = titleContainer.querySelectorAll('[data-export-stat]')
 
-      // Summary stats on title page
-      const statsY = 130
-      pdf.setFontSize(14)
-      const stats = [
-        { label: t('analytics.cards.totalPoints'), value: analytics.totalPoints.toLocaleString() },
-        { label: t('analytics.cards.completedTasks'), value: `${analytics.completedTasks} / ${analytics.totalTasks}` },
-        { label: t('analytics.cards.completionRate'), value: `${analytics.completionRate.toFixed(1)}%` },
-        { label: t('analytics.cards.activeChildren'), value: String(analytics.activeChildren) },
-      ]
-      const colWidth = (pageWidth - margin * 2) / stats.length
-      stats.forEach((stat, i) => {
-        const x = margin + colWidth * i + colWidth / 2
-        pdf.setFontSize(11)
-        pdf.setTextColor(100)
-        pdf.text(stat.label, x, statsY, { align: "center" })
-        pdf.setFontSize(22)
-        pdf.setTextColor(0)
-        pdf.text(stat.value, x, statsY + 28, { align: "center" })
-      })
+        if (titleEl) titleEl.textContent = t('analytics.exportAll.reportTitle')
+        if (subtitleEl) subtitleEl.textContent = `${t('analytics.exportAll.period')}: ${windowDays} ${t('analytics.exportAll.days')}`
+        if (dateEl) dateEl.textContent = new Date().toLocaleDateString()
+        if (childEl) childEl.textContent = childLabel
 
-      // Render all charts into a hidden container and capture each
-      const container = allChartsRef.current
-      if (!container) {
-        setExporting(false)
-        return
-      }
+        const statValues = [
+          { label: t('analytics.cards.totalPoints'), value: analytics.totalPoints.toLocaleString() },
+          { label: t('analytics.cards.completedTasks'), value: `${analytics.completedTasks} / ${analytics.totalTasks}` },
+          { label: t('analytics.cards.completionRate'), value: `${analytics.completionRate.toFixed(1)}%` },
+          { label: t('analytics.cards.activeChildren'), value: String(analytics.activeChildren) },
+        ]
+        statsEls.forEach((el, i) => {
+          if (statValues[i]) {
+            const labelEl = el.querySelector('[data-stat-label]')
+            const valueEl = el.querySelector('[data-stat-value]')
+            if (labelEl) labelEl.textContent = statValues[i].label
+            if (valueEl) valueEl.textContent = statValues[i].value
+          }
+        })
 
-      // Show all-charts container temporarily for capture
-      container.style.display = "block"
-      container.style.position = "absolute"
-      container.style.left = "-9999px"
-      container.style.top = "0"
-      container.style.width = "900px"
-      container.style.backgroundColor = "#ffffff"
+        titleContainer.style.display = "block"
+        titleContainer.style.position = "absolute"
+        titleContainer.style.left = "-9999px"
+        titleContainer.style.top = "0"
+        titleContainer.style.width = "900px"
 
-      // Wait for charts to render
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      const restoreExport = prepareForCapture(container)
-      const chartNodes = container.querySelectorAll<HTMLElement>("[data-chart-export]")
-
-      for (let i = 0; i < chartNodes.length; i++) {
-        const node = chartNodes[i]
-        pdf.addPage()
-
-        // Chart title
-        const chartTitle = chartsConfig[i]?.titleKey ? t(chartsConfig[i].titleKey) : `Chart ${i + 1}`
-        pdf.setFontSize(18)
-        pdf.setTextColor(0)
-        pdf.text(`${i + 1}. ${chartTitle}`, margin, 40)
+        await new Promise((resolve) => setTimeout(resolve, 200))
 
         try {
-          const dataUrl = await toPng(node, {
+          const titleImg = await toPng(titleContainer, {
             cacheBust: true,
             backgroundColor: "#ffffff",
             pixelRatio: 2,
           })
           const img = new Image()
-          img.src = dataUrl
+          img.src = titleImg
           await img.decode()
 
           const maxW = pageWidth - margin * 2
-          const maxH = pageHeight - 80 - margin
+          const maxH = pageHeight - margin * 2
           const ratio = Math.min(maxW / img.width, maxH / img.height)
           const imgW = img.width * ratio
           const imgH = img.height * ratio
           const x = (pageWidth - imgW) / 2
-          pdf.addImage(dataUrl, "PNG", x, 60, imgW, imgH)
+          const y = (pageHeight - imgH) / 2
+          pdf.addImage(titleImg, "PNG", x, y, imgW, imgH)
         } catch (e) {
-          pdf.setFontSize(12)
-          pdf.setTextColor(200, 0, 0)
-          pdf.text(t('analytics.exportAll.renderError'), margin, 80)
+          console.error("Title page render error:", e)
         }
+        titleContainer.style.display = "none"
       }
 
-      restoreExport()
-      container.style.display = "none"
+      // ── Chart pages: render from hidden container ──
+      const container = allChartsRef.current
+      if (container) {
+        container.style.display = "block"
+        container.style.position = "absolute"
+        container.style.left = "-9999px"
+        container.style.top = "0"
+        container.style.width = "900px"
+        container.style.backgroundColor = "#ffffff"
+
+        await new Promise((resolve) => setTimeout(resolve, 600))
+
+        const restoreExport = prepareForCapture(container)
+        const chartNodes = container.querySelectorAll<HTMLElement>("[data-chart-export]")
+
+        for (let i = 0; i < chartNodes.length; i++) {
+          // Skip charts not selected by user
+          if (exportChartSelection.length > 0 && !exportChartSelection[i]) continue
+
+          const node = chartNodes[i]
+
+          // Set chart title and description in the export container
+          const titleEl = node.querySelector('[data-chart-title]')
+          const descEl = node.querySelector('[data-chart-desc]')
+          const numEl = node.querySelector('[data-chart-num]')
+          if (titleEl) titleEl.textContent = chartsConfig[i]?.titleKey ? t(chartsConfig[i].titleKey) : `Chart ${i + 1}`
+          if (descEl) descEl.textContent = chartsConfig[i]?.descKey ? t(chartsConfig[i].descKey) : ""
+          if (numEl) numEl.textContent = String(i + 1)
+
+          pdf.addPage()
+
+          try {
+            const dataUrl = await toPng(node, {
+              cacheBust: true,
+              backgroundColor: "#ffffff",
+              pixelRatio: 2,
+            })
+            const img = new Image()
+            img.src = dataUrl
+            await img.decode()
+
+            const maxW = pageWidth - margin * 2
+            const maxH = pageHeight - margin * 2
+            const ratio = Math.min(maxW / img.width, maxH / img.height)
+            const imgW = img.width * ratio
+            const imgH = img.height * ratio
+            const x = (pageWidth - imgW) / 2
+            const y = margin
+            pdf.addImage(dataUrl, "PNG", x, y, imgW, imgH)
+          } catch (e) {
+            console.error(`Chart ${i} render error:`, e)
+          }
+        }
+
+        restoreExport()
+        container.style.display = "none"
+      }
+
+      // Restore original child selection
+      setSelectedChild(prevSelectedChild)
 
       pdf.save(exportFileName("pdf", "analytics_full_report"))
     } catch (err) {
       console.error("PDF export error:", err)
     } finally {
       setExporting(false)
+      setShowExportDialog(false)
     }
-  }, [analytics, exporting, windowDays, selectedChild, t])
+  }, [analytics, exporting, windowDays, selectedChild, exportChildFilter, exportChartSelection, t])
 
   if (loading) {
     return (
@@ -1251,10 +1309,14 @@ export default function AnalyticsDashboard() {
           </Button>
         </div>
         <div className="flex gap-2 items-center">
-          {/* Primary: Export all to PDF */}
+          {/* Primary: Export all to PDF — opens dialog */}
           <Button
             size="sm"
-            onClick={exportAllChartsToPdf}
+            onClick={() => {
+              setExportChildFilter(selectedChild)
+              setExportChartSelection(chartsConfig.map(() => true))
+              setShowExportDialog(true)
+            }}
             disabled={exporting}
             className="gap-2 bg-gradient-to-r from-primary to-primary/80 text-white shadow-md hover:shadow-lg transition-all"
           >
@@ -1464,11 +1526,180 @@ export default function AnalyticsDashboard() {
       {/* Hidden container for rendering all charts during PDF export */}
       <div ref={allChartsRef} style={{ display: "none" }}>
         {chartsConfig.map((chart, idx) => (
-          <div key={chart.id} data-chart-export style={{ width: 900, height: 400, padding: 20 }}>
+          <div key={chart.id} data-chart-export style={{ width: 900, minHeight: 480, padding: 24, backgroundColor: "#ffffff" }}>
+            {/* Chart header embedded in export image */}
+            <div style={{ marginBottom: 16, borderBottom: "2px solid #e5e7eb", paddingBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 6, height: 28, borderRadius: 4, background: "linear-gradient(180deg, #8b5cf6, #6d28d9)" }} />
+                <span data-chart-num style={{ fontSize: 18, fontWeight: 800, color: "#8b5cf6" }}>{idx + 1}</span>
+                <span style={{ fontSize: 8, color: "#8b5cf6", fontWeight: 600 }}>.</span>
+                <span data-chart-title style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}>{t(chart.titleKey)}</span>
+              </div>
+              <p data-chart-desc style={{ fontSize: 13, color: "#64748b", marginTop: 6, marginLeft: 40, lineHeight: 1.5 }}>
+                {t(chart.descKey)}
+              </p>
+            </div>
             {renderChart(idx)}
           </div>
         ))}
       </div>
+
+      {/* Hidden title page template for PDF export (rendered as HTML → image) */}
+      <div ref={exportTitleRef} style={{ display: "none", width: 900, backgroundColor: "#ffffff", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+        <div style={{ padding: 48, minHeight: 500 }}>
+          {/* Decorative header bar */}
+          <div style={{ height: 6, borderRadius: 3, background: "linear-gradient(90deg, #8b5cf6, #06b6d4, #10b981, #f59e0b)", marginBottom: 40 }} />
+
+          {/* Title */}
+          <h1 data-export-title style={{ fontSize: 36, fontWeight: 800, color: "#1e293b", textAlign: "center", margin: "0 0 12px 0", letterSpacing: "-0.02em" }}>
+            {t('analytics.exportAll.reportTitle')}
+          </h1>
+
+          {/* Subtitle line */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 24, alignItems: "center", marginBottom: 8 }}>
+            <span data-export-subtitle style={{ fontSize: 16, color: "#64748b" }} />
+            <span style={{ color: "#d1d5db" }}>•</span>
+            <span data-export-date style={{ fontSize: 16, color: "#64748b" }} />
+          </div>
+
+          {/* Child label */}
+          <p style={{ textAlign: "center", marginBottom: 40 }}>
+            <span style={{ display: "inline-block", padding: "6px 20px", borderRadius: 999, background: "linear-gradient(135deg, #ede9fe, #dbeafe)", fontSize: 15, fontWeight: 600, color: "#6d28d9" }}>
+              <span data-export-child />
+            </span>
+          </p>
+
+          {/* Stats grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 20, marginTop: 48 }}>
+            {[0, 1, 2, 3].map(i => {
+              const colors = [
+                { bg: "#f5f3ff", border: "#ddd6fe", accent: "#7c3aed" },
+                { bg: "#eff6ff", border: "#bfdbfe", accent: "#2563eb" },
+                { bg: "#ecfdf5", border: "#a7f3d0", accent: "#059669" },
+                { bg: "#fffbeb", border: "#fde68a", accent: "#d97706" },
+              ]
+              const c = colors[i]
+              return (
+                <div key={i} data-export-stat style={{ padding: 24, borderRadius: 16, backgroundColor: c.bg, border: `2px solid ${c.border}`, textAlign: "center" }}>
+                  <p data-stat-label style={{ fontSize: 13, color: "#64748b", fontWeight: 500, marginBottom: 8 }} />
+                  <p data-stat-value style={{ fontSize: 32, fontWeight: 800, color: c.accent, margin: 0 }} />
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Footer bar */}
+          <div style={{ height: 4, borderRadius: 2, background: "linear-gradient(90deg, #8b5cf6, #06b6d4, #10b981, #f59e0b)", marginTop: 48 }} />
+        </div>
+      </div>
+
+      {/* ── Export Settings Dialog ── */}
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileDown className="w-5 h-5 text-violet-500" />
+              {t('analytics.exportDialog.title')}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
+            {/* Child selector */}
+            <div>
+              <p className="text-sm font-semibold mb-2.5 flex items-center gap-2">
+                <Users className="w-4 h-4 text-muted-foreground" />
+                {t('analytics.exportDialog.selectChild')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={exportChildFilter === "all" ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-xl text-xs"
+                  onClick={() => setExportChildFilter("all")}
+                >
+                  {t('analyticsDashboard.wholeFamily')}
+                </Button>
+                {analytics.childrenStats.map((child) => (
+                  <Button
+                    key={child.childId}
+                    variant={exportChildFilter === child.childId ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-xl text-xs"
+                    onClick={() => setExportChildFilter(child.childId)}
+                  >
+                    {child.childName}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chart selection */}
+            <div>
+              <div className="flex items-center justify-between mb-2.5">
+                <p className="text-sm font-semibold flex items-center gap-2">
+                  <Target className="w-4 h-4 text-muted-foreground" />
+                  {t('analytics.exportDialog.selectCharts')}
+                </p>
+                <button
+                  className="text-xs text-violet-600 hover:text-violet-700 font-medium"
+                  onClick={() => {
+                    const allSelected = exportChartSelection.every(Boolean)
+                    setExportChartSelection(chartsConfig.map(() => !allSelected))
+                  }}
+                >
+                  {exportChartSelection.every(Boolean) ? t('analytics.exportDialog.deselectAll') : t('analytics.exportDialog.selectAll')}
+                </button>
+              </div>
+              <div className="space-y-1.5">
+                {chartsConfig.map((chart, idx) => (
+                  <button
+                    key={chart.id}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left text-sm ${
+                      exportChartSelection[idx]
+                        ? 'border-violet-300 bg-violet-50 dark:bg-violet-950/30 dark:border-violet-800'
+                        : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
+                    }`}
+                    onClick={() => {
+                      setExportChartSelection(prev => {
+                        const next = [...prev]
+                        next[idx] = !next[idx]
+                        return next
+                      })
+                    }}
+                  >
+                    {exportChartSelection[idx] ? (
+                      <CheckSquare className="w-4 h-4 text-violet-500 shrink-0" />
+                    ) : (
+                      <Square className="w-4 h-4 text-muted-foreground shrink-0" />
+                    )}
+                    <span className={`font-medium ${exportChartSelection[idx] ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {idx + 1}. {t(chart.titleKey)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowExportDialog(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={exportAllChartsToPdf}
+              disabled={exporting || !exportChartSelection.some(Boolean)}
+              className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white"
+            >
+              {exporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileDown className="w-4 h-4" />
+              )}
+              {exporting ? t('analytics.exportAll.generating') : t('analytics.exportDialog.generate')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

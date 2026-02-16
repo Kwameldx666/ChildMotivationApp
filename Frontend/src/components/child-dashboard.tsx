@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { resolveAvatarUrl } from "@/lib/avatar-utils"
 import { Button } from "@/components/ui/button"
 import {
-  CheckCircle2, LogOut, User, MessageSquare,
+  CheckCircle2, LogOut, User,
   Flame, Star, Trophy, Target, Crown, Sparkles,
   Gift, Settings,
 } from "lucide-react"
@@ -17,9 +17,7 @@ import AchievementTree from "./achievement-tree"
 import GameHub from "./game-hub"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
-import { openAiChat } from "@/components/ai-chat-widget"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { cn } from "@/lib/utils"
 import {
@@ -92,7 +90,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   const rank    = getRank(level)
 
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
-  const { hasFeature } = useSubscriptionGate()
 
   // Floating particles state
   const [particles] = useState(() =>
@@ -196,11 +193,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                 <LanguageSwitcher variant="ghost" size="sm" />
                 <ThemeToggle />
                 <NotificationsPopover />
-                {hasFeature("aiAssistant") && (
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-xl" onClick={() => openAiChat()}>
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                )}
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowAvatarPicker(true)} className="rounded-xl text-sm">

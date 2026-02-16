@@ -123,8 +123,8 @@ export function useSubscriptionGate(): SubscriptionGateResult {
 
       isWithinLimit: (limit: SubscriptionLimit, currentCount: number) => {
         const max = getLimitValue(subscription, limit)
-        // 0 = unlimited (Family plan)
-        if (max === 0) return true
+        // 0 or >= 1 billion (INT_MAX = 2147483647) = unlimited
+        if (max === 0 || max >= 1_000_000_000) return true
         return currentCount < max
       },
 

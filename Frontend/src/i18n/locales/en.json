@@ -38,6 +38,7 @@
     "saved": "Saved!",
     "saveChanges": "Save Changes",
     "confirmDelete": "Yes, Delete",
+    "done": "Done",
     "child": "Child",
     "parent": "Parent"
   },
@@ -201,6 +202,7 @@
     "cancelConfirm": "Are you sure you want to cancel?",
     "perMonth": "/month",
     "perYear": "/year",
+    "currency": "lei",
     "free": "Free",
     "basic": "Basic",
     "premium": "Premium",
@@ -248,11 +250,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Daily help with chores & motivation",
-        "price": "49",
-        "priceAmount": "49 lei",
-        "yearlyPrice": "499",
-        "yearlyMonthlyPrice": "41 lei",
-        "yearlyDiscount": "-15%",
+        "price": "299",
+        "priceAmount": "299 lei",
+        "yearlyPrice": "2990",
+        "yearlyMonthlyPrice": "249 lei",
+        "yearlyDiscount": "-17%",
         "features": [
           "Unlimited children",
           "AI generates age-appropriate tasks",
@@ -265,11 +267,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Insights that help you raise kids better",
-        "price": "99",
-        "priceAmount": "99 lei",
-        "yearlyPrice": "999",
-        "yearlyMonthlyPrice": "83 lei",
-        "yearlyDiscount": "-16%",
+        "price": "599",
+        "priceAmount": "599 lei",
+        "yearlyPrice": "5990",
+        "yearlyMonthlyPrice": "499 lei",
+        "yearlyDiscount": "-17%",
         "features": [
           "Everything in Basic",
           "AI adapts tasks to child's behavior",
@@ -283,10 +285,10 @@
       "family": {
         "name": "Family",
         "tagline": "Both parents, grandparents & nanny in sync",
-        "price": "149",
-        "priceAmount": "149 lei",
-        "yearlyPrice": "1499",
-        "yearlyMonthlyPrice": "124 lei",
+        "price": "999",
+        "priceAmount": "999 lei",
+        "yearlyPrice": "9990",
+        "yearlyMonthlyPrice": "833 lei",
         "yearlyDiscount": "-17%",
         "features": [
           "Everything in Premium",
@@ -390,6 +392,14 @@
       "period": "Period",
       "days": "days",
       "renderError": "Failed to render this chart"
+    },
+    "exportDialog": {
+      "title": "Export Settings",
+      "selectChild": "Select Child",
+      "selectCharts": "Select Charts",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "generate": "Generate PDF"
     },
     "cards": {
       "totalPoints": "Total Points",
@@ -838,8 +848,8 @@
         "newAction": "New task"
       },
       "rewards": {
-        "title": "Rewards shop",
-        "subtitle": "Create rewards or use AI to generate",
+        "title": "Rewards",
+        "subtitle": "Create rewards for your children",
         "newAction": "New reward"
       },
       "analytics": {
@@ -1034,7 +1044,8 @@
     "catalog": {
       "title": "Rewards catalog",
       "parentSubtitle": "Edit rewards and manage stock",
-      "childSubtitle": "Choose and exchange points for desired gifts"
+      "childSubtitle": "Choose and exchange points for desired gifts",
+      "addReward": "Add Reward"
     },
     "orders": {
       "title": "My redemptions",
@@ -1055,6 +1066,7 @@
       "cancelled": "Cancelled",
       "unknown": "Unknown status"
     },
+    "orderTotal": "Total",
     "quantityShort": "{count} pcs",
     "unitPrice": "{value} per item",
     "toasts": {
@@ -1071,6 +1083,13 @@
       },
       "tryAgain": "Please try again",
       "rewardDeleted": "Reward deleted",
+      "rewardCreated": {
+        "title": "Reward created",
+        "description": "Reward \"{name}\" added to catalog"
+      },
+      "rewardCreateFailed": {
+        "title": "Failed to create reward"
+      },
       "rewardDeleteFailed": {
         "title": "Failed to delete reward"
       },
@@ -1127,6 +1146,12 @@
     "forWhom": "Who is the reward for?",
     "forAllChildren": "For all children",
     "aiConsidersInterests": "AI will consider the selected child's interests when generating",
+    "childInterests": "Child's interests & hobbies",
+    "childInterestsHint": "Add the child's interests — AI will tailor the reward just for them",
+    "interestPlaceholder": "Soccer, Lego, Drawing...",
+    "quickInterests": "Soccer, Drawing, Lego, Minecraft, Dancing, Reading, Music, Swimming",
+    "aiHintPlaceholderChild": "For example: Something related to their favorite cartoon, or a reward for good grades...",
+    "aiAnalyzingChild": "AI is picking the perfect reward for {name} based on their interests...",
     "aiHint": "Hint for AI (optional)",
     "aiHintPlaceholder": "For example: The child wants something related to dinosaurs, or A reward for a special occasion...",
     "generating": "Generating reward...",
@@ -1141,6 +1166,7 @@
     "recommendedRange": "Recommended range: {min}–{max} points",
     "recommended": "Recommended: {points} points",
     "stockCount": "Reward quantity",
+    "adjustCost": "Adjust",
     "motivationTip": "💡 Motivation tip",
     "motivationTipText": "Children stay motivated when rewards seem achievable. Instant rewards (20–40 points) for quick joy, weekly (100–150) for mid-term goals, big (300+) for long-term motivation.",
     "saving": "Saving",
@@ -1982,21 +2008,31 @@
   "createTaskDialog": {
     "title": "New Task",
     "describePlaceholder": "Describe what needs to be done...",
-    "titleLabel": "Task title",
-    "titlePlaceholder": "Enter task title",
+    "aiPlaceholder": "Just describe the task — AI will handle the rest...",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g., Clean the room",
     "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Describe the task in detail...",
+    "descriptionPlaceholder": "What exactly needs to be done...",
+    "difficultyLabel": "Difficulty",
+    "pts": "pts",
     "categoryLabel": "Category",
     "forChild": "For:",
     "selectChild": "Select child",
     "dateTimePlaceholder": "Select date & time",
     "deadline": "Deadline",
     "photoConfirmation": "Photo confirmation",
+    "extraOptions": "More options",
     "xpAndPoints": "{xp} XP · {points} pts",
     "withAi": "With AI",
+    "manual": "Manual",
     "quick": "Quick",
     "aiThinking": "AI is thinking...",
     "creating": "Creating...",
+    "createWithAi": "Create with AI",
+    "generateWithAi": "Generate with AI",
+    "aiFilledToast": "AI filled in the task fields",
+    "aiError": "Generation failed. Please try again.",
+    "orChooseIdea": "Or choose an idea:",
     "taskCreatedToast": "Task created successfully!",
     "createError": "Failed to create task. Please try again.",
     "quickIdeas": {

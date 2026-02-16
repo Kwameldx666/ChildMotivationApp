@@ -18,14 +18,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import SubscriptionManager from "./subscription-manager"
+import ChildrenManagement from "@/components/children-management"
 import { useUserSettings } from "@/hooks/use-user-settings"
 
 interface ParentSettingsProps {
   familyName?: string | null
   familyCode: string
+  familyCodeRaw?: string | null
 }
 
-export default function ParentSettings({ familyName, familyCode }: ParentSettingsProps) {
+export default function ParentSettings({ familyName, familyCode, familyCodeRaw }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation()
   const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
@@ -75,6 +77,17 @@ export default function ParentSettings({ familyName, familyCode }: ParentSetting
       <SubscriptionManager 
         onUpgrade={(tier) => console.log("Upgrade to:", tier)}
       />
+
+      {/* Дети */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("parentDashboard.sections.children.title")}</CardTitle>
+          <CardDescription>{t("parentDashboard.sections.children.subtitle")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChildrenManagement familyCode={familyCodeRaw} />
+        </CardContent>
+      </Card>
 
       {/* Семья */}
       <Card>

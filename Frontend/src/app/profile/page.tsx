@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
 import { clearSession, selectAuthSession, setSession } from "@/features/auth/store/authSlice"
+import { useQueryClient } from "@tanstack/react-query"
 import type { UpdateProfilePayload } from "@/features/auth/types"
 import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { useTranslation } from "@/i18n/provider"
@@ -87,11 +88,22 @@ export default function ProfilePage() {
     router.push(session.profile.role === "child" ? "/dashboard/child" : "/dashboard/parent")
   }, [session, router])
 
+  const goBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      goDashboard()
+    }
+  }, [router, goDashboard])
+
+  const profileQueryClient = useQueryClient()
+
   const handleLogout = useCallback(async () => {
     try { await authApi.logout() } catch {}
+    profileQueryClient.clear()
     dispatch(clearSession())
     router.replace("/")
-  }, [dispatch, router])
+  }, [dispatch, router, profileQueryClient])
 
   const handleSave = useCallback(async () => {
     if (!userId) return
@@ -200,7 +212,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-primary/8 via-background to-background flex flex-col">
         <header className="flex items-center justify-between px-4 py-3 sticky top-0 z-10 bg-background/60 backdrop-blur-md">
-          <Button variant="ghost" size="icon" onClick={goDashboard} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={goBack} className="rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <span className="text-base font-semibold">{t("profilePage.title")}</span>

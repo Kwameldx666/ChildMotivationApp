@@ -42,6 +42,7 @@
     "parent": "Родитель",
     "name": "Имя",
     "price": "Цена",
+    "done": "Готово",
     "daysRemaining": "Осталось {days} дней"
   },
   "auth": {
@@ -192,13 +193,14 @@
   "subscription": {
     "title": "Подписка",
     "currentPlan": "Текущий тариф",
-    "changePlan": "Выбрать тариф",
+    "changePlan": "Сменить тариф",
     "upgrade": "Улучшить",
     "downgrade": "Понизить",
     "cancel": "Отменить подписку",
     "cancelConfirm": "Вы уверены, что хотите отменить?",
     "perMonth": "/месяц",
     "perYear": "/год",
+    "currency": "лей",
     "free": "Бесплатный",
     "basic": "Базовый",
     "premium": "Премиум",
@@ -246,11 +248,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Ежедневная помощь с делами и мотивацией",
-        "price": "49",
-        "priceAmount": "49 лей",
-        "yearlyPrice": "499",
-        "yearlyMonthlyPrice": "41 лей",
-        "yearlyDiscount": "-15%",
+        "price": "299",
+        "priceAmount": "299 лей",
+        "yearlyPrice": "2990",
+        "yearlyMonthlyPrice": "249 лей",
+        "yearlyDiscount": "-17%",
         "features": [
           "Безлимит детей",
           "ИИ подбирает задачи по возрасту",
@@ -263,11 +265,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Аналитика, которая помогает воспитывать",
-        "price": "99",
-        "priceAmount": "99 лей",
-        "yearlyPrice": "999",
-        "yearlyMonthlyPrice": "83 лей",
-        "yearlyDiscount": "-16%",
+        "price": "599",
+        "priceAmount": "599 лей",
+        "yearlyPrice": "5990",
+        "yearlyMonthlyPrice": "499 лей",
+        "yearlyDiscount": "-17%",
         "features": [
           "Всё из Basic",
           "ИИ адаптирует задачи под поведение ребёнка",
@@ -281,10 +283,10 @@
       "family": {
         "name": "Family",
         "tagline": "Оба родителя, бабушки и няня — на связи",
-        "price": "149",
-        "priceAmount": "149 лей",
-        "yearlyPrice": "1499",
-        "yearlyMonthlyPrice": "124 лей",
+        "price": "999",
+        "priceAmount": "999 лей",
+        "yearlyPrice": "9990",
+        "yearlyMonthlyPrice": "833 лей",
         "yearlyDiscount": "-17%",
         "features": [
           "Всё из Premium",
@@ -388,6 +390,14 @@
       "period": "Период",
       "days": "дней",
       "renderError": "Не удалось отрисовать график"
+    },
+    "exportDialog": {
+      "title": "Настройки выгрузки",
+      "selectChild": "Выбрать ребёнка",
+      "selectCharts": "Выбрать графики",
+      "selectAll": "Выбрать все",
+      "deselectAll": "Снять выбор",
+      "generate": "Сгенерировать PDF"
     },
     "cards": {
       "totalPoints": "Всего очков",
@@ -832,8 +842,8 @@
         "newAction": "Новая задача"
       },
       "rewards": {
-        "title": "Магазин наград",
-        "subtitle": "Создавайте награды или используйте ИИ для генерации",
+        "title": "Награды",
+        "subtitle": "Создавайте награды для детей",
         "newAction": "Новая награда"
       },
       "analytics": {
@@ -1028,7 +1038,8 @@
     "catalog": {
       "title": "Каталог наград",
       "parentSubtitle": "Редактируйте награды и управляйте запасами",
-      "childSubtitle": "Выбирайте и обменивайте баллы на желанные подарки"
+      "childSubtitle": "Выбирайте и обменивайте баллы на желанные подарки",
+      "addReward": "Добавить награду"
     },
     "orders": {
       "title": "Мои обмены",
@@ -1049,6 +1060,7 @@
       "cancelled": "Отменён",
       "unknown": "Статус неизвестен"
     },
+    "orderTotal": "Итого",
     "quantityShort": "{count} шт.",
     "unitPrice": "{value} за шт.",
     "toasts": {
@@ -1065,6 +1077,13 @@
       },
       "tryAgain": "Попробуйте ещё раз",
       "rewardDeleted": "Награда удалена",
+      "rewardCreated": {
+        "title": "Награда создана",
+        "description": "Награда \"{name}\" добавлена в каталог"
+      },
+      "rewardCreateFailed": {
+        "title": "Не удалось создать награду"
+      },
       "rewardDeleteFailed": {
         "title": "Не удалось удалить награду"
       },
@@ -1121,6 +1140,12 @@
     "forWhom": "Для кого награда?",
     "forAllChildren": "Для всех детей",
     "aiConsidersInterests": "ИИ учтет увлечения выбранного ребенка при генерации",
+    "childInterests": "Увлечения и хобби ребёнка",
+    "childInterestsHint": "Укажите интересы ребёнка — ИИ подберёт награду именно под него",
+    "interestPlaceholder": "Футбол, Лего, Рисование...",
+    "quickInterests": "Футбол, Рисование, Лего, Minecraft, Танцы, Чтение, Музыка, Плавание",
+    "aiHintPlaceholderChild": "Например: Хочу что-то связанное с любимым мультиком, или награда за хорошие оценки...",
+    "aiAnalyzingChild": "ИИ подбирает идеальную награду для {name} на основе интересов...",
     "aiHint": "Подсказка для ИИ (необязательно)",
     "aiHintPlaceholder": "Например: Ребенок хочет что-то связанное с динозаврами, или Награда для особого случая...",
     "generating": "Генерируем награду...",
@@ -1135,6 +1160,7 @@
     "recommendedRange": "Рекомендуемый диапазон: {min}–{max} очков",
     "recommended": "Рекомендовано: {points} очков",
     "stockCount": "Количество наград",
+    "adjustCost": "Изменить",
     "motivationTip": "💡 Совет по мотивации",
     "motivationTipText": "Дети остаются мотивированными, когда награды кажутся достижимыми. Мгновенные награды (20–40 очков) для быстрой радости, еженедельные (100–150) для среднесрочных целей, большие (300+) для долгосрочной мотивации.",
     "saving": "Сохраняем",
@@ -1976,21 +2002,31 @@
   "createTaskDialog": {
     "title": "Новая задача",
     "describePlaceholder": "Опишите, что нужно сделать...",
-    "titleLabel": "Название задачи",
-    "titlePlaceholder": "Введите название задачи",
+    "aiPlaceholder": "Просто опишите задачу — ИИ сделает остальное...",
+    "titleLabel": "Название",
+    "titlePlaceholder": "Например: Убрать комнату",
     "descriptionLabel": "Описание",
-    "descriptionPlaceholder": "Подробно опишите задачу...",
+    "descriptionPlaceholder": "Что именно нужно сделать...",
+    "difficultyLabel": "Сложность",
+    "pts": "очк.",
     "categoryLabel": "Категория",
     "forChild": "Для:",
     "selectChild": "Выберите ребёнка",
     "dateTimePlaceholder": "Выберите дату и время",
     "deadline": "Срок",
     "photoConfirmation": "Фото-подтверждение",
+    "extraOptions": "Дополнительно",
     "xpAndPoints": "{xp} XP · {points} очк.",
     "withAi": "С ИИ",
+    "manual": "Вручную",
     "quick": "Быстро",
     "aiThinking": "ИИ думает...",
     "creating": "Создаём...",
+    "createWithAi": "Создать с ИИ",
+    "generateWithAi": "Сгенерировать с ИИ",
+    "aiFilledToast": "ИИ заполнил поля задачи",
+    "aiError": "Не удалось сгенерировать. Попробуйте ещё раз.",
+    "orChooseIdea": "Или выберите идею:",
     "taskCreatedToast": "Задача успешно создана!",
     "createError": "Не удалось создать задачу. Попробуйте ещё раз.",
     "quickIdeas": {

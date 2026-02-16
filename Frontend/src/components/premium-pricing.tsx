@@ -96,9 +96,9 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
   }) || [
     // Fallback тарифы если API недоступен
     { id: "free", name: "Free", price: 0, description: "subscription.plans.free.tagline", features: tierExtras.free.features },
-    { id: "basic", name: "Basic", price: 49, description: "subscription.plans.basic.tagline", features: tierExtras.basic.features },
-    { id: "premium", name: "Premium", price: 99, description: "subscription.plans.premium.tagline", features: tierExtras.premium.features, highlighted: true },
-    { id: "family", name: "Family", price: 149, description: "subscription.plans.family.tagline", features: tierExtras.family.features },
+    { id: "basic", name: "Basic", price: 299, description: "subscription.plans.basic.tagline", features: tierExtras.basic.features },
+    { id: "premium", name: "Premium", price: 599, description: "subscription.plans.premium.tagline", features: tierExtras.premium.features, highlighted: true },
+    { id: "family", name: "Family", price: 999, description: "subscription.plans.family.tagline", features: tierExtras.family.features },
   ]
 
   if (isLoading) {
@@ -110,15 +110,15 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Billing cycle toggle */}
       <div className="flex justify-center">
-        <div className="inline-flex items-center rounded-full border bg-muted/50 p-1 gap-0.5">
+        <div className="inline-flex items-center rounded-full border bg-muted/50 p-0.5 gap-0.5">
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-all",
+              "rounded-full px-3 py-1 text-xs font-medium transition-all",
               billingCycle === "monthly"
                 ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground hover:text-foreground"
@@ -130,21 +130,21 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             type="button"
             onClick={() => setBillingCycle("yearly")}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-all relative",
+              "rounded-full px-3 py-1 text-xs font-medium transition-all",
               billingCycle === "yearly"
                 ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
             {t("paymentModal.yearly")}
-            <span className="absolute -top-2.5 -right-3 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+            <span className="ml-1.5 bg-green-500 text-white text-[8px] font-bold px-1 py-0 rounded-full leading-relaxed inline-block">
               -20%
             </span>
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
       {pricingTiers.map((tier) => {
         const isCurrentTier = currentTier.toLowerCase() === tier.id
         const isFree = tier.price === 0
@@ -156,7 +156,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
           <div
             key={tier.id}
             className={cn(
-              "relative rounded-2xl p-5 transition-all duration-200 flex flex-col",
+              "relative rounded-xl p-3.5 transition-all duration-200 flex flex-col",
               "bg-card/50 backdrop-blur border",
               tier.highlighted 
                 ? "border-purple-500/50 bg-purple-500/5" 
@@ -164,76 +164,73 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
               isCurrentTier && "ring-2 ring-green-500/50",
               isLowerTier && "opacity-50"
             )}
-          >            {/* Highlighted Badge */}
+          >
+            {/* Badges */}
             {tier.highlighted && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-purple-500 text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                <span className="bg-purple-500 text-white text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
                   {t("subscription.mostPopular")}
                 </span>
               </div>
             )}
-
-            {/* Current Badge */}
             {isCurrentTier && !tier.highlighted && (
-              <div className="absolute -top-3 left-4">
-                <span className="bg-green-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+              <div className="absolute -top-2.5 left-3">
+                <span className="bg-green-500 text-white text-[10px] font-medium px-2 py-0.5 rounded-full">
                   {t("subscription.currentlyActive")}
                 </span>
               </div>
             )}
-
-            {/* Trial Badge for Basic when user is on Free */}
             {showTrial && !tier.highlighted && (
-              <div className="absolute -top-3 right-4">
-                <span className="bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-full animate-pulse">
+              <div className="absolute -top-2.5 right-3">
+                <span className="bg-amber-500 text-white text-[10px] font-medium px-2 py-0.5 rounded-full animate-pulse">
                   {t("subscription.trial.badge")}
                 </span>
               </div>
             )}
 
             {/* Header */}
-            <div className="mb-4">
-              <h3 className="text-base font-semibold text-foreground">{t(`subscription.${tier.id}`)}</h3>
-              <p className="text-xs text-muted-foreground">{t(tier.description)}</p>
+            <div className="mb-2 pt-1">
+              <h3 className="text-sm font-semibold text-foreground">{t(`subscription.${tier.id}`)}</h3>
+              <p className="text-[11px] text-muted-foreground leading-tight">{t(tier.description)}</p>
             </div>
 
             {/* Price */}
-            <div className="mb-5">
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-foreground">
+            <div className="mb-3">
+              <div className="flex items-baseline gap-1 flex-wrap">
+                <span className="text-xl font-bold text-foreground">
                   {billingCycle === "yearly" && tier.price > 0
                     ? t(`subscription.plans.${tier.id}.yearlyMonthlyPrice`)
-                    : t(`subscription.plans.${tier.id}.price`)}
+                    : isFree
+                      ? t(`subscription.plans.${tier.id}.price`)
+                      : t(`subscription.plans.${tier.id}.priceAmount`)}
                 </span>
-                {tier.price > 0 && <span className="text-sm text-muted-foreground">{t("subscription.perMonth")}</span>}
+                {tier.price > 0 && <span className="text-[11px] text-muted-foreground">{t("subscription.perMonth")}</span>}
               </div>
               {!isFree && billingCycle === "yearly" && (
-                <p className="text-xs text-muted-foreground/70 mt-0.5">
-                  {t(`subscription.plans.${tier.id}.yearlyPrice`)} {t("subscription.perYear")} ({t(`subscription.plans.${tier.id}.yearlyDiscount`)})
+                <p className="text-[10px] text-muted-foreground/70">
+                  {t(`subscription.plans.${tier.id}.yearlyPrice`)} {t("subscription.currency")} {t("subscription.perYear")}
                 </p>
               )}
               {!isFree && billingCycle === "monthly" && (
-                <p className="text-xs text-green-600 mt-0.5">
+                <p className="text-[10px] text-green-600">
                   {t("subscription.switchToYearlySave")}
                 </p>
               )}
             </div>
 
             {/* Features */}
-            <ul className="space-y-2.5 mb-5 flex-1">
+            <ul className="space-y-1.5 mb-3 flex-1">
               {tier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2.5">
-                  <div className="rounded-full bg-green-500/10 p-0.5 mt-0.5">
-                    <Check className="h-3 w-3 text-green-500" />
-                  </div>
-                  <span className="text-sm text-foreground/80">{t(feature)}</span>
+                <li key={index} className="flex items-start gap-1.5">
+                  <Check className="h-3 w-3 text-green-500 mt-0.5 shrink-0" />
+                  <span className="text-xs text-foreground/80 leading-tight">{t(feature)}</span>
                 </li>
               ))}
             </ul>
 
-            {/* Trial note for Basic */}
+            {/* Trial note */}
             {showTrial && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mb-3 text-center font-medium">
+              <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-2 text-center font-medium">
                 {t("subscription.trial.trialDescription")}
               </p>
             )}
@@ -241,7 +238,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             {/* Button */}
             <Button
               className={cn(
-                "w-full",
+                "w-full h-8 text-xs",
                 tier.highlighted && !isDisabled && "bg-purple-500 hover:bg-purple-600",
                 showTrial && "bg-amber-500 hover:bg-amber-600"
               )}
