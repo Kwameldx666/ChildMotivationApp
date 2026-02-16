@@ -51,37 +51,38 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.01 280);
-  --foreground: oklch(0.93 0.01 280);
-  --card: oklch(0.2 0.015 280);
-  --card-foreground: oklch(0.93 0.01 280);
-  --popover: oklch(0.2 0.015 280);
-  --popover-foreground: oklch(0.93 0.01 280);
+  /* Neutral dark palette — no purple tint, softer on the eyes */
+  --background: oklch(0.17 0.005 260);
+  --foreground: oklch(0.93 0.005 260);
+  --card: oklch(0.21 0.005 260);
+  --card-foreground: oklch(0.93 0.005 260);
+  --popover: oklch(0.21 0.005 260);
+  --popover-foreground: oklch(0.93 0.005 260);
   --primary: oklch(0.72 0.18 290);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.42 0.12 25);
   --secondary-foreground: oklch(0.95 0 0);
   --accent: oklch(0.45 0.1 86);
   --accent-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0.01 280);
-  --muted-foreground: oklch(0.72 0.01 280);
+  --muted: oklch(0.27 0.005 260);
+  --muted-foreground: oklch(0.68 0.005 260);
   --destructive: oklch(0.6 0.2 25);
   --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.3 0.02 280);
-  --input: oklch(0.24 0.015 280);
+  --border: oklch(0.32 0.005 260);
+  --input: oklch(0.25 0.005 260);
   --ring: oklch(0.72 0.18 290);
   --chart-1: oklch(0.75 0.18 25);
   --chart-2: oklch(0.72 0.2 290);
   --chart-3: oklch(0.7 0.14 140);
   --chart-4: oklch(0.78 0.14 86);
   --chart-5: oklch(0.75 0.12 180);
-  --sidebar: oklch(0.18 0.015 280);
-  --sidebar-foreground: oklch(0.93 0.01 280);
+  --sidebar: oklch(0.19 0.005 260);
+  --sidebar-foreground: oklch(0.93 0.005 260);
   --sidebar-primary: oklch(0.72 0.18 290);
   --sidebar-primary-foreground: oklch(0.95 0 0);
   --sidebar-accent: oklch(0.42 0.12 25);
   --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.3 0.02 280);
+  --sidebar-border: oklch(0.32 0.005 260);
   --sidebar-ring: oklch(0.72 0.18 290);
 }
 
@@ -314,7 +315,8 @@
 .dark input[type="date"],
 .dark input[type="datetime-local"] {
   color-scheme: dark;
-  color: oklch(0.93 0.01 280);
+  color: var(--foreground);
+  background-color: var(--input);
 }
 
 .dark input[type="time"]::-webkit-calendar-picker-indicator,
@@ -325,21 +327,97 @@
 /* Placeholder text visibility in dark mode */
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: oklch(0.55 0.01 280);
+  color: var(--muted-foreground);
   opacity: 1;
 }
 
 /* Select elements in dark mode */
 .dark select,
 .dark select option {
-  color: oklch(0.93 0.01 280);
-  background-color: oklch(0.2 0.015 280);
+  color: var(--foreground);
+  background-color: var(--card);
 }
 
+/* ═══ Generic light-only utility overrides for dark mode ═══ */
+
+/* bg-white → dark card */
+.dark .bg-white { background-color: var(--card) !important; }
+.dark .bg-white\/80 { background-color: oklch(0.21 0.005 260 / 0.8) !important; }
+.dark .bg-white\/90 { background-color: oklch(0.21 0.005 260 / 0.9) !important; }
+.dark .bg-white\/95 { background-color: oklch(0.21 0.005 260 / 0.95) !important; }
+
+/* Gradient from-white / to-white */
+.dark .from-white\/75 { --tw-gradient-from: oklch(0.21 0.005 260 / 0.75); }
+.dark .from-white\/65 { --tw-gradient-from: oklch(0.21 0.005 260 / 0.65); }
+.dark .via-white\/65 { --tw-gradient-via: oklch(0.21 0.005 260 / 0.65); }
+.dark .to-white\/55 { --tw-gradient-to: oklch(0.21 0.005 260 / 0.55); }
+
+/* text-gray → slate tones in dark */
+.dark .text-gray-900 { color: oklch(0.93 0 0) !important; }
+.dark .text-gray-800 { color: oklch(0.9 0 0) !important; }
+.dark .text-gray-700 { color: oklch(0.82 0 0) !important; }
+.dark .text-gray-600 { color: oklch(0.72 0 0) !important; }
+.dark .text-gray-500 { color: oklch(0.62 0 0) !important; }
+
+/* border-gray / border-white in dark */
+.dark .border-gray-300 { border-color: var(--border) !important; }
+.dark .border-gray-200 { border-color: var(--border) !important; }
+.dark .border-white\/50 { border-color: oklch(0.32 0.005 260 / 0.3) !important; }
+.dark .border-white\/40 { border-color: oklch(0.32 0.005 260 / 0.25) !important; }
+.dark .border-2.border-gray-300 { border-color: var(--border) !important; }
+
+/* bg-gray light backgrounds → dark card tones */
+.dark .bg-gray-50 { background-color: var(--muted) !important; }
+.dark .bg-gray-100 { background-color: var(--muted) !important; }
+
+/* Colored light backgrounds (bg-*-50 etc) → subtle dark versions */
+.dark .bg-purple-50 { background-color: oklch(0.25 0.04 290 / 0.3) !important; }
+.dark .bg-purple-100 { background-color: oklch(0.28 0.05 290 / 0.35) !important; }
+.dark .bg-blue-50 { background-color: oklch(0.25 0.04 240 / 0.3) !important; }
+.dark .bg-blue-100 { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+.dark .bg-green-50 { background-color: oklch(0.25 0.04 145 / 0.3) !important; }
+.dark .bg-green-100 { background-color: oklch(0.28 0.05 145 / 0.35) !important; }
+.dark .bg-red-50 { background-color: oklch(0.25 0.04 25 / 0.3) !important; }
+.dark .bg-red-100 { background-color: oklch(0.28 0.05 25 / 0.35) !important; }
+.dark .bg-amber-50 { background-color: oklch(0.25 0.04 80 / 0.3) !important; }
+.dark .bg-amber-100 { background-color: oklch(0.28 0.05 80 / 0.35) !important; }
+.dark .bg-yellow-50 { background-color: oklch(0.25 0.04 90 / 0.3) !important; }
+.dark .bg-orange-50 { background-color: oklch(0.25 0.04 50 / 0.3) !important; }
+.dark .bg-emerald-50 { background-color: oklch(0.25 0.04 160 / 0.3) !important; }
+.dark .bg-emerald-50\/50 { background-color: oklch(0.25 0.04 160 / 0.15) !important; }
+
+/* Colored border overrides for dark */
+.dark .border-blue-200 { border-color: oklch(0.4 0.08 240 / 0.4) !important; }
+.dark .border-blue-300 { border-color: oklch(0.45 0.1 240 / 0.4) !important; }
+.dark .border-green-200 { border-color: oklch(0.4 0.08 145 / 0.4) !important; }
+.dark .border-red-200 { border-color: oklch(0.4 0.08 25 / 0.4) !important; }
+.dark .border-amber-200 { border-color: oklch(0.4 0.08 80 / 0.4) !important; }
+.dark .border-yellow-200 { border-color: oklch(0.4 0.08 90 / 0.4) !important; }
+.dark .border-orange-200 { border-color: oklch(0.4 0.08 50 / 0.4) !important; }
+.dark .border-emerald-200 { border-color: oklch(0.4 0.08 160 / 0.4) !important; }
+.dark .border-emerald-300 { border-color: oklch(0.45 0.1 160 / 0.4) !important; }
+.dark .border-purple-200 { border-color: oklch(0.4 0.08 290 / 0.4) !important; }
+.dark .border-purple-300 { border-color: oklch(0.45 0.1 290 / 0.4) !important; }
+
+/* Colored text overrides for readability in dark */
+.dark .text-blue-900 { color: oklch(0.78 0.12 240) !important; }
+.dark .text-blue-800 { color: oklch(0.75 0.1 240) !important; }
+.dark .text-red-600 { color: oklch(0.72 0.15 25) !important; }
+.dark .text-purple-600 { color: oklch(0.72 0.14 290) !important; }
+.dark .text-emerald-700 { color: oklch(0.72 0.14 160) !important; }
+
+/* Hover states for colored backgrounds in dark */
+.dark .hover\:bg-red-50:hover { background-color: oklch(0.28 0.05 25 / 0.35) !important; }
+.dark .hover\:bg-green-100:hover { background-color: oklch(0.3 0.06 145 / 0.35) !important; }
+.dark .hover\:bg-blue-50:hover { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+.dark .hover\:bg-purple-50:hover { background-color: oklch(0.28 0.05 290 / 0.35) !important; }
+.dark .hover\:bg-orange-100:hover { background-color: oklch(0.3 0.06 50 / 0.35) !important; }
+.dark .hover\:bg-emerald-100:hover { background-color: oklch(0.3 0.06 160 / 0.35) !important; }
+
 /* Status badge text contrast in dark mode */
-.dark .bg-slate-900\/5 { background-color: oklch(0.3 0.01 280 / 0.3); }
-.dark .text-slate-700 { color: oklch(0.78 0.01 280); }
-.dark .ring-slate-200 { --tw-ring-color: oklch(0.35 0.01 280); }
+.dark .bg-slate-900\/5 { background-color: oklch(0.3 0.005 260 / 0.3); }
+.dark .text-slate-700 { color: oklch(0.78 0.005 260); }
+.dark .ring-slate-200 { --tw-ring-color: oklch(0.35 0.005 260); }
 
 .dark .bg-blue-500\/10 { background-color: oklch(0.35 0.1 240 / 0.3); }
 .dark .text-blue-700 { color: oklch(0.72 0.14 240); }
@@ -368,19 +446,67 @@
 .dark .text-cyan-700 { color: oklch(0.72 0.14 200); }
 
 /* Card & card accents in dark mode */
-.dark .from-rose-50 { --tw-gradient-from: oklch(0.22 0.02 350); }
-.dark .from-emerald-50 { --tw-gradient-from: oklch(0.22 0.02 160); }
-.dark .from-amber-50 { --tw-gradient-from: oklch(0.22 0.02 80); }
-.dark .to-orange-50 { --tw-gradient-to: oklch(0.22 0.02 50); }
-.dark .to-teal-50 { --tw-gradient-to: oklch(0.22 0.02 180); }
-.dark .to-fuchsia-50 { --tw-gradient-to: oklch(0.22 0.02 320); }
+.dark .from-rose-50 { --tw-gradient-from: oklch(0.24 0.02 350); }
+.dark .from-emerald-50 { --tw-gradient-from: oklch(0.24 0.02 160); }
+.dark .from-amber-50 { --tw-gradient-from: oklch(0.24 0.02 80); }
+.dark .to-orange-50 { --tw-gradient-to: oklch(0.24 0.02 50); }
+.dark .to-teal-50 { --tw-gradient-to: oklch(0.24 0.02 180); }
+.dark .to-fuchsia-50 { --tw-gradient-to: oklch(0.24 0.02 320); }
+
+/* Page-level pastel gradient backgrounds → dark subtle gradients */
+.dark .from-sky-100 { --tw-gradient-from: oklch(0.2 0.02 230) !important; }
+.dark .via-purple-100 { --tw-gradient-via: oklch(0.19 0.02 290) !important; }
+.dark .to-purple-200 { --tw-gradient-to: oklch(0.2 0.03 290) !important; }
+.dark .from-sky-400 { --tw-gradient-from: oklch(0.35 0.08 230) !important; }
+.dark .via-purple-400 { --tw-gradient-via: oklch(0.32 0.08 290) !important; }
+.dark .to-purple-500 { --tw-gradient-to: oklch(0.3 0.1 290) !important; }
+
+/* White gradients in cards → dark card colors */
+.dark .from-white\/35 { --tw-gradient-from: oklch(0.25 0.005 260 / 0.35) !important; }
+.dark .via-white\/10 { --tw-gradient-via: oklch(0.25 0.005 260 / 0.1) !important; }
+.dark .to-white\/0 { --tw-gradient-to: transparent !important; }
+.dark .from-white\/75 { --tw-gradient-from: oklch(0.23 0.005 260 / 0.75) !important; }
+.dark .via-white\/65 { --tw-gradient-via: oklch(0.22 0.005 260 / 0.65) !important; }
+.dark .to-white\/55 { --tw-gradient-to: oklch(0.21 0.005 260 / 0.55) !important; }
+
+/* Slider / carousel dots in dark mode */
+.dark .bg-white\/90 { background-color: oklch(0.3 0.005 260 / 0.9) !important; }
+.dark .bg-white\/30 { background-color: oklch(0.3 0.005 260 / 0.3) !important; }
+.dark .hover\:bg-white\/45:hover { background-color: oklch(0.35 0.005 260 / 0.45) !important; }
+.dark .ring-white\/20 { --tw-ring-color: oklch(0.5 0 0 / 0.2) !important; }
+.dark .ring-white\/80 { --tw-ring-color: oklch(0.5 0 0 / 0.4) !important; }
+.dark .bg-white\/10 { background-color: oklch(0.3 0.005 260 / 0.1) !important; }
+
+/* Border white overrides for dark */
+.dark .border-white\/35 { border-color: oklch(0.35 0.005 260 / 0.3) !important; }
+
+/* Emerald info text in dark */
+.dark .bg-emerald-100 { background-color: oklch(0.28 0.06 160 / 0.4) !important; }
+.dark .text-emerald-600 { color: oklch(0.72 0.14 160) !important; }
+
+/* Hover action button colors in dark */
+.dark .hover\:text-blue-700:hover { color: oklch(0.72 0.14 240) !important; }
+.dark .hover\:border-blue-300:hover { border-color: oklch(0.45 0.1 240 / 0.4) !important; }
+.dark .hover\:text-purple-700:hover { color: oklch(0.72 0.14 290) !important; }
+.dark .hover\:border-purple-300:hover { border-color: oklch(0.45 0.1 290 / 0.4) !important; }
+.dark .hover\:text-red-700:hover { color: oklch(0.72 0.14 25) !important; }
+.dark .hover\:text-gray-300:hover { color: oklch(0.7 0 0) !important; }
+
+/* Task button hovers in dark */
+.dark .hover\:bg-blue-50:hover { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+
+/* Colored text overrides that weren't yet covered */
+.dark .text-violet-600 { color: oklch(0.72 0.14 280) !important; }
+.dark .text-green-600 { color: oklch(0.72 0.14 145) !important; }
+.dark .text-orange-600 { color: oklch(0.72 0.12 50) !important; }
+.dark .text-slate-400 { color: oklch(0.6 0.005 260) !important; }
 
 /* Ensure disabled inputs visible in dark */
 .dark input:disabled,
 .dark textarea:disabled {
-  color: oklch(0.65 0.01 280);
+  color: oklch(0.65 0.005 260);
   opacity: 0.8;
-  -webkit-text-fill-color: oklch(0.65 0.01 280);
+  -webkit-text-fill-color: oklch(0.65 0.005 260);
 }
 
 /* Better scrollbar in dark mode */
@@ -389,12 +515,12 @@
   height: 6px;
 }
 .dark ::-webkit-scrollbar-track {
-  background: oklch(0.18 0.01 280);
+  background: oklch(0.19 0.005 260);
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: oklch(0.35 0.02 280);
+  background: oklch(0.35 0.005 260);
   border-radius: 3px;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.45 0.02 280);
+  background: oklch(0.45 0.005 260);
 }

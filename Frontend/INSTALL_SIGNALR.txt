@@ -1,2 +1,0 @@
-// Install SignalR client
-// Run: pnpm add @microsoft/signalr

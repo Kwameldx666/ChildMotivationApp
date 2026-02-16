@@ -50,7 +50,23 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            await db.Database.EnsureCreatedAsync();
+            // EnsureCreated skips if the DB already exists (e.g. created by AuthService).
+            // Use raw SQL to guarantee the notifications table is present.
+            await db.Database.ExecuteSqlRawAsync("""
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id UUID PRIMARY KEY,
+                    user_id VARCHAR(128) NOT NULL,
+                    type VARCHAR(64) NOT NULL,
+                    title VARCHAR(512) NOT NULL,
+                    message VARCHAR(2048) NOT NULL,
+                    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                    data JSONB
+                );
+                CREATE INDEX IF NOT EXISTS ix_notifications_user_id ON notifications (user_id);
+                CREATE INDEX IF NOT EXISTS ix_notifications_user_id_is_read ON notifications (user_id, is_read);
+                CREATE INDEX IF NOT EXISTS ix_notifications_created_at ON notifications (created_at);
+                """);
             app.Logger.LogInformation("Notification database initialized successfully");
         }
         catch (Exception ex)
