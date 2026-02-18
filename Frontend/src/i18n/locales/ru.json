@@ -2164,11 +2164,13 @@
     "evidenceStatus": {
       "fileReceived": "Файл получен",
       "awaitingEvidence": "Ожидание подтверждения",
+      "awaitingShort": "Ждём фото",
       "canCompleteDirect": "Можно выполнить напрямую"
     },
     "dueBy": "Срок до",
     "pointsLabel": "очк.",
     "stage": "Этап",
+    "stageShort": "Этап {{current}} из {{total}}",
     "ariaLabels": {
       "editTask": "Редактировать задачу",
       "deleteTask": "Удалить задачу",
@@ -2191,7 +2193,10 @@
       "iDidIt": "Я сделал(а)!",
       "attachEvidenceFirst": "Сначала прикрепите подтверждение"
     },
-    "taskClosed": "Задача закрыта"
+    "taskClosed": "Задача закрыта",
+    "searchPlaceholder": "Поиск задач...",
+    "noSearchResults": "Ничего не найдено по запросу \"{{query}}\"",
+    "clearSearch": "Очистить поиск"
   },
   "taskTemplates": {
     "myTemplates": "Мои шаблоны",

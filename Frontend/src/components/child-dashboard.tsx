@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useMemo, useState } from "react"
 import { resolveAvatarUrl } from "@/lib/avatar-utils"
@@ -91,17 +91,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
 
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
 
-  // Floating particles state
-  const [particles] = useState(() =>
-    Array.from({ length: 6 }, (_, i) => ({
-      id: i,
-      emoji: ["✨", "⭐", "💫", "🌟", "🔮", "💎"][i],
-      x: 10 + Math.random() * 80,
-      delay: Math.random() * 4,
-      dur: 3 + Math.random() * 3,
-    }))
-  )
-
   const avatarImageUrl = useMemo(() => {
     const resolved = resolveAvatarUrl(userProfile.avatar)
     if (!resolved) return null
@@ -115,11 +104,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
     return userProfile.name?.trim()?.charAt(0)?.toUpperCase() || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
-  // XP ring geometry (viewBox 120×120, r=52)
-  const R = 52, C = 2 * Math.PI * R
-
-  const curTab = TABS.find(t => t.id === activeTab)!
-
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden">
 
@@ -128,19 +112,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-violet-500/[0.04] dark:bg-violet-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "8s" }} />
         <div className="absolute top-1/3 -right-40 w-80 h-80 rounded-full bg-pink-500/[0.04] dark:bg-pink-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
         <div className="absolute bottom-20 left-1/4 w-72 h-72 rounded-full bg-amber-500/[0.04] dark:bg-amber-500/[0.03] blur-3xl animate-pulse" style={{ animationDuration: "12s", animationDelay: "4s" }} />
-      </div>
-
-      {/* ═══ FLOATING PARTICLES (decorative) ═══ */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        {particles.map(p => (
-          <span
-            key={p.id}
-            className="absolute text-lg opacity-[0.06] dark:opacity-[0.04] animate-float-gentle select-none"
-            style={{ left: `${p.x}%`, top: "-24px", animationDelay: `${p.delay}s`, animationDuration: `${p.dur}s` }}
-          >
-            {p.emoji}
-          </span>
-        ))}
       </div>
 
       {/* ═══════════════════════════════════════════════
@@ -206,165 +177,66 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
         </div>
       </header>
 
-      {/* ═══════════════════════════════════════════════
-           CHARACTER ZONE — avatar + level + XP hero
-         ═══════════════════════════════════════════════ */}
-      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-6 pb-2">
-        <div className="flex flex-col items-center text-center">
 
-          {/* Large Avatar with XP Ring */}
+      {/* COMPACT HERO */}
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-4 pb-1">
+        <div className="flex items-center gap-3">
+          {/* Avatar */}
           <button
             onClick={() => setShowAvatarPicker(true)}
-            className="relative group mb-3"
+            className="relative shrink-0 group"
             aria-label={t("child.navigation.changeAvatar")}
           >
-            {/* Glow behind avatar */}
-            <div className={cn(
-              "absolute inset-0 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity",
-              "bg-gradient-to-br", rank.grad,
-            )} />
-
-            <svg className="w-28 h-28 sm:w-32 sm:h-32 -rotate-90 relative z-10" viewBox="0 0 120 120" aria-hidden>
-              {/* Track */}
-              <circle cx="60" cy="60" r={R} fill="none" strokeWidth="5" className="stroke-muted/20" />
-              {/* XP fill */}
-              <circle
-                cx="60" cy="60" r={R} fill="none" strokeWidth="6"
-                stroke="url(#xpGrad)"
-                strokeLinecap="round"
-                strokeDasharray={`${(xpPct / 100) * C} ${C}`}
-                className="transition-all duration-1000 ease-out"
-                style={{ filter: "drop-shadow(0 0 8px rgba(139,92,246,0.5))" }}
-              />
-              <defs>
-                <linearGradient id="xpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#8B5CF6" />
-                  <stop offset="50%" stopColor="#D946EF" />
-                  <stop offset="100%" stopColor="#F472B6" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            {/* Avatar center */}
-            <div className="absolute inset-0 flex items-center justify-center z-20">
-              <Avatar className="h-20 w-20 sm:h-[92px] sm:w-[92px] ring-4 ring-background shadow-xl group-hover:scale-105 transition-transform duration-300">
-                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" />}
-                <AvatarFallback className="text-3xl sm:text-4xl bg-gradient-to-br from-violet-100 to-pink-100 dark:from-violet-900/60 dark:to-pink-900/60 font-bold">
-                  {avatarFallback}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-
-            {/* Level badge */}
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-30">
+            <Avatar className="h-14 w-14 ring-2 ring-primary/20 shadow-md group-hover:scale-105 transition-transform">
+              {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" />}
+              <AvatarFallback className="text-2xl bg-gradient-to-br from-violet-100 to-pink-100 dark:from-violet-900/60 dark:to-pink-900/60 font-bold">
+                {avatarFallback}
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-0.5 -right-0.5 z-10">
               <div className={cn(
-                "px-3 py-1 rounded-full text-white text-xs font-black",
-                "bg-gradient-to-r shadow-lg ring-2 ring-background",
-                rank.grad,
+                "w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black text-white ring-2 ring-background",
+                "bg-gradient-to-br", rank.grad,
               )}>
-                {t("childDashboard.level")} {level}
+                {level}
               </div>
             </div>
           </button>
 
-          {/* Rank title */}
-          <div className="flex items-center gap-1.5 mt-1 mb-2">
-            <span className="text-lg">{rank.emoji}</span>
-            <span className={cn("text-sm font-bold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
-              {t(`childProfile.rank.${rank.key}`)}
-            </span>
-          </div>
-
-          {/* XP Progress Bar */}
-          <div className="w-full max-w-xs">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold text-muted-foreground">XP</span>
-              <span className="text-[11px] font-bold text-muted-foreground tabular-nums">{xpIn}/100</span>
-            </div>
-            <div className="h-3 rounded-full bg-muted/30 overflow-hidden relative">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 animate-xp-fill relative"
-                style={{ width: `${xpPct}%` }}
-              >
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer" />
-              </div>
-              {/* Glow at tip */}
-              {xpPct > 5 && (
-                <div
-                  className="absolute top-0 h-full w-3 rounded-full bg-white/60 blur-sm"
-                  style={{ left: `calc(${xpPct}% - 6px)` }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Quick stats row */}
-          <div className="flex items-center gap-4 mt-4">
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-1">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              </div>
-              <span className="text-lg font-black leading-none">{done}</span>
-              <span className="text-[10px] text-muted-foreground font-semibold">{t("childDashboard.done")}</span>
-            </div>
-            <div className="w-px h-8 bg-border/30" />
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-1">
-                <Sparkles className="h-5 w-5 text-violet-500" />
-              </div>
-              <span className="text-lg font-black leading-none">{xp}</span>
-              <span className="text-[10px] text-muted-foreground font-semibold">XP</span>
-            </div>
-            <div className="w-px h-8 bg-border/30" />
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-1">
-                <Star className="h-5 w-5 text-amber-500" />
-              </div>
-              <span className="text-lg font-black leading-none">{points}</span>
-              <span className="text-[10px] text-muted-foreground font-semibold">{t("childDashboard.nav.shop")}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════
-           DAILY MOTIVATION CARD
-         ═══════════════════════════════════════════════ */}
-      <div className="relative z-10 max-w-3xl mx-auto px-4 mt-4">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-violet-500/5 border border-primary/10">
-          {/* Next level progress */}
-          <div className="shrink-0 flex flex-col items-center">
-            <div className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center text-xl",
-              "bg-gradient-to-br shadow-lg text-white",
-              rank.grad,
-            )}>
-              {rank.emoji}
-            </div>
-          </div>
+          {/* Name + Rank + XP */}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("childDashboard.nextLevel")}</p>
-            <p className="text-sm font-bold truncate">
-              {t("childDashboard.xpToNext", { xp: String(100 - xpIn) })}
-            </p>
-            <div className="mt-1.5 h-2 rounded-full bg-muted/30 overflow-hidden">
-              <div
-                className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700", rank.grad)}
-                style={{ width: `${xpPct}%` }}
-              />
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold truncate">{userProfile.name}</span>
+              <span className="text-xs">{rank.emoji}</span>
+              <span className={cn("text-[11px] font-bold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
+                {t(`childProfile.rank.${rank.key}`)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[10px] font-bold text-muted-foreground shrink-0">XP</span>
+              <div className="flex-1 h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700"
+                  style={{ width: `${xpPct}%` }}
+                />
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground tabular-nums shrink-0">{xpIn}/100</span>
             </div>
           </div>
-          {/* Streak highlight */}
-          {streak >= 3 && (
-            <div className="shrink-0 flex flex-col items-center px-2">
-              <Flame className="h-6 w-6 text-orange-500 animate-streak-flame" />
-              <span className="text-[10px] font-black text-orange-500">{streak}🔥</span>
+
+          {/* Mini stats */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex flex-col items-center">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 mb-0.5" />
+              <span className="text-xs font-black leading-none">{done}</span>
             </div>
-          )}
+            <div className="flex flex-col items-center">
+              <Sparkles className="h-4 w-4 text-violet-500 mb-0.5" />
+              <span className="text-xs font-black leading-none">{xp}</span>
+            </div>
+          </div>
         </div>
       </div>
-
       {/* ═══════════════════════════════════════════════
            GAME NAVIGATION — desktop horizontal bar
          ═══════════════════════════════════════════════ */}

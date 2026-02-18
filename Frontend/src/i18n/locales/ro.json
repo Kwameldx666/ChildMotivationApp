@@ -2132,11 +2132,13 @@
     "evidenceStatus": {
       "fileReceived": "Fișier primit",
       "awaitingEvidence": "În așteptarea dovezii",
+      "awaitingShort": "Necesită foto",
       "canCompleteDirect": "Se poate finaliza direct"
     },
     "dueBy": "Termen până la",
     "pointsLabel": "pct.",
     "stage": "Etapă",
+    "stageShort": "Pasul {{current}} din {{total}}",
     "ariaLabels": {
       "editTask": "Editează sarcina",
       "deleteTask": "Șterge sarcina",
@@ -2159,7 +2161,10 @@
       "iDidIt": "Am terminat!",
       "attachEvidenceFirst": "Atașați mai întâi dovada"
     },
-    "taskClosed": "Sarcină închisă"
+    "taskClosed": "Sarcină închisă",
+    "searchPlaceholder": "Caută sarcini...",
+    "noSearchResults": "Niciun rezultat pentru \"{{query}}\"",
+    "clearSearch": "Șterge căutarea"
   },
   "taskTemplates": {
     "myTemplates": "Șabloanele mele",

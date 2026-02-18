@@ -1,11 +1,11 @@
 ﻿"use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { KeyboardEvent } from "react"
-import { useRouter } from "next/navigation"
 import type { LucideIcon } from "lucide-react"
 import {
 	AlertCircle,
+	Camera,
 	CheckCircle2,
 	ChevronDown,
 	ChevronLeft,
@@ -13,18 +13,22 @@ import {
 	Circle,
 	Clock,
 	Eye,
+	FileText,
+	Film,
+	Flame,
 	Pencil,
 	Plus,
+	Search,
 	Sparkles,
-	Star,
 	Trash2,
+	Trophy,
 	Upload,
 	X,
+	Zap,
+	ZoomIn,
 } from "lucide-react"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import {
 	useTasks,
@@ -34,8 +38,8 @@ import {
 	useSubmitTaskEvidence,
 	useDownloadTaskEvidence,
 } from "@/services/tasks-queries"
-import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
-import { AppRouteId, routeRecord } from "@/routes/config"
+import { tasksService, type TaskDto, type TaskEvidenceRequirement } from "@/services/tasks-service"
+
 import TaskSubmissionModal from "./task-submission-modal"
 import TaskEditModal, { type EditableTask } from "./task-edit-modal"
 import { CreateTaskDialog } from "./create-task-dialog"
@@ -62,22 +66,44 @@ type DecoratedTask = TaskDto & {
 }
 
 const CARD_ACCENTS = [
-	{
-		gradient: "from-rose-50 via-white to-orange-50",
-		ring: "ring-rose-200/70",
-		highlight: "text-rose-700",
-	},
-	{
-		gradient: "from-emerald-50 via-white to-teal-50",
-		ring: "ring-emerald-200/70",
-		highlight: "text-emerald-700",
-	},
-	{
-		gradient: "from-amber-50 via-white to-fuchsia-50",
-		ring: "ring-amber-200/70",
-		highlight: "text-amber-700",
-	},
+	{ gradient: "from-violet-50/80 via-white to-fuchsia-50/60 dark:from-violet-950/30 dark:via-card dark:to-fuchsia-950/20", ring: "ring-violet-200/50 dark:ring-violet-800/30", highlight: "text-violet-700 dark:text-violet-300" },
+	{ gradient: "from-sky-50/80 via-white to-cyan-50/60 dark:from-sky-950/30 dark:via-card dark:to-cyan-950/20", ring: "ring-sky-200/50 dark:ring-sky-800/30", highlight: "text-sky-700 dark:text-sky-300" },
+	{ gradient: "from-amber-50/80 via-white to-orange-50/60 dark:from-amber-950/30 dark:via-card dark:to-orange-950/20", ring: "ring-amber-200/50 dark:ring-amber-800/30", highlight: "text-amber-700 dark:text-amber-300" },
+	{ gradient: "from-rose-50/80 via-white to-pink-50/60 dark:from-rose-950/30 dark:via-card dark:to-pink-950/20", ring: "ring-rose-200/50 dark:ring-rose-800/30", highlight: "text-rose-700 dark:text-rose-300" },
+	{ gradient: "from-emerald-50/80 via-white to-teal-50/60 dark:from-emerald-950/30 dark:via-card dark:to-teal-950/20", ring: "ring-emerald-200/50 dark:ring-emerald-800/30", highlight: "text-emerald-700 dark:text-emerald-300" },
 ] as const
+
+/* Per-status card visuals */
+const STATUS_CARD_STYLE: Record<TaskStatus, { bg: string; border: string; glow: string; iconBg: string; iconText: string }> = {
+	pending: {
+		bg: "bg-gradient-to-br from-slate-50/90 via-white to-zinc-50/70 dark:from-slate-900/40 dark:via-card dark:to-zinc-900/30",
+		border: "border-slate-200/60 dark:border-slate-700/40",
+		glow: "hover:shadow-slate-200/40 dark:hover:shadow-slate-800/20",
+		iconBg: "bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700",
+		iconText: "text-slate-600 dark:text-slate-300",
+	},
+	in_progress: {
+		bg: "bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/70 dark:from-blue-950/40 dark:via-card dark:to-indigo-950/30",
+		border: "border-blue-200/60 dark:border-blue-800/40",
+		glow: "hover:shadow-blue-200/40 dark:hover:shadow-blue-900/20",
+		iconBg: "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800",
+		iconText: "text-blue-600 dark:text-blue-300",
+	},
+	completed: {
+		bg: "bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/70 dark:from-emerald-950/40 dark:via-card dark:to-teal-950/30",
+		border: "border-emerald-200/60 dark:border-emerald-800/40",
+		glow: "hover:shadow-emerald-200/40 dark:hover:shadow-emerald-900/20",
+		iconBg: "bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900 dark:to-emerald-800",
+		iconText: "text-emerald-600 dark:text-emerald-300",
+	},
+	overdue: {
+		bg: "bg-gradient-to-br from-red-50/90 via-white to-orange-50/70 dark:from-red-950/40 dark:via-card dark:to-orange-950/30",
+		border: "border-red-200/60 dark:border-red-800/40",
+		glow: "hover:shadow-red-200/40 dark:hover:shadow-red-900/20",
+		iconBg: "bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900 dark:to-red-800",
+		iconText: "text-red-600 dark:text-red-300",
+	},
+}
 
 const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; hint: string }> = {
 	none: { label: "tasksList.evidence.noneLabel", hint: "tasksList.evidence.noneHint" },
@@ -86,31 +112,43 @@ const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; hint: stri
 	document: { label: "tasksList.evidence.documentLabel", hint: "tasksList.evidence.documentHint" },
 }
 
-const STATUS_META: Record<TaskStatus, { label: string; badge: string; icon: LucideIcon; journeyIndex: number }> = {
+const STATUS_META: Record<TaskStatus, { label: string; badge: string; dot: string; icon: LucideIcon; journeyIndex: number }> = {
 	pending: {
 		label: "tasksList.status.pending",
 		badge: "bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700",
+		dot: "bg-slate-400",
 		icon: Circle,
 		journeyIndex: 0,
 	},
 	in_progress: {
 		label: "tasksList.status.inProgress",
 		badge: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200 dark:ring-blue-800",
+		dot: "bg-blue-500",
 		icon: Clock,
 		journeyIndex: 1,
 	},
 	completed: {
 		label: "tasksList.status.completed",
 		badge: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-800",
+		dot: "bg-emerald-500",
 		icon: CheckCircle2,
 		journeyIndex: 3,
 	},
 	overdue: {
 		label: "tasksList.status.overdue",
 		badge: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800",
+		dot: "bg-red-500",
 		icon: AlertCircle,
 		journeyIndex: 2,
 	},
+}
+
+const STATUS_FILTER_COLORS: Record<TaskStatus | "all", { active: string; count: string }> = {
+	all: { active: "bg-primary text-primary-foreground", count: "bg-primary/20 text-primary" },
+	pending: { active: "bg-slate-600 text-white dark:bg-slate-500", count: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300" },
+	in_progress: { active: "bg-blue-600 text-white", count: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+	completed: { active: "bg-emerald-600 text-white", count: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" },
+	overdue: { active: "bg-red-600 text-white", count: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
 }
 
 const JOURNEY_STEPS = ["tasksList.journey.assigned", "tasksList.journey.inProgress", "tasksList.journey.review", "tasksList.journey.done"] as const
@@ -123,22 +161,6 @@ const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
 	{ id: "overdue", label: "tasksList.filters.overdue", hint: "tasksList.filters.overdueHint" },
 ]
 
-const HERO_STATS = [
-	{ id: "active", label: "tasksList.heroStats.active", hint: "tasksList.heroStats.activeHint", compute: (summary: Record<TaskStatus, number>) => summary.pending + summary.in_progress },
-	{ id: "done", label: "tasksList.heroStats.done", hint: "tasksList.heroStats.doneHint", compute: (summary: Record<TaskStatus, number>) => summary.completed },
-	{ id: "focus", label: "tasksList.heroStats.focus", hint: "tasksList.heroStats.focusHint", compute: (summary: Record<TaskStatus, number>) => summary.overdue },
-] as const
-
-const renderDifficulty = (level: number) => (
-	<div className="flex items-center gap-1">
-		{[1, 2, 3, 4, 5].map((star) => (
-			<Star
-				key={`star-${star}`}
-				className={cn("h-4 w-4", star <= level ? "text-amber-400 fill-amber-300" : "text-muted-foreground/20")}
-			/>
-		))}
-	</div>
-)
 
 function mapStatus(task: TaskDto): TaskStatus {
 	if (task.completed) return "completed"
@@ -186,7 +208,6 @@ function resolveEvidenceRequirement(value?: string | number | null): TaskEvidenc
 }
 
 export default function TasksList({ userType }: TasksListProps) {
-	const router = useRouter()
 	const { t } = useTranslation()
 	const { data, isLoading, isError, error } = useTasks()
 	const { stats: progressStats } = useChildProgressStats()
@@ -285,16 +306,22 @@ export default function TasksList({ userType }: TasksListProps) {
 		{ pending: 0, in_progress: 0, completed: 0, overdue: 0 } as Record<TaskStatus, number>,
 	)
 
-	const heroStats = useMemo(() => HERO_STATS.map((stat) => ({ ...stat, value: stat.compute(summary) })), [summary])
-
 	const [activeFilter, setActiveFilter] = useState<TaskStatus | "all">("all")
+	const [searchQuery, setSearchQuery] = useState("")
 	const [currentPage, setCurrentPage] = useState(1)
-	const [pageSize, setPageSize] = useState(10)
+	const pageSize = 10
 
-	const filteredTasks: DecoratedTask[] = useMemo(
-		() => (activeFilter === "all" ? decoratedTasks : decoratedTasks.filter((task) => task.status === activeFilter)),
-		[decoratedTasks, activeFilter],
-	)
+	const filteredTasks: DecoratedTask[] = useMemo(() => {
+		let result = activeFilter === "all" ? decoratedTasks : decoratedTasks.filter((task) => task.status === activeFilter)
+		if (searchQuery.trim()) {
+			const q = searchQuery.trim().toLowerCase()
+			result = result.filter((task) =>
+				task.title.toLowerCase().includes(q) ||
+				task.description?.toLowerCase().includes(q),
+			)
+		}
+		return result
+	}, [decoratedTasks, activeFilter, searchQuery])
 
 	// ÐŸÐ°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ
 	const totalPages = Math.ceil(filteredTasks.length / pageSize)
@@ -306,9 +333,7 @@ export default function TasksList({ userType }: TasksListProps) {
 	// Ð¡Ð±Ñ€Ð¾Ñ Ð½Ð° Ð¿ÐµÑ€Ð²ÑƒÑŽ ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñƒ Ð¿Ñ€Ð¸ ÑÐ¼ÐµÐ½Ðµ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð° Ð¸Ð»Ð¸ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹
 	useEffect(() => {
 		setCurrentPage(1)
-	}, [activeFilter, pageSize])
-
-	const highlighted: DecoratedTask[] = useMemo(() => decoratedTasks.slice(0, 3), [decoratedTasks])
+	}, [activeFilter, searchQuery, pageSize])
 
 	const handleConfirm = useCallback(
 		(id: string) => {
@@ -411,13 +436,21 @@ export default function TasksList({ userType }: TasksListProps) {
 
 	if (isLoading) {
 		return (
-			<div className="grid gap-4 md:grid-cols-2">
-				{Array.from({ length: 4 }).map((_, index) => (
-					<div key={`task-skeleton-${index}`} className="rounded-3xl border border-border/60 bg-card/70 p-6 shadow-sm">
-						<div className="h-6 w-32 animate-pulse rounded-full bg-muted" />
-						<div className="mt-4 h-4 w-full animate-pulse rounded bg-muted" />
-						<div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-muted" />
-						<div className="mt-6 h-10 w-full animate-pulse rounded bg-muted" />
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+				{Array.from({ length: 6 }).map((_, index) => (
+					<div key={`task-skeleton-${index}`} className="rounded-2xl border border-border/30 bg-gradient-to-br from-muted/30 via-card to-muted/20 p-4 space-y-3">
+						<div className="flex items-center gap-3">
+							<div className="h-10 w-10 animate-pulse rounded-xl bg-muted/60" />
+							<div className="flex-1 space-y-1.5">
+								<div className="h-3.5 w-3/4 animate-pulse rounded-lg bg-muted/60" />
+								<div className="h-3 w-1/2 animate-pulse rounded-lg bg-muted/40" />
+							</div>
+						</div>
+						<div className="flex gap-2">
+							<div className="h-5 w-14 animate-pulse rounded-full bg-muted/40" />
+							<div className="h-5 w-12 animate-pulse rounded-full bg-muted/40" />
+						</div>
+						<div className="h-1.5 w-full animate-pulse rounded-full bg-muted/30" />
 					</div>
 				))}
 			</div>
@@ -443,18 +476,23 @@ export default function TasksList({ userType }: TasksListProps) {
 	if (!tasks.length) {
 		return (
 			<>
-				<div className="rounded-3xl border border-dashed border-primary/30 bg-primary/5 px-6 py-10 text-center shadow-sm">
-					<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-						<Sparkles className="h-5 w-5" />
+				<div className="relative overflow-hidden rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-violet-500/5 px-6 py-14 text-center shadow-sm">
+					{/* Decorative blobs */}
+					<div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
+					<div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-violet-500/5 blur-3xl" />
+					<div className="relative">
+						<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-violet-500/20 text-primary shadow-inner">
+							<Sparkles className="h-7 w-7" />
+						</div>
+						<h3 className="mt-5 text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{t("tasks.noTasks")}</h3>
+						<p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{t("tasks.noTasksDescription")}</p>
+						{userType === "parent" && (
+							<Button className="mt-6 gap-2 shadow-lg shadow-primary/20" onClick={openTaskCreation}>
+								<Plus className="h-4 w-4" />
+								{t("tasks.addFirstTask")}
+							</Button>
+						)}
 					</div>
-					<h3 className="mt-4 text-xl font-semibold">{t("tasks.noTasks")}</h3>
-					<p className="mt-2 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
-					{userType === "parent" && (
-						<Button className="mt-6 gap-2" onClick={openTaskCreation}>
-							<Plus className="h-4 w-4" />
-							{t("tasks.addFirstTask")}
-						</Button>
-					)}
 				</div>
 				<CreateTaskDialog
 					open={isCreateTaskOpen}
@@ -468,58 +506,74 @@ export default function TasksList({ userType }: TasksListProps) {
 
 	return (
 		<>
-			<div className="space-y-8">
-				<div className="flex flex-wrap items-center justify-between gap-4">
-					<div className="flex flex-wrap gap-2">
+			<div className="space-y-4">
+				{/* ── Toolbar: filters + search ── */}
+				<div className="rounded-2xl border border-border/30 bg-gradient-to-r from-muted/40 via-background to-muted/40 p-2.5 shadow-sm space-y-2">
+					<div className="flex flex-wrap items-center gap-1">
 						{FILTERS.map((filter) => {
 							const isActive = filter.id === activeFilter
+							const count = filter.id === "all" ? decoratedTasks.length : summary[filter.id as TaskStatus] ?? 0
+							const colors = STATUS_FILTER_COLORS[filter.id]
 							return (
 								<button
 									key={filter.id}
 									onClick={() => setActiveFilter(filter.id)}
 									className={cn(
-										"rounded-full border px-4 py-2 text-sm transition",
-										isActive ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:bg-muted",
+										"inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-200",
+										isActive
+											? cn(colors.active, "shadow-md shadow-primary/10 scale-[1.02]")
+											: "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
 									)}
 								>
-									<div className="text-left">
-										<p className="text-sm font-semibold">{t(filter.label)}</p>
-										<p className={cn("text-[11px]", isActive ? "text-primary-foreground/70" : "text-muted-foreground")}>{t(filter.hint)}</p>
-									</div>
+									{t(filter.label)}
+									<span className={cn(
+										"inline-flex h-5 min-w-5 items-center justify-center rounded-lg px-1 text-[10px] font-bold tabular-nums",
+										isActive ? "bg-white/25 text-inherit" : colors.count,
+									)}>
+										{count}
+									</span>
 								</button>
 							)
 						})}
-				</div>
-					<div className="flex items-center gap-4">
-						<div className="flex items-center gap-2">
-							<span className="text-xs text-muted-foreground">{t("tasksList.showPerPage")}:</span>
-							<div className="flex rounded-lg border border-border/50 overflow-hidden">
-								{[10, 15, 20].map((size) => (
-									<button
-										key={size}
-										type="button"
-										onClick={() => setPageSize(size)}
-										className={cn(
-											"px-3 py-1.5 text-xs font-medium transition-colors",
-											pageSize === size
-												? "bg-primary text-primary-foreground"
-												: "bg-background hover:bg-muted text-muted-foreground"
-										)}
-									>
-										{size}
-									</button>
-								))}
-							</div>
-						</div>
-						<p className="text-sm text-muted-foreground">
-							{filteredTasks.length} {t("tasksList.of")} {decoratedTasks.length} {t("tasksList.tasks")}
-						</p>
+
+						{userType === "parent" && (
+							<Button
+								size="sm"
+								className="ml-auto gap-1.5 rounded-xl text-xs shadow-md shadow-primary/15 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
+								onClick={openTaskCreation}
+							>
+								<Plus className="h-3.5 w-3.5" />
+								{t("tasks.createTask")}
+							</Button>
+						)}
+					</div>
+
+					{/* Search */}
+					<div className="relative">
+						<Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
+						<input
+							type="text"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder={t("tasksList.searchPlaceholder")}
+							className="h-9 w-full rounded-xl border-0 bg-background/80 pl-9 pr-9 text-xs text-foreground shadow-inner placeholder:text-muted-foreground/40 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+						/>
+						{searchQuery && (
+							<button
+								type="button"
+								onClick={() => setSearchQuery("")}
+								className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-all"
+							>
+								<X className="h-3.5 w-3.5" />
+							</button>
+						)}
 					</div>
 				</div>
 
+				{/* ── Task card grid ── */}
 				{paginatedTasks.length > 0 ? (
 					<>
-						<div className="space-y-5">
+						<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
 							{paginatedTasks.map((task) => (
 								<TaskRow
 									key={task.id}
@@ -540,65 +594,82 @@ export default function TasksList({ userType }: TasksListProps) {
 							))}
 						</div>
 
-						{/* ÐŸÐ°Ð³Ð¸Ð½Ð°Ñ†Ð¸Ñ */}
+						{/* Pagination */}
 						{totalPages > 1 && (
-							<div className="flex items-center justify-center gap-2 pt-6">
+							<div className="flex items-center justify-center gap-1 pt-4">
 								<Button
-									variant="outline"
-									size="sm"
+									variant="ghost"
+									size="icon"
+									className="h-9 w-9 rounded-xl"
 									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
 									disabled={currentPage === 1}
-									className="gap-1"
 								>
 									<ChevronLeft className="h-4 w-4" />
-									{t("tasksList.pagination.prev")}
 								</Button>
-								
-								<div className="flex items-center gap-1">
-									{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-										<button
-											key={page}
-											type="button"
-											onClick={() => setCurrentPage(page)}
-											className={cn(
-												"h-9 w-9 rounded-lg text-sm font-medium transition-all",
-												currentPage === page
-													? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-													: "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
-											)}
-										>
-											{page}
-										</button>
-									))}
-								</div>
-
+								{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+									<button
+										key={page}
+										type="button"
+										onClick={() => setCurrentPage(page)}
+										className={cn(
+											"h-9 w-9 rounded-xl text-xs font-semibold transition-all duration-200",
+											currentPage === page
+												? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+												: "text-muted-foreground hover:bg-muted hover:scale-105",
+										)}
+									>
+										{page}
+									</button>
+								))}
 								<Button
-									variant="outline"
-									size="sm"
+									variant="ghost"
+									size="icon"
+									className="h-9 w-9 rounded-xl"
 									onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
 									disabled={currentPage === totalPages}
-									className="gap-1"
 								>
-									{t("tasksList.pagination.next")}
 									<ChevronRight className="h-4 w-4" />
 								</Button>
 							</div>
 						)}
 					</>
 				) : decoratedTasks.length > 0 ? (
-					<div className="rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 px-6 py-8 text-center">
-						<p className="text-sm text-muted-foreground">{t("tasks.noTasks")}</p>
+					<div className="rounded-2xl border border-dashed border-muted-foreground/15 bg-gradient-to-b from-muted/20 to-background px-6 py-10 text-center">
+						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/30">
+							<Search className="h-5 w-5 text-muted-foreground/40" />
+						</div>
+						<p className="mt-3 text-sm text-muted-foreground">
+							{searchQuery.trim()
+								? t("tasksList.noSearchResults", { query: searchQuery.trim() })
+								: t("tasks.noTasks")}
+						</p>
+						{searchQuery.trim() && (
+							<button
+								type="button"
+								onClick={() => setSearchQuery("")}
+								className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+							>
+								<X className="h-3 w-3" />
+								{t("tasksList.clearSearch")}
+							</button>
+						)}
 					</div>
 				) : (
-					<div className="rounded-3xl border border-dashed border-primary/20 bg-gradient-to-br from-primary/5 via-background to-accent/5 px-6 py-10 text-center shadow-sm backdrop-blur-sm">
-						<h3 className="text-lg font-semibold text-foreground">{t("tasks.noTasks")}</h3>
-						<p className="mt-2 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
-						{userType === "parent" && (
-							<Button className="mt-4 gap-2" onClick={openTaskCreation}>
-								<Plus className="h-4 w-4" />
-								{t("tasks.addFirstTask")}
-							</Button>
-						)}
+					<div className="relative overflow-hidden rounded-2xl border border-dashed border-primary/15 bg-gradient-to-br from-primary/5 via-background to-violet-500/5 px-6 py-12 text-center">
+						<div className="pointer-events-none absolute -top-8 -right-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+						<div className="relative">
+							<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-violet-500/15 text-primary">
+								<Sparkles className="h-5 w-5" />
+							</div>
+							<h3 className="mt-3 text-base font-bold">{t("tasks.noTasks")}</h3>
+							<p className="mt-1 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
+							{userType === "parent" && (
+								<Button className="mt-4 gap-2 shadow-lg shadow-primary/15" size="sm" onClick={openTaskCreation}>
+									<Plus className="h-4 w-4" />
+									{t("tasks.addFirstTask")}
+								</Button>
+							)}
+						</div>
 					</div>
 				)}
 			</div>
@@ -630,60 +701,55 @@ export default function TasksList({ userType }: TasksListProps) {
 				onOpenChange={setIsCreateTaskOpen}
 			/>
 
-			{/* ÐœÐ¾Ð´Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð¾ÐºÐ½Ð¾ Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€Ð° Ð¼ÐµÐ´Ð¸Ð° */}
+			{/* Lightbox photo/video viewer */}
 			{viewingEvidence && (
-				<div 
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
 					onClick={handleCloseViewer}
 				>
-					<div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-						<button
-							onClick={handleCloseViewer}
-							className="absolute -top-12 right-0 text-white hover:text-gray-300 flex items-center gap-2 text-lg"
-						>
-							<X className="h-8 w-8" />
-							{t("common.close")}
-						</button>
-						
-						<div className="bg-card rounded-lg overflow-hidden shadow-2xl border border-border">
-							<div className="p-4 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-								<h3 className="font-bold text-lg">{viewingEvidence.task.title}</h3>
-								<p className="text-sm opacity-90">{t("tasksList.evidenceViewer.subtitle")}</p>
-							</div>
-							
-							<div className="bg-black/90 flex items-center justify-center" style={{ maxHeight: '70vh' }}>
-								{viewingEvidence.type.startsWith('image/') ? (
-									<img
-										src={viewingEvidence.url}
-										alt={t("tasksList.evidenceViewer.altText")}
-										className="max-w-full max-h-[70vh] object-contain"
-									/>
-								) : viewingEvidence.type.startsWith('video/') ? (
-									<video
-										src={viewingEvidence.url}
-										controls
-										autoPlay
-										className="max-w-full max-h-[70vh] object-contain"
-									/>
-								) : null}
-							</div>
-							
-							<div className="p-4 flex gap-2 justify-end bg-muted border-t border-border">
-								<Button
-									variant="outline"
-									onClick={() => {
-										const link = document.createElement('a')
-										link.href = viewingEvidence.url
-										link.download = viewingEvidence.task.evidence?.fileName || 'evidence'
-										link.click()
-									}}
-								>
-									{t("tasksList.evidenceViewer.download")}
-								</Button>
-								<Button onClick={handleCloseViewer}>
-									{t("common.close")}
-								</Button>
-							</div>
+					<button
+						onClick={handleCloseViewer}
+						className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+					>
+						<X className="h-5 w-5" />
+					</button>
+
+					<div
+						className="relative max-w-3xl w-full mx-4"
+						onClick={(e) => e.stopPropagation()}
+					>
+						{viewingEvidence.type.startsWith('image/') ? (
+							<img
+								src={viewingEvidence.url}
+								alt={t("tasksList.evidenceViewer.altText")}
+								className="w-full max-h-[80vh] object-contain rounded-lg"
+							/>
+						) : viewingEvidence.type.startsWith('video/') ? (
+							<video
+								src={viewingEvidence.url}
+								controls
+								autoPlay
+								className="w-full max-h-[80vh] object-contain rounded-lg"
+							/>
+						) : null}
+
+						<div className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-b-lg bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
+							<span className="text-sm text-white/90 font-medium truncate">
+								{viewingEvidence.task.title}
+							</span>
+							<Button
+								size="sm"
+								variant="secondary"
+								className="shrink-0 text-xs"
+								onClick={() => {
+									const link = document.createElement('a')
+									link.href = viewingEvidence.url
+									link.download = viewingEvidence.task.evidence?.fileName || 'evidence'
+									link.click()
+								}}
+							>
+								{t("tasksList.evidenceViewer.download")}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -691,6 +757,10 @@ export default function TasksList({ userType }: TasksListProps) {
 		</>
 	)
 }
+
+/* ─────────────────────────────────────────────────────── */
+/*  TaskRow — minimal card with expandable details         */
+/* ─────────────────────────────────────────────────────── */
 
 interface TaskRowProps {
 	task: DecoratedTask
@@ -731,26 +801,43 @@ function TaskRow({
 	const evidenceMeta = EVIDENCE_META[evidenceRequirement]
 	const requiresEvidence = evidenceRequirement !== "none"
 	const evidenceReady = Boolean(task.evidence?.isSubmitted)
-	
-	// ÐžÑ‚Ð»Ð°Ð´Ð¾Ñ‡Ð½Ñ‹Ð¹ Ð²Ñ‹Ð²Ð¾Ð´ Ð´Ð»Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¾ Ð´Ð¾ÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒÑÑ‚Ð²Ðµ
-	if (requiresEvidence && typeof window !== 'undefined' && window.location.search.includes('debug')) {
-		console.log('Task evidence debug:', {
-			taskId: task.id,
-			taskTitle: task.title,
-			evidenceRequirement,
-			evidenceReady,
-			evidenceData: task.evidence
-		})
-	}
-	
-	const evidenceStatusText = requiresEvidence
-		? evidenceReady
-			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` Â· ${formatDate(task.evidence.uploadedAt)}` : ""}`
-			: t("tasksList.evidenceStatus.awaitingEvidence")
-		: t("tasksList.evidenceStatus.canCompleteDirect")
+	const isImageEvidence = task.evidence?.contentType?.startsWith('image/') || evidenceRequirement === 'photo'
+	const isCompleted = task.completed
 	const canParentConfirm = !requiresEvidence || evidenceReady
 	const canChildComplete = canParentConfirm
-	const isCompleted = task.completed
+
+	// Lazy-load thumbnail for image evidence
+	const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
+	const thumbnailUrlRef = useRef<string | null>(null)
+
+	useEffect(() => {
+		let cancelled = false
+		if (evidenceReady && isImageEvidence) {
+			tasksService.downloadEvidence(task.id)
+				.then(blob => {
+					if (!cancelled) {
+						if (thumbnailUrlRef.current) URL.revokeObjectURL(thumbnailUrlRef.current)
+						const url = URL.createObjectURL(blob)
+						thumbnailUrlRef.current = url
+						setThumbnailUrl(url)
+					}
+				})
+				.catch(() => {})
+		}
+		return () => {
+			cancelled = true
+			if (thumbnailUrlRef.current) {
+				URL.revokeObjectURL(thumbnailUrlRef.current)
+				thumbnailUrlRef.current = null
+			}
+		}
+	}, [task.id, evidenceReady, isImageEvidence])
+
+	const evidenceStatusText = requiresEvidence
+		? evidenceReady
+			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
+			: t("tasksList.evidenceStatus.awaitingEvidence")
+		: t("tasksList.evidenceStatus.canCompleteDirect")
 
 	const handleToggle = () => setIsOpen((prev) => !prev)
 	const handleSummaryKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -760,352 +847,263 @@ function TaskRow({
 		}
 	}
 
+	const cardStyle = STATUS_CARD_STYLE[task.status]
+
+	/* ── Beautiful gradient card ── */
 	return (
 		<div className={cn(
-			"group relative overflow-hidden rounded-3xl border transition-all duration-300",
-			isOpen ? "border-primary/30 shadow-xl shadow-primary/10" : "border-border/50 shadow-lg hover:shadow-xl hover:border-primary/20",
-			"bg-gradient-to-br from-white via-white to-slate-50/50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50"
+			"group relative rounded-2xl border transition-all duration-300 overflow-hidden",
+			cardStyle.bg,
+			cardStyle.border,
+			isOpen
+				? "shadow-lg ring-1 ring-primary/10"
+				: cn("hover:shadow-lg hover:-translate-y-1", cardStyle.glow),
+			isCompleted && "opacity-85",
 		)}>
-			{/* Gradient overlay */}
-			<div className={cn(
-				"absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300",
-				task.status === "completed" && "from-emerald-500/5 to-teal-500/5",
-				task.status === "overdue" && "from-red-500/5 to-orange-500/5",
-				task.status === "in_progress" && "from-blue-500/5 to-indigo-500/5",
-				task.status === "pending" && "from-purple-500/5 to-pink-500/5",
-				isOpen && "opacity-100"
-			)} />
-			
-			{/* Main content */}
-			<div className="relative">
-				{/* Compact header */}
-				<div className="flex items-center gap-4 px-5 py-4">
-					<div
-						className="flex flex-1 cursor-pointer items-center gap-4"
-						role="button"
-						tabIndex={0}
-						onClick={handleToggle}
-						onKeyDown={handleSummaryKeyDown}
+			{/* ── Summary (clickable) ── */}
+			<div
+				className="relative flex items-start gap-3 px-3.5 pt-3.5 pb-3 cursor-pointer select-none"
+				role="button"
+				tabIndex={0}
+				onClick={handleToggle}
+				onKeyDown={handleSummaryKeyDown}
+			>
+				{/* Photo thumbnail or status icon */}
+				{thumbnailUrl ? (
+					<button
+						type="button"
+						onClick={(e) => { e.stopPropagation(); onViewEvidence() }}
+						className="relative shrink-0 overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all"
+						title={t("tasksList.actions.viewFile")}
 					>
-						{/* Status badge */}
-						<div className={cn(
-							"flex items-center gap-2 rounded-2xl px-4 py-2 transition-all duration-300",
-							statusMeta.badge,
-							"shadow-sm hover:shadow-md"
-						)}>
-							<StatusIcon className="h-4 w-4" />
-							<span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">
-								{t(statusMeta.label)}
-							</span>
+						<img src={thumbnailUrl} alt="" className="h-11 w-11 object-cover rounded-xl" />
+						<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/25 rounded-xl transition-opacity">
+							<ZoomIn className="h-4 w-4 text-white drop-shadow" />
 						</div>
+					</button>
+				) : (
+					<div className={cn(
+						"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm",
+						cardStyle.iconBg,
+						cardStyle.iconText,
+					)}>
+						<StatusIcon className="h-5 w-5" />
+					</div>
+				)}
 
-						{/* Task info */}
-						<div className="min-w-0 flex-1">
-							<h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-								{task.title}
-							</h3>
-							<div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-								<span className="flex items-center gap-1">
-									<Clock className="h-3 w-3" />
-									{t("tasksList.dueBy")} {task.dueLabel}
-								</span>
-								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-								<span className="font-semibold text-primary">
-									{task.xpReward} XP
-								</span>
-								<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-								<span className="font-semibold text-amber-600">
-									{task.pointsReward} {t("tasksList.pointsLabel")}
-									{streakMultiplier > 1 && !task.completed && (
-										<span className="text-green-500 ml-1">
-											(+{Math.round(task.pointsReward * (streakMultiplier - 1))} ðŸ”¥)
-										</span>
-									)}
-								</span>
-								{/* Evidence mini indicator in collapsed view */}
-								{requiresEvidence && evidenceReady && (
-									<>
-										<span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-										<button
-											type="button"
-											onClick={(e) => { e.stopPropagation(); onViewEvidence() }}
-											className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer"
-										>
-											<Eye className="h-3 w-3" />
-											<span className="font-medium">{t("tasksList.evidence.photoLabel")}</span>
-										</button>
-									</>
-								)}
-							</div>
-						</div>
-
-						{/* Progress indicator (steps instead of %) */}
-						<div className="hidden lg:flex items-center gap-4">
-							<div className="flex flex-col gap-1">
-								<span className="text-xs text-muted-foreground">{t("tasksList.stage")}</span>
-								<div className="flex items-center gap-2">
-									{JOURNEY_STEPS.map((step, index) => (
-										<div key={`step-${task.id}-${step}`} className="flex items-center gap-1">
-											<span
-												className={cn(
-													"h-2.5 w-2.5 rounded-full",
-													index <= statusMeta.journeyIndex ? "bg-primary" : "bg-muted"
-												)}
-											/>
-											<span className={cn(
-												"text-[10px]",
-												index <= statusMeta.journeyIndex ? "text-foreground" : "text-muted-foreground"
-											)}>
-												{t(step)}
-											</span>
-										</div>
-									))}
-								</div>
-							</div>
-							<div className="flex items-center gap-1">
-								{renderDifficulty(task.difficulty)}
-							</div>
-						</div>
+				{/* Text content */}
+				<div className="min-w-0 flex-1">
+					{/* Row 1: Title */}
+					<div className="flex items-center gap-1.5">
+						<h3 className="truncate text-[13px] font-bold text-foreground leading-snug">
+							{task.title}
+						</h3>
 					</div>
 
-					{/* Actions */}
-					<div className="flex items-center gap-2">
-						{userType === "parent" && (
-							<>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="hover:bg-primary/10 hover:text-primary transition-colors"
-									onClick={(event) => {
-										event.stopPropagation()
-										onEdit()
-									}}
-									aria-label={t("tasksList.ariaLabels.editTask")}
-								>
-									<Pencil className="h-4 w-4" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="icon"
-									className="hover:bg-red-50 hover:text-red-600 transition-colors"
-									onClick={(event) => {
-										event.stopPropagation()
-										onDelete()
-									}}
-									disabled={deleteLoading}
-									aria-label={t("tasksList.ariaLabels.deleteTask")}
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
-							</>
+					{/* Row 2: Status label + difficulty stars */}
+					<div className="mt-1 flex items-center gap-1.5 text-[11px]">
+						<span className={cn(
+							"inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+							statusMeta.badge,
+						)}>
+							<StatusIcon className="h-2.5 w-2.5" />
+							{t(statusMeta.label)}
+						</span>
+						{task.difficulty > 0 && (
+							<span className="text-amber-500/80 text-[10px] font-medium tracking-tight">
+								{"★".repeat(Math.min(task.difficulty, 5))}
+							</span>
 						)}
-						<Button
-							variant="ghost"
-							size="icon"
-							className="hover:bg-primary/10 hover:text-primary transition-all"
-							onClick={(event) => {
-								event.stopPropagation()
-								handleToggle()
-							}}
-							aria-label={isOpen ? t("tasksList.ariaLabels.hideDetails") : t("tasksList.ariaLabels.showDetails")}
-						>
-							<ChevronDown className={cn("h-5 w-5 transition-transform duration-300", isOpen && "rotate-180")} />
-						</Button>
+						{requiresEvidence && !evidenceReady && (
+							<Camera className="h-3 w-3 text-amber-500/70" />
+						)}
+					</div>
+
+					{/* Row 3: Reward chips */}
+					<div className="mt-1.5 flex items-center gap-1.5">
+						<span className="inline-flex items-center gap-0.5 rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold text-violet-600 dark:text-violet-400">
+							<Zap className="h-2.5 w-2.5" />
+							{task.xpReward}
+						</span>
+						<span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+							<Trophy className="h-2.5 w-2.5" />
+							{task.pointsReward}
+						</span>
+						{isCompleted && (
+							<span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+								<CheckCircle2 className="h-2.5 w-2.5" />
+							</span>
+						)}
 					</div>
 				</div>
 
-				{/* Expanded content */}
-				<div className={cn(
-					"border-t border-border/50 overflow-hidden transition-all duration-300",
-					isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-				)}>
-					<div className="px-5 py-6 space-y-6">
-						{/* Mobile progress */}
-						<div className="lg:hidden space-y-3">
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-muted-foreground">{t("tasksList.progressLabel")}</span>
-								<span className="text-lg font-bold text-foreground">{Math.round(task.progressValue)}%</span>
-							</div>
-							<Progress value={task.progressValue} className="h-2.5" />
-							<div className="flex items-center gap-2">
-								<span className="text-sm text-muted-foreground">{t("tasks.difficulty")}:</span>
-								{renderDifficulty(task.difficulty)}
-							</div>
-						</div>
+				{/* Expand chevron */}
+				<ChevronDown className={cn(
+					"h-4 w-4 shrink-0 text-muted-foreground/30 transition-transform duration-300 mt-0.5",
+					isOpen && "rotate-180 text-muted-foreground/60",
+				)} />
+			</div>
 
-						{/* Description */}
-						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
-							<p className="text-sm font-medium text-muted-foreground mb-2">{t("tasksList.descriptionLabel")}</p>
-							<p className="text-base text-foreground leading-relaxed">
-								{task.description?.trim() || t("tasksList.noDescription")}
-							</p>
-						</div>
+			{/* Mini progress bar always visible at bottom of summary */}
+			{!isOpen && (
+				<div className="px-3.5 pb-3">
+					<div className="h-1 w-full rounded-full bg-muted/40 overflow-hidden">
+						<div
+							className={cn(
+								"h-full rounded-full transition-all duration-500",
+								task.status === "completed" ? "bg-emerald-500" : task.status === "overdue" ? "bg-red-400" : task.status === "in_progress" ? "bg-blue-500" : "bg-slate-400",
+							)}
+							style={{ width: `${task.progressValue}%` }}
+						/>
+					</div>
+				</div>
+			)}
 
-						{/* Info cards */}
-						<div className="grid gap-3 sm:grid-cols-3">
-							<div className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-800/50 p-4">
-								<p className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">{t("tasksList.created")}</p>
-								<p className="mt-2 text-2xl font-bold text-blue-900 dark:text-blue-300">{task.createdLabel}</p>
-							</div>
-							<div className="rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200/50 dark:border-purple-800/50 p-4">
-								<p className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">{t("tasksList.deadline")}</p>
-								<p className="mt-2 text-2xl font-bold text-purple-900 dark:text-purple-300">{task.dueLabel}</p>
-							</div>
-							<div className={cn(
-								"rounded-2xl border p-4",
-								requiresEvidence
-									? "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200/50 dark:border-amber-800/50"
-									: "bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200/50 dark:border-emerald-800/50"
-							)}>
-								<p className={cn(
-									"text-xs font-bold uppercase tracking-wider",
-									requiresEvidence ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
-								)}>
-									{t("tasksList.evidence.title")}
-								</p>
-								<p className={cn(
-									"mt-2 text-lg font-bold",
-									requiresEvidence ? "text-amber-900 dark:text-amber-300" : "text-emerald-900 dark:text-emerald-300"
-								)}>
-									{t(evidenceMeta.label)}
-								</p>
-								<p className="mt-1 text-xs text-muted-foreground">{evidenceStatusText}</p>
-							</div>
-						</div>
+			{/* ── Expanded details ── */}
+			<div className={cn(
+				"overflow-hidden transition-all duration-300",
+				isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0",
+			)}>
+				<div className="border-t border-border/20 px-3.5 py-3 space-y-3">
+					{/* Rewards + multiplication + dates */}
+					<div className="flex flex-wrap items-center gap-2 text-[11px]">
+						<span className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2 py-1 font-bold text-violet-600 dark:text-violet-400 shadow-sm">
+							<Zap className="h-3 w-3" />
+							{task.xpReward} XP
+						</span>
+						<span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 px-2 py-1 font-bold text-amber-600 dark:text-amber-400 shadow-sm">
+							<Trophy className="h-3 w-3" />
+							{task.pointsReward} {t("tasksList.pointsLabel")}
+						</span>
+						{streakMultiplier > 1 && !isCompleted && (
+							<span className="inline-flex items-center gap-0.5 rounded-lg bg-orange-500/10 px-2 py-1 font-bold text-orange-600 dark:text-orange-400 shadow-sm">
+								<Flame className="h-3 w-3" />
+								×{streakMultiplier.toFixed(1)}
+							</span>
+						)}
+						<span className="ml-auto text-muted-foreground/70 text-[10px]">
+							{task.createdLabel} → {task.dueLabel}
+						</span>
+					</div>
 
-						{/* Journey steps */}
-						<div className="rounded-2xl bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 border border-border/50 p-5">
-							<p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">{t("tasksList.journeySteps")}</p>
-							<div className="flex items-center justify-between">
-								{JOURNEY_STEPS.map((step, stepIndex) => (
-									<div key={`${task.id}-${step}`} className="flex flex-col items-center gap-2 flex-1">
-										<div className={cn(
-											"relative flex h-12 w-12 items-center justify-center rounded-full border-2 font-bold text-sm transition-all duration-300",
-											stepIndex <= statusMeta.journeyIndex
-												? "border-primary bg-gradient-to-br from-primary to-primary/80 text-white shadow-lg shadow-primary/30 scale-110"
-												: "border-border/70 bg-background/80 text-muted-foreground"
-										)}>
-											{stepIndex <= statusMeta.journeyIndex && (
-												<div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
-											)}
-											<span className="relative">{stepIndex + 1}</span>
-										</div>
-										<span className={cn(
-											"text-xs font-medium text-center transition-colors",
-											stepIndex <= statusMeta.journeyIndex ? "text-primary font-bold" : "text-muted-foreground"
-										)}>
-											{t(step)}
-										</span>
-										{stepIndex < JOURNEY_STEPS.length - 1 && (
-											<div className="absolute top-6 left-[calc(50%+24px)] right-[calc(50%-24px)] h-0.5 -z-10 hidden sm:block">
-												<div className={cn(
-													"h-full transition-all duration-300",
-													stepIndex < statusMeta.journeyIndex
-														? "bg-gradient-to-r from-primary to-primary"
-														: "bg-border/50"
-												)} />
-											</div>
-										)}
-									</div>
-								))}
-							</div>
-						</div>
+					{/* Description */}
+					{task.description?.trim() && (
+						<p className="text-[12px] text-muted-foreground/80 leading-relaxed line-clamp-3">
+							{task.description.trim()}
+						</p>
+					)}
 
-						{/* Actions */}
-						<div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-border/50">
-							<div className="flex items-center gap-2">
-								{requiresEvidence && (
-									<Badge variant="outline" className="rounded-full">
-										{evidenceStatusText}
-									</Badge>
+					{/* Photo */}
+					{thumbnailUrl && (
+						<button
+							type="button"
+							onClick={onViewEvidence}
+							className="relative overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all group/img w-full"
+						>
+							<img
+								src={thumbnailUrl}
+								alt={t("tasksList.evidenceViewer.altText")}
+								className="w-full max-h-36 object-cover rounded-xl"
+							/>
+							<div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover/img:bg-black/20 rounded-xl transition-colors">
+								<ZoomIn className="h-5 w-5 text-white drop-shadow-lg opacity-0 group-hover/img:opacity-100 transition-opacity" />
+							</div>
+						</button>
+					)}
+
+					{/* Evidence info */}
+					{requiresEvidence && (
+						<div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
+							{evidenceRequirement === 'photo' && <Camera className="h-3 w-3" />}
+							{evidenceRequirement === 'video' && <Film className="h-3 w-3" />}
+							{evidenceRequirement === 'document' && <FileText className="h-3 w-3" />}
+							<span>{t(evidenceMeta.label)} — {evidenceStatusText}</span>
+						</div>
+					)}
+
+					{/* Progress */}
+					<div className="flex items-center gap-2 text-[11px]">
+						<div className="h-1.5 flex-1 rounded-full bg-muted/40 overflow-hidden">
+							<div
+								className={cn(
+									"h-full rounded-full transition-all duration-700",
+									task.status === "completed" ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : task.status === "overdue" ? "bg-gradient-to-r from-red-400 to-red-500" : task.status === "in_progress" ? "bg-gradient-to-r from-blue-400 to-blue-500" : "bg-gradient-to-r from-slate-300 to-slate-400",
 								)}
-							</div>
-							<div className="flex flex-wrap justify-end gap-2">
-							{requiresEvidence && userType === "parent" && evidenceReady && (
-									<Button 
-										variant="outline" 
-										size="sm" 
-										className="gap-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors" 
-										onClick={onViewEvidence} 
-										disabled={downloadLoading}
-									>
-										<Eye className="h-4 w-4" />
-										{t("tasksList.actions.viewFile")}
+								style={{ width: `${task.progressValue}%` }}
+							/>
+						</div>
+						<span className="font-bold text-foreground/70 tabular-nums">{Math.round(task.progressValue)}%</span>
+					</div>
+
+					{/* Actions */}
+					<div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/15">
+						{userType === "parent" && (
+							<>
+								<Button variant="ghost" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={(e) => { e.stopPropagation(); onEdit() }}>
+									<Pencil className="h-3 w-3" />
+									{t("tasksList.ariaLabels.editTask")}
+								</Button>
+								<Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-[11px] rounded-lg text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); onDelete() }} disabled={deleteLoading}>
+									<Trash2 className="h-3 w-3" />
+								</Button>
+							</>
+						)}
+
+						{requiresEvidence && evidenceReady && (
+							<Button variant="outline" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={onViewEvidence} disabled={downloadLoading}>
+								<Eye className="h-3 w-3" />
+								{t("tasksList.actions.viewFile")}
+							</Button>
+						)}
+
+						{requiresEvidence && userType === "child" && !isCompleted && (
+							<Button variant="outline" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={onUploadEvidence}>
+								<Upload className="h-3 w-3" />
+								{evidenceReady ? t("tasksList.actions.replaceFile") : t("tasksList.actions.submitFile")}
+							</Button>
+						)}
+
+						<div className="ml-auto flex items-center gap-1.5">
+							{userType === "parent" && !isCompleted && (
+								<>
+									<Button variant="ghost" size="sm" className="h-7 px-2.5 text-[11px] rounded-lg" onClick={onReject} disabled={updateLoading}>
+										{t("tasksList.actions.reject")}
 									</Button>
-								)}
-								{requiresEvidence && userType === "child" && !isCompleted && (
-									<Button 
-										variant="outline" 
-										size="sm" 
-										className="gap-2 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300 transition-colors" 
-										onClick={onUploadEvidence}
-									>
-										<Upload className="h-4 w-4" />
-										{evidenceReady ? t("tasksList.actions.replaceFile") : t("tasksList.actions.submitFile")}
-									</Button>
-								)}
-								{userType === "parent" && !isCompleted && (
-									<>
-										<Button 
-											variant="ghost" 
-											size="sm" 
-											className="hover:bg-red-50 hover:text-red-700 transition-colors"
-											onClick={onReject} 
-											disabled={updateLoading}
-										>
-											{t("tasksList.actions.reject")}
-										</Button>
-										<Button
-											size="sm"
-											className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl"
-											onClick={onConfirm}
-											disabled={!canParentConfirm || confirmLoading}
-											title={!canParentConfirm ? t("tasksList.actions.awaitEvidenceHint") : undefined}
-										>
-											<CheckCircle2 className="h-4 w-4" />
-											{t("tasksList.actions.confirm")}
-										</Button>
-									</>
-								)}
-								{userType === "child" && !isCompleted && (
 									<Button
-										className="gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-xl"
 										size="sm"
+										className="h-7 gap-1 px-3 text-[11px] rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/20"
 										onClick={onConfirm}
-										disabled={!canChildComplete || confirmLoading}
-										title={!canChildComplete ? t("tasksList.actions.attachEvidenceFirst") : undefined}
+										disabled={!canParentConfirm || confirmLoading}
+										title={!canParentConfirm ? t("tasksList.actions.awaitEvidenceHint") : undefined}
 									>
-										<CheckCircle2 className="h-4 w-4" />
-										{t("tasksList.actions.iDidIt")}
+										<CheckCircle2 className="h-3 w-3" />
+										{t("tasksList.actions.confirm")}
 									</Button>
-								)}
-								{isCompleted && (
-									<Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 shadow-lg">
-										âœ“ {t("tasksList.taskClosed")}
-									</Badge>
-								)}
-							</div>
+								</>
+							)}
+
+							{userType === "child" && !isCompleted && (
+								<Button
+									size="sm"
+									className="h-7 gap-1 px-3 text-[11px] rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/20"
+									onClick={onConfirm}
+									disabled={!canChildComplete || confirmLoading}
+									title={!canChildComplete ? t("tasksList.actions.attachEvidenceFirst") : undefined}
+								>
+									<CheckCircle2 className="h-3 w-3" />
+									{t("tasksList.actions.iDidIt")}
+								</Button>
+							)}
+
+							{isCompleted && (
+								<Badge className="rounded-lg px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0 shadow-sm">
+									✓ {t("tasksList.taskClosed")}
+								</Badge>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	)
-}
-
-interface InfoTileProps {
-	label: string
-	value: string
-	hint?: string
-	accent?: boolean
-}
-
-function InfoTile({ label, value, hint, accent }: InfoTileProps) {
-	return (
-		<div className={cn("rounded-2xl border px-3 py-3", accent ? "border-primary/40 bg-primary/5" : "border-border/60 bg-background/80")}>
-			<p className={cn("text-[10px] uppercase tracking-[0.2em]", accent ? "text-primary" : "text-muted-foreground")}>{label}</p>
-			<p className={cn("mt-1 text-sm font-semibold", accent ? "text-primary" : "text-foreground")}>{value}</p>
-			{hint && <p className="text-xs text-muted-foreground">{hint}</p>}
 		</div>
 	)
 }

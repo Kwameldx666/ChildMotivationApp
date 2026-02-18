@@ -2170,11 +2170,13 @@
     "evidenceStatus": {
       "fileReceived": "File received",
       "awaitingEvidence": "Awaiting evidence",
+      "awaitingShort": "Needs photo",
       "canCompleteDirect": "Can complete directly"
     },
     "dueBy": "Due by",
     "pointsLabel": "pts",
     "stage": "Stage",
+    "stageShort": "Step {{current}} of {{total}}",
     "ariaLabels": {
       "editTask": "Edit task",
       "deleteTask": "Delete task",
@@ -2197,7 +2199,10 @@
       "iDidIt": "I did it!",
       "attachEvidenceFirst": "Please attach evidence first"
     },
-    "taskClosed": "Task closed"
+    "taskClosed": "Task closed",
+    "searchPlaceholder": "Search tasks...",
+    "noSearchResults": "No results for \"{{query}}\"",
+    "clearSearch": "Clear search"
   },
   "taskTemplates": {
     "myTemplates": "My Templates",
