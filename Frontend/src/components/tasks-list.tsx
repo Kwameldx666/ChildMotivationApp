@@ -17,7 +17,6 @@ import {
 	Film,
 	Flame,
 	Pencil,
-	Plus,
 	Search,
 	Sparkles,
 	Trash2,
@@ -26,6 +25,9 @@ import {
 	X,
 	Zap,
 	ZoomIn,
+	ZoomOut,
+	Download,
+	FileIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -42,7 +44,6 @@ import { tasksService, type TaskDto, type TaskEvidenceRequirement } from "@/serv
 
 import TaskSubmissionModal from "./task-submission-modal"
 import TaskEditModal, { type EditableTask } from "./task-edit-modal"
-import { CreateTaskDialog } from "./create-task-dialog"
 import TaskRow from "./task-row"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/i18n/provider"
@@ -224,11 +225,8 @@ export default function TasksList({ userType }: TasksListProps) {
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [editableTask, setEditableTask] = useState<EditableTask | null>(null)
 	const [viewingEvidence, setViewingEvidence] = useState<{ task: DecoratedTask; url: string; type: string } | null>(null)
-	const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
+	const [imageZoom, setImageZoom] = useState(1)
 
-	const openTaskCreation = () => {
-		setIsCreateTaskOpen(true)
-	}
 
 	const openEditModal = (task: DecoratedTask) => {
 		setEditableTask({
@@ -433,6 +431,7 @@ export default function TasksList({ userType }: TasksListProps) {
 			URL.revokeObjectURL(viewingEvidence.url)
 			setViewingEvidence(null)
 		}
+		setImageZoom(1)
 	}, [viewingEvidence])
 
 	if (isLoading) {
@@ -487,18 +486,8 @@ export default function TasksList({ userType }: TasksListProps) {
 						</div>
 						<h3 className="mt-5 text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{t("tasks.noTasks")}</h3>
 						<p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{t("tasks.noTasksDescription")}</p>
-						{userType === "parent" && (
-							<Button className="mt-6 gap-2 shadow-lg shadow-primary/20" onClick={openTaskCreation}>
-								<Plus className="h-4 w-4" />
-								{t("tasks.addFirstTask")}
-							</Button>
-						)}
 					</div>
 				</div>
-				<CreateTaskDialog
-					open={isCreateTaskOpen}
-					onOpenChange={setIsCreateTaskOpen}
-				/>
 			</>
 		)
 	}
@@ -536,17 +525,6 @@ export default function TasksList({ userType }: TasksListProps) {
 								</button>
 							)
 						})}
-
-						{userType === "parent" && (
-							<Button
-								size="sm"
-								className="ml-auto gap-1.5 rounded-xl text-xs shadow-md shadow-primary/15 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
-								onClick={openTaskCreation}
-							>
-								<Plus className="h-3.5 w-3.5" />
-								{t("tasks.createTask")}
-							</Button>
-						)}
 					</div>
 
 					{/* Search */}
@@ -664,12 +642,6 @@ export default function TasksList({ userType }: TasksListProps) {
 							</div>
 							<h3 className="mt-3 text-base font-bold">{t("tasks.noTasks")}</h3>
 							<p className="mt-1 text-sm text-muted-foreground">{t("tasks.noTasksDescription")}</p>
-							{userType === "parent" && (
-								<Button className="mt-4 gap-2 shadow-lg shadow-primary/15" size="sm" onClick={openTaskCreation}>
-									<Plus className="h-4 w-4" />
-									{t("tasks.addFirstTask")}
-								</Button>
-							)}
 						</div>
 					</div>
 				)}
@@ -697,51 +669,151 @@ export default function TasksList({ userType }: TasksListProps) {
 				onSave={handleTaskEditSave}
 			/>
 
-			<CreateTaskDialog
-				open={isCreateTaskOpen}
-				onOpenChange={setIsCreateTaskOpen}
-			/>
-
-			{/* Lightbox photo/video viewer */}
+			{/* Enhanced Evidence Viewer Modal */}
 			{viewingEvidence && (
 				<div
-					className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+					className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200"
 					onClick={handleCloseViewer}
 				>
+					{/* Close button */}
 					<button
 						onClick={handleCloseViewer}
-						className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+						className="absolute top-6 right-6 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-110"
+						aria-label="Close"
 					>
-						<X className="h-5 w-5" />
+						<X className="h-6 w-6" />
 					</button>
 
+					{/* Main container */}
 					<div
-						className="relative max-w-3xl w-full mx-4"
+						className="relative w-full max-w-5xl flex flex-col gap-4 animate-in zoom-in-95 duration-300"
 						onClick={(e) => e.stopPropagation()}
 					>
-						{viewingEvidence.type.startsWith('image/') ? (
-							<img
-								src={viewingEvidence.url}
-								alt={t("tasksList.evidenceViewer.altText")}
-								className="w-full max-h-[80vh] object-contain rounded-lg"
-							/>
-						) : viewingEvidence.type.startsWith('video/') ? (
-							<video
-								src={viewingEvidence.url}
-								controls
-								autoPlay
-								className="w-full max-h-[80vh] object-contain rounded-lg"
-							/>
-						) : null}
+						{/* Media viewer */}
+						<div className="relative bg-black/50 rounded-xl overflow-hidden ring-1 ring-white/10 shadow-2xl">
+							{/* Image with zoom */}
+							{viewingEvidence.type.startsWith('image/') ? (
+								<div className="flex items-center justify-center relative group bg-black">
+									<div 
+										className="overflow-auto max-h-[70vh] w-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+										style={{
+											scrollBehavior: 'smooth'
+										}}
+									>
+										<img
+											src={viewingEvidence.url}
+											alt={t("tasksList.evidenceViewer.altText") || "Evidence"}
+											className="transition-transform duration-200"
+											style={{ transform: `scale(${imageZoom})` }}
+										/>
+									</div>
+								</div>
+							) : viewingEvidence.type.startsWith('video/') ? (
+								<video
+									src={viewingEvidence.url}
+									controls
+									autoPlay
+									className="w-full max-h-[70vh] object-contain"
+								/>
+							) : (
+								<div className="flex items-center justify-center h-96 bg-black/50 text-white/50">
+									<FileText className="h-12 w-12" />
+								</div>
+							)}
 
-						<div className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-b-lg bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-							<span className="text-sm text-white/90 font-medium truncate">
-								{viewingEvidence.task.title}
-							</span>
+							{/* Zoom controls - только для изображений */}
+							{viewingEvidence.type.startsWith('image/') && (
+								<div className="absolute bottom-4 right-4 flex items-center gap-2 bg-black/60 rounded-lg p-2 ring-1 ring-white/10 backdrop-blur-sm">
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-9 w-9 text-white hover:bg-white/20"
+										onClick={() => setImageZoom(Math.max(0.5, imageZoom - 0.25))}
+										disabled={imageZoom <= 0.5}
+									>
+										<ZoomOut className="h-4 w-4" />
+									</Button>
+									<span className="text-xs font-medium text-white/70 px-2 tabular-nums min-w-[3ch]">
+										{Math.round(imageZoom * 100)}%
+									</span>
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-9 w-9 text-white hover:bg-white/20"
+										onClick={() => setImageZoom(Math.min(3, imageZoom + 0.25))}
+										disabled={imageZoom >= 3}
+									>
+										<ZoomIn className="h-4 w-4" />
+									</Button>
+									<div className="w-px h-6 bg-white/10 mx-1" />
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-9 w-9 text-white hover:bg-white/20"
+										onClick={() => setImageZoom(1)}
+										title="Reset zoom"
+									>
+										<Eye className="h-4 w-4" />
+									</Button>
+								</div>
+							)}
+						</div>
+
+						{/* Task info and controls */}
+						<div className="bg-gradient-to-r from-slate-900/50 to-slate-800/50 rounded-xl border border-white/10 p-4 backdrop-blur-sm">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+								{/* Task title and status */}
+								<div className="md:col-span-2">
+									<h3 className="text-sm font-semibold text-white truncate mb-1">
+										{viewingEvidence.task.title}
+									</h3>
+									<div className="flex items-center gap-2 text-xs text-white/60">
+										<Badge className={cn(
+											"text-[10px] font-bold rounded-full px-2 py-0.5",
+											viewingEvidence.task.status === "completed" ? "bg-emerald-500/30 text-emerald-300 border-emerald-500/50" :
+											viewingEvidence.task.status === "in_progress" ? "bg-blue-500/30 text-blue-300 border-blue-500/50" :
+											viewingEvidence.task.status === "overdue" ? "bg-red-500/30 text-red-300 border-red-500/50" :
+											"bg-slate-500/30 text-slate-300 border-slate-500/50"
+										)}>
+											{t(`tasksList.status.${viewingEvidence.task.status}`)}
+										</Badge>
+										<span className="flex items-center gap-1">
+											<Clock className="h-3 w-3" />
+											{formatDate(viewingEvidence.task.createdAt)}
+										</span>
+									</div>
+								</div>
+
+								{/* Rewards */}
+								<div className="flex items-center justify-start md:justify-end gap-2">
+									<div className="flex items-center gap-1 bg-violet-500/20 rounded-lg px-2 py-1.5">
+										<Zap className="h-3.5 w-3.5 text-violet-400" />
+										<span className="text-xs font-semibold text-violet-300">{viewingEvidence.task.xpReward}</span>
+									</div>
+									<div className="flex items-center gap-1 bg-amber-500/20 rounded-lg px-2 py-1.5">
+										<Trophy className="h-3.5 w-3.5 text-amber-400" />
+										<span className="text-xs font-semibold text-amber-300">{viewingEvidence.task.pointsReward}</span>
+									</div>
+								</div>
+							</div>
+
+							{/* Description if exists */}
+							{viewingEvidence.task.description && (
+								<p className="text-xs text-white/60 mt-3 line-clamp-2">
+									{viewingEvidence.task.description}
+								</p>
+							)}
+						</div>
+
+						{/* Action buttons */}
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-0.5 text-xs text-white/50">
+								<FileIcon className="h-3.5 w-3.5" />
+								<span>{viewingEvidence.type}</span>
+							</div>
 							<Button
 								size="sm"
-								variant="secondary"
-								className="shrink-0 text-xs"
+								className="gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30"
 								onClick={() => {
 									const link = document.createElement('a')
 									link.href = viewingEvidence.url
@@ -749,362 +821,13 @@ export default function TasksList({ userType }: TasksListProps) {
 									link.click()
 								}}
 							>
-								{t("tasksList.evidenceViewer.download")}
+								<Download className="h-4 w-4" />
+								{t("tasksList.evidenceViewer.download") || "Download"}
 							</Button>
 						</div>
 					</div>
 				</div>
 			)}
 		</>
-	)
-}
-
-/* ─────────────────────────────────────────────────────── */
-/*  TaskRow — minimal card with expandable details         */
-/* ─────────────────────────────────────────────────────── */
-
-interface TaskRowProps {
-	task: DecoratedTask
-	userType: "parent" | "child"
-	streakMultiplier: number
-	onConfirm: () => void
-	onReject: () => void
-	onViewEvidence: () => void
-	onUploadEvidence: () => void
-	onEdit: () => void
-	onDelete: () => void
-	confirmLoading: boolean
-	updateLoading: boolean
-	downloadLoading: boolean
-	deleteLoading: boolean
-}
-
-function TaskRow({
-	task,
-	userType,
-	streakMultiplier,
-	onConfirm,
-	onReject,
-	onViewEvidence,
-	onUploadEvidence,
-	onEdit,
-	onDelete,
-	confirmLoading,
-	updateLoading,
-	downloadLoading,
-	deleteLoading,
-}: TaskRowProps) {
-	const { t } = useTranslation()
-	const [isOpen, setIsOpen] = useState(false)
-	const statusMeta = STATUS_META[task.status]
-	const StatusIcon = statusMeta.icon
-	const evidenceRequirement = resolveEvidenceRequirement(task.evidence?.requirement)
-	const evidenceMeta = EVIDENCE_META[evidenceRequirement]
-	const requiresEvidence = evidenceRequirement !== "none"
-	const evidenceReady = Boolean(task.evidence?.isSubmitted)
-	const isImageEvidence = task.evidence?.contentType?.startsWith('image/') || evidenceRequirement === 'photo'
-	const isCompleted = task.completed
-	const canParentConfirm = !requiresEvidence || evidenceReady
-	const canChildComplete = canParentConfirm
-
-	// Lazy-load thumbnail for image evidence
-	const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
-	const thumbnailUrlRef = useRef<string | null>(null)
-
-	useEffect(() => {
-		let cancelled = false
-		if (evidenceReady && isImageEvidence) {
-			tasksService.downloadEvidence(task.id)
-				.then(blob => {
-					if (!cancelled) {
-						if (thumbnailUrlRef.current) URL.revokeObjectURL(thumbnailUrlRef.current)
-						const url = URL.createObjectURL(blob)
-						thumbnailUrlRef.current = url
-						setThumbnailUrl(url)
-					}
-				})
-				.catch(() => {})
-		}
-		return () => {
-			cancelled = true
-			if (thumbnailUrlRef.current) {
-				URL.revokeObjectURL(thumbnailUrlRef.current)
-				thumbnailUrlRef.current = null
-			}
-		}
-	}, [task.id, evidenceReady, isImageEvidence])
-
-	const evidenceStatusText = requiresEvidence
-		? evidenceReady
-			? `${t("tasksList.evidenceStatus.fileReceived")}${task.evidence?.uploadedAt ? ` · ${formatDate(task.evidence.uploadedAt)}` : ""}`
-			: t("tasksList.evidenceStatus.awaitingEvidence")
-		: t("tasksList.evidenceStatus.canCompleteDirect")
-
-	const handleToggle = () => setIsOpen((prev) => !prev)
-	const handleSummaryKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-		if (event.key === "Enter" || event.key === " ") {
-			event.preventDefault()
-			handleToggle()
-		}
-	}
-
-	const cardStyle = STATUS_CARD_STYLE[task.status]
-
-	/* ── Beautiful gradient card ── */
-	return (
-		<div className={cn(
-			"group relative rounded-2xl border transition-all duration-300 overflow-hidden",
-			cardStyle.bg,
-			cardStyle.border,
-			isOpen
-				? "shadow-lg ring-1 ring-primary/10"
-				: cn("hover:shadow-lg hover:-translate-y-1", cardStyle.glow),
-			isCompleted && "opacity-85",
-		)}>
-			{/* ── Summary (clickable) ── */}
-			<div
-				className="relative flex items-start gap-3 px-3.5 pt-3.5 pb-3 cursor-pointer select-none"
-				role="button"
-				tabIndex={0}
-				onClick={handleToggle}
-				onKeyDown={handleSummaryKeyDown}
-			>
-				{/* Photo thumbnail or status icon */}
-				{thumbnailUrl ? (
-					<button
-						type="button"
-						onClick={(e) => { e.stopPropagation(); onViewEvidence() }}
-						className="relative shrink-0 overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all"
-						title={t("tasksList.actions.viewFile")}
-					>
-						<img src={thumbnailUrl} alt="" className="h-11 w-11 object-cover rounded-xl" />
-						<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/25 rounded-xl transition-opacity">
-							<ZoomIn className="h-4 w-4 text-white drop-shadow" />
-						</div>
-					</button>
-				) : (
-					<div className={cn(
-						"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm",
-						cardStyle.iconBg,
-						cardStyle.iconText,
-					)}>
-						<StatusIcon className="h-5 w-5" />
-					</div>
-				)}
-
-				{/* Text content */}
-				<div className="min-w-0 flex-1">
-					{/* Row 1: Title */}
-					<div className="flex items-center gap-1.5">
-						<h3 className="truncate text-[13px] font-bold text-foreground leading-snug">
-							{task.title}
-						</h3>
-					</div>
-
-					{/* Row 2: Status label + difficulty stars */}
-					<div className="mt-1 flex items-center gap-1.5 text-[11px]">
-						<span className={cn(
-							"inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
-							statusMeta.badge,
-						)}>
-							<StatusIcon className="h-2.5 w-2.5" />
-							{t(statusMeta.label)}
-						</span>
-						{task.difficulty > 0 && (
-							<span className="text-amber-500/80 text-[10px] font-medium tracking-tight">
-								{"★".repeat(Math.min(task.difficulty, 5))}
-							</span>
-						)}
-						{requiresEvidence && !evidenceReady && (
-							<Camera className="h-3 w-3 text-amber-500/70" />
-						)}
-					</div>
-
-					{/* Row 3: Reward chips */}
-					<div className="mt-1.5 flex items-center gap-1.5">
-						<span className="inline-flex items-center gap-0.5 rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold text-violet-600 dark:text-violet-400">
-							<Zap className="h-2.5 w-2.5" />
-							{task.xpReward}
-						</span>
-						<span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-							<Trophy className="h-2.5 w-2.5" />
-							{task.pointsReward}
-						</span>
-						{isCompleted && (
-							<span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-								<CheckCircle2 className="h-2.5 w-2.5" />
-							</span>
-						)}
-					</div>
-				</div>
-
-				{/* Expand chevron */}
-				<ChevronDown className={cn(
-					"h-4 w-4 shrink-0 text-muted-foreground/30 transition-transform duration-300 mt-0.5",
-					isOpen && "rotate-180 text-muted-foreground/60",
-				)} />
-			</div>
-
-			{/* Mini progress bar always visible at bottom of summary */}
-			{!isOpen && (
-				<div className="px-3.5 pb-3">
-					<div className="h-1 w-full rounded-full bg-muted/40 overflow-hidden">
-						<div
-							className={cn(
-								"h-full rounded-full transition-all duration-500",
-								task.status === "completed" ? "bg-emerald-500" : task.status === "overdue" ? "bg-red-400" : task.status === "in_progress" ? "bg-blue-500" : "bg-slate-400",
-							)}
-							style={{ width: `${task.progressValue}%` }}
-						/>
-					</div>
-				</div>
-			)}
-
-			{/* ── Expanded details ── */}
-			<div className={cn(
-				"overflow-hidden transition-all duration-300",
-				isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0",
-			)}>
-				<div className="border-t border-border/20 px-3.5 py-3 space-y-3">
-					{/* Rewards + multiplication + dates */}
-					<div className="flex flex-wrap items-center gap-2 text-[11px]">
-						<span className="inline-flex items-center gap-1 rounded-lg bg-violet-500/10 px-2 py-1 font-bold text-violet-600 dark:text-violet-400 shadow-sm">
-							<Zap className="h-3 w-3" />
-							{task.xpReward} XP
-						</span>
-						<span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 px-2 py-1 font-bold text-amber-600 dark:text-amber-400 shadow-sm">
-							<Trophy className="h-3 w-3" />
-							{task.pointsReward} {t("tasksList.pointsLabel")}
-						</span>
-						{streakMultiplier > 1 && !isCompleted && (
-							<span className="inline-flex items-center gap-0.5 rounded-lg bg-orange-500/10 px-2 py-1 font-bold text-orange-600 dark:text-orange-400 shadow-sm">
-								<Flame className="h-3 w-3" />
-								×{streakMultiplier.toFixed(1)}
-							</span>
-						)}
-						<span className="ml-auto text-muted-foreground/70 text-[10px]">
-							{task.createdLabel} → {task.dueLabel}
-						</span>
-					</div>
-
-					{/* Description */}
-					{task.description?.trim() && (
-						<p className="text-[12px] text-muted-foreground/80 leading-relaxed line-clamp-3">
-							{task.description.trim()}
-						</p>
-					)}
-
-					{/* Photo */}
-					{thumbnailUrl && (
-						<button
-							type="button"
-							onClick={onViewEvidence}
-							className="relative overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-all group/img w-full"
-						>
-							<img
-								src={thumbnailUrl}
-								alt={t("tasksList.evidenceViewer.altText")}
-								className="w-full max-h-36 object-cover rounded-xl"
-							/>
-							<div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover/img:bg-black/20 rounded-xl transition-colors">
-								<ZoomIn className="h-5 w-5 text-white drop-shadow-lg opacity-0 group-hover/img:opacity-100 transition-opacity" />
-							</div>
-						</button>
-					)}
-
-					{/* Evidence info */}
-					{requiresEvidence && (
-						<div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
-							{evidenceRequirement === 'photo' && <Camera className="h-3 w-3" />}
-							{evidenceRequirement === 'video' && <Film className="h-3 w-3" />}
-							{evidenceRequirement === 'document' && <FileText className="h-3 w-3" />}
-							<span>{t(evidenceMeta.label)} — {evidenceStatusText}</span>
-						</div>
-					)}
-
-					{/* Progress */}
-					<div className="flex items-center gap-2 text-[11px]">
-						<div className="h-1.5 flex-1 rounded-full bg-muted/40 overflow-hidden">
-							<div
-								className={cn(
-									"h-full rounded-full transition-all duration-700",
-									task.status === "completed" ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : task.status === "overdue" ? "bg-gradient-to-r from-red-400 to-red-500" : task.status === "in_progress" ? "bg-gradient-to-r from-blue-400 to-blue-500" : "bg-gradient-to-r from-slate-300 to-slate-400",
-								)}
-								style={{ width: `${task.progressValue}%` }}
-							/>
-						</div>
-						<span className="font-bold text-foreground/70 tabular-nums">{Math.round(task.progressValue)}%</span>
-					</div>
-
-					{/* Actions */}
-					<div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/15">
-						{userType === "parent" && (
-							<>
-								<Button variant="ghost" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={(e) => { e.stopPropagation(); onEdit() }}>
-									<Pencil className="h-3 w-3" />
-									{t("tasksList.ariaLabels.editTask")}
-								</Button>
-								<Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-[11px] rounded-lg text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); onDelete() }} disabled={deleteLoading}>
-									<Trash2 className="h-3 w-3" />
-								</Button>
-							</>
-						)}
-
-						{requiresEvidence && evidenceReady && (
-							<Button variant="outline" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={onViewEvidence} disabled={downloadLoading}>
-								<Eye className="h-3 w-3" />
-								{t("tasksList.actions.viewFile")}
-							</Button>
-						)}
-
-						{requiresEvidence && userType === "child" && !isCompleted && (
-							<Button variant="outline" size="sm" className="h-7 gap-1 px-2.5 text-[11px] rounded-lg" onClick={onUploadEvidence}>
-								<Upload className="h-3 w-3" />
-								{evidenceReady ? t("tasksList.actions.replaceFile") : t("tasksList.actions.submitFile")}
-							</Button>
-						)}
-
-						<div className="ml-auto flex items-center gap-1.5">
-							{userType === "parent" && !isCompleted && (
-								<>
-									<Button variant="ghost" size="sm" className="h-7 px-2.5 text-[11px] rounded-lg" onClick={onReject} disabled={updateLoading}>
-										{t("tasksList.actions.reject")}
-									</Button>
-									<Button
-										size="sm"
-										className="h-7 gap-1 px-3 text-[11px] rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/20"
-										onClick={onConfirm}
-										disabled={!canParentConfirm || confirmLoading}
-										title={!canParentConfirm ? t("tasksList.actions.awaitEvidenceHint") : undefined}
-									>
-										<CheckCircle2 className="h-3 w-3" />
-										{t("tasksList.actions.confirm")}
-									</Button>
-								</>
-							)}
-
-							{userType === "child" && !isCompleted && (
-								<Button
-									size="sm"
-									className="h-7 gap-1 px-3 text-[11px] rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/20"
-									onClick={onConfirm}
-									disabled={!canChildComplete || confirmLoading}
-									title={!canChildComplete ? t("tasksList.actions.attachEvidenceFirst") : undefined}
-								>
-									<CheckCircle2 className="h-3 w-3" />
-									{t("tasksList.actions.iDidIt")}
-								</Button>
-							)}
-
-							{isCompleted && (
-								<Badge className="rounded-lg px-2.5 py-1 text-[10px] font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 text-white border-0 shadow-sm">
-									✓ {t("tasksList.taskClosed")}
-								</Badge>
-							)}
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 	)
 }

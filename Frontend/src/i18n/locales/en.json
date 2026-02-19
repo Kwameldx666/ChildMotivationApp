@@ -1411,7 +1411,19 @@
     "reject": "Reject",
     "confirm": "Confirm",
     "taskClosed": "Task closed",
-    "expand": "Expand"
+    "expand": "Expand",
+    "viewEvidence": "View Evidence",
+    "submitEvidence": "Submit Evidence",
+    "changeEvidence": "Change Evidence",
+    "progress": "Progress",
+    "edit": "Edit",
+    "delete": "Delete",
+    "complete": "Complete",
+    "reject": "Reject",
+    "approve": "Approve",
+    "completed": "Completed",
+    "evidenceSubmitted": "Submitted",
+    "evidenceRequired": "Required"
   },
   "familyGoals": {
     "title": "Family Goals",
@@ -2343,6 +2355,7 @@
     "greetingEvening": "Good evening",
     "nav": {
       "tasks": "Tasks",
+      "gallery": "Gallery",
       "quests": "Quests",
       "shop": "Shop",
       "achievements": "Awards",
@@ -2753,5 +2766,14 @@
     "error": "Failed to add child. Please try again.",
     "addButton": "Add Child",
     "emptyHint": "Add your first child to get started with tasks and rewards"
+  },
+  "gallery": {
+    "title": "Evidence Gallery",
+    "filter": "Filter by status",
+    "noEvidence": "No evidence to display",
+    "completed": "Completed",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "overdue": "Overdue"
   }
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import {
   CheckCircle2, LogOut, User,
   Flame, Star, Trophy, Target, Crown, Sparkles,
-  Gift, Settings,
+  Gift, Settings, Image,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { NotificationsPopover } from "@/components/notifications-popover"
@@ -15,6 +15,8 @@ import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
 import AchievementTree from "./achievement-tree"
 import GameHub from "./game-hub"
+import EvidenceGallery from "./evidence-gallery"
+import { useTasks } from "@/services/tasks-queries"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -51,6 +53,7 @@ interface ChildDashboardProps {
 
 const TABS = [
   { id: "tasks",        labelKey: "childDashboard.nav.tasks",        Icon: CheckCircle2, emoji: "⚡", grad: "from-emerald-400 to-teal-500",  ring: "ring-emerald-400/40", glow: "shadow-emerald-500/25", dot: "bg-emerald-400" },
+  { id: "gallery",      labelKey: "childDashboard.nav.gallery",      Icon: Image,        emoji: "📸", grad: "from-pink-400 to-rose-500",     ring: "ring-pink-400/40",    glow: "shadow-pink-500/25",    dot: "bg-pink-400"    },
   { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400"  },
   { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400"  },
   { id: "achievements", labelKey: "childDashboard.nav.achievements", Icon: Trophy,       emoji: "🏆", grad: "from-amber-400 to-yellow-500",  ring: "ring-amber-400/40",   glow: "shadow-amber-500/25",   dot: "bg-amber-400"   },
@@ -79,6 +82,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
+  const { data: tasks = [] } = useTasks()
 
   const points  = stats?.points ?? 0
   const streak  = stats?.streak ?? 0
@@ -274,6 +278,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
          ═══════════════════════════════════════════════ */}
       <main className="relative z-10 max-w-3xl mx-auto px-4 pb-24 md:pb-8 pt-1">
         <div className={cn(activeTab === "tasks" ? "block" : "hidden")}><TasksList userType="child" /></div>
+        <div className={cn(activeTab === "gallery" ? "block" : "hidden")}><EvidenceGallery tasks={tasks} userType="child" /></div>
         <div className={cn(activeTab === "quests" ? "block" : "hidden")}><GameHub /></div>
         <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" /></div>
         <div className={cn(activeTab === "achievements" ? "block" : "hidden")}><AchievementTree /></div>

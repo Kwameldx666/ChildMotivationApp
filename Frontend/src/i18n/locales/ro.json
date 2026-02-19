@@ -1383,7 +1383,19 @@
     "reject": "Respinge",
     "confirm": "Confirmă",
     "taskClosed": "Sarcină închisă",
-    "expand": "Extinde"
+    "expand": "Extinde",
+    "viewEvidence": "Vizualizare dovadă",
+    "submitEvidence": "Trimite dovadă",
+    "changeEvidence": "Schimbă dovadă",
+    "progress": "Progres",
+    "edit": "Editare",
+    "delete": "Ștergere",
+    "complete": "Finalizare",
+    "reject": "Respinge",
+    "approve": "Aprobă",
+    "completed": "Finalizat",
+    "evidenceSubmitted": "Trimis",
+    "evidenceRequired": "Necesar"
   },
   "familyGoals": {
     "title": "Obiectivele familiei",
@@ -2305,6 +2317,7 @@
     "greetingEvening": "Bună seara",
     "nav": {
       "tasks": "Sarcini",
+      "gallery": "Galerie",
       "quests": "Misiuni",
       "shop": "Magazin",
       "achievements": "Premii",
@@ -2715,5 +2728,14 @@
     "error": "Nu s-a putut adăuga copilul. Încercați din nou.",
     "addButton": "Adăugați copil",
     "emptyHint": "Adăugați primul copil pentru a începe cu sarcini și recompense"
+  },
+  "gallery": {
+    "title": "Galeria dovezilor",
+    "filter": "Filtrare după status",
+    "noEvidence": "Nu sunt dovezi pentru affișare",
+    "completed": "Completat",
+    "pending": "În așteptare",
+    "inProgress": "În progres",
+    "overdue": "Expirat"
   }
 }
