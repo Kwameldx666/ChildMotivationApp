@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
 import type { LucideIcon } from "lucide-react"
-import { ChevronDown, ChevronUp, Edit, Eye, Upload, CheckCircle2 } from "lucide-react"
+import { Edit, Eye, Upload, CheckCircle2, AlertCircle, FileCheck, BookOpen, Zap, Trophy } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -22,30 +21,42 @@ type DecoratedTask = TaskDto & {
   progressValue?: number
 }
 
-
-
 interface TaskRowProps {
   task: DecoratedTask
-  index: number
   userType: "parent" | "child"
   onConfirm: (id: string) => void
   onReject: (task: TaskDto) => void
-  onUpload: (task: DecoratedTask) => void
+  onUploadEvidence: (task: DecoratedTask) => void
   onViewEvidence: (task: DecoratedTask) => void
   onEdit: (task: DecoratedTask) => void
-  isConfirming?: boolean
-  isDownloading?: boolean
+  onDelete: (id: string) => void
+  confirmLoading?: boolean
+  updateLoading?: boolean
+  downloadLoading?: boolean
+  deleteLoading?: boolean
 }
 
-export default function TaskRow({ task, index, userType, onConfirm, onReject, onUpload, onViewEvidence, onEdit, isConfirming, isDownloading }: TaskRowProps) {
+export default function TaskRow({ 
+  task, 
+  userType, 
+  onConfirm, 
+  onReject, 
+  onUploadEvidence, 
+  onViewEvidence, 
+  onEdit,
+  onDelete,
+  confirmLoading,
+  updateLoading,
+  downloadLoading,
+  deleteLoading
+}: TaskRowProps) {
   const { t } = useTranslation()
-  const [expanded, setExpanded] = useState(false)
 
-  const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; hint: string }> = {
-    none: { label: t("taskRow.evidenceNone"), hint: t("taskRow.evidenceNoneHint") },
-    photo: { label: t("taskRow.evidencePhoto"), hint: t("taskRow.evidencePhotoHint") },
-    video: { label: t("taskRow.evidenceVideo"), hint: t("taskRow.evidenceVideoHint") },
-    document: { label: t("taskRow.evidenceDocument"), hint: t("taskRow.evidenceDocumentHint") },
+  const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; icon: any; color: string }> = {
+    none: { label: t("taskRow.evidenceNone"), icon: FileCheck, color: "text-emerald-600" },
+    photo: { label: t("taskRow.evidencePhoto"), icon: Eye, color: "text-blue-600" },
+    video: { label: t("taskRow.evidenceVideo"), icon: FileCheck, color: "text-purple-600" },
+    document: { label: t("taskRow.evidenceDocument"), icon: BookOpen, color: "text-orange-600" },
   }
 
   const evidence = task.evidence ?? { requirement: "none", isSubmitted: false }
@@ -53,107 +64,193 @@ export default function TaskRow({ task, index, userType, onConfirm, onReject, on
   const evidenceMeta = EVIDENCE_META[evidenceRequirement]
   const requiresEvidence = evidenceRequirement !== "none"
   const evidenceReady = Boolean(evidence.isSubmitted)
-  const evidenceStatusText = requiresEvidence ? (evidenceReady ? `${t("taskRow.fileReceived")}${evidence.uploadedAt ? ` · ${new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short" }).format(new Date(evidence.uploadedAt))}` : ""}` : t("taskRow.awaitingFile")) : t("taskRow.canCompleteDirect")
+  
+  // Status color mapping
+  const getStatusColors = (status?: string) => {
+    switch(status) {
+      case "completed": return { badge: "bg-emerald-100 text-emerald-800", border: "border-emerald-200" }
+      case "in_progress": return { badge: "bg-blue-100 text-blue-800", border: "border-blue-200" }
+      case "overdue": return { badge: "bg-red-100 text-red-800", border: "border-red-200" }
+      default: return { badge: "bg-slate-100 text-slate-800", border: "border-slate-200" }
+    }
+  }
+
+  const statusColors = getStatusColors(task.status)
+  const IconComponent = evidenceMeta?.icon || FileCheck
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-card/95 shadow-sm">
-      <div className={cn("flex items-center gap-4 p-4 md:p-5", task.accent?.gradient ?? "")}> 
+    <div className={cn(
+      "group relative flex flex-col gap-3 overflow-hidden rounded-2xl border-2 bg-gradient-to-br p-4 transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
+      statusColors.border,
+      task.status === "completed" 
+        ? "from-emerald-50/50 via-white to-emerald-50/30 opacity-75" 
+        : task.status === "overdue"
+        ? "from-red-50/50 via-white to-orange-50/30"
+        : "from-white via-white to-muted/30"
+    )}>
+      {/* Header: Title + Status */}
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3">
-            <Badge className="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]">{task.status ?? "—"}</Badge>
-            <h4 className="truncate text-lg font-semibold text-foreground" title={task.title}>{task.title}</h4>
-            <div className="ml-2 hidden sm:inline text-sm text-muted-foreground">• {t("taskRow.dueTo", { date: task.dueLabel ?? "" })}</div>
-          </div>
-          <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="text-xs">{task.xpReward} XP</div>
-              <div className="text-xs">• {task.pointsReward} pts</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-40 max-w-[40%]"><Progress value={Math.round(task.progressValue ?? 0)} className="h-2" /></div>
-              <div className="text-xs font-semibold">{Math.round(task.progressValue ?? 0)}%</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={() => onEdit(task)}>
-            <Edit className="h-4 w-4" />
-            {t("taskRow.editShort")}
-          </Button>
-
-          {userType === "child" && !task.completed && (
-            <Button size="sm" className="gap-2" onClick={() => onConfirm(task.id)} disabled={isConfirming}>
-              <CheckCircle2 className="h-4 w-4" />
-              {t("taskRow.done")}
-            </Button>
+          <h4 className="text-base font-bold text-foreground line-clamp-2" title={task.title}>
+            {task.title}
+          </h4>
+          {task.description && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              {task.description}
+            </p>
           )}
+        </div>
+        <Badge className={cn("rounded-lg px-3 py-1 text-[11px] font-bold uppercase tracking-wide flex-shrink-0", statusColors.badge)}>
+          {task.status === "in_progress" ? t("tasks.inProgress") : 
+           task.status === "completed" ? t("tasks.completed") :
+           task.status === "overdue" ? t("tasks.overdue") :
+           t("tasks.pending")}
+        </Badge>
+      </div>
 
-          <button aria-label={t("taskRow.expand")} className="ml-2 inline-flex items-center rounded-full p-2 text-muted-foreground hover:bg-muted" onClick={() => setExpanded((s) => !s)}>
-            {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
+      {/* Info Grid: Points, XP, Progress, Dates */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-2 py-1.5">
+          <Zap className="h-3.5 w-3.5 text-primary" />
+          <span className="font-semibold text-primary">{task.xpReward} XP</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg bg-amber-100/50 px-2 py-1.5">
+          <Trophy className="h-3.5 w-3.5 text-amber-600" />
+          <span className="font-semibold text-amber-700">{task.pointsReward} PTS</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1.5">
+          <AlertCircle className="h-3.5 w-3.5 text-slate-600" />
+          <span className="text-xs text-slate-600">{t("taskRow.created")}: {task.createdLabel}</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1.5">
+          <AlertCircle className="h-3.5 w-3.5 text-slate-600" />
+          <span className="text-xs text-slate-600">{t("taskRow.dueTo", { date: task.dueLabel })}</span>
         </div>
       </div>
 
-      {expanded && (
-        <div className="border-t border-border/60 bg-background/40 p-4 md:p-5">
-          <div className="text-sm text-muted-foreground mb-3">{task.description?.trim() || t("taskRow.noDescription")}</div>
+      {/* Progress Bar */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Progreso</span>
+          <span className="text-xs font-bold text-foreground">{Math.round(task.progressValue ?? 0)}%</span>
+        </div>
+        <Progress value={Math.round(task.progressValue ?? 0)} className="h-2.5 rounded-full" />
+      </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 mb-3">
-            <div className="rounded-md border border-border/60 px-3 py-2">
-              <p className="text-[11px] uppercase text-muted-foreground">{t("taskRow.created")}</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">{task.createdLabel}</p>
-            </div>
-            <div className="rounded-md border border-border/60 px-3 py-2">
-              <p className="text-[11px] uppercase text-muted-foreground">{t("taskRow.plan")}</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">{task.dueLabel}</p>
-            </div>
-            <div className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2">
-              <p className="text-[11px] uppercase text-primary">{t("taskRow.control")}</p>
-              <p className="mt-1 text-sm font-semibold text-primary">{evidenceMeta.label}</p>
-              <p className="text-xs text-primary/80">{evidenceStatusText}</p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex gap-2">
-              {requiresEvidence && !task.completed && (
-                <>
-                  {evidenceReady && (
-                    <Button variant="outline" size="sm" onClick={() => onViewEvidence(task)} disabled={isDownloading}>
-                      <Eye className="h-4 w-4" />
-                      {t("taskRow.view")}
-                    </Button>
-                  )}
-
-                  <Button variant="outline" size="sm" onClick={() => onUpload(task)}>
-                    <Upload className="h-4 w-4" />
-                    {evidenceReady ? t("taskRow.replaceFile") : t("taskRow.sendFile")}
-                  </Button>
-                </>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              {userType === "parent" && !task.completed && (
-                <>
-                  <Button variant="outline" size="sm" onClick={() => onReject(task)}>
-                    {t("taskRow.reject")}
-                  </Button>
-                  <Button size="sm" className="gap-2" onClick={() => onConfirm(task.id)} disabled={isConfirming}>
-                    <CheckCircle2 className="h-4 w-4" />
-                    {t("taskRow.confirm")}
-                  </Button>
-                </>
-              )}
-
-              {task.completed && (
-                <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">{t("taskRow.taskClosed")}</Badge>
-              )}
-            </div>
-          </div>
+      {/* Evidence Status */}
+      {requiresEvidence && (
+        <div className={cn(
+          "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium",
+          evidenceReady 
+            ? "bg-emerald-100/70 text-emerald-700" 
+            : "bg-amber-100/70 text-amber-700"
+        )}>
+          <IconComponent className="h-4 w-4" />
+          <span>{evidenceReady ? `✓ ${evidenceMeta.label} Enviado` : `⚠ Requiere ${evidenceMeta.label}`}</span>
         </div>
       )}
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+        <div className="flex flex-wrap gap-2">
+          {/* Evidence actions for child */}
+          {userType === "child" && requiresEvidence && !task.completed && (
+            <>
+              {evidenceReady && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 text-xs"
+                  onClick={() => onViewEvidence(task)} 
+                  disabled={downloadLoading}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Ver
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 text-xs"
+                onClick={() => onUploadEvidence(task)}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                {evidenceReady ? "Cambiar" : "Enviar"}
+              </Button>
+            </>
+          )}
+
+          {/* Edit & Delete for parent */}
+          {userType === "parent" && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 text-xs"
+                onClick={() => onEdit(task)}
+                disabled={updateLoading}
+              >
+                <Edit className="h-3.5 w-3.5" />
+                Editar
+              </Button>
+              {!task.completed && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 text-xs text-destructive hover:text-destructive"
+                  onClick={() => onDelete(task.id)}
+                  disabled={deleteLoading}
+                >
+                  Eliminar
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Completion action */}
+        <div className="flex gap-2">
+          {!task.completed && userType === "child" && (
+            <Button 
+              size="sm" 
+              className="h-8 gap-1 text-xs font-semibold"
+              onClick={() => onConfirm(task.id)} 
+              disabled={confirmLoading}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Completar
+            </Button>
+          )}
+
+          {!task.completed && userType === "parent" && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 text-xs"
+                onClick={() => onReject(task)}
+              >
+                Rechazar
+              </Button>
+              <Button 
+                size="sm" 
+                className="h-8 gap-1 text-xs font-semibold"
+                onClick={() => onConfirm(task.id)} 
+                disabled={confirmLoading}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Aprobar
+              </Button>
+            </div>
+          )}
+
+          {task.completed && (
+            <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-semibold h-fit">
+              ✓ Completado
+            </Badge>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

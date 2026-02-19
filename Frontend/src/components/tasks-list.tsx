@@ -43,6 +43,7 @@ import { tasksService, type TaskDto, type TaskEvidenceRequirement } from "@/serv
 import TaskSubmissionModal from "./task-submission-modal"
 import TaskEditModal, { type EditableTask } from "./task-edit-modal"
 import { CreateTaskDialog } from "./create-task-dialog"
+import TaskRow from "./task-row"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/i18n/provider"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
