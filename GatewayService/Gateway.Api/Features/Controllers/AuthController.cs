@@ -197,6 +197,20 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         return await response.ToActionResultAsync();
     }
 
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] object request, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.ConfirmEmailAsync(request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpPost("resend-confirmation")]
+    public async Task<IActionResult> ResendConfirmation([FromBody] object request, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.ResendConfirmationAsync(request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();

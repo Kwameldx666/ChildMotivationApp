@@ -1,11 +1,14 @@
+using AuthService.Application.Abstractions;
 using AuthService.Application.Abstractions.Authentication.External;
 using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Domain.Entities;
 using AuthService.Infrastructure.Common;
+using AuthService.Infrastructure.Options;
 using AuthService.Infrastructure.Options.External;
 using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Authentication.External;
+using AuthService.Infrastructure.Services.Email;
 using AuthService.Infrastructure.Services.OAuth;
 using AuthService.Infrastructure.Services.Quartz;
 using AuthService.Infrastructure.Services.Identity;
@@ -75,6 +78,13 @@ public static class InfrastructureExtensions
 
         services.AddScoped<IExternalLoginSessionBuilder, ExternalLoginSessionBuilder>();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
+
+        // Email confirmation
+        services.AddOptions<SmtpOptions>()
+            .Bind(configuration.GetSection("Smtp"));
+        services.AddOptions<EmailConfirmationOptions>()
+            .Bind(configuration.GetSection("EmailConfirmation"));
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }

@@ -323,11 +323,16 @@
       "interestsRequired": "Alege cel puțin un interes.",
       "ageInvalid": "Vârsta trebuie să fie un număr.",
       "registerFailed": "Înregistrarea a eșuat.",
-      "roleRequired": "Te rugăm să alegi un rol"
+      "roleRequired": "Te rugăm să alegi un rol",
+      "emailNotConfirmed": "Email-ul nu este confirmat. Verifică-ți căsuța poștală și urmează linkul de confirmare."
     },
     "info": {
-      "registerSuccess": "Înregistrare reușită! Autentifică-te folosind datele tale."
+      "registerSuccess": "Înregistrare reușită! Autentifică-te folosind datele tale.",
+      "registerSuccessCheckEmail": "Înregistrare reușită! Verifică-ți email-ul și urmează linkul de confirmare înainte de autentificare.",
+      "resendSuccess": "Email de confirmare trimis! Verifică-ți căsuța poștală."
     },
+    "resendConfirmation": "Retrimite email de confirmare",
+    "resendingConfirmation": "Se trimite...",
     "welcomeBack": "Bine ai revenit!",
     "startAdventure": "Începe aventura ta",
     "passwordPlaceholder": "Minim 6 caractere",
@@ -1718,7 +1723,14 @@
   },
   "parentSettings": {
     "shareTitle": "Alătură-te familiei noastre!",
-    "shareText": "Salut! Alătură-te familiei noastre în aplicația Family Tasks. Codul familiei: {familyCode}"
+    "shareText": "Salut! Alătură-te familiei noastre în aplicația Family Tasks. Codul familiei: {familyCode}",
+    "tabs": {
+      "family": "Familie",
+      "notifications": "Notificări",
+      "ai": "IA",
+      "appearance": "Aspect",
+      "danger": "Pericol"
+    }
   },
   "rewardHistory": {
     "title": "Istoricul achizițiilor",
@@ -2353,6 +2365,12 @@
     "uploadPhotoFile": "Încarcă o fotografie:",
     "uploadPrompt": "Fă clic pentru a încărca sau trage și plasează",
     "photoUploadError": "Nu s-a putut încărca fotografia",
+    "tabs": {
+      "overview": "Prezentare",
+      "achievements": "Realizări",
+      "planner": "Planificator",
+      "appearance": "Aspect"
+    },
     "rank": {
       "novice": "Novice",
       "seeker": "Explorator",

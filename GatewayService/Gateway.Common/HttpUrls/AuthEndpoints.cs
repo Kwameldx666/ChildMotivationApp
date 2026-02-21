@@ -21,4 +21,6 @@ public class AuthEndpoints
     public string DeleteAccount { get; set; } = "auth-service/account";
     public string ChangePassword { get; set; } = "auth-service/change-password";
     public string ChangeEmail { get; set; } = "auth-service/change-email";
+    public string ConfirmEmail { get; set; } = "auth-service/confirm-email";
+    public string ResendConfirmation { get; set; } = "auth-service/resend-confirmation";
 }

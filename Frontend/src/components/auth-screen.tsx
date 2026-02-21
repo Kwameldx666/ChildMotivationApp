@@ -112,6 +112,9 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+  const [emailNotConfirmed, setEmailNotConfirmed] = useState(false)
+  const [resendingConfirmation, setResendingConfirmation] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
 
   const interestsOptions = useMemo(() => [
     { id: "sports", label: t("authScreen.interests.sports"), emoji: "⚽" },
@@ -200,13 +203,37 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     }
 
     setIsLoading(true)
+    setEmailNotConfirmed(false)
+    setResendSuccess(false)
     try {
       const session = await authApi.login({ email, password })
       onAuth(session)
-    } catch (serviceError) {
-      setError(mapApiError(serviceError, t("authScreen.errors.loginFailed")))
+    } catch (serviceError: any) {
+      const errMsg = serviceError?.response?.data?.detail || serviceError?.response?.data?.error || ""
+      if (
+        serviceError?.response?.status === 403 ||
+        errMsg.toLowerCase().includes("email not confirmed")
+      ) {
+        setEmailNotConfirmed(true)
+        setError(t("authScreen.errors.emailNotConfirmed"))
+      } else {
+        setError(mapApiError(serviceError, t("authScreen.errors.loginFailed")))
+      }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleResendConfirmation = async () => {
+    if (!email) return
+    setResendingConfirmation(true)
+    try {
+      await authApi.resendConfirmation(email)
+      setResendSuccess(true)
+    } catch {
+      // silently ignore
+    } finally {
+      setResendingConfirmation(false)
     }
   }
 
@@ -294,7 +321,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
           emblem: familyEmblem,
         },
       })
-      setInfo(t("authScreen.info.registerSuccess"))
+      setInfo(t("authScreen.info.registerSuccessCheckEmail"))
       setMode("login")
       setError(null)
       setSubmitAttempted(false)
@@ -491,6 +518,26 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                 {error && (
                   <div className="text-sm text-destructive bg-destructive/10 p-3 rounded whitespace-pre-line">
                     {error}
+                    {emailNotConfirmed && (
+                      <div className="mt-2">
+                        {resendSuccess ? (
+                          <p className="text-emerald-600 font-medium">{t("authScreen.info.resendSuccess")}</p>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={resendingConfirmation}
+                            onClick={handleResendConfirmation}
+                            className="mt-1"
+                          >
+                            {resendingConfirmation
+                              ? t("authScreen.resendingConfirmation")
+                              : t("authScreen.resendConfirmation")}
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 {info && !error && <div className="text-sm text-emerald-600 bg-emerald-100 p-3 rounded">{info}</div>}

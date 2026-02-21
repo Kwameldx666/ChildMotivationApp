@@ -43,8 +43,8 @@ import {
   Image as ImageIcon, FileText, TrendingUp, Trophy, Target, Zap, Star, Award,
   Flame, CalendarDays, Info, Shield, Swords, Crown, Check, Users, CheckSquare, Square,
 } from "lucide-react"
-import { getTaskAnalytics, type AnalyticsData } from "@/services/analytics-service"
-import { generateMockAnalytics } from "@/services/analytics-mock"
+import type { AnalyticsData } from "@/services/analytics-service"
+import { useRealAnalytics } from "@/hooks/use-real-analytics"
 
 /* ── Shared SVG filters (glow / soft-shadow) injected once ── */
 function SvgFilters() {
@@ -129,9 +129,6 @@ function ChartTimeFilter({ value, onChange }: { value: number | null; onChange: 
   )
 }
 
-/* ══ DEV: set to true to use mock data for charts ══ */
-const USE_MOCK = false
-
 /* ── Child color palette ── */
 const CHILD_COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#3b82f6']
 
@@ -139,43 +136,20 @@ export default function AnalyticsDashboard() {
   const { t } = useI18n()
   const [currentChart, setCurrentChart] = useState(0)
   const [selectedChild, setSelectedChild] = useState("all")
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [windowDays, setWindowDays] = useState(30)
   const exportRef = useRef<HTMLDivElement | null>(null)
   const allChartsRef = useRef<HTMLDivElement | null>(null)
   const [exporting, setExporting] = useState(false)
+
+  /* ── Real analytics from tasks + orders + family (client-side) ── */
+  const { analytics, isLoading: loading, isError, error: analyticsError } = useRealAnalytics(windowDays)
+  const error = isError ? (analyticsError?.message ?? t('analyticsDashboard.loadError')) : null
 
   /* ── Export dialog state ── */
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [exportChildFilter, setExportChildFilter] = useState("all")
   const [exportChartSelection, setExportChartSelection] = useState<boolean[]>([])
   const exportTitleRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    loadAnalytics()
-  }, [windowDays])
-
-  const loadAnalytics = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      if (USE_MOCK) {
-        // Simulate small network delay
-        await new Promise(r => setTimeout(r, 400))
-        setAnalytics(generateMockAnalytics(windowDays))
-      } else {
-        const data = await getTaskAnalytics(windowDays)
-        setAnalytics(data)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('analyticsDashboard.loadError'))
-      console.error('Analytics error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const chartsConfig = [
     { id: "activityPulse", titleKey: "analytics.charts.activityPulse", descKey: "analytics.chartDescriptions.activityPulse" },
@@ -189,31 +163,30 @@ export default function AnalyticsDashboard() {
 
   /* ── Per-chart time override (null = use global) ── */
   const [chartTimeOverride, setChartTimeOverride] = useState<Record<number, number | null>>({})
-  /* Cached data for per-chart overrides */
-  const [overrideData, setOverrideData] = useState<Record<number, AnalyticsData>>({})
-  const [overrideLoading, setOverrideLoading] = useState<Record<number, boolean>>({})
 
-  const handleChartTimeChange = async (chartIdx: number, days: number | null) => {
+  /* Pre-compute analytics for possible override windows (7, 30, 90 days) */
+  const analytics7 = useRealAnalytics(7)
+  const analytics30 = useRealAnalytics(30)
+  const analytics90 = useRealAnalytics(90)
+  const overrideMap: Record<number, AnalyticsData | null> = {
+    7: analytics7.analytics,
+    30: analytics30.analytics,
+    90: analytics90.analytics,
+  }
+  const overrideLoadingMap: Record<number, boolean> = {
+    7: analytics7.isLoading,
+    30: analytics30.isLoading,
+    90: analytics90.isLoading,
+  }
+
+  const handleChartTimeChange = (chartIdx: number, days: number | null) => {
     setChartTimeOverride(prev => ({ ...prev, [chartIdx]: days }))
-    if (days && days !== windowDays) {
-      setOverrideLoading(prev => ({ ...prev, [chartIdx]: true }))
-      try {
-        if (USE_MOCK) {
-          await new Promise(r => setTimeout(r, 200))
-          setOverrideData(prev => ({ ...prev, [chartIdx]: generateMockAnalytics(days) }))
-        } else {
-          const data = await getTaskAnalytics(days)
-          setOverrideData(prev => ({ ...prev, [chartIdx]: data }))
-        }
-      } catch(e) { console.error(e) }
-      setOverrideLoading(prev => ({ ...prev, [chartIdx]: false }))
-    }
   }
 
   /* Get effective data for a chart (override or global) */
   const getChartData = (chartIdx: number): AnalyticsData | null => {
     const override = chartTimeOverride[chartIdx]
-    if (override && override !== windowDays && overrideData[chartIdx]) return overrideData[chartIdx]
+    if (override && override !== windowDays && overrideMap[override]) return overrideMap[override]
     return analytics
   }
 
@@ -248,7 +221,8 @@ export default function AnalyticsDashboard() {
   const renderChart = (index: number) => {
     const chartData = getChartData(index)
     if (!chartData) return null
-    const isOverrideLoading = overrideLoading[index]
+    const overrideDays = chartTimeOverride[index]
+    const isOverrideLoading = overrideDays ? overrideLoadingMap[overrideDays] : false
     if (isOverrideLoading) return <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
 
     const filteredChildrenStats =
@@ -1272,7 +1246,7 @@ export default function AnalyticsDashboard() {
     return (
       <div className="text-center py-12 text-destructive">
         <p>{error}</p>
-        <Button variant="outline" size="sm" className="mt-4" onClick={loadAnalytics}>
+        <Button variant="outline" size="sm" className="mt-4" onClick={() => window.location.reload()}>
           {t('common.retry') || 'Retry'}
         </Button>
       </div>

@@ -159,4 +159,24 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             SerializerOptions,
             cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> ConfirmEmailAsync(object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.ConfirmEmail,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> ResendConfirmationAsync(object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.ResendConfirmation,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

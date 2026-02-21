@@ -164,4 +164,12 @@ export const authApi = {
   async changeEmail(payload: ChangeEmailPayload) {
     await apiClient.post(`${AUTH_BASE_PATH}/change-email`, payload)
   },
+
+  async confirmEmail(userId: string, token: string) {
+    await apiClient.post(`${AUTH_BASE_PATH}/confirm-email`, { userId, token })
+  },
+
+  async resendConfirmation(email: string) {
+    await apiClient.post(`${AUTH_BASE_PATH}/resend-confirmation`, { email })
+  },
 }

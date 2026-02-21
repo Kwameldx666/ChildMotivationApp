@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2, QrCode, Loader2, Bot, Sparkles, CheckCircle2, XCircle } from "lucide-react"
+import {
+  Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2,
+  Loader2, Bot, Sparkles, CheckCircle2, Users, Palette, Shield,
+} from "lucide-react"
 import { useTheme } from "next-themes"
 import { useTranslation } from "@/i18n/provider"
 import {
@@ -20,6 +22,7 @@ import {
 import SubscriptionManager from "./subscription-manager"
 import ChildrenManagement from "@/components/children-management"
 import { useUserSettings } from "@/hooks/use-user-settings"
+import { cn } from "@/lib/utils"
 
 interface ParentSettingsProps {
   familyName?: string | null
@@ -27,10 +30,22 @@ interface ParentSettingsProps {
   familyCodeRaw?: string | null
 }
 
+/* ── Sub-tabs ── */
+const SETTINGS_TABS = [
+  { id: "family",        labelKey: "parentSettings.tabs.family",        Icon: Users },
+  { id: "notifications", labelKey: "parentSettings.tabs.notifications", Icon: Bell },
+  { id: "ai",            labelKey: "parentSettings.tabs.ai",            Icon: Bot },
+  { id: "appearance",    labelKey: "parentSettings.tabs.appearance",    Icon: Palette },
+  { id: "danger",        labelKey: "parentSettings.tabs.danger",        Icon: Shield },
+] as const
+
+type SettingsTab = typeof SETTINGS_TABS[number]["id"]
+
 export default function ParentSettings({ familyName, familyCode, familyCodeRaw }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation()
   const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
+  const [activeTab, setActiveTab] = useState<SettingsTab>("family")
 
   const [copied, setCopied] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
@@ -72,101 +87,95 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
   }
 
   return (
-    <div className="space-y-6">
-      {/* Подписка */}
-      <SubscriptionManager 
-        onUpgrade={(tier) => console.log("Upgrade to:", tier)}
-      />
+    <div className="space-y-5">
 
-      {/* Дети */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("parentDashboard.sections.children.title")}</CardTitle>
-          <CardDescription>{t("parentDashboard.sections.children.subtitle")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ChildrenManagement familyCode={familyCodeRaw} />
-        </CardContent>
-      </Card>
+      {/* ═══ Subscription (always visible at top) ═══ */}
+      <SubscriptionManager onUpgrade={(tier) => console.log("Upgrade to:", tier)} />
 
-      {/* Семья */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("family.familyInfo")}</CardTitle>
-          <CardDescription>{t("family.familyInfoDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* ═══ SUB-TAB NAVIGATION ═══ */}
+      <nav className="flex items-center gap-1 p-1 rounded-xl bg-muted/40 border border-border/30 overflow-x-auto">
+        {SETTINGS_TABS.map((tab) => {
+          const active = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap",
+                active
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/50",
+                tab.id === "danger" && active && "text-destructive",
+              )}
+            >
+              <tab.Icon className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+            </button>
+          )
+        })}
+      </nav>
+
+      {/* ═══ TAB: FAMILY ═══ */}
+      <div className={cn(activeTab === "family" ? "block" : "hidden", "space-y-4")}>
+        {/* Children management */}
+        <div className="space-y-2">
           <div>
-            <Label className="text-sm text-muted-foreground mb-2 block">{t("common.name")}</Label>
-            <div className="p-3 bg-muted rounded-lg">
-              <p className="font-semibold">{familyName || t("family.title")}</p>
-            </div>
+            <p className="text-sm font-semibold">{t("parentDashboard.sections.children.title")}</p>
+            <p className="text-xs text-muted-foreground">{t("parentDashboard.sections.children.subtitle")}</p>
           </div>
-          
+          <ChildrenManagement familyCode={familyCodeRaw} />
+        </div>
+
+        {/* Family info */}
+        <div className="space-y-3 rounded-xl border border-border/30 bg-card p-4">
+          <p className="text-sm font-semibold">{t("family.familyInfo")}</p>
+
           <div>
-            <Label htmlFor="familyCode" className="text-sm text-muted-foreground mb-2 block">
-              {t("family.inviteCode")}
-            </Label>
+            <Label className="text-xs text-muted-foreground mb-1 block">{t("common.name")}</Label>
+            <div className="p-2.5 bg-muted/50 rounded-lg text-sm font-medium">{familyName || t("family.title")}</div>
+          </div>
+
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">{t("family.inviteCode")}</Label>
             <div className="flex gap-2">
-              <Input id="familyCode" value={familyCode} disabled className="font-mono font-bold text-center" />
-              <Button onClick={handleCopyCode} variant="outline" size="sm">
-                <Copy className="w-4 h-4" />
+              <Input value={familyCode} disabled className="font-mono font-bold text-center text-sm h-9" />
+              <Button onClick={handleCopyCode} variant="outline" size="sm" className="h-9 w-9 p-0 shrink-0">
+                <Copy className="w-3.5 h-3.5" />
               </Button>
             </div>
-            {copied && <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ {t("family.codeCopied")}</p>}
+            {copied && <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ {t("family.codeCopied")}</p>}
           </div>
 
-          <div className="border-t pt-4">
-            <Label className="text-sm text-muted-foreground mb-2 block flex items-center gap-2">
-              <Link2 className="w-4 h-4" />
+          <div className="border-t border-border/30 pt-3">
+            <Label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1.5">
+              <Link2 className="w-3 h-3" />
               {t("family.inviteLink")}
             </Label>
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <Input 
-                  value={inviteLink} 
-                  readOnly 
-                  className="text-sm bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950 dark:to-purple-950 border-violet-200 dark:border-violet-800"
-                />
-                <Button onClick={handleCopyLink} variant="outline" size="sm" className="gap-2">
-                  <Copy className="w-4 h-4" />
-                  {linkCopied ? "✓" : ""}
-                </Button>
-              </div>
-              {linkCopied && <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">✓ {t("family.linkCopied")}</p>}
-              
-              <div className="flex gap-2">
-                <Button 
-                  onClick={handleShareLink} 
-                  variant="default"
-                  className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
-                >
-                  <Share2 className="w-4 h-4" />
-                  {t("family.shareLink")}
-                </Button>
-              </div>
-              
-              <p className="text-xs text-muted-foreground mt-2">
-                {t("family.shareCodeHint")}
-              </p>
+            <div className="flex gap-2 mb-2">
+              <Input value={inviteLink} readOnly className="text-xs h-9" />
+              <Button onClick={handleCopyLink} variant="outline" size="sm" className="h-9 w-9 p-0 shrink-0">
+                <Copy className="w-3.5 h-3.5" />
+              </Button>
             </div>
+            {linkCopied && <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mb-2">✓ {t("family.linkCopied")}</p>}
+            <Button onClick={handleShareLink} size="sm" className="w-full gap-2 h-9 text-xs font-semibold">
+              <Share2 className="w-3.5 h-3.5" />
+              {t("family.shareLink")}
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-2">{t("family.shareCodeHint")}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Notifications */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("notifications.title")}</CardTitle>
-          <CardDescription>{t("notifications.markAllRead")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* ═══ TAB: NOTIFICATIONS ═══ */}
+      <div className={cn(activeTab === "notifications" ? "block" : "hidden", "space-y-3")}>
+        <div className="rounded-xl border border-border/30 bg-card p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Bell className="w-4 h-4 text-muted-foreground shrink-0" />
               <div>
-                <Label className="font-medium">{t("notifications.enableNotifications")}</Label>
-                <p className="text-xs text-muted-foreground">{t("notifications.taskCompletionDesc")}</p>
+                <Label className="font-medium text-sm">{t("notifications.enableNotifications")}</Label>
+                <p className="text-[11px] text-muted-foreground">{t("notifications.taskCompletionDesc")}</p>
               </div>
             </div>
             <Switch
@@ -177,8 +186,8 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
 
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-medium">{t("notifications.soundNotifications")}</Label>
-              <p className="text-xs text-muted-foreground">{t("notifications.soundNotificationsDesc")}</p>
+              <Label className="font-medium text-sm">{t("notifications.soundNotifications")}</Label>
+              <p className="text-[11px] text-muted-foreground">{t("notifications.soundNotificationsDesc")}</p>
             </div>
             <Switch
               checked={settings.soundEnabled}
@@ -188,57 +197,42 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
           </div>
 
           {settings.notificationsEnabled && (
-            <div className="bg-muted/50 border border-border rounded-lg p-3 space-y-3">
+            <div className="border-t border-border/30 pt-3 space-y-3">
               <div>
-                <Label htmlFor="nightStart" className="text-sm text-foreground">
-                  {t("notifications.nightModeStart")}
-                </Label>
+                <Label htmlFor="nightStart" className="text-xs text-muted-foreground">{t("notifications.nightModeStart")}</Label>
                 <Input
                   id="nightStart"
                   type="time"
                   value={settings.nightModeStart}
                   onChange={(e) => handleSettingChange("nightModeStart", e.target.value)}
-                  className="text-foreground bg-background border-border"
+                  className="h-9 text-sm mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="nightEnd" className="text-sm text-foreground">
-                  {t("notifications.nightModeEnd")}
-                </Label>
+                <Label htmlFor="nightEnd" className="text-xs text-muted-foreground">{t("notifications.nightModeEnd")}</Label>
                 <Input
                   id="nightEnd"
                   type="time"
                   value={settings.nightModeEnd}
                   onChange={(e) => handleSettingChange("nightModeEnd", e.target.value)}
-                  className="text-foreground bg-background border-border"
+                  className="h-9 text-sm mt-1"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {t("notifications.nightModeHint")}
-              </p>
+              <p className="text-[10px] text-muted-foreground">{t("notifications.nightModeHint")}</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Appearance */}
-
-      {/* AI Chatbot Control */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="w-5 h-5 text-primary" />
-            {t("aiControl.title")}
-          </CardTitle>
-          <CardDescription>{t("aiControl.description")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* ═══ TAB: AI ═══ */}
+      <div className={cn(activeTab === "ai" ? "block" : "hidden", "space-y-3")}>
+        <div className="rounded-xl border border-border/30 bg-card p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-muted-foreground shrink-0" />
               <div>
-                <Label className="font-medium">{t("aiControl.enableChat")}</Label>
-                <p className="text-xs text-muted-foreground">{t("aiControl.enableChatDesc")}</p>
+                <Label className="font-medium text-sm">{t("aiControl.enableChat")}</Label>
+                <p className="text-[11px] text-muted-foreground">{t("aiControl.enableChatDesc")}</p>
               </div>
             </div>
             <Switch
@@ -250,11 +244,11 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
           {settings.aiChatEnabled && (
             <>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div>
-                    <Label className="font-medium">{t("aiControl.canCreateTasks")}</Label>
-                    <p className="text-xs text-muted-foreground">{t("aiControl.canCreateTasksDesc")}</p>
+                    <Label className="font-medium text-sm">{t("aiControl.canCreateTasks")}</Label>
+                    <p className="text-[11px] text-muted-foreground">{t("aiControl.canCreateTasksDesc")}</p>
                   </div>
                 </div>
                 <Switch
@@ -264,11 +258,11 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div>
-                    <Label className="font-medium">{t("aiControl.canCreateRewards")}</Label>
-                    <p className="text-xs text-muted-foreground">{t("aiControl.canCreateRewardsDesc")}</p>
+                    <Label className="font-medium text-sm">{t("aiControl.canCreateRewards")}</Label>
+                    <p className="text-[11px] text-muted-foreground">{t("aiControl.canCreateRewardsDesc")}</p>
                   </div>
                 </div>
                 <Switch
@@ -277,20 +271,21 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="font-medium">{t("aiControl.tone")}</Label>
-                <p className="text-xs text-muted-foreground">{t("aiControl.toneDesc")}</p>
+              <div className="border-t border-border/30 pt-3 space-y-2">
+                <Label className="font-medium text-sm">{t("aiControl.tone")}</Label>
+                <p className="text-[11px] text-muted-foreground">{t("aiControl.toneDesc")}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {(["friendly", "educational", "strict"] as const).map((tone) => (
                     <button
                       key={tone}
                       type="button"
                       onClick={() => handleSettingChange("aiTone", tone)}
-                      className={`py-2 px-3 rounded-xl border text-xs font-medium transition-all ${
+                      className={cn(
+                        "py-2 px-3 rounded-lg border text-xs font-medium transition-all",
                         settings.aiTone === tone
                           ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background text-muted-foreground hover:border-primary/40"
-                      }`}
+                          : "border-border bg-background text-muted-foreground hover:border-primary/40",
+                      )}
                     >
                       {t(`aiControl.tone_${tone}`)}
                     </button>
@@ -299,79 +294,61 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Appearance (rest) */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("settings.appearance")}</CardTitle>
-          <CardDescription>{t("settings.theme")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {theme === "dark" ? (
-                <Moon className="w-5 h-5 text-slate-400" />
-              ) : (
-                <Sun className="w-5 h-5 text-amber-500" />
-              )}
-              <div>
-                <Label className="font-medium">{t("settings.theme")}</Label>
-                <p className="text-xs text-muted-foreground">
-                  {theme === "dark" ? t("settings.themeDark") : t("settings.themeLight")}
-                </p>
-              </div>
+      {/* ═══ TAB: APPEARANCE ═══ */}
+      <div className={cn(activeTab === "appearance" ? "block" : "hidden", "space-y-3")}>
+        <div className="flex items-center justify-between rounded-xl border border-border/30 bg-card p-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+              {theme === "dark" ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="gap-2"
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun className="h-4 w-4" />
-                  {t("settings.lightThemeLabel")}
-                </>
-              ) : (
-                <>
-                  <Moon className="h-4 w-4" />
-                  {t("settings.darkThemeLabel")}
-                </>
-              )}
-            </Button>
+            <div>
+              <Label className="font-medium text-sm">{t("settings.theme")}</Label>
+              <p className="text-[11px] text-muted-foreground">
+                {theme === "dark" ? t("settings.themeDark") : t("settings.themeLight")}
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="rounded-lg gap-1.5 text-xs font-semibold"
+          >
+            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            {theme === "dark" ? t("settings.lightThemeLabel") : t("settings.darkThemeLabel")}
+          </Button>
+        </div>
+      </div>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive/30">
-        <CardHeader>
-          <CardTitle className="text-destructive">{t("settings.dangerZone")}</CardTitle>
-          <CardDescription>{t("settings.dangerDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* ═══ TAB: DANGER ═══ */}
+      <div className={cn(activeTab === "danger" ? "block" : "hidden", "space-y-3")}>
+        <div className="rounded-xl border border-destructive/20 bg-card p-4 space-y-3">
+          <div>
+            <p className="text-sm font-semibold text-destructive">{t("settings.dangerZone")}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{t("settings.dangerDescription")}</p>
+          </div>
           <Dialog>
             <DialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full border-destructive text-destructive hover:bg-destructive/5 bg-transparent"
+                size="sm"
+                className="w-full border-destructive/40 text-destructive hover:bg-destructive/5 bg-transparent gap-2 text-xs font-semibold"
               >
-                <AlertCircle className="w-4 h-4 mr-2" />
+                <AlertCircle className="w-3.5 h-3.5" />
                 {t("settings.clearAllData")}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-sm rounded-2xl">
               <DialogHeader>
-                <DialogTitle>{t("settings.clearAllDataConfirm")}</DialogTitle>
-                <DialogDescription>
-                  {t("settings.clearAllDataMessage")}
-                </DialogDescription>
+                <DialogTitle className="text-base">{t("settings.clearAllDataConfirm")}</DialogTitle>
+                <DialogDescription className="text-xs">{t("settings.clearAllDataMessage")}</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">{t("settings.whatWillBeDeleted")}</p>
-                <ul className="text-sm space-y-1 text-muted-foreground list-disc list-inside">
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">{t("settings.whatWillBeDeleted")}</p>
+                <ul className="text-xs space-y-1 text-muted-foreground list-disc list-inside">
                   <li>{t("settings.allTasksDeleted")}</li>
                   <li>{t("settings.allRewardsDeleted")}</li>
                   <li>{t("settings.allStatisticsDeleted")}</li>
@@ -379,18 +356,19 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
                 </ul>
                 <Button 
                   variant="destructive" 
-                  className="w-full"
+                  size="sm"
+                  className="w-full text-xs font-semibold"
                   onClick={clearAllData}
                   disabled={isLoading}
                 >
-                  {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isLoading && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
                   {t("settings.clearAllData")}
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

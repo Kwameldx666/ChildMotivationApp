@@ -1,8 +1,10 @@
 using AuthService.Application.Features.Authentication.Password.ChangeEmail;
 using AuthService.Application.Features.Authentication.Password.ChangePassword;
+using AuthService.Application.Features.Authentication.Password.ConfirmEmail;
 using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
 using AuthService.Application.Features.Authentication.Password.Register;
+using AuthService.Application.Features.Authentication.Password.ResendConfirmation;
 using AuthService.Application.Features.Authentication.Password.RevokeToken;
 using AuthService.Application.Features.Cache.PendingUser;
 using AuthService.Application.Features.Cache.Session.Get;
@@ -12,7 +14,9 @@ using AuthService.Persistence.Context;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace AuthService.Controllers;
 
@@ -127,4 +131,31 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
+
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmailAsync(
+        [FromBody] ConfirmEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(request.UserId, out var userId))
+            return BadRequest(new { error = "Invalid user ID" });
+
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+        var command = new ConfirmEmailCommand(userId, decodedToken);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("resend-confirmation")]
+    public async Task<IActionResult> ResendConfirmationEmailAsync(
+        [FromBody] ResendConfirmationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ResendConfirmationEmailCommand(request.Email);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
 }
+
+public record ConfirmEmailRequest(string UserId, string Token);
+public record ResendConfirmationRequest(string Email);

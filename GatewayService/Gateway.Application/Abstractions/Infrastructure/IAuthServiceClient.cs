@@ -29,4 +29,6 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> DeleteAccountAsync(Guid userId, CancellationToken cancellationToken);
     Task<HttpResponseMessage> ChangePasswordAsync(Guid userId, object request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> ChangeEmailAsync(Guid userId, object request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> ConfirmEmailAsync(object request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> ResendConfirmationAsync(object request, CancellationToken cancellationToken);
 }
