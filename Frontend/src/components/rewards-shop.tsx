@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, Package, Loader2, AlertCircle, Edit2, Trash2, Gift, Star, CheckCircle, Clock } from "lucide-react"
+import {
+  ShoppingCart, Package, Loader2, AlertCircle, Edit2, Trash2, Gift, Star,
+  CheckCircle, Clock, MoreHorizontal, Pencil, Coins, Sparkles, ArrowRight, ChevronRight
+} from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import {
   useCreateOrder,
@@ -16,6 +19,11 @@ import {
 } from "@/services/shop-queries"
 import { ProductDto } from "@/services/shop-service"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -192,144 +200,196 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
   /* ---- Render ---- */
 
   return (
-    <div className="space-y-8">
-      {/* Products */}
+    <div className="space-y-10">
+      {/* ═══════════ Products grid ═══════════ */}
       {productsQuery.isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-xl border border-border/50 p-5 animate-pulse">
-              <div className="h-5 w-2/3 bg-muted rounded-lg mb-3" />
-              <div className="h-4 w-full bg-muted rounded mb-2" />
-              <div className="h-10 w-full bg-muted rounded-xl mt-4" />
+            <div key={i} className="rounded-2xl border border-border/40 p-6 space-y-4 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-muted/60" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-3/4 bg-muted/60 rounded-lg" />
+                  <div className="h-3 w-1/2 bg-muted/40 rounded-lg" />
+                </div>
+              </div>
+              <div className="h-10 w-full bg-muted/40 rounded-xl" />
             </div>
           ))}
         </div>
       ) : productsQuery.isError ? (
-        <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800 p-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/50 dark:bg-red-950/10 dark:border-red-900/30 p-5">
           <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
           <p className="text-sm text-red-700 dark:text-red-300">{t("rewardsShop.errors.loadProducts")}</p>
         </div>
       ) : visibleProducts.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-border/50 py-12 text-center">
-          <Gift className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-          <p className="font-medium">{t("rewardsShop.empty.title")}</p>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className="rounded-2xl border-2 border-dashed border-border/40 py-16 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/20 mb-4">
+            <Gift className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <p className="font-semibold text-base">{t("rewardsShop.empty.title")}</p>
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
             {isParent ? t("rewardsShop.empty.parentHint") : t("rewardsShop.empty.childHint")}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visibleProducts.map((product: ProductDto) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {visibleProducts.map((product: ProductDto, index: number) => {
             const outOfStock = product.stock === 0
 
             return (
               <div
                 key={product.id}
                 className={cn(
-                  "rounded-xl border p-5 transition-shadow hover:shadow-md",
-                  outOfStock ? "opacity-50 border-border/30" : "border-border/50",
+                  "group relative flex flex-col rounded-2xl border bg-card transition-all duration-300",
+                  "hover:shadow-lg hover:-translate-y-0.5",
+                  outOfStock
+                    ? "opacity-60 border-border/30"
+                    : "border-border/40 hover:border-border/60",
                 )}
               >
-                {/* Name & hidden badge */}
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-semibold text-base leading-snug line-clamp-2">{product.name}</h3>
-                  {!product.isActive && isParent && (
-                    <Badge variant="secondary" className="text-[10px] shrink-0">
-                      {t("rewardsShop.stock.hidden")}
-                    </Badge>
+                {/* Parent kebab menu (top-right) */}
+                {isParent && (
+                  <div className="absolute right-3 top-3 z-10">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-muted/60 transition-colors opacity-0 group-hover:opacity-100">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-[150px]">
+                        <DropdownMenuItem
+                          onClick={() => setSelectedProduct(product)}
+                          className="gap-2 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4 text-muted-foreground" />
+                          {t("rewardsShop.actions.edit")}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteProduct(product)}
+                          disabled={pendingDeletionId === product.id}
+                          className="gap-2 cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          {t("common.delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+
+                {/* Card body */}
+                <div className="flex flex-col flex-1 p-5 pb-4">
+                  {/* Header: Name + badge */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <h3 className="font-semibold text-[15px] leading-snug line-clamp-2 flex-1 pr-6">
+                      {product.name}
+                    </h3>
+                    {!product.isActive && isParent && (
+                      <Badge variant="secondary" className="text-[10px] shrink-0 rounded-full">
+                        {t("rewardsShop.stock.hidden")}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {product.description ? (
+                    <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-2 mb-auto">
+                      {product.description}
+                    </p>
+                  ) : (
+                    <p className="text-[13px] text-muted-foreground/50 italic mb-auto">
+                      {t("rewardsShop.fallbackDescription")}
+                    </p>
                   )}
                 </div>
 
-                {/* Description */}
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4 min-h-[2.5rem]">
-                  {product.description || t("rewardsShop.fallbackDescription")}
-                </p>
-
-                {/* Price row */}
-                <div className="flex items-center justify-between mb-4">
+                {/* Footer: Price + action */}
+                <div className={cn(
+                  "flex items-center justify-between gap-3 border-t px-5 py-3.5",
+                  "border-border/30 bg-muted/20"
+                )}>
+                  {/* Price */}
                   <div className="flex items-center gap-1.5">
-                    <Star className="h-5 w-5 text-amber-500 fill-amber-400" />
-                    <span className="text-2xl font-bold">{numberFormatter.format(product.price)}</span>
-                    <span className="text-xs text-muted-foreground">{t("rewardsShop.pointsShort")}</span>
+                    <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-amber-100/80 dark:bg-amber-900/30">
+                      <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 fill-amber-500 dark:fill-amber-500" />
+                    </div>
+                    <span className="text-lg font-bold tabular-nums">{numberFormatter.format(product.price)}</span>
+                    <span className="text-[11px] text-muted-foreground">{t("rewardsShop.pointsShort")}</span>
                   </div>
-                  <span className={cn("text-xs", outOfStock ? "text-red-500" : "text-muted-foreground")}>
-                    {outOfStock
-                      ? t("rewardsShop.stock.outOfStock")
-                      : t("rewardsShop.stock.inStock", { count: product.stock })}
-                  </span>
-                </div>
 
-                {/* Actions */}
-                {userType === "child" ? (
-                  <Button
-                    className="w-full rounded-xl h-10 gap-2"
-                    onClick={() => handlePurchase(product)}
-                    disabled={createOrder.isPending || outOfStock}
-                  >
-                    {createOrder.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ShoppingCart className="h-4 w-4" />
-                    )}
-                    {outOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")}
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
+                  {/* Stock or Action */}
+                  {userType === "child" ? (
                     <Button
-                      variant="outline"
-                      className="flex-1 rounded-xl h-10 gap-1.5 text-sm"
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                      {t("rewardsShop.actions.edit")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="rounded-xl h-10 px-3 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                      onClick={() => handleDeleteProduct(product)}
-                      disabled={pendingDeletionId === product.id}
-                    >
-                      {pendingDeletionId === product.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-3.5 w-3.5" />
+                      size="sm"
+                      className={cn(
+                        "h-9 rounded-xl px-4 gap-1.5 text-sm font-medium text-white transition-all duration-200",
+                        outOfStock
+                          ? "bg-muted text-muted-foreground pointer-events-none"
+                          : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-sm shadow-amber-500/20 hover:shadow-md hover:shadow-amber-500/25",
                       )}
+                      onClick={() => handlePurchase(product)}
+                      disabled={createOrder.isPending || outOfStock}
+                    >
+                      {createOrder.isPending ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : outOfStock ? null : (
+                        <ShoppingCart className="h-3.5 w-3.5" />
+                      )}
+                      {outOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")}
                     </Button>
-                  </div>
-                )}
+                  ) : (
+                    <span className={cn(
+                      "text-xs font-medium tabular-nums",
+                      outOfStock ? "text-red-500" : "text-muted-foreground"
+                    )}>
+                      {outOfStock
+                        ? t("rewardsShop.stock.outOfStock")
+                        : t("rewardsShop.stock.inStock", { count: product.stock })}
+                    </span>
+                  )}
+                </div>
               </div>
             )
           })}
         </div>
       )}
 
-      {/* Orders section — child only */}
+      {/* ═══════════ Orders ═══════════ */}
       {userType === "child" && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
-            <h2 className="text-xl font-semibold">{t("rewardsShop.orders.title")}</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{t("rewardsShop.orders.subtitle")}</p>
+            <h2 className="text-lg font-semibold">{t("rewardsShop.orders.title")}</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">{t("rewardsShop.orders.subtitle")}</p>
           </div>
 
           {ordersQuery.isLoading ? (
             <div className="space-y-3">
               {[1, 2].map((i) => (
-                <div key={i} className="rounded-xl border p-4 animate-pulse">
-                  <div className="h-4 w-40 bg-muted rounded mb-2" />
-                  <div className="h-12 w-full bg-muted rounded" />
+                <div key={i} className="rounded-2xl border border-border/40 p-5 animate-pulse space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-muted/60" />
+                    <div className="h-4 w-32 bg-muted/60 rounded-lg" />
+                    <div className="flex-1" />
+                    <div className="h-5 w-20 bg-muted/40 rounded-full" />
+                  </div>
+                  <div className="h-10 w-full bg-muted/30 rounded-xl" />
                 </div>
               ))}
             </div>
           ) : ordersQuery.isError ? (
-            <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800 p-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/50 dark:bg-red-950/10 dark:border-red-900/30 p-5">
               <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
               <p className="text-sm text-red-700 dark:text-red-300">{t("rewardsShop.errors.loadOrders")}</p>
             </div>
           ) : !ordersQuery.data || ordersQuery.data.length === 0 ? (
-            <div className="rounded-xl border-2 border-dashed border-border/50 py-10 text-center">
-              <Package className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="font-medium">{t("rewardsShop.orders.emptyTitle")}</p>
-              <p className="text-sm text-muted-foreground mt-1">{t("rewardsShop.orders.emptySubtitle")}</p>
+            <div className="rounded-2xl border-2 border-dashed border-border/40 py-12 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/40 mb-3">
+                <Package className="h-5 w-5 text-muted-foreground/50" />
+              </div>
+              <p className="font-medium text-sm">{t("rewardsShop.orders.emptyTitle")}</p>
+              <p className="text-[13px] text-muted-foreground mt-1">{t("rewardsShop.orders.emptySubtitle")}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -341,123 +401,148 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                   statusLabels[statusKey as keyof typeof statusLabels] ?? t("rewardsShop.status.unknown")
 
                 return (
-                  <div key={order.id} className="rounded-xl border border-border/50 p-4">
+                  <div
+                    key={order.id}
+                    className="rounded-2xl border border-border/40 overflow-hidden transition-shadow hover:shadow-sm"
+                  >
                     {/* Order header */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 px-5 py-3.5 bg-muted/20">
+                      <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-background border border-border/40">
                         <Package className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
                         <span className="text-sm font-medium">
                           {t("rewardsShop.orders.orderNumber", { id: order.id.slice(0, 8) })}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground ml-2">
                           {dateTimeFormatter.format(new Date(order.createdAt))}
                         </span>
                       </div>
-                      <div className={cn("flex items-center gap-1 text-xs font-medium", statusStyle.color)}>
-                        <StatusIcon className="h-3.5 w-3.5" />
+                      <div className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                        statusStyle.color,
+                        "bg-current/5"
+                      )}>
+                        <StatusIcon className="h-3 w-3" />
                         {label}
                       </div>
                     </div>
 
                     {/* Items */}
-                    <div className="space-y-1.5">
+                    <div className="px-5 py-3 space-y-1.5">
                       {order.items.map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center justify-between text-sm rounded-lg bg-muted/30 px-3 py-2"
+                          className="flex items-center justify-between text-sm py-1.5"
                         >
-                          <span>{item.productName}</span>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
-                            <span className="font-medium">{numberFormatter.format(item.lineTotal)}</span>
+                          <span className="text-foreground/80">{item.productName}</span>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Star className="h-3 w-3 text-amber-500 fill-amber-400" />
+                            <span className="font-medium text-foreground tabular-nums">
+                              {numberFormatter.format(item.lineTotal)}
+                            </span>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    {/* Total */}
-                    <div className="flex items-center justify-end gap-1.5 mt-3 text-sm">
-                      <span className="text-muted-foreground">{t("rewardsShop.orderTotal")}:</span>
-                      <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
-                      <span className="font-bold text-lg">{numberFormatter.format(order.totalAmount)}</span>
+                    {/* Total + action */}
+                    <div className="flex items-center justify-between px-5 py-3 border-t border-border/30 bg-muted/10">
+                      <span className="text-xs text-muted-foreground">{t("rewardsShop.orderTotal")}</span>
+                      <div className="flex items-center gap-1.5">
+                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
+                        <span className="font-bold tabular-nums">{numberFormatter.format(order.totalAmount)}</span>
+                      </div>
                     </div>
 
                     {/* Delivery notes */}
                     {order.deliveryNotes && (
-                      <div className="mt-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 p-3 text-sm">
-                        <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-0.5">
+                      <div className="mx-5 mb-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/15 px-4 py-2.5 text-sm">
+                        <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400 mb-0.5">
                           {t("rewardsShop.orders.parentNote")}
                         </p>
-                        <p className="text-muted-foreground">{order.deliveryNotes}</p>
+                        <p className="text-[13px] text-muted-foreground">{order.deliveryNotes}</p>
                       </div>
                     )}
 
                     {/* Parent: confirm delivery */}
                     {isParent && statusKey === "1" && (
-                      <Button
-                        size="sm"
-                        className="w-full mt-3 rounded-xl gap-2"
-                        onClick={async () => {
-                          try {
-                            await markAsDelivered.mutateAsync({
-                              id: order.id,
-                              payload: { deliveredByUserId: "parent-user-id", notes: "Награда выдана" },
-                            })
-                            toast({
-                              title: t("rewardsShop.toasts.success"),
-                              description: t("rewardsShop.toasts.deliveryConfirmed"),
-                            })
-                          } catch {
-                            toast({
-                              title: t("common.error"),
-                              description: t("rewardsShop.toasts.deliveryFailed"),
-                              variant: "destructive",
-                            })
-                          }
-                        }}
-                        disabled={markAsDelivered.isPending}
-                      >
-                        {markAsDelivered.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Gift className="h-4 w-4" />
-                        )}
-                        {t("rewardsShop.actions.confirmDelivery")}
-                      </Button>
+                      <div className="px-5 pb-4">
+                        <Button
+                          size="sm"
+                          className={cn(
+                            "w-full h-10 rounded-xl gap-2 text-sm font-medium text-white",
+                            "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700",
+                            "shadow-sm shadow-emerald-500/20"
+                          )}
+                          onClick={async () => {
+                            try {
+                              await markAsDelivered.mutateAsync({
+                                id: order.id,
+                                payload: { deliveredByUserId: "parent-user-id", notes: "Награда выдана" },
+                              })
+                              toast({
+                                title: t("rewardsShop.toasts.success"),
+                                description: t("rewardsShop.toasts.deliveryConfirmed"),
+                              })
+                            } catch {
+                              toast({
+                                title: t("common.error"),
+                                description: t("rewardsShop.toasts.deliveryFailed"),
+                                variant: "destructive",
+                              })
+                            }
+                          }}
+                          disabled={markAsDelivered.isPending}
+                        >
+                          {markAsDelivered.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Gift className="h-4 w-4" />
+                          )}
+                          {t("rewardsShop.actions.confirmDelivery")}
+                        </Button>
+                      </div>
                     )}
 
                     {/* Child: confirm receipt */}
                     {!isParent && statusKey === "3" && (
-                      <Button
-                        size="sm"
-                        className="w-full mt-3 rounded-xl gap-2"
-                        onClick={async () => {
-                          try {
-                            await confirmReceived.mutateAsync({
-                              id: order.id,
-                              payload: { confirmedByUserId: "child-user-id" },
-                            })
-                            toast({
-                              title: t("rewardsShop.toasts.success"),
-                              description: t("rewardsShop.toasts.receiptConfirmed"),
-                            })
-                          } catch {
-                            toast({
-                              title: t("common.error"),
-                              description: t("rewardsShop.toasts.receiptFailed"),
-                              variant: "destructive",
-                            })
-                          }
-                        }}
-                        disabled={confirmReceived.isPending}
-                      >
-                        {confirmReceived.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <CheckCircle className="h-4 w-4" />
-                        )}
-                        {t("rewardsShop.actions.confirmReceipt")}
-                      </Button>
+                      <div className="px-5 pb-4">
+                        <Button
+                          size="sm"
+                          className={cn(
+                            "w-full h-10 rounded-xl gap-2 text-sm font-medium text-white",
+                            "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700",
+                            "shadow-sm shadow-violet-500/20"
+                          )}
+                          onClick={async () => {
+                            try {
+                              await confirmReceived.mutateAsync({
+                                id: order.id,
+                                payload: { confirmedByUserId: "child-user-id" },
+                              })
+                              toast({
+                                title: t("rewardsShop.toasts.success"),
+                                description: t("rewardsShop.toasts.receiptConfirmed"),
+                              })
+                            } catch {
+                              toast({
+                                title: t("common.error"),
+                                description: t("rewardsShop.toasts.receiptFailed"),
+                                variant: "destructive",
+                              })
+                            }
+                          }}
+                          disabled={confirmReceived.isPending}
+                        >
+                          {confirmReceived.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4" />
+                          )}
+                          {t("rewardsShop.actions.confirmReceipt")}
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )
@@ -467,21 +552,23 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
         </div>
       )}
 
-      {/* Edit Dialog */}
+      {/* ═══════════ Edit Dialog ═══════════ */}
       <Dialog
         open={Boolean(selectedProduct)}
         onOpenChange={(open) => (!open ? setSelectedProduct(null) : undefined)}
       >
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("rewardsShop.edit.title")}</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-md rounded-2xl p-0 overflow-hidden">
+          <div className="px-6 pt-6 pb-2">
+            <DialogHeader>
+              <DialogTitle className="text-base">{t("rewardsShop.edit.title")}</DialogTitle>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4 py-2">
+          <div className="space-y-4 px-6 py-3">
             <div>
-              <Label className="text-sm">{t("rewardsShop.edit.name")}</Label>
+              <Label className="text-[13px] text-muted-foreground">{t("rewardsShop.edit.name")}</Label>
               <Input
-                className="mt-1.5 rounded-xl h-11"
+                className="mt-1.5 rounded-xl h-11 border-border/50 focus-visible:ring-primary/20"
                 placeholder={t("rewardsShop.edit.namePlaceholder")}
                 value={productForm.name}
                 onChange={(e) => setProductForm((p) => ({ ...p, name: e.target.value }))}
@@ -490,9 +577,9 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
             </div>
 
             <div>
-              <Label className="text-sm">{t("rewardsShop.edit.description")}</Label>
+              <Label className="text-[13px] text-muted-foreground">{t("rewardsShop.edit.description")}</Label>
               <Textarea
-                className="mt-1.5 rounded-xl resize-none"
+                className="mt-1.5 rounded-xl resize-none border-border/50 focus-visible:ring-primary/20"
                 rows={3}
                 placeholder={t("rewardsShop.edit.descriptionPlaceholder")}
                 value={productForm.description}
@@ -503,25 +590,25 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 text-amber-500" />
+                <Label className="text-[13px] text-muted-foreground flex items-center gap-1.5">
+                  <Star className="h-3 w-3 text-amber-500" />
                   {t("rewardsShop.edit.price")}
                 </Label>
                 <Input
                   type="number"
                   min="0"
-                  className="mt-1.5 rounded-xl h-11"
+                  className="mt-1.5 rounded-xl h-11 border-border/50 focus-visible:ring-primary/20"
                   value={productForm.price}
                   onChange={(e) => setProductForm((p) => ({ ...p, price: e.target.value }))}
                   disabled={updateProduct.isPending}
                 />
               </div>
               <div>
-                <Label className="text-sm">{t("rewardsShop.edit.stock")}</Label>
+                <Label className="text-[13px] text-muted-foreground">{t("rewardsShop.edit.stock")}</Label>
                 <Input
                   type="number"
                   min="0"
-                  className="mt-1.5 rounded-xl h-11"
+                  className="mt-1.5 rounded-xl h-11 border-border/50 focus-visible:ring-primary/20"
                   value={productForm.stock}
                   onChange={(e) => setProductForm((p) => ({ ...p, stock: e.target.value }))}
                   disabled={updateProduct.isPending}
@@ -529,10 +616,10 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-xl bg-muted/30 p-3">
+            <div className="flex items-center justify-between rounded-xl border border-border/40 p-3.5">
               <div>
                 <p className="text-sm font-medium">{t("rewardsShop.edit.activeTitle")}</p>
-                <p className="text-xs text-muted-foreground">{t("rewardsShop.edit.activeHint")}</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">{t("rewardsShop.edit.activeHint")}</p>
               </div>
               <Switch
                 checked={productForm.isActive}
@@ -542,9 +629,9 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
             </div>
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 px-6 pb-6 pt-2">
             <Button
-              variant="outline"
+              variant="ghost"
               className="flex-1 rounded-xl h-11"
               onClick={() => setSelectedProduct(null)}
               disabled={updateProduct.isPending}
@@ -552,7 +639,11 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
               {t("common.cancel")}
             </Button>
             <Button
-              className="flex-1 rounded-xl h-11 gap-2"
+              className={cn(
+                "flex-1 rounded-xl h-11 gap-2 font-medium text-white",
+                "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80",
+                "shadow-sm shadow-primary/20"
+              )}
               onClick={handleSaveProduct}
               disabled={updateProduct.isPending}
             >

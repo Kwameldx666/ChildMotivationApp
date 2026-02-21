@@ -16,6 +16,7 @@ import {
 	FileText,
 	Film,
 	Flame,
+	LayoutGrid,
 	Pencil,
 	Search,
 	Sparkles,
@@ -308,7 +309,8 @@ export default function TasksList({ userType }: TasksListProps) {
 	const [activeFilter, setActiveFilter] = useState<TaskStatus | "all">("all")
 	const [searchQuery, setSearchQuery] = useState("")
 	const [currentPage, setCurrentPage] = useState(1)
-	const pageSize = 10
+	const PAGE_SIZE_OPTIONS = [5, 10, 20, 50] as const
+	const [pageSize, setPageSize] = useState<number>(10)
 
 	const filteredTasks: DecoratedTask[] = useMemo(() => {
 		let result = activeFilter === "all" ? decoratedTasks : decoratedTasks.filter((task) => task.status === activeFilter)
@@ -527,25 +529,49 @@ export default function TasksList({ userType }: TasksListProps) {
 						})}
 					</div>
 
-					{/* Search */}
-					<div className="relative">
-						<Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
-						<input
-							type="text"
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							placeholder={t("tasksList.searchPlaceholder")}
-							className="h-9 w-full rounded-xl border-0 bg-background/80 pl-9 pr-9 text-xs text-foreground shadow-inner placeholder:text-muted-foreground/40 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-						/>
-						{searchQuery && (
-							<button
-								type="button"
-								onClick={() => setSearchQuery("")}
-								className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-all"
-							>
-								<X className="h-3.5 w-3.5" />
-							</button>
-						)}
+					{/* Search + Per-page */}
+					<div className="flex items-center gap-2">
+						<div className="relative flex-1">
+							<Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
+							<input
+								type="text"
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								placeholder={t("tasksList.searchPlaceholder")}
+								className="h-9 w-full rounded-xl border-0 bg-background/80 pl-9 pr-9 text-xs text-foreground shadow-inner placeholder:text-muted-foreground/40 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+							/>
+							{searchQuery && (
+								<button
+									type="button"
+									onClick={() => setSearchQuery("")}
+									className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground/50 hover:bg-muted hover:text-foreground transition-all"
+								>
+									<X className="h-3.5 w-3.5" />
+								</button>
+							)}
+						</div>
+
+						{/* Per-page selector */}
+						<div className="flex items-center gap-1.5 shrink-0">
+							<LayoutGrid className="h-3.5 w-3.5 text-muted-foreground/60" />
+							<div className="flex items-center rounded-lg bg-background/80 shadow-inner">
+								{PAGE_SIZE_OPTIONS.map((size) => (
+									<button
+										key={size}
+										type="button"
+										onClick={() => setPageSize(size)}
+										className={cn(
+											"h-8 min-w-[2rem] px-2 text-[11px] font-semibold tabular-nums rounded-lg transition-all duration-200",
+											pageSize === size
+												? "bg-primary text-primary-foreground shadow-sm"
+												: "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+										)}
+									>
+										{size}
+									</button>
+								))}
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -573,42 +599,56 @@ export default function TasksList({ userType }: TasksListProps) {
 							))}
 						</div>
 
-						{/* Pagination */}
-						{totalPages > 1 && (
-							<div className="flex items-center justify-center gap-1 pt-4">
-								<Button
-									variant="ghost"
-									size="icon"
-									className="h-9 w-9 rounded-xl"
-									onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-									disabled={currentPage === 1}
-								>
-									<ChevronLeft className="h-4 w-4" />
-								</Button>
-								{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-									<button
-										key={page}
-										type="button"
-										onClick={() => setCurrentPage(page)}
-										className={cn(
-											"h-9 w-9 rounded-xl text-xs font-semibold transition-all duration-200",
-											currentPage === page
-												? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
-												: "text-muted-foreground hover:bg-muted hover:scale-105",
-										)}
-									>
-										{page}
-									</button>
-								))}
-								<Button
-									variant="ghost"
-									size="icon"
-									className="h-9 w-9 rounded-xl"
-									onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-									disabled={currentPage === totalPages}
-								>
-									<ChevronRight className="h-4 w-4" />
-								</Button>
+						{/* Pagination + info */}
+						{(totalPages > 1 || filteredTasks.length > 0) && (
+							<div className="flex items-center justify-between pt-4">
+								{/* Left: showing X of Y */}
+								<span className="text-xs text-muted-foreground tabular-nums">
+									{Math.min((currentPage - 1) * pageSize + 1, filteredTasks.length)}–{Math.min(currentPage * pageSize, filteredTasks.length)}{" "}
+									{t("tasksList.of")} {filteredTasks.length} {t("tasksList.tasks")}
+								</span>
+
+								{/* Center: page buttons */}
+								{totalPages > 1 && (
+									<div className="flex items-center gap-1">
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-9 w-9 rounded-xl"
+											onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+											disabled={currentPage === 1}
+										>
+											<ChevronLeft className="h-4 w-4" />
+										</Button>
+										{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+											<button
+												key={page}
+												type="button"
+												onClick={() => setCurrentPage(page)}
+												className={cn(
+													"h-9 w-9 rounded-xl text-xs font-semibold transition-all duration-200",
+													currentPage === page
+														? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+														: "text-muted-foreground hover:bg-muted hover:scale-105",
+												)}
+											>
+												{page}
+											</button>
+										))}
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-9 w-9 rounded-xl"
+											onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+											disabled={currentPage === totalPages}
+										>
+											<ChevronRight className="h-4 w-4" />
+										</Button>
+									</div>
+								)}
+
+								{/* Right: spacer for alignment when single page */}
+								{totalPages <= 1 && <div />}
 							</div>
 						)}
 					</>

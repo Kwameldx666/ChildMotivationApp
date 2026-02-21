@@ -4,10 +4,18 @@ import type { LucideIcon } from "lucide-react"
 import {
   Edit, Eye, Upload, CheckCircle2, AlertCircle, FileCheck, BookOpen,
   Zap, Trophy, ZoomIn, Clock, CalendarDays, Camera, Video, FileText,
-  Trash2, Sparkles, ChevronRight, Shield, Star
+  Trash2, Sparkles, ChevronRight, Shield, Star, MoreHorizontal, X, Pencil
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { tasksService } from "@/services/tasks-service"
@@ -298,119 +306,154 @@ export default function TaskRow({
 
       {/* ───── Footer: Action bar ───── */}
       <div className={cn(
-        "flex flex-wrap items-center gap-2 border-t px-5 py-3",
+        "flex items-center gap-3 border-t px-5 py-3",
         "border-slate-100 dark:border-slate-800/60",
         "bg-slate-50/50 dark:bg-slate-900/20"
       )}>
-        {/* ─ Utility actions (left) ─ */}
-        {evidenceReady && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30 rounded-lg"
-            onClick={() => onViewEvidence(task)} 
-            disabled={downloadLoading}
-          >
-            <Eye className="h-3.5 w-3.5" />
-            {t("taskRow.viewEvidence")}
-          </Button>
-        )}
+        {/* ─ Left: Evidence actions ─ */}
+        <div className="flex items-center gap-1.5">
+          {evidenceReady && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30"
+                  onClick={() => onViewEvidence(task)}
+                  disabled={downloadLoading}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {t("taskRow.viewEvidence")}
+              </TooltipContent>
+            </Tooltip>
+          )}
 
-        {userType === "child" && requiresEvidence && !task.completed && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 gap-1.5 text-xs font-medium rounded-lg"
-            onClick={() => onUploadEvidence(task)}
-          >
-            <Upload className="h-3.5 w-3.5" />
-            {evidenceReady ? t("taskRow.changeEvidence") : t("taskRow.submitEvidence")}
-          </Button>
-        )}
-
-        {userType === "parent" && !task.completed && (
-          <>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 gap-1.5 text-xs font-medium rounded-lg"
-              onClick={() => onEdit(task)}
-              disabled={updateLoading}
-            >
-              <Edit className="h-3.5 w-3.5" />
-              {t("taskRow.edit")}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 gap-1.5 text-xs font-medium text-red-500 hover:text-red-600 hover:bg-red-100/50 dark:text-red-400 dark:hover:bg-red-900/30 rounded-lg"
-              onClick={() => onDelete(task.id)}
-              disabled={deleteLoading}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              {t("taskRow.delete")}
-            </Button>
-          </>
-        )}
+          {userType === "child" && requiresEvidence && !task.completed && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg"
+                  onClick={() => onUploadEvidence(task)}
+                >
+                  <Upload className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {evidenceReady ? t("taskRow.changeEvidence") : t("taskRow.submitEvidence")}
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
 
         {/* ─ Spacer ─ */}
         <div className="flex-1" />
 
-        {/* ─ Primary actions (right) ─ */}
-        {!task.completed && userType === "child" && (
-          <Button 
-            size="sm" 
-            className={cn(
-              "h-9 gap-2 rounded-xl px-5 text-sm font-semibold text-white",
-              "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700",
-              "shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/30",
-              "transition-all duration-200"
-            )}
-            onClick={() => onConfirm(task.id)} 
-            disabled={confirmLoading}
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            {t("taskRow.complete")}
-          </Button>
-        )}
+        {/* ─ Right: Actions ─ */}
+        <div className="flex items-center gap-2">
+          {/* ─ Parent: context menu for Edit / Delete ─ */}
+          {userType === "parent" && !task.completed && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[160px]">
+                <DropdownMenuItem
+                  onClick={() => onEdit(task)}
+                  disabled={updateLoading}
+                  className="gap-2 cursor-pointer"
+                >
+                  <Pencil className="h-4 w-4 text-muted-foreground" />
+                  {t("taskRow.edit")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onDelete(task.id)}
+                  disabled={deleteLoading}
+                  className="gap-2 cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t("taskRow.delete")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-        {!task.completed && userType === "parent" && (
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={cn(
-                "h-9 rounded-xl px-4 text-sm font-medium",
-                "border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300",
-                "dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
-              )}
-              onClick={() => onReject(task)}
-            >
-              {t("taskRow.reject")}
-            </Button>
-            <Button 
-              size="sm" 
+          {/* ─ Primary actions ─ */}
+          {!task.completed && userType === "child" && (
+            <Button
+              size="sm"
               className={cn(
                 "h-9 gap-2 rounded-xl px-5 text-sm font-semibold text-white",
                 "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700",
                 "shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/30",
                 "transition-all duration-200"
               )}
-              onClick={() => onConfirm(task.id)} 
+              onClick={() => onConfirm(task.id)}
               disabled={confirmLoading}
             >
               <CheckCircle2 className="h-4 w-4" />
-              {t("taskRow.approve")}
+              {t("taskRow.complete")}
             </Button>
-          </div>
-        )}
+          )}
 
-        {task.completed && (
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-            <CheckCircle2 className="h-4 w-4" />
-            {t("taskRow.completed")}
-          </div>
-        )}
+          {!task.completed && userType === "parent" && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "h-9 w-9 p-0 rounded-xl",
+                      "text-red-500 hover:text-white hover:bg-red-500",
+                      "dark:text-red-400 dark:hover:text-white dark:hover:bg-red-600",
+                      "border border-red-200 dark:border-red-800/60",
+                      "transition-all duration-200"
+                    )}
+                    onClick={() => onReject(task)}
+                  >
+                    <X className="h-4.5 w-4.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {t("taskRow.reject")}
+                </TooltipContent>
+              </Tooltip>
+              <Button
+                size="sm"
+                className={cn(
+                  "h-9 gap-2 rounded-xl px-5 text-sm font-semibold text-white",
+                  "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700",
+                  "shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/30",
+                  "transition-all duration-200"
+                )}
+                onClick={() => onConfirm(task.id)}
+                disabled={confirmLoading}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {t("taskRow.approve")}
+              </Button>
+            </>
+          )}
+
+          {task.completed && (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+              <CheckCircle2 className="h-4 w-4" />
+              {t("taskRow.completed")}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
