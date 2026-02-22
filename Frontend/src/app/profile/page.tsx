@@ -15,11 +15,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   ArrowLeft, Camera, ChevronRight, Edit3, LogOut,
-  Save, Shield, Trash2, X, Check, AlertTriangle, Sparkles,
-  Lock, Mail, Eye, EyeOff,
+  Save, Shield, Trash2, Check, AlertTriangle, Sparkles,
+  Lock, Mail, Eye, EyeOff, User, Heart,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { cn } from "@/lib/utils"
 
 type Section = "main" | "edit" | "account"
 
@@ -205,108 +206,129 @@ export default function ProfilePage() {
   const initials = `${(profile.name?.[0] || "").toUpperCase()}${(profile.lastName?.[0] || "").toUpperCase()}` || "?"
   const isChild = profile.role === "child"
   const roleLabel = isChild ? (t("common.child") || "Child") : (t("common.parent") || "Parent")
-  const roleEmoji = isChild ? "🌟" : "👑"
+
+  // ─── Shared header ───
+  const Header = ({ title, onBack }: { title: string; onBack: () => void; right?: React.ReactNode }) => (
+    <header className="flex items-center gap-3 px-4 py-3 sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full h-9 w-9 shrink-0">
+        <ArrowLeft className="h-4.5 w-4.5" />
+      </Button>
+      <span className="text-[15px] font-semibold flex-1">{title}</span>
+    </header>
+  )
+
+  // ─── Shared avatar renderer ───
+  const Avatar = ({ size = "lg", clickable = false }: { size?: "sm" | "lg"; clickable?: boolean }) => {
+    const sz = size === "lg" ? "w-[88px] h-[88px]" : "w-16 h-16"
+    const textSz = size === "lg" ? "text-4xl" : "text-2xl"
+    const initialSz = size === "lg" ? "text-xl" : "text-sm"
+    return (
+      <div className="relative group">
+        <div
+          className={cn(
+            sz, "rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-2 ring-primary/15 ring-offset-2 ring-offset-background shadow-lg transition-all duration-300",
+            clickable && "cursor-pointer group-hover:ring-primary/40 group-hover:shadow-xl group-hover:scale-[1.03]"
+          )}
+          onClick={clickable ? handleAvatarPick : undefined}
+        >
+          {isUploading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+          ) : isImage ? (
+            <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
+          ) : avatarDisplay ? (
+            <span className={cn(textSz, "select-none")}>{avatarDisplay}</span>
+          ) : (
+            <span className={cn(initialSz, "font-bold text-muted-foreground")}>{initials}</span>
+          )}
+        </div>
+        {clickable && (
+          <button
+            onClick={handleAvatarPick}
+            className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+    )
+  }
 
   /* ═══════════ MAIN ═══════════ */
   if (section === "main") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-primary/8 via-background to-background flex flex-col">
-        <header className="flex items-center justify-between px-4 py-3 sticky top-0 z-10 bg-background/60 backdrop-blur-md">
-          <Button variant="ghost" size="icon" onClick={goBack} className="rounded-full">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="text-base font-semibold">{t("profilePage.title")}</span>
-          <div className="w-9" />
-        </header>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header title={t("profilePage.title")} onBack={goBack} />
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-        <div className="flex-1 overflow-auto pb-8">
-          <div className="max-w-md mx-auto px-5 space-y-5">
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-md mx-auto px-4 py-6 space-y-5">
 
-            {/* Hero card */}
-            <div className="relative rounded-3xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/10 p-6 pt-8 flex flex-col items-center gap-4 overflow-hidden shadow-lg shadow-primary/5">
-              {/* Decorative blobs */}
-              <div className="absolute -top-12 -left-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
-              <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
-              <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/80 backdrop-blur-sm border border-primary/15 text-xs font-medium text-primary shadow-sm">
-                <span>{roleEmoji}</span> {roleLabel}
+            {/* ── Profile card ── */}
+            <div className="relative rounded-2xl bg-card border shadow-sm p-6 flex flex-col items-center gap-3 overflow-hidden">
+              {/* Subtle gradient accent */}
+              <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-primary/6 to-transparent pointer-events-none" />
+
+              <div className="relative z-[1]">
+                <Avatar size="lg" clickable />
               </div>
-              <div className="relative">
-                <div
-                  className="w-24 h-24 rounded-full ring-[3px] ring-primary/25 ring-offset-[3px] ring-offset-background overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:ring-primary/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-primary/10"
-                  onClick={handleAvatarPick}
-                >
-                  {isUploading ? (
-                    <div className="animate-spin rounded-full h-7 w-7 border-2 border-primary border-t-transparent" />
-                  ) : isImage ? (
-                    <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
-                  ) : avatarDisplay ? (
-                    <span className="text-4xl select-none">{avatarDisplay}</span>
-                  ) : (
-                    <span className="text-lg font-bold text-muted-foreground">{initials}</span>
-                  )}
-                </div>
-                <button
-                  onClick={handleAvatarPick}
-                  className="absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 transition-transform"
-                >
-                  <Camera className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-              <div className="text-center space-y-1">
-                <h2 className="text-xl font-bold leading-tight">{profile.name} {profile.lastName}</h2>
+
+              <div className="text-center space-y-0.5 relative z-[1]">
+                <h2 className="text-lg font-semibold">{profile.name} {profile.lastName}</h2>
                 <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
 
-              {/* Mini stats row */}
-              <div className="flex gap-3 w-full mt-1">
+              {/* Role & family pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 text-primary text-xs font-medium">
+                  <Heart className="h-3 w-3" /> {roleLabel}
+                </span>
                 {session.family?.name && (
-                  <div className="flex-1 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 px-3 py-2 text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("profilePage.family")}</p>
-                    <p className="text-sm font-semibold truncate">{session.family.name}</p>
-                  </div>
-                )}
-                {session.family?.code && (
-                  <div className="flex-1 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50 px-3 py-2 text-center">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("profilePage.code")}</p>
-                    <p className="text-sm font-mono font-semibold tracking-wide">{session.family.code}</p>
-                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                    <User className="h-3 w-3" /> {session.family.name}
+                  </span>
                 )}
               </div>
+
+              {session.family?.code && (
+                <div className="w-full mt-2 rounded-xl bg-muted/50 px-3 py-2 text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t("profilePage.code")}</p>
+                  <p className="text-sm font-mono font-semibold tracking-widest text-foreground">{session.family.code}</p>
+                </div>
+              )}
             </div>
 
-            {/* Actions */}
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y">
-              <MenuItem
-                icon={<div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center"><Edit3 className="h-[18px] w-[18px] text-blue-500" /></div>}
+            {/* ── Quick actions ── */}
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y divide-border/60">
+              <ActionRow
+                icon={<Edit3 className="h-4 w-4 text-blue-500" />}
+                bg="bg-blue-500/10"
                 label={t("profilePage.editProfile")}
-                sublabel={t("profilePage.editProfileSub") || ""}
                 onClick={() => setSection("edit")}
               />
-              <MenuItem
-                icon={<div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center"><Shield className="h-[18px] w-[18px] text-violet-500" /></div>}
+              <ActionRow
+                icon={<Shield className="h-4 w-4 text-violet-500" />}
+                bg="bg-violet-500/10"
                 label={t("profilePage.accountSettings")}
-                sublabel={t("profilePage.accountSettingsSub") || ""}
                 onClick={() => setSection("account")}
               />
             </div>
 
-            {/* Appearance */}
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            {/* ── Preferences ── */}
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y divide-border/60">
               <div className="px-4 py-3 flex items-center justify-between">
                 <span className="text-sm">{t("profilePage.theme")}</span>
                 <ThemeToggle />
               </div>
-              <div className="border-t px-4 py-3 flex items-center justify-between">
+              <div className="px-4 py-3 flex items-center justify-between">
                 <span className="text-sm">{t("profilePage.language")}</span>
                 <LanguageSwitcher />
               </div>
             </div>
 
-            {/* Logout */}
+            {/* ── Logout ── */}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-200 dark:border-red-900/40 text-red-500 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-red-500 text-sm font-medium border border-red-200 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors active:scale-[0.98]"
             >
               <LogOut className="h-4 w-4" />
               {t("common.logout")}
@@ -321,67 +343,34 @@ export default function ProfilePage() {
   if (section === "edit") {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <header className="flex items-center justify-between px-4 py-3 sticky top-0 z-10 bg-background/60 backdrop-blur-md border-b">
-          <Button variant="ghost" size="icon" onClick={() => setSection("main")} className="rounded-full">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="text-base font-semibold">{t("profilePage.editProfile")}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            disabled={isSaving}
-            onClick={handleSave}
-            className={`rounded-full ${saveSuccess ? "text-green-500" : ""}`}
-          >
-            {saveSuccess ? <Check className="h-5 w-5" /> : <Save className="h-5 w-5" />}
-          </Button>
-        </header>
+        <Header title={t("profilePage.editProfile")} onBack={() => setSection("main")} />
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-        <div className="flex-1 overflow-auto pb-8">
-          <div className="max-w-md mx-auto px-5 py-6 space-y-6">
-            {/* Avatar mini */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+
+            {/* Avatar */}
             <div className="flex flex-col items-center gap-2">
-              <div className="relative">
-                <div
-                  className="w-20 h-20 rounded-full ring-2 ring-border overflow-hidden bg-muted flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={handleAvatarPick}
-                >
-                  {isUploading ? (
-                    <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
-                  ) : isImage ? (
-                    <img src={avatarDisplay} alt="" className="w-full h-full object-cover" />
-                  ) : avatarDisplay ? (
-                    <span className="text-3xl select-none">{avatarDisplay}</span>
-                  ) : (
-                    <span className="font-bold text-muted-foreground">{initials}</span>
-                  )}
-                </div>
-                <button
-                  onClick={handleAvatarPick}
-                  className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow"
-                >
-                  <Camera className="h-3 w-3" />
-                </button>
-              </div>
+              <Avatar size="sm" clickable />
               <span className="text-xs text-muted-foreground">{t("profilePage.tapToChange")}</span>
             </div>
 
             {/* Fields */}
-            <div className="space-y-4">
+            <div className="rounded-2xl border bg-card shadow-sm p-4 space-y-4">
               <Field label={t("profilePage.name")}>
-                <Input value={name} onChange={e => setName(e.target.value)} placeholder={t("profilePage.enterName")} className="rounded-xl" />
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder={t("profilePage.enterName")} className="rounded-xl h-10" />
               </Field>
               <Field label={t("profilePage.lastName")}>
-                <Input value={lastName} onChange={e => setLastName(e.target.value)} placeholder={t("profilePage.enterLastName")} className="rounded-xl" />
+                <Input value={lastName} onChange={e => setLastName(e.target.value)} placeholder={t("profilePage.enterLastName")} className="rounded-xl h-10" />
               </Field>
               {isChild && (
                 <Field label={t("profilePage.age")}>
-                  <Input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="0" className="rounded-xl" />
+                  <Input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="0" className="rounded-xl h-10" />
                 </Field>
               )}
             </div>
 
-            <Button className="w-full rounded-xl h-11" disabled={isSaving} onClick={handleSave}>
+            <Button className="w-full rounded-xl h-11 font-medium" disabled={isSaving} onClick={handleSave}>
               {saveSuccess ? (
                 <span className="flex items-center gap-2"><Check className="h-4 w-4" /> {t("common.saved")}</span>
               ) : isSaving ? (
@@ -399,184 +388,154 @@ export default function ProfilePage() {
   /* ═══════════ ACCOUNT ═══════════ */
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="flex items-center justify-between px-4 py-3 sticky top-0 z-10 bg-background/60 backdrop-blur-md border-b">
-        <Button variant="ghost" size="icon" onClick={() => { setSection("main"); setShowDeleteConfirm(false) }} className="rounded-full">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <span className="text-base font-semibold">{t("profilePage.accountSettings")}</span>
-        <div className="w-9" />
-      </header>
+      <Header title={t("profilePage.accountSettings")} onBack={() => { setSection("main"); setShowDeleteConfirm(false) }} />
 
-      <div className="flex-1 overflow-auto pb-8">
-        <div className="max-w-md mx-auto px-5 py-6 space-y-6">
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-md mx-auto px-4 py-6 space-y-5">
 
-          {/* Info card */}
-          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y">
+          {/* Info */}
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y divide-border/60">
             <InfoRow label={t("profilePage.email")} value={user.email} />
-            <InfoRow label={t("profilePage.role")} value={`${roleEmoji} ${roleLabel}`} />
+            <InfoRow label={t("profilePage.role")} value={roleLabel} />
             {session.family?.code && (
               <InfoRow label={t("profilePage.familyCode")} value={session.family.code} mono />
             )}
           </div>
 
-          {/* Security section */}
-          <div className="space-y-3">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
-              {t("profilePage.security")}
-            </p>
+          {/* Security */}
+          <SectionLabel text={t("profilePage.security")} />
 
-            {/* Change Password */}
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-              <button
-                onClick={() => { setShowPasswordForm(!showPasswordForm); setPasswordError(""); setPasswordSuccess(false) }}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
-              >
-                <Lock className="h-[18px] w-[18px] text-muted-foreground" />
-                <span className="flex-1 text-sm font-medium">{t("profilePage.changePassword")}</span>
-                <ChevronRight className={`h-4 w-4 text-muted-foreground/50 transition-transform ${showPasswordForm ? "rotate-90" : ""}`} />
-              </button>
-              {showPasswordForm && (
-                <div className="px-4 pb-4 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <Field label={t("profilePage.currentPassword")}>
-                    <div className="relative">
-                      <Input
-                        type={showCurrentPw ? "text" : "password"}
-                        value={currentPassword}
-                        onChange={e => setCurrentPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="rounded-xl pr-10"
-                      />
-                      <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                        {showCurrentPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </Field>
-                  <Field label={t("profilePage.newPassword")}>
-                    <div className="relative">
-                      <Input
-                        type={showNewPw ? "text" : "password"}
-                        value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="rounded-xl pr-10"
-                      />
-                      <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                        {showNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </Field>
-                  <Field label={t("profilePage.confirmNewPassword")}>
-                    <Input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="rounded-xl"
-                    />
-                  </Field>
-                  {passwordError && (
-                    <p className="text-xs text-destructive px-1">{passwordError}</p>
-                  )}
-                  <Button
-                    className="w-full rounded-xl h-10"
-                    disabled={passwordSaving || !currentPassword || !newPassword || !confirmPassword}
-                    onClick={handleChangePassword}
-                  >
-                    {passwordSuccess ? (
-                      <span className="flex items-center gap-2"><Check className="h-4 w-4" /> {t("common.saved")}</span>
-                    ) : passwordSaving ? (
-                      <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 animate-pulse" /> {t("common.saving")}</span>
-                    ) : (
-                      t("profilePage.changePassword")
-                    )}
-                  </Button>
+          {/* Change Password */}
+          <Accordion
+            icon={<Lock className="h-4 w-4" />}
+            label={t("profilePage.changePassword")}
+            open={showPasswordForm}
+            onToggle={() => { setShowPasswordForm(!showPasswordForm); setPasswordError(""); setPasswordSuccess(false) }}
+          >
+            <div className="space-y-3">
+              <Field label={t("profilePage.currentPassword")}>
+                <div className="relative">
+                  <Input
+                    type={showCurrentPw ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="rounded-xl h-10 pr-10"
+                  />
+                  <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showCurrentPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
-              )}
+              </Field>
+              <Field label={t("profilePage.newPassword")}>
+                <div className="relative">
+                  <Input
+                    type={showNewPw ? "text" : "password"}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="rounded-xl h-10 pr-10"
+                  />
+                  <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                    {showNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </Field>
+              <Field label={t("profilePage.confirmNewPassword")}>
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="rounded-xl h-10"
+                />
+              </Field>
+              {passwordError && <p className="text-xs text-destructive">{passwordError}</p>}
+              <Button
+                className="w-full rounded-xl h-10"
+                disabled={passwordSaving || !currentPassword || !newPassword || !confirmPassword}
+                onClick={handleChangePassword}
+              >
+                {passwordSuccess ? (
+                  <span className="flex items-center gap-2"><Check className="h-4 w-4" /> {t("common.saved")}</span>
+                ) : passwordSaving ? (
+                  <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 animate-pulse" /> {t("common.saving")}</span>
+                ) : (
+                  t("profilePage.changePassword")
+                )}
+              </Button>
             </div>
+          </Accordion>
 
-            {/* Change Email */}
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-              <button
-                onClick={() => { setShowEmailForm(!showEmailForm); setEmailError(""); setEmailSuccess(false) }}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
+          {/* Change Email */}
+          <Accordion
+            icon={<Mail className="h-4 w-4" />}
+            label={t("profilePage.changeEmail")}
+            open={showEmailForm}
+            onToggle={() => { setShowEmailForm(!showEmailForm); setEmailError(""); setEmailSuccess(false) }}
+          >
+            <div className="space-y-3">
+              <Field label={t("profilePage.newEmail")}>
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={e => setNewEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  className="rounded-xl h-10"
+                />
+              </Field>
+              <Field label={t("profilePage.confirmWithPassword")}>
+                <Input
+                  type="password"
+                  value={emailPassword}
+                  onChange={e => setEmailPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="rounded-xl h-10"
+                />
+              </Field>
+              {emailError && <p className="text-xs text-destructive">{emailError}</p>}
+              <Button
+                className="w-full rounded-xl h-10"
+                disabled={emailSaving || !newEmail || !emailPassword}
+                onClick={handleChangeEmail}
               >
-                <Mail className="h-[18px] w-[18px] text-muted-foreground" />
-                <span className="flex-1 text-sm font-medium">{t("profilePage.changeEmail")}</span>
-                <ChevronRight className={`h-4 w-4 text-muted-foreground/50 transition-transform ${showEmailForm ? "rotate-90" : ""}`} />
-              </button>
-              {showEmailForm && (
-                <div className="px-4 pb-4 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                  <Field label={t("profilePage.newEmail")}>
-                    <Input
-                      type="email"
-                      value={newEmail}
-                      onChange={e => setNewEmail(e.target.value)}
-                      placeholder="email@example.com"
-                      className="rounded-xl"
-                    />
-                  </Field>
-                  <Field label={t("profilePage.confirmWithPassword")}>
-                    <Input
-                      type="password"
-                      value={emailPassword}
-                      onChange={e => setEmailPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="rounded-xl"
-                    />
-                  </Field>
-                  {emailError && (
-                    <p className="text-xs text-destructive px-1">{emailError}</p>
-                  )}
-                  <Button
-                    className="w-full rounded-xl h-10"
-                    disabled={emailSaving || !newEmail || !emailPassword}
-                    onClick={handleChangeEmail}
-                  >
-                    {emailSuccess ? (
-                      <span className="flex items-center gap-2"><Check className="h-4 w-4" /> {t("common.saved")}</span>
-                    ) : emailSaving ? (
-                      <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 animate-pulse" /> {t("common.saving")}</span>
-                    ) : (
-                      t("profilePage.changeEmail")
-                    )}
-                  </Button>
-                </div>
-              )}
+                {emailSuccess ? (
+                  <span className="flex items-center gap-2"><Check className="h-4 w-4" /> {t("common.saved")}</span>
+                ) : emailSaving ? (
+                  <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 animate-pulse" /> {t("common.saving")}</span>
+                ) : (
+                  t("profilePage.changeEmail")
+                )}
+              </Button>
             </div>
-          </div>
+          </Accordion>
 
           {/* Danger */}
-          <div className="space-y-3">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
-              {t("profilePage.dangerZone")}
-            </p>
-            {!showDeleteConfirm ? (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-destructive/30 text-destructive text-sm font-medium hover:bg-destructive/5 transition-colors active:scale-[0.98]"
-              >
-                <Trash2 className="h-4 w-4" />
-                {t("profilePage.deleteAccount")}
-              </button>
-            ) : (
-              <div className="rounded-2xl border border-destructive/40 bg-destructive/5 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                  <p className="text-sm text-destructive/90 leading-snug">
-                    {t("profilePage.deleteConfirm")}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleDelete}>
-                    {t("common.confirmDelete")}
-                  </Button>
-                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowDeleteConfirm(false)}>
-                    {t("common.cancel")}
-                  </Button>
-                </div>
+          <SectionLabel text={t("profilePage.dangerZone")} />
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-destructive/25 text-destructive text-sm font-medium hover:bg-destructive/5 transition-colors active:scale-[0.98]"
+            >
+              <Trash2 className="h-4 w-4" />
+              {t("profilePage.deleteAccount")}
+            </button>
+          ) : (
+            <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive/90 leading-snug">{t("profilePage.deleteConfirm")}</p>
               </div>
-            )}
-          </div>
+              <div className="flex gap-2">
+                <Button variant="destructive" className="flex-1 rounded-xl" onClick={handleDelete}>
+                  {t("common.confirmDelete")}
+                </Button>
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowDeleteConfirm(false)}>
+                  {t("common.cancel")}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -585,26 +544,41 @@ export default function ProfilePage() {
 
 /* ═══════════ Sub-components ═══════════ */
 
-function MenuItem({ icon, label, sublabel, onClick }: { icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void }) {
+function ActionRow({ icon, bg, label, onClick }: { icon: React.ReactNode; bg: string; label: string; onClick: () => void }) {
   return (
-    <button
-      className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/50 transition-colors active:bg-muted active:scale-[0.99]"
-      onClick={onClick}
-    >
-      <span className="shrink-0">{icon}</span>
-      <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium block">{label}</span>
-        {sublabel && <span className="text-[11px] text-muted-foreground">{sublabel}</span>}
-      </div>
-      <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+    <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/40 transition-colors active:scale-[0.99]" onClick={onClick}>
+      <span className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", bg)}>{icon}</span>
+      <span className="flex-1 text-sm font-medium">{label}</span>
+      <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
     </button>
   )
+}
+
+function Accordion({ icon, label, open, onToggle, children }: { icon: React.ReactNode; label: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+      <button onClick={onToggle} className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted/40 transition-colors">
+        <span className="text-muted-foreground">{icon}</span>
+        <span className="flex-1 text-sm font-medium">{label}</span>
+        <ChevronRight className={cn("h-4 w-4 text-muted-foreground/40 transition-transform duration-200", open && "rotate-90")} />
+      </button>
+      {open && (
+        <div className="px-4 pb-4 animate-in fade-in slide-in-from-top-1 duration-200">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SectionLabel({ text }: { text: string }) {
+  return <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1 pt-1">{text}</p>
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest px-1">{label}</label>
+      <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-0.5">{label}</label>
       {children}
     </div>
   )
@@ -614,7 +588,7 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
   return (
     <div className="px-4 py-3">
       <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
-      <p className={`text-sm ${mono ? "font-mono tracking-wide" : ""}`}>{value}</p>
+      <p className={cn("text-sm", mono && "font-mono tracking-wide")}>{value}</p>
     </div>
   )
 }
