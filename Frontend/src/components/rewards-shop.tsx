@@ -200,54 +200,73 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
   /* ---- Render ---- */
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-slide-up">
       {/* ═══════════ Products grid ═══════════ */}
       {productsQuery.isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl border border-border/40 p-6 space-y-4 animate-pulse">
+            <div key={i} className="rounded-3xl border-2 border-border/20 p-6 space-y-4 animate-pulse">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-muted/60" />
+                <div className="h-14 w-14 rounded-2xl bg-muted/60" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-3/4 bg-muted/60 rounded-lg" />
                   <div className="h-3 w-1/2 bg-muted/40 rounded-lg" />
                 </div>
               </div>
-              <div className="h-10 w-full bg-muted/40 rounded-xl" />
+              <div className="h-12 w-full bg-muted/40 rounded-2xl" />
             </div>
           ))}
         </div>
       ) : productsQuery.isError ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-200/60 bg-red-50/50 dark:bg-red-950/10 dark:border-red-900/30 p-5">
-          <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-          <p className="text-sm text-red-700 dark:text-red-300">{t("rewardsShop.errors.loadProducts")}</p>
+        <div className="flex items-center gap-3 rounded-3xl border-2 border-red-200/40 bg-red-50/50 dark:bg-red-950/10 dark:border-red-900/30 p-6">
+          <div className="text-3xl">😿</div>
+          <p className="text-sm text-red-700 dark:text-red-300 font-medium">{t("rewardsShop.errors.loadProducts")}</p>
         </div>
       ) : visibleProducts.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-border/40 py-16 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/20 mb-4">
-            <Gift className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-          </div>
-          <p className="font-semibold text-base">{t("rewardsShop.empty.title")}</p>
+        <div className="rounded-3xl border-2 border-dashed border-border/30 py-16 text-center">
+          <div className="text-5xl mb-4 animate-kid-bounce">🎁</div>
+          <p className="font-bold text-lg">{t("rewardsShop.empty.title")}</p>
           <p className="text-sm text-muted-foreground mt-1.5 max-w-xs mx-auto">
             {isParent ? t("rewardsShop.empty.parentHint") : t("rewardsShop.empty.childHint")}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {visibleProducts.map((product: ProductDto, index: number) => {
-            const outOfStock = product.stock === 0
+        <div>
+          {/* Shop header */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-500/8 via-purple-500/5 to-fuchsia-500/8 dark:from-violet-500/12 dark:via-purple-500/8 dark:to-fuchsia-500/12 border border-violet-500/15 p-5 mb-6">
+            <div className="absolute -top-4 -right-4 text-6xl opacity-[0.06] select-none pointer-events-none animate-hero-float">🎁</div>
+            <div className="absolute bottom-2 right-16 text-3xl opacity-[0.08] select-none pointer-events-none animate-star-twinkle">✨</div>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/20 shrink-0">
+                <Gift className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-black">{t("rewardsShop.title") || "Магазин наград"}</h2>
+                <p className="text-sm text-muted-foreground">{t("rewardsShop.subtitle") || "Обменяй свои звёзды на крутые призы!"}</p>
+              </div>
+              <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20">
+                <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                <span className="text-sm font-black text-amber-600 dark:text-amber-400">{visibleProducts.length}</span>
+              </div>
+            </div>
+          </div>
 
-            return (
-              <div
-                key={product.id}
-                className={cn(
-                  "group relative flex flex-col rounded-2xl border bg-card transition-all duration-300",
-                  "hover:shadow-lg hover:-translate-y-0.5",
-                  outOfStock
-                    ? "opacity-60 border-border/30"
-                    : "border-border/40 hover:border-border/60",
-                )}
-              >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {visibleProducts.map((product: ProductDto, index: number) => {
+              const outOfStock = product.stock === 0
+              const PRODUCT_EMOJIS = ["🎮", "🧸", "🎨", "📚", "🍭", "🎠", "🎪", "🎭", "🎵", "🌈"]
+
+              return (
+                <div
+                  key={product.id}
+                  className={cn(
+                    "group relative flex flex-col rounded-3xl border-2 bg-card transition-all duration-300 child-card-hover animate-card-appear overflow-hidden",
+                    outOfStock
+                      ? "opacity-50 border-border/20"
+                      : "border-border/20 hover:border-primary/30",
+                  )}
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
                 {/* Parent kebab menu (top-right) */}
                 {isParent && (
                   <div className="absolute right-3 top-3 z-10">
@@ -281,16 +300,21 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
 
                 {/* Card body */}
                 <div className="flex flex-col flex-1 p-5 pb-4">
-                  {/* Header: Name + badge */}
+                  {/* Fun emoji + Name */}
                   <div className="flex items-start gap-3 mb-3">
-                    <h3 className="font-semibold text-[15px] leading-snug line-clamp-2 flex-1 pr-6">
-                      {product.name}
-                    </h3>
-                    {!product.isActive && isParent && (
-                      <Badge variant="secondary" className="text-[10px] shrink-0 rounded-full">
-                        {t("rewardsShop.stock.hidden")}
-                      </Badge>
-                    )}
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/20 flex items-center justify-center text-2xl shrink-0 shadow-sm group-hover:scale-110 transition-transform">
+                      {PRODUCT_EMOJIS[index % PRODUCT_EMOJIS.length]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-black text-[15px] leading-snug line-clamp-2 pr-6">
+                        {product.name}
+                      </h3>
+                      {!product.isActive && isParent && (
+                        <Badge variant="secondary" className="text-[10px] mt-1 shrink-0 rounded-full">
+                          {t("rewardsShop.stock.hidden")}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
                   {/* Description */}
@@ -305,18 +329,17 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                   )}
                 </div>
 
-                {/* Footer: Price + action */}
+                {/* Footer: Price + action — treasure style */}
                 <div className={cn(
-                  "flex items-center justify-between gap-3 border-t px-5 py-3.5",
-                  "border-border/30 bg-muted/20"
+                  "flex items-center justify-between gap-3 border-t px-5 py-4",
+                  "border-border/20 bg-gradient-to-r from-amber-500/5 via-transparent to-orange-500/5 dark:from-amber-500/5 dark:to-orange-500/5"
                 )}>
-                  {/* Price */}
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-amber-100/80 dark:bg-amber-900/30">
-                      <Star className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 fill-amber-500 dark:fill-amber-500" />
+                  {/* Price — treasure coin */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-amber-300 to-yellow-500 shadow-md shadow-amber-400/20">
+                      <Star className="h-4 w-4 text-white fill-white" />
                     </div>
-                    <span className="text-lg font-bold tabular-nums">{numberFormatter.format(product.price)}</span>
-                    <span className="text-[11px] text-muted-foreground">{t("rewardsShop.pointsShort")}</span>
+                    <span className="text-xl font-black tabular-nums">{numberFormatter.format(product.price)}</span>
                   </div>
 
                   {/* Stock or Action */}
@@ -324,10 +347,10 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                     <Button
                       size="sm"
                       className={cn(
-                        "h-9 rounded-xl px-4 gap-1.5 text-sm font-medium text-white transition-all duration-200",
+                        "h-10 rounded-2xl px-5 gap-2 text-sm font-black text-white transition-all duration-200 btn-bounce",
                         outOfStock
                           ? "bg-muted text-muted-foreground pointer-events-none"
-                          : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-sm shadow-amber-500/20 hover:shadow-md hover:shadow-amber-500/25",
+                          : "bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/35 hover:scale-[1.03]",
                       )}
                       onClick={() => handlePurchase(product)}
                       disabled={createOrder.isPending || outOfStock}
@@ -335,9 +358,9 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                       {createOrder.isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : outOfStock ? null : (
-                        <ShoppingCart className="h-3.5 w-3.5" />
+                        <ShoppingCart className="h-4 w-4" />
                       )}
-                      {outOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")}
+                      {outOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")} {!outOfStock && "🎉"}
                     </Button>
                   ) : (
                     <span className={cn(
@@ -354,14 +377,24 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
             )
           })}
         </div>
+        </div>
       )}
 
       {/* ═══════════ Orders ═══════════ */}
       {userType === "child" && (
         <div className="space-y-5">
-          <div>
-            <h2 className="text-lg font-semibold">{t("rewardsShop.orders.title")}</h2>
-            <p className="text-[13px] text-muted-foreground mt-0.5">{t("rewardsShop.orders.subtitle")}</p>
+          {/* Orders header */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-500/8 via-indigo-500/5 to-cyan-500/8 dark:from-blue-500/12 dark:via-indigo-500/8 dark:to-cyan-500/12 border border-blue-500/15 p-5">
+            <div className="absolute -top-4 -right-4 text-5xl opacity-[0.06] select-none pointer-events-none animate-hero-float">📦</div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-black">{t("rewardsShop.orders.title")}</h2>
+                <p className="text-xs text-muted-foreground">{t("rewardsShop.orders.subtitle")}</p>
+              </div>
+            </div>
           </div>
 
           {ordersQuery.isLoading ? (
@@ -384,11 +417,9 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
               <p className="text-sm text-red-700 dark:text-red-300">{t("rewardsShop.errors.loadOrders")}</p>
             </div>
           ) : !ordersQuery.data || ordersQuery.data.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-border/40 py-12 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/40 mb-3">
-                <Package className="h-5 w-5 text-muted-foreground/50" />
-              </div>
-              <p className="font-medium text-sm">{t("rewardsShop.orders.emptyTitle")}</p>
+            <div className="rounded-3xl border-2 border-dashed border-border/30 py-14 text-center">
+              <div className="text-4xl mb-3 animate-kid-bounce">📦</div>
+              <p className="font-bold text-sm">{t("rewardsShop.orders.emptyTitle")}</p>
               <p className="text-[13px] text-muted-foreground mt-1">{t("rewardsShop.orders.emptySubtitle")}</p>
             </div>
           ) : (
@@ -403,12 +434,12 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                 return (
                   <div
                     key={order.id}
-                    className="rounded-2xl border border-border/40 overflow-hidden transition-shadow hover:shadow-sm"
+                    className="rounded-3xl border-2 border-border/20 overflow-hidden transition-all hover:shadow-md child-card-hover bg-card"
                   >
                     {/* Order header */}
-                    <div className="flex items-center gap-3 px-5 py-3.5 bg-muted/20">
-                      <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-background border border-border/40">
-                        <Package className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-muted/30 via-transparent to-muted/30">
+                      <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/30 border border-blue-200/40 dark:border-blue-700/30">
+                        <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-medium">

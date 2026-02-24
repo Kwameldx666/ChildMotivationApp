@@ -77,24 +77,28 @@ const getGreetingKey = () => {
 }
 
 /* ═══════════ Stat Card ═══════════ */
-function StatCard({ icon, label, value, gradient, delay = 0 }: {
+function StatCard({ icon, label, value, gradient, delay = 0, emoji }: {
   icon: React.ReactNode
   label: string
   value: string | number
   gradient: string
   delay?: number
+  emoji?: string
 }) {
   return (
     <div
-      className="relative group flex flex-col items-center gap-1.5 rounded-2xl border border-border/30 bg-card/80 backdrop-blur-sm p-3 md:p-4 shadow-sm hover:shadow-md hover:scale-[1.03] transition-all duration-300 overflow-hidden animate-slide-up"
+      className="relative group flex flex-col items-center gap-1.5 rounded-2xl border-2 border-border/20 bg-card/80 backdrop-blur-sm p-3 md:p-4 shadow-sm child-card-hover overflow-hidden animate-card-appear"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className={cn("absolute inset-0 opacity-[0.04] bg-gradient-to-br pointer-events-none", gradient)} />
-      <div className={cn("w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br text-white shadow-md", gradient)}>
+      {emoji && (
+        <div className="absolute -top-1 -right-1 text-lg opacity-[0.12] select-none pointer-events-none animate-star-twinkle" style={{ animationDelay: `${delay * 10}ms` }}>{emoji}</div>
+      )}
+      <div className={cn("w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-gradient-to-br text-white shadow-lg group-hover:scale-110 transition-transform", gradient)}>
         {icon}
       </div>
       <span className="text-lg md:text-xl font-black tabular-nums leading-none">{value}</span>
-      <span className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</span>
+      <span className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</span>
     </div>
   )
 }
@@ -134,12 +138,13 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
   return (
     <div className="min-h-screen w-full bg-background relative overflow-x-hidden">
 
-      {/* ═══ GRADIENT MESH BACKGROUND ═══ */}
+      {/* ═══ GRADIENT MESH BACKGROUND — dreamy child-friendly atmosphere ═══ */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden>
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-500/[0.05] dark:bg-violet-500/[0.03] blur-[100px] animate-pulse" style={{ animationDuration: "8s" }} />
-        <div className="absolute top-1/3 -right-40 w-[400px] h-[400px] rounded-full bg-pink-500/[0.05] dark:bg-pink-500/[0.03] blur-[100px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
-        <div className="absolute bottom-20 left-1/4 w-[350px] h-[350px] rounded-full bg-amber-500/[0.05] dark:bg-amber-500/[0.03] blur-[100px] animate-pulse" style={{ animationDuration: "12s", animationDelay: "4s" }} />
-        <div className="absolute top-2/3 right-1/3 w-[300px] h-[300px] rounded-full bg-emerald-500/[0.04] dark:bg-emerald-500/[0.02] blur-[100px] animate-pulse" style={{ animationDuration: "14s", animationDelay: "6s" }} />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-violet-500/[0.06] dark:bg-violet-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "8s" }} />
+        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full bg-pink-500/[0.06] dark:bg-pink-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
+        <div className="absolute bottom-20 left-1/4 w-[400px] h-[400px] rounded-full bg-amber-500/[0.05] dark:bg-amber-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "12s", animationDelay: "4s" }} />
+        <div className="absolute top-2/3 right-1/3 w-[350px] h-[350px] rounded-full bg-emerald-500/[0.05] dark:bg-emerald-500/[0.02] blur-[120px] animate-pulse" style={{ animationDuration: "14s", animationDelay: "6s" }} />
+        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-sky-500/[0.04] dark:bg-sky-500/[0.02] blur-[100px] animate-pulse" style={{ animationDuration: "16s", animationDelay: "3s" }} />
       </div>
 
       {/* ═══════════════════════════════════════════════
@@ -220,15 +225,17 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               className="relative shrink-0 group"
               aria-label={t("child.navigation.changeAvatar")}
             >
-              <Avatar className="h-16 w-16 md:h-20 md:w-20 ring-3 ring-primary/20 shadow-lg group-hover:scale-105 transition-transform">
+              <Avatar className="h-16 w-16 md:h-20 md:w-20 ring-3 ring-primary/20 shadow-xl group-hover:scale-110 transition-all duration-300">
                 {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" />}
-                <AvatarFallback className="text-3xl md:text-4xl bg-gradient-to-br from-violet-100 to-pink-100 dark:from-violet-900/60 dark:to-pink-900/60 font-bold">
+                <AvatarFallback className="text-3xl md:text-4xl bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 dark:from-violet-900/60 dark:via-pink-900/40 dark:to-amber-900/30 font-bold">
                   {avatarFallback}
                 </AvatarFallback>
               </Avatar>
+              {/* Sparkle decoration */}
+              <div className="absolute -top-1 -left-1 text-xs animate-star-twinkle opacity-60">✨</div>
               <div className="absolute -bottom-1 -right-1 z-10">
                 <div className={cn(
-                  "w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] md:text-xs font-black text-white ring-2 ring-background shadow-md",
+                  "w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] md:text-xs font-black text-white ring-2 ring-background shadow-lg",
                   "bg-gradient-to-br", rank.grad,
                 )}>
                   {level}
@@ -250,7 +257,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
                 <span className="text-xs font-bold text-muted-foreground shrink-0">XP</span>
                 <div className="flex-1 h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 animate-xp-fill shadow-sm"
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 animate-xp-fill shadow-sm progress-stripes"
                     style={{ width: `${xpPct}%` }}
                   />
                 </div>
@@ -266,6 +273,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               label={t("childDashboard.nav.shop")}
               value={statsLoading ? "·" : points.toLocaleString()}
               gradient="from-amber-400 to-yellow-500"
+              emoji="⭐"
               delay={0}
             />
             <StatCard
@@ -273,6 +281,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               label="Streak"
               value={streak}
               gradient="from-orange-400 to-red-500"
+              emoji="🔥"
               delay={50}
             />
             <StatCard
@@ -280,6 +289,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               label={t("childDashboard.nav.tasks")}
               value={done}
               gradient="from-emerald-400 to-teal-500"
+              emoji="✅"
               delay={100}
             />
             <StatCard
@@ -287,6 +297,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               label="XP"
               value={xp}
               gradient="from-violet-400 to-purple-500"
+              emoji="⚡"
               delay={150}
             />
           </div>
@@ -400,11 +411,14 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
       </div>
 
       {/* ═══ AVATAR PICKER DIALOG ═══ */}
+      {/* ═══ AVATAR PICKER DIALOG — fun & playful ═══ */}
       <Dialog open={showAvatarPicker} onOpenChange={setShowAvatarPicker}>
         <DialogContent className="max-w-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg">
+                <Crown className="h-4 w-4 text-white" />
+              </div>
               {t("childDashboard.chooseAvatar")}
             </DialogTitle>
           </DialogHeader>
@@ -413,17 +427,18 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
               <button
                 key={av}
                 onClick={() => setShowAvatarPicker(false)}
-                className="text-3xl p-2.5 rounded-2xl hover:bg-primary/10 hover:scale-110 active:scale-90 transition-all border border-transparent hover:border-primary/20 hover:shadow-lg"
+                className="text-3xl p-2.5 rounded-2xl hover:bg-primary/10 hover:scale-110 active:scale-90 transition-all border-2 border-transparent hover:border-primary/20 hover:shadow-lg child-card-hover"
               >
                 {av}
               </button>
             ))}
           </div>
           <div className="mt-2">
-            <label className="block text-sm font-semibold text-muted-foreground mb-1.5">{t("childDashboard.uploadImage")}</label>
-            <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl cursor-pointer border-border hover:bg-primary/5 hover:border-primary/40 transition-all">
-              <span className="text-2xl mb-1">📷</span>
+            <label className="block text-xs font-bold text-muted-foreground mb-1.5 uppercase tracking-wider">{t("childDashboard.uploadImage")}</label>
+            <label className="flex flex-col items-center justify-center w-full p-5 border-2 border-dashed rounded-2xl cursor-pointer border-border hover:bg-primary/5 hover:border-primary/40 transition-all group">
+              <span className="text-3xl mb-1.5 group-hover:scale-110 transition-transform">📷</span>
               <span className="text-xs text-muted-foreground font-medium">{t("childProfile.uploadPrompt")}</span>
+              <span className="text-[10px] text-muted-foreground/60 mt-0.5">PNG, JPG — max 5MB</span>
               <input
                 type="file" accept="image/*" className="hidden"
                 onChange={async (e) => {
@@ -443,7 +458,7 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
             </label>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-xl" onClick={() => setShowAvatarPicker(false)}>
+            <Button variant="outline" className="rounded-xl border-2 btn-bounce" onClick={() => setShowAvatarPicker(false)}>
               {t("common.cancel")}
             </Button>
           </DialogFooter>

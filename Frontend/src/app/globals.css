@@ -285,6 +285,51 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(20px) rotate(360deg); opacity: 0; }
+}
+@keyframes rainbow-border {
+  0% { border-color: #f87171; }
+  16% { border-color: #fb923c; }
+  33% { border-color: #fbbf24; }
+  50% { border-color: #34d399; }
+  66% { border-color: #60a5fa; }
+  83% { border-color: #a78bfa; }
+  100% { border-color: #f87171; }
+}
+@keyframes treasure-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.2), 0 0 20px rgba(251, 191, 36, 0.05); }
+  50% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.35), 0 0 40px rgba(251, 191, 36, 0.1); }
+}
+@keyframes badge-unlock {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes card-appear {
+  0% { opacity: 0; transform: translateY(16px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes progress-stripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(2deg); }
+  75% { transform: translateY(4px) rotate(-1deg); }
+}
+@keyframes success-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
 
 .animate-kid-bounce { animation: kid-bounce 2s ease-in-out infinite; }
 .animate-kid-wiggle { animation: kid-wiggle 0.6s ease-in-out; }
@@ -299,6 +344,62 @@
 .animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
 .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
 .animate-slide-up { animation: slide-up-fade 0.4s ease-out; }
+.animate-confetti { animation: confetti-fall 1.5s ease-out forwards; }
+.animate-rainbow-border { animation: rainbow-border 3s linear infinite; }
+.animate-treasure-glow { animation: treasure-glow 2.5s ease-in-out infinite; }
+.animate-badge-unlock { animation: badge-unlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-card-appear { animation: card-appear 0.5s ease-out forwards; }
+.animate-star-twinkle { animation: star-twinkle 2s ease-in-out infinite; }
+.animate-hero-float { animation: hero-float 6s ease-in-out infinite; }
+.animate-success-pop { animation: success-pop 0.4s ease-out; }
+
+/* Fun striped progress bar for children */
+.progress-stripes {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255,255,255,0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 40px 40px;
+  animation: progress-stripes 1s linear infinite;
+}
+
+/* Cute card hover lift */
+.child-card-hover {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.child-card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px -8px rgba(0,0,0,0.12), 0 4px 16px -4px rgba(0,0,0,0.08);
+}
+
+/* Fun interactive button bounce */
+.btn-bounce:active {
+  transform: scale(0.92);
+  transition: transform 0.1s ease;
+}
+
+/* Sticker-style card for achievements */
+.sticker-card {
+  position: relative;
+  overflow: hidden;
+}
+.sticker-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.08), transparent 30%);
+  animation: ring-spin 4s linear infinite;
+  pointer-events: none;
+}
 
 @layer base {
   * {

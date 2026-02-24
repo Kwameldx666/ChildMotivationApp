@@ -93,82 +93,128 @@ export default function EvidenceGallery({ tasks, userType }: EvidenceGalleryProp
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header with filters */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <h2 className="text-lg font-bold text-foreground">{t("gallery.title") || "Галерея подтверждений"}</h2>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm text-muted-foreground">{t("gallery.filter") || "Фильтр"}:</span>
-          {["all", "pending", "in_progress", "completed", "overdue"].map(status => (
-            <Button
-              key={status}
-              variant={statusFilter === status ? "default" : "outline"}
-              size="sm"
-              onClick={() => setStatusFilter(status as any)}
-              className="text-xs"
-            >
-              {t(`tasksList.filters.${status}`) || status}
-              <span className="ml-1 text-[10px] opacity-70">
-                ({evidenceItems.filter((e: EvidenceItem) => 
-                  status === "all" ? true : 
-                  status === "completed" ? e.task.completed : 
-                  !e.task.completed
-                ).length})
+    <div className="space-y-6 animate-slide-up">
+      {/* Fun header with filters */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-500/8 via-rose-500/5 to-fuchsia-500/8 dark:from-pink-500/12 dark:via-rose-500/8 dark:to-fuchsia-500/12 border border-pink-500/15 p-5">
+        <div className="absolute -top-4 -right-4 text-6xl opacity-[0.06] select-none pointer-events-none animate-hero-float">📸</div>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/20 shrink-0">
+            <Eye className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-black">{t("gallery.title") || "Галерея подтверждений"}</h2>
+            <p className="text-sm text-muted-foreground">{t("gallery.subtitle") || "Все твои доказательства выполненных заданий"}</p>
+          </div>
+          {evidenceItems.length > 0 && (
+            <div className="shrink-0 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-400/20">
+              <span className="text-sm font-bold text-pink-600 dark:text-pink-400">
+                📷 {evidenceItems.length}
               </span>
-            </Button>
-          ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Filters as cute pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {["all", "pending", "in_progress", "completed", "overdue"].map(status => {
+            const isActive = statusFilter === status
+            const emoji = status === "all" ? "🌈" : status === "completed" ? "✅" : status === "pending" ? "⏳" : status === "in_progress" ? "🔨" : "⚠️"
+            return (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status as any)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 btn-bounce",
+                  isActive
+                    ? "bg-white dark:bg-slate-800 shadow-md shadow-pink-500/10 scale-105 text-foreground ring-1 ring-pink-300/40 dark:ring-pink-600/30"
+                    : "text-muted-foreground hover:bg-white/60 dark:hover:bg-slate-800/60 hover:text-foreground",
+                )}
+              >
+                <span>{emoji}</span>
+                {t(`tasksList.filters.${status}`) || status}
+                <span className={cn(
+                  "ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold",
+                  isActive ? "bg-pink-500/15 text-pink-600 dark:text-pink-400" : "bg-muted/50"
+                )}>
+                  {evidenceItems.filter((e: EvidenceItem) => 
+                    status === "all" ? true : 
+                    status === "completed" ? e.task.completed : 
+                    !e.task.completed
+                  ).length}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Gallery Grid */}
+      {/* Gallery Grid — scrapbook style */}
       {evidenceItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {evidenceItems.map((item: EvidenceItem) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+          {evidenceItems.map((item: EvidenceItem, index: number) => (
             <button
               key={item.task.id}
               onClick={() => setViewingEvidence(item)}
-              className="group relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-all hover:scale-105"
+              className="group relative overflow-hidden rounded-2xl border-2 border-border/20 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all duration-300 child-card-hover animate-card-appear bg-card"
+              style={{ animationDelay: `${index * 60}ms` }}
               title={item.task.title}
             >
               {item.loadingError ? (
-                <div className="w-full aspect-square bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
-                  <FileIcon className="h-6 w-6 text-muted-foreground" />
+                <div className="w-full aspect-square bg-gradient-to-br from-muted/50 to-muted/30 flex flex-col items-center justify-center gap-2">
+                  <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center">
+                    <FileIcon className="h-5 w-5 text-muted-foreground/50" />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground/50 font-medium">Ошибка</span>
                 </div>
               ) : item.thumbnailUrl ? (
                 <>
                   <img
                     src={item.thumbnailUrl}
                     alt={item.task.title}
-                    className="w-full aspect-square object-cover"
+                    className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <Eye className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-3">
+                    <div className="w-full">
+                      <p className="text-white text-xs font-bold line-clamp-1 mb-1">{item.task.title}</p>
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-3 w-3 text-white/80" />
+                        <span className="text-[10px] text-white/80">{t("gallery.view") || "Посмотреть"}</span>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
-                <div className="w-full aspect-square bg-muted animate-pulse" />
+                <div className="w-full aspect-square bg-gradient-to-br from-primary/5 to-muted/20 animate-pulse flex items-center justify-center">
+                  <div className="text-2xl animate-kid-bounce">📷</div>
+                </div>
               )}
 
-              {/* Status badge */}
-              <div className="absolute top-1 right-1">
-                <Badge
-                  className={cn(
-                    "text-[8px] font-bold rounded-full px-1.5 py-0.5",
-                    item.task.completed 
-                      ? "bg-emerald-500/80 text-white" 
-                      : "bg-amber-500/80 text-white"
-                  )}
-                >
+              {/* Status badge — cute sticker style */}
+              <div className="absolute top-2 right-2">
+                <div className={cn(
+                  "w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-md",
+                  item.task.completed 
+                    ? "bg-emerald-400 text-white" 
+                    : "bg-amber-400 text-white"
+                )}>
                   {item.task.completed ? "✓" : "!"}
-                </Badge>
+                </div>
+              </div>
+
+              {/* Fun bottom label */}
+              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/40 to-transparent opacity-100 group-hover:opacity-0 transition-opacity">
+                <p className="text-white text-[10px] font-bold line-clamp-1">{item.task.title}</p>
               </div>
             </button>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FileIcon className="h-12 w-12 text-muted-foreground/30 mb-2" />
-          <p className="text-muted-foreground">{t("gallery.noEvidence") || "Нет доказательств для отображения"}</p>
+        <div className="rounded-3xl border-2 border-dashed border-border/30 py-16 text-center">
+          <div className="text-5xl mb-4 animate-kid-bounce">📷</div>
+          <h3 className="text-lg font-bold mb-1">{t("gallery.noEvidence") || "Пока пусто"}</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+            Выполняй задания и загружай фото — здесь появится твоя галерея!
+          </p>
         </div>
       )}
 
