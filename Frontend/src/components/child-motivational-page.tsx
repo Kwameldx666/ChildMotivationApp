@@ -3,27 +3,30 @@
 import { ArrowLeft, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface ChildMotivationalPageProps {
   onBack: () => void
 }
 
 export default function ChildMotivationalPage({ onBack }: ChildMotivationalPageProps) {
+  const { t } = useTranslation()
+
   const motivations = [
     {
       type: "story",
-      title: "Твоя история успеха",
-      content: "Ты уже выполнил 25 задач! Это отличный результат. Продолжай в том же духе!",
+      title: t("childMotivational.storyTitle"),
+      content: t("childMotivational.storyContent"),
     },
     {
       type: "tip",
-      title: "Советы",
-      content: "Начни день с лёгкой задачи, чтобы набрать импульс. Это поможет тебе мотивироваться на остальное.",
+      title: t("childMotivational.tipTitle"),
+      content: t("childMotivational.tipContent"),
     },
     {
       type: "praise",
-      title: "Похвала",
-      content: "Твоя серия из 7 дней - это потрясающе! Такая дисциплина поможет тебе в жизни!",
+      title: t("childMotivational.praiseTitle"),
+      content: t("childMotivational.praiseContent"),
     },
   ]
 
@@ -32,11 +35,11 @@ export default function ChildMotivationalPage({ onBack }: ChildMotivationalPageP
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <h1 className="text-2xl font-bold flex items-center gap-2 mt-2">
           <Sparkles className="w-5 h-5 text-yellow-500" />
-          Мотивация
+          {t("childMotivational.title")}
         </h1>
       </header>
 

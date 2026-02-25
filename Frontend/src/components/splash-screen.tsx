@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Coins } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface SplashScreenProps {
   onComplete: () => void
 }
 
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
+  const { t } = useTranslation()
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* Title */}
         <h1 className="text-5xl md:text-6xl font-bold text-white mb-3 drop-shadow-lg">FamilyQuest</h1>
-        <p className="text-lg text-white/85 mb-7 drop-shadow">Загружаем приключение</p>
+        <p className="text-lg text-white/85 mb-7 drop-shadow">{t("splash.loadingAdventure")}</p>
 
         {/* Progress bar */}
         <div className="w-full max-w-sm h-2.5 bg-white/25 rounded-full overflow-hidden backdrop-blur-sm shadow-lg shadow-black/10 mx-auto">
@@ -71,7 +73,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="mt-10 flex justify-center w-full">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-md ring-1 ring-white/20">
             <Coins className="h-4 w-4 text-yellow-200" />
-            <span className="text-sm text-white/80">Готовим задания и награды</span>
+            <span className="text-sm text-white/80">{t("splash.preparingTasks")}</span>
           </div>
         </div>
       </div>

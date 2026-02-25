@@ -21,7 +21,7 @@ export interface FamilyContext {
   emblem?: string | null
 }
 
-export type OAuthProvider = 'google' | 'apple' | 'microsoft'
+export type OAuthProvider = 'google' | 'github' | 'apple' | 'microsoft' | 'discord'
 
 export interface GoogleAuthorizationResponse {
   authorizationUrl: string
@@ -34,6 +34,7 @@ export interface GooglePendingUser {
   email: string
   name: string
   picture: string
+  providerUserId?: string
 }
 
 export interface CompleteGoogleSignInPayload {
@@ -41,6 +42,7 @@ export interface CompleteGoogleSignInPayload {
   role: UserRole
   name: string
   lastName: string
+  email?: string | null
   avatar?: string | null
   age?: number | null
   familyCode?: string | null
@@ -101,6 +103,25 @@ export interface UserProfileResponse {
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
+  subscription?: SubscriptionInfo
+}
+
+export interface SubscriptionInfo {
+  tier: string
+  status: string
+  startDate: string
+  endDate: string | null
+  pricePerMonth: number
+  autoRenew: boolean
+  maxChildren: number
+  maxTasksPerDay: number
+  hasAIAssistant: boolean
+  hasAdvancedAnalytics: boolean
+  hasCustomRewards: boolean
+  hasPrioritySupport: boolean
+  hasFamilySharing: boolean
+  hasOfflineMode: boolean
+  daysRemaining: number | null
 }
 
 export interface UpdateProfilePayload {
@@ -108,4 +129,14 @@ export interface UpdateProfilePayload {
   lastName?: string | null
   avatar?: string | null
   age?: number | null
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string
+  newPassword: string
+}
+
+export interface ChangeEmailPayload {
+  newEmail: string
+  password: string
 }

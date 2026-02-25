@@ -1,0 +1,2791 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "confirm": "Подтвердить",
+    "back": "Назад",
+    "next": "Далее",
+    "close": "Закрыть",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "sort": "Сортировка",
+    "all": "Все",
+    "none": "Нет",
+    "yes": "Да",
+    "no": "Нет",
+    "ok": "ОК",
+    "retry": "Повторить",
+    "refresh": "Обновить",
+    "logout": "Выйти",
+    "login": "Войти",
+    "register": "Регистрация",
+    "settings": "Настройки",
+    "profile": "Профиль",
+    "notifications": "Уведомления",
+    "help": "Помощь",
+    "about": "О приложении",
+    "language": "Язык",
+    "theme": "Тема",
+    "dark": "Тёмная",
+    "light": "Светлая",
+    "saving": "Сохранение...",
+    "saved": "Сохранено!",
+    "saveChanges": "Сохранить изменения",
+    "confirmDelete": "Да, удалить",
+    "child": "Ребёнок",
+    "parent": "Родитель",
+    "name": "Имя",
+    "price": "Цена",
+    "done": "Готово",
+    "daysRemaining": "Осталось {days} дней"
+  },
+  "auth": {
+    "signIn": "Вход",
+    "signUp": "Регистрация",
+    "signOut": "Выйти",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "forgotPassword": "Забыли пароль?",
+    "resetPassword": "Сбросить пароль",
+    "rememberMe": "Запомнить меня",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "loginSuccess": "Вход выполнен успешно",
+    "loginError": "Ошибка входа",
+    "registerSuccess": "Аккаунт успешно создан",
+    "registerError": "Ошибка регистрации",
+    "invalidCredentials": "Неверный email или пароль",
+    "emailRequired": "Введите email",
+    "passwordRequired": "Введите пароль",
+    "passwordTooShort": "Пароль должен быть не менее 6 символов",
+    "passwordsDoNotMatch": "Пароли не совпадают"
+  },
+  "tasks": {
+    "title": "Задачи",
+    "myTasks": "Мои задачи",
+    "allTasks": "Все задачи",
+    "createTask": "Создать задачу",
+    "editTask": "Редактировать задачу",
+    "taskTitle": "Название задачи",
+    "taskDescription": "Описание",
+    "dueDate": "Срок выполнения",
+    "difficulty": "Сложность",
+    "category": "Категория",
+    "assignTo": "Назначить",
+    "status": "Статус",
+    "pending": "Ожидает",
+    "inProgress": "В процессе",
+    "completed": "Выполнено",
+    "overdue": "Просрочено",
+    "cancelled": "Отменено",
+    "confirmationType": "Тип подтверждения",
+    "photo": "Фото",
+    "noConfirmation": "Без подтверждения",
+    "points": "Очки",
+    "taskCreated": "Задача создана",
+    "taskUpdated": "Задача обновлена",
+    "taskDeleted": "Задача удалена",
+    "taskCompleted": "Задача выполнена!",
+    "noTasks": "Пока нет задач",
+    "noTasksDescription": "Создайте первую задачу — ребёнок увидит её сразу после сохранения.",
+    "addFirstTask": "Добавьте первую задачу",
+    "quickIdeas": "Быстрые идеи",
+    "useAI": "Использовать ИИ",
+    "aiHelp": "ИИ улучшит описание задачи",
+    "categories": {
+      "home": "Домашние дела",
+      "study": "Учёба",
+      "health": "Здоровье",
+      "creativity": "Творчество",
+      "social": "Общение",
+      "other": "Другое"
+    },
+    "difficultyLevels": {
+      "1": "Очень легко",
+      "2": "Легко",
+      "3": "Средне",
+      "4": "Сложно",
+      "5": "Очень сложно"
+    }
+  },
+  "rewards": {
+    "title": "Награды",
+    "shop": "Магазин наград",
+    "myRewards": "Мои награды",
+    "createReward": "Создать награду",
+    "editReward": "Редактировать награду",
+    "rewardName": "Название награды",
+    "rewardDescription": "Описание",
+    "price": "Цена",
+    "buy": "Купить",
+    "redeem": "Получить",
+    "confirmDelivery": "Подтвердить выдачу",
+    "confirmReceived": "Подтвердить получение",
+    "pending": "Ожидает",
+    "delivered": "Выдано",
+    "received": "Получено",
+    "noRewards": "Нет доступных наград",
+    "insufficientPoints": "Недостаточно очков",
+    "purchaseSuccess": "Награда приобретена!",
+    "purchaseError": "Не удалось приобрести награду"
+  },
+  "family": {
+    "title": "Семья",
+    "familyName": "Название семьи",
+    "familyCode": "Код семьи",
+    "inviteCode": "Код приглашения",
+    "inviteLink": "Ссылка-приглашение",
+    "copyCode": "Копировать код",
+    "copyLink": "Копировать ссылку",
+    "shareLink": "Поделиться ссылкой",
+    "codeCopied": "Код скопирован!",
+    "linkCopied": "Ссылка скопирована!",
+    "joinFamily": "Присоединиться к семье",
+    "createFamily": "Создать семью",
+    "leaveFamily": "Покинуть семью",
+    "members": "Участники",
+    "parent": "Родитель",
+    "child": "Ребёнок",
+    "children": "Дети",
+    "addChild": "Добавить ребёнка",
+    "noChildren": "Пока ни один ребёнок не подключился",
+    "noChildrenDescription": "Передайте код семьи ребёнку. После подключения его профиль появится здесь автоматически.",
+    "inviteChild": "Пригласите ребёнка в семью",
+    "createFamilyPrompt": "Создайте семью",
+    "createFamilyDescription": "Чтобы видеть подключённых детей, создайте семью и поделитесь кодом со своим ребёнком",
+    "loadingChildren": "Загружаем список подключённых детей…",
+    "failedToLoadChildren": "Не удалось получить список детей",
+    "shareCodeHint": "Поделитесь этим кодом со своим ребёнком. После подключения его профиль появится здесь автоматически.",
+    "familyInfo": "Информация о семье",
+    "familyInfoDescription": "Данные вашей семьи и приглашение детей",
+    "shareCode": "Передайте этот код семьи своему ребёнку:"
+  },
+  "profile": {
+    "title": "Профиль",
+    "myProfile": "Мой профиль",
+    "editProfile": "Редактировать профиль",
+    "displayName": "Имя",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "avatar": "Аватар",
+    "changeAvatar": "Изменить аватар",
+    "uploadAvatar": "Загрузить аватар",
+    "dateOfBirth": "Дата рождения",
+    "age": "Возраст",
+    "level": "Уровень",
+    "experience": "Опыт",
+    "totalPoints": "Всего очков",
+    "currentStreak": "Текущая серия",
+    "days": "дней",
+    "ageNotSpecified": "Возраст не указан",
+    "copyId": "Скопировать ID",
+    "idCopied": "ID скопирован!",
+    "profileUpdated": "Профиль обновлён",
+    "profileError": "Не удалось обновить профиль"
+  },
+  "subscription": {
+    "title": "Подписка",
+    "currentPlan": "Текущий тариф",
+    "changePlan": "Сменить тариф",
+    "upgrade": "Улучшить",
+    "downgrade": "Понизить",
+    "cancel": "Отменить подписку",
+    "cancelConfirm": "Вы уверены, что хотите отменить?",
+    "perMonth": "/месяц",
+    "perYear": "/год",
+    "currency": "лей",
+    "free": "Бесплатный",
+    "basic": "Базовый",
+    "premium": "Премиум",
+    "family": "Семейный",
+    "features": "Возможности",
+    "choosePlan": "Выбрать тариф",
+    "currentlyActive": "Активен",
+    "mostPopular": "Популярный",
+    "bestValue": "Лучшая цена",
+    "subscriptionChanged": "Подписка обновлена",
+    "subscriptionCancelled": "Подписка отменена",
+    "daysRemaining": "Осталось дней",
+    "autoRenewal": "Автопродление включено",
+    "tierDescriptions": {
+      "free": "Базовые возможности приложения",
+      "basic": "Расширенные функции для активных семей",
+      "premium": "Все возможности приложения",
+      "family": "Максимум возможностей для больших семей"
+    },
+    "benefitsList": "Преимущества премиум подписки:",
+    "benefit1": "AI-ассистент для умных рекомендаций",
+    "benefit2": "Неограниченное количество задач и детей",
+    "benefit3": "Продвинутая аналитика и отчёты",
+    "benefit4": "Эксклюзивные награды и достижения",
+    "currentSubscription": "Текущая подписка",
+    "managePlan": "Управление тарифным планом",
+    "upgradeBenefits": "Преимущества премиум подписки:",
+    "chooseYourPlan": "Выберите план",
+    "upgradeDescription": "Улучшите подписку для доступа к расширенным функциям",
+    "selectPlan": "Выбрать",
+    "switchToYearlySave": "Перейдите на год и сэкономьте 15%",
+    "plansInclude": "Планы включают:",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "Попробуйте приложение с семьёй",
+        "price": "Бесплатно",
+        "features": [
+          "1 профиль ребёнка",
+          "Создание задач вручную",
+          "Базовые звёздочки-награды",
+          "Семейный чат"
+        ]
+      },
+      "basic": {
+        "name": "Basic",
+        "tagline": "Ежедневная помощь с делами и мотивацией",
+        "price": "299",
+        "priceAmount": "299 лей",
+        "yearlyPrice": "2990",
+        "yearlyMonthlyPrice": "249 лей",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Безлимит детей",
+          "ИИ подбирает задачи по возрасту",
+          "Магазин наград — ребёнок тратит баллы",
+          "Фото-подтверждение выполнения",
+          "Еженедельная сводка прогресса",
+          "Поддержка по email"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "tagline": "Аналитика, которая помогает воспитывать",
+        "price": "599",
+        "priceAmount": "599 лей",
+        "yearlyPrice": "5990",
+        "yearlyMonthlyPrice": "499 лей",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Всё из Basic",
+          "ИИ адаптирует задачи под поведение ребёнка",
+          "Детальная аналитика — сильные и слабые стороны",
+          "PDF-отчёты (для учителей или психолога)",
+          "Повторяющиеся задачи и умное расписание",
+          "Свои темы и шаблоны задач",
+          "Приоритетная поддержка (ответ за 24ч)"
+        ]
+      },
+      "family": {
+        "name": "Family",
+        "tagline": "Оба родителя, бабушки и няня — на связи",
+        "price": "999",
+        "priceAmount": "999 лей",
+        "yearlyPrice": "9990",
+        "yearlyMonthlyPrice": "833 лей",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Всё из Premium",
+          "До 5 аккаунтов взрослых",
+          "Каждый взрослый с отдельным логином",
+          "Push-уведомления для всех взрослых",
+          "Общая семейная лента активности",
+          "Выделенный менеджер поддержки"
+        ]
+      }
+    },
+    "trial": {
+      "badge": "7 дней бесплатно",
+      "startTrial": "Начать пробный период",
+      "trialActive": "Пробный период",
+      "trialDaysLeft": "Осталось {days} дн. пробного периода",
+      "trialDescription": "Попробуйте Basic бесплатно 7 дней. Отмена в любое время.",
+      "trialExpired": "Пробный период истёк"
+    },
+    "downgradeBlocked": "У вас уже более высокий план",
+    "cannotDowngrade": "Понижение плана недоступно. Обратитесь в поддержку."
+  },
+  "featureGate": {
+    "lockedTitle": "Функция заблокирована",
+    "requiresPlan": "Требуется тариф {plan}",
+    "description": "Обновите подписку, чтобы разблокировать {feature} и многое другое.",
+    "whatYouGet": "Что вы получите",
+    "upgrade": "Улучшить",
+    "upgradeTo": "Перейти на {plan}",
+    "startingAt": "От {price}/мес.",
+    "taskLimitReached": "Достигнут лимит задач за день ({count}/{limit}). Обновите подписку.",
+    "childrenLimitReached": "Достигнут лимит детей ({count}/{limit}). Обновите подписку.",
+    "featureNames": {
+      "aiAssistant": "AI-ассистент",
+      "advancedAnalytics": "Расширенная аналитика",
+      "customRewards": "Пользовательские награды",
+      "prioritySupport": "Приоритетная поддержка",
+      "familySharing": "Семейный доступ",
+      "offlineMode": "Офлайн режим",
+      "maxChildren": "Больше детей",
+      "maxTasksPerDay": "Больше задач в день"
+    },
+    "benefits": {
+      "basic1": "Умные предложения задач от ИИ",
+      "basic2": "До 5 профилей детей",
+      "basic3": "До 50 задач в день",
+      "premium1": "Расширенная аналитика и отчёты",
+      "premium2": "Создание пользовательских наград",
+      "premium3": "Офлайн режим и приоритетная поддержка",
+      "family1": "Неограниченное количество детей и задач",
+      "family2": "Семейный доступ с разных устройств",
+      "family3": "Персональный менеджер и доступ к API"
+    }
+  },
+  "achievements": {
+    "title": "Достижения",
+    "unlocked": "Разблокировано!",
+    "locked": "Заблокировано",
+    "progress": "Прогресс",
+    "tree": "Дерево достижений",
+    "description": "Выполняйте достижения и получайте награды",
+    "noAchievements": "Достижения скоро появятся!"
+  },
+  "stickers": {
+    "title": "Коллекция стикеров",
+    "description": "Собирайте стикеры за выполнение заданий",
+    "new": "Новое!",
+    "animals": "Животные",
+    "robots": "Роботы",
+    "fantasy": "Фэнтези",
+    "seriesProgress": "Прогресс серии"
+  },
+  "analytics": {
+    "title": "Аналитика",
+    "overview": "Обзор",
+    "tasksCompleted": "Задач выполнено",
+    "totalPoints": "Всего очков",
+    "currentStreak": "Текущая серия",
+    "weeklyActivity": "Активность по неделям",
+    "childStats": "Статистика детей",
+    "categoryBreakdown": "По категориям",
+    "weeklyProgress": "Недельный прогресс",
+    "taskStatus": "Статус задач",
+    "pointsTrend": "Динамика очков",
+    "periodSelection": {
+      "7days": "7 дней",
+      "30days": "30 дней",
+      "90days": "90 дней"
+    },
+    "export": {
+      "png": "PNG",
+      "pdf": "PDF"
+    },
+    "exportAll": {
+      "button": "Выгрузить все графики (PDF)",
+      "generating": "Генерация PDF...",
+      "currentView": "Текущий вид",
+      "currentPng": "Сохранить как PNG",
+      "currentPdf": "Сохранить как PDF",
+      "reportTitle": "Отчёт по аналитике",
+      "period": "Период",
+      "days": "дней",
+      "renderError": "Не удалось отрисовать график"
+    },
+    "exportDialog": {
+      "title": "Настройки выгрузки",
+      "selectChild": "Выбрать ребёнка",
+      "selectCharts": "Выбрать графики",
+      "selectAll": "Выбрать все",
+      "deselectAll": "Снять выбор",
+      "generate": "Сгенерировать PDF"
+    },
+    "cards": {
+      "totalPoints": "Всего очков",
+      "earnedForPeriod": "Заработано за период",
+      "completedTasks": "Завершённые задачи",
+      "outOf": "Из {total} всего",
+      "completionRate": "Процент выполнения",
+      "successRate": "Успешность",
+      "activeChildren": "Активные дети",
+      "participatingInTasks": "Участвуют в задачах"
+    },
+    "charts": {
+      "activityPulse": "Пульс активности",
+      "childrenLeaderboard": "Рейтинг детей",
+      "difficultyRadar": "Карта сложности",
+      "completionMomentum": "Динамика прогресса",
+      "taskStatusDonut": "Статус задач",
+      "pointsGrowth": "Рост очков",
+      "streakHeatmap": "Путь героя"
+    },
+    "chartDescriptions": {
+      "activityPulse": "Сколько задач выполняется каждый день и сколько очков зарабатывается. Пунктирная линия — средний тренд.",
+      "childrenLeaderboard": "Рейтинг детей по заработанным очкам — кто самый активный за этот период.",
+      "difficultyRadar": "Распределение задач по уровням сложности — видно, какие задания ребёнок выполняет чаще всего.",
+      "completionMomentum": "Какой процент назначенных задач выполняется каждую неделю. Пунктир — целевые 80%.",
+      "taskStatusDonut": "Текущий статус всех задач — сколько выполнено, в работе или просрочено.",
+      "pointsGrowth": "Как меняются заработанные очки день за днём — динамика роста за выбранный период.",
+      "streakHeatmap": "Приключение-квест! Отслеживай ежедневные серии, получай достижения и повышай уровень."
+    },
+    "chartLabels": {
+      "tasks": "Задачи",
+      "points": "Очки",
+      "completed": "Выполнено",
+      "total": "Всего",
+      "inProgress": "В работе",
+      "overdue": "Просрочено",
+      "pending": "В ожидании",
+      "remaining": "Оставшиеся",
+      "completionRate": "% выполнения",
+      "trend": "Тренд",
+      "avgRate": "Среднее",
+      "completionPercent": "% выполнения",
+      "goal": "Цель",
+      "currentStreak": "Текущая серия",
+      "bestStreak": "Лучшая серия",
+      "activeDays": "Активные дни",
+      "days": "дней",
+      "less": "Меньше",
+      "more": "Больше",
+      "level": "Уровень",
+      "xp": "XP",
+      "questPath": "Путь квеста",
+      "achievements": "Достижения",
+      "firstStep": "Первый шаг",
+      "firstStepDesc": "Выполни первый день",
+      "onFire": "В огне!",
+      "onFireDesc": "Серия 3 дня",
+      "unstoppable": "Неудержимый",
+      "unstoppableDesc": "Серия 7 дней",
+      "legendary": "Легенда",
+      "legendaryDesc": "Серия 14 дней",
+      "mythical": "Мифический",
+      "mythicalDesc": "Серия 30 дней",
+      "today": "Сегодня",
+      "tasksCompleted": "задач выполнено",
+      "streak": "серия",
+      "noActivity": "День отдыха",
+      "familyQuest": "Семейный квест",
+      "memberActivity": "Активность участника"
+    },
+    "quickSwitch": "Быстрое переключение",
+    "chartNumbers": {
+      "1": "1. Пульс активности",
+      "2": "2. Рейтинг детей",
+      "3": "3. Карта сложности",
+      "4": "4. Динамика прогресса",
+      "5": "5. Статус задач",
+      "6": "6. Рост очков",
+      "7": "7. Путь героя"
+    }
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "enable": "Включить уведомления",
+    "enableNotifications": "Включить уведомления",
+    "taskCompletionDesc": "Получать уведомления о выполнении задач",
+    "sound": "Звуковые уведомления",
+    "soundDescription": "Включить звук при уведомлениях",
+    "soundNotifications": "Звуковые уведомления",
+    "soundNotificationsDesc": "Включить звук при уведомлениях",
+    "nightMode": "Ночной режим",
+    "nightModeStart": "Ночной режим начинается",
+    "nightModeEnd": "Ночной режим заканчивается",
+    "nightModeDescription": "В ночном режиме только срочные уведомления",
+    "nightModeHint": "В ночном режиме приходят только срочные уведомления",
+    "markAllRead": "Отметить все как прочитанные",
+    "noNotifications": "Нет уведомлений",
+    "taskCompleted": "Задача выполнена",
+    "taskAssigned": "Новая задача!",
+    "taskUpdated": "Задача обновлена"
+  },
+  "settings": {
+    "title": "Настройки",
+    "appearance": "Оформление",
+    "theme": "Тема оформления",
+    "themeLight": "Светлая тема включена",
+    "themeDark": "Тёмная тема включена",
+    "switchToLight": "Светлая",
+    "switchToDark": "Тёмная",
+    "dangerZone": "Опасные действия",
+    "dangerDescription": "Действия, которые нельзя отменить",
+    "clearData": "Очистить все данные",
+    "clearDataConfirm": "Вы уверены?",
+    "clearDataDescription": "Это действие удалит все данные вашей семьи. Это нельзя будет отменить.",
+    "willBeDeleted": "Будут удалены:",
+    "allTasks": "Все задачи",
+    "allRewards": "Все награды",
+    "allStats": "Вся статистика",
+    "childProfiles": "Профили детей",
+    "lightThemeLabel": "Светлая",
+    "darkThemeLabel": "Тёмная",
+    "clearAllData": "Очистить все данные",
+    "clearAllDataConfirm": "Вы уверены?",
+    "clearAllDataMessage": "Это действие удалит все данные вашей семьи. Это нельзя будет отменить.",
+    "whatWillBeDeleted": "Будут удалены:",
+    "allTasksDeleted": "Все задачи",
+    "allRewardsDeleted": "Все награды",
+    "allStatisticsDeleted": "Вся статистика",
+    "childProfilesDeleted": "Профили детей"
+  },
+  "activity": {
+    "title": "Лента активности семьи",
+    "taskCompleted": "{name} выполнил(а) задачу \"{task}\"",
+    "taskCreated": "{name} создал(а) задачу \"{task}\"",
+    "rewardPurchased": "{name} приобрёл(а) \"{reward}\"",
+    "achievementUnlocked": "{name} получил(а) достижение \"{achievement}\"",
+    "justNow": "Только что",
+    "minutesAgo": "{count} минут назад",
+    "hoursAgo": "{count} часов назад",
+    "daysAgo": "{count} дней назад"
+  },
+  "points": {
+    "title": "Система очков",
+    "basePoints": "Базовые очки",
+    "streakBonus": "Бонус за серию",
+    "timeBonus": "Бонус за время",
+    "earlyBonus": "Бонус за раннее выполнение",
+    "totalEarned": "Всего заработано",
+    "bonuses": {
+      "streak3": "3 дня подряд",
+      "streak7": "7 дней подряд",
+      "streak14": "14 дней подряд",
+      "streak30": "30 дней подряд",
+      "morning": "Утро (6-12)",
+      "afternoon": "День (12-18)",
+      "evening": "Вечер (18-22)",
+      "early1day": "За день+ до дедлайна",
+      "early3hours": "За 3+ часа до дедлайна"
+    }
+  },
+  "child": {
+    "greeting": "Привет, {name}! 👋",
+    "subtitle": "Выполняй задачи и зарабатывай награды",
+    "stats": {
+      "level": "Уровень",
+      "experience": "Опыт",
+      "points": "Очки",
+      "streak": "Серия 🔥",
+      "familyCode": "Код семьи",
+      "age": "Возраст"
+    },
+    "navigation": {
+      "tasks": "Задачи",
+      "rewards": "Награды",
+      "achievements": "Достижения",
+      "stickers": "Стикеры",
+      "shop": "Магазин",
+      "chat": "Чат",
+      "profile": "Профиль",
+      "changeAvatar": "Изменить аватар",
+      "logout": "Выйти"
+    },
+    "messages": {
+      "completeTask": "Выполняй задачи и получай опыт и очки",
+      "earnRewards": "Потрати свои очки на награды",
+      "viewAchievements": "Посмотри свои достижения и рекорды",
+      "manageProfile": "Управляй своим аватаром, настройками и внешним видом"
+    }
+  },
+  "chat": {
+    "title": "Чаты с детьми",
+    "subtitle": "Выберите общий чат или персональную беседу с ребёнком",
+    "familyChat": "Общий чат семьи",
+    "familyChatDescription": "Общайтесь со всеми детьми одновременно",
+    "privateChats": "Приватные чаты",
+    "noChildren": "Пока нет детей в семье",
+    "noChildrenDescription": "Пригласите детей используя код семьи",
+    "childrenCount": "{count} детей",
+    "placeholder": "Напишите сообщение...",
+    "send": "Отправить",
+    "noMessages": "Ещё нет сообщений",
+    "typing": "{name} печатает..."
+  },
+  "aiChat": {
+    "title": "ИИ-ассистент",
+    "placeholder": "Спросите что-нибудь о задачах...",
+    "thinking": "Думаю...",
+    "error": "Не удалось получить ответ",
+    "suggestions": "Предложения",
+    "actions": "Рекомендуемые действия",
+    "fallbackReply": "Уточните запрос, пожалуйста, я потерял контекст.",
+    "fetchError": "Не удалось получить ответ ИИ. Попробуйте ещё раз.",
+    "actionSuccess": "Действие выполнено успешно!",
+    "actionFailed": "Не удалось выполнить действие",
+    "actionError": "Ошибка при выполнении действия"
+  },
+  "aiChatPage": {
+    "quickActions": {
+      "taskSprint": {
+        "title": "Спринт задач",
+        "description": "Попроси ИИ собрать задачи под конкретную цель",
+        "prompt": "Составь недельный спринт задач для ребёнка, чтобы прокачать ответственность и помочь с уроками."
+      },
+      "rewardBoost": {
+        "title": "Наградный буст",
+        "description": "Пусть ИИ обновит магазин наград",
+        "prompt": "Предложи свежие награды до 400 очков с упором на семейные ритуалы."
+      },
+      "childDialog": {
+        "title": "Диалог с ребёнком",
+        "description": "Получите сценарий беседы",
+        "prompt": "Подскажи, как поговорить с ребёнком о снижении мотивации, чтобы он не замкнулся."
+      }
+    },
+    "starterIdeas": {
+      "weeklySchedule": "Смести расписание задач на неделю с указанием времени и XP",
+      "microBonuses": "Разбей награду 'поход в музей' на микро-бонусы",
+      "weekSummary": "Придумай тёплое сообщение для семейного чата с итогами недели",
+      "morningChecklist": "Сделай чек-лист подготовки к утру для ребёнка 9 лет"
+    },
+    "greeting": {
+      "childPersona": "Твой семейный наставник здесь",
+      "parentPersona": "Готов построить семейную стратегию",
+      "familySuffix": "семьи «{familyName}»",
+      "helpMessage": "я помогу с задачами, наградами и коммуникацией",
+      "cta": "Сформулируй запрос — и я сделаю остальное."
+    },
+    "header": {
+      "title": "Интеллектуальный ассистент семьи",
+      "description": "Попроси создать набор задач, сводку недели или подготовить сообщение — ассистент выполнит запрос с учетом семейного контекста."
+    },
+    "status": {
+      "thinking": "ИИ формирует ответ",
+      "online": "Онлайн",
+      "lastReply": "Последний ответ {time}",
+      "dialogStart": "Диалог только стартует"
+    },
+    "dialog": {
+      "label": "Диалог",
+      "title": "AI-оператор",
+      "reset": "Сбросить"
+    },
+    "messages": {
+      "you": "Вы",
+      "ai": "ИИ",
+      "system": "Система",
+      "preparing": "Готовлю ответ…"
+    },
+    "actions": {
+      "available": "Доступные действия",
+      "executing": "Выполняю…"
+    },
+    "input": {
+      "placeholder": "Расскажи, что должен сделать ассистент. Например: \u201cПодготовь письмо родителям с итогами недели и списком задач на понедельник.\u201d",
+      "shiftEnterHint": "Shift+Enter — перенос строки",
+      "randomIdea": "Случайная идея",
+      "send": "Отправить"
+    },
+    "sidebar": {
+      "quickActions": "Быстрые действия",
+      "promptTemplates": "Шаблоны запросов",
+      "insertToField": "Вставить в поле",
+      "contextInfo": "Информация о контексте"
+    },
+    "context": {
+      "roleChild": "ребёнок",
+      "roleParent": "родитель",
+      "roleLabel": "Роль: {role}",
+      "nameLabel": "Имя: {name}",
+      "familyLabel": "Семья: {family}",
+      "description": "Ассистент использует контекст роли и семьи, чтобы формировать ответы во всех сценариях: постановка задач, рекомендации по наградам, объяснение правил, текст для семейного чата."
+    }
+  },
+  "aiWidget": {
+    "openChat": "Открыть AI-ассистента",
+    "title": "AI Ассистент",
+    "assistantName": "AI Ассистент",
+    "online": "В сети",
+    "thinking": "Думаю…",
+    "greeting": "Привет",
+    "greetingSuffix": "Чем могу помочь?",
+    "startersLabel": "Быстрый старт",
+    "starters": {
+      "tasks": "Создать задания",
+      "tasksPrompt": "Составь набор заданий для ребёнка на эту неделю, учитывая возраст.",
+      "rewards": "Подобрать награды",
+      "rewardsPrompt": "Предложи креативные награды до 500 очков, которые мотивируют ребёнка.",
+      "talk": "Советы по общению",
+      "talkPrompt": "Как поговорить с ребёнком о падении мотивации без давления?",
+      "summary": "Итоги недели",
+      "summaryPrompt": "Подведи итоги недели ребёнка с ключевыми достижениями."
+    },
+    "inputPlaceholder": "Напишите сообщение…",
+    "newChat": "Новый диалог",
+    "expand": "Развернуть",
+    "collapse": "Свернуть",
+    "close": "Закрыть",
+    "actions": "Доступные действия",
+    "executing": "Выполняю…",
+    "poweredBy": "На основе AI · FamilyQuest"
+  },
+  "childTaskPlanner": {
+    "title": "Календарь и планирование",
+    "subtitle": "Выбирай день и планируй задания — так легче держать серию и зарабатывать очки.",
+    "streakLabel": "Серия: {count} дней",
+    "selectedDate": "Выбранная дата",
+    "taskCount": "{count} задач",
+    "pointsCount": "{count} очков",
+    "dayPlan": {
+      "title": "План на день",
+      "subtitle": "Что нужно выполнить"
+    },
+    "status": {
+      "inProgress": "В работе",
+      "free": "Свободно"
+    },
+    "emptyState": "Пока нет запланированных задач. Добавь идеи из списка ниже.",
+    "possibleTasks": {
+      "title": "Возможные задания",
+      "subtitle": "Идеи, которые можно добавить в план."
+    },
+    "pointsBadge": "+{count}",
+    "pointsInline": "+{count} очков",
+    "buttons": {
+      "planned": "В плане",
+      "schedule": "Запланировать"
+    },
+    "tasks": {
+      "cleanToys": {
+        "title": "Убрать игрушки",
+        "category": "Дом",
+        "duration": "10 мин"
+      },
+      "readPages": {
+        "title": "Прочитать 10 страниц",
+        "category": "Учёба",
+        "duration": "20 мин"
+      },
+      "exercise": {
+        "title": "Сделать зарядку",
+        "category": "Активность",
+        "duration": "15 мин"
+      },
+      "waterPlants": {
+        "title": "Полить цветы",
+        "category": "Забота",
+        "duration": "8 мин"
+      },
+      "helpKitchen": {
+        "title": "Помочь на кухне",
+        "category": "Семья",
+        "duration": "15 мин"
+      }
+    }
+  },
+  "errors": {
+    "networkError": "Ошибка сети. Проверьте подключение.",
+    "serverError": "Ошибка сервера. Попробуйте позже.",
+    "unauthorized": "Войдите в систему для продолжения.",
+    "forbidden": "У вас нет прав для этого действия.",
+    "notFound": "Не найдено.",
+    "validationError": "Проверьте введённые данные.",
+    "unknownError": "Что-то пошло не так."
+  },
+  "welcome": {
+    "appName": "FamilyTask",
+    "tagline": "Общие цели — общая радость!",
+    "getStarted": "Начать",
+    "login": "Войти",
+    "subtitle": "Для всей семьи • Займёт 2 минуты",
+    "slides": {
+      "tasks": {
+        "title": "Управляй задачами",
+        "description": "Создавай, назначай и отмечай выполнение всей семьёй."
+      },
+      "rewards": {
+        "title": "Получай награды",
+        "description": "Зарабатывай очки и обменивай их на призы и бонусы."
+      },
+      "achievements": {
+        "title": "Собирай достижения",
+        "description": "Открывай уровни, бейджи и серии за регулярность."
+      },
+      "progress": {
+        "title": "Следи за прогрессом",
+        "description": "Понимай, что сделано сегодня и что в планах на неделю."
+      },
+      "motivation": {
+        "title": "Поддерживай мотивацию",
+        "description": "Мягкие подсказки и цели помогают не бросать начатое."
+      },
+      "ai": {
+        "title": "AI-помощник",
+        "description": "Идеи задач и наград — быстрее старт и меньше рутины."
+      }
+    }
+  },
+  "parentDashboard": {
+    "familyNameFallback": "Моя семья",
+    "familyCodeLabel": "Код семьи",
+    "aiChat": "AI чат",
+    "profileAvatarAlt": "Аватар профиля",
+    "profile": "Профиль",
+    "logout": "Выйти",
+    "rewardAddedTitle": "Награда добавлена",
+    "rewardAddedDescription": "Новая награда добавлена в магазин",
+    "rewardAddErrorTitle": "Ошибка",
+    "rewardAddErrorDescription": "Не удалось добавить награду",
+    "tabs": {
+      "tasks": "Задачи",
+      "rewards": "Награды",
+      "analytics": "Аналитика",
+      "children": "Дети",
+      "chat": "Чат",
+      "templates": "Шаблоны",
+      "settings": "Настройки"
+    },
+    "sections": {
+      "tasks": {
+        "title": "Управление задачами",
+        "subtitle": "Создавайте и отслеживайте задачи для детей",
+        "newAction": "Новая задача"
+      },
+      "rewards": {
+        "title": "Награды",
+        "subtitle": "Создавайте награды для детей",
+        "newAction": "Новая награда"
+      },
+      "analytics": {
+        "title": "Аналитика",
+        "subtitle": "Подробная статистика активности семьи"
+      },
+      "children": {
+        "title": "Управление детьми",
+        "subtitle": "Добавляйте, редактируйте и управляйте профилями детей"
+      },
+      "templates": {
+        "title": "Шаблоны задач",
+        "subtitle": "Используйте готовые шаблоны для быстрого создания задач"
+      },
+      "settings": {
+        "title": "Настройки",
+        "subtitle": "Управляйте параметрами семьи и приложения"
+      },
+      "chat": {
+        "empty": "Создайте семью для использования чата"
+      }
+    }
+  },
+  "authChoice": {
+    "back": "Назад",
+    "title": "Добро пожаловать!",
+    "subtitle": "Выберите, что вас привело сюда",
+    "newUser": {
+      "title": "Я новый пользователь",
+      "description": "Создам новый аккаунт и присоединюсь к FamilyQuest",
+      "bullets": {
+        "role": "✓ Выберу роль (родитель или ребёнок)",
+        "profile": "✓ Заполню свой профиль",
+        "family": "✓ Создам или присоединюсь к семье"
+      },
+      "action": "Зарегистрироваться"
+    },
+    "existingUser": {
+      "title": "У меня уже есть аккаунт",
+      "description": "Войду в свой существующий аккаунт",
+      "bullets": {
+        "credentials": "✓ Введу свой email и пароль",
+        "profile": "✓ Вернусь к своему профилю",
+        "continue": "✓ Продолжу с того же места"
+      },
+      "action": "Войти"
+    }
+  },
+  "authScreen": {
+    "rolePrompt": "Выберите роль и заполните профиль",
+    "roles": {
+      "parent": "Родитель",
+      "child": "Ребёнок",
+      "parentDesc": "Создавай задания, управляй наградами и следи за прогрессом",
+      "childDesc": "Выполняй задания, получай награды и добивайся целей"
+    },
+    "inviteNote": "⚠️ Вы присоединяетесь по ссылке-приглашению. Роль автоматически установлена как \"Ребёнок\"",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "requiredField": "Обязательное поле",
+    "age": "Возраст",
+    "years": "лет",
+    "avatar": "Аватар",
+    "avatarAlt": "Аватар",
+    "uploadPhoto": "Загрузить фото",
+    "interestsTitle": "Что тебе нравится? *",
+    "interestsSubtitle": "Выбери минимум один интерес",
+    "interests": {
+      "sports": "Спорт",
+      "music": "Музыка",
+      "art": "Рисование",
+      "gaming": "Игры",
+      "reading": "Чтение",
+      "science": "Наука",
+      "cooking": "Кулинария",
+      "nature": "Природа",
+      "movies": "Кино",
+      "dancing": "Танцы"
+    },
+    "familyName": "Название семьи",
+    "familyCodeAuto": "Код семьи создастся автоматически после регистрации.",
+    "addChildLater": "После регистрации вы сможете добавить детей через панель управления",
+    "familyCode": "Код семьи",
+    "familyCodePlaceholder": "ABC123",
+    "submitFillRequired": "Заполните обязательные поля",
+    "submitLoading": "Подождите...",
+    "submitRegister": "Зарегистрироваться",
+    "submitLogin": "Войти",
+    "or": "или",
+    "oauth": {
+      "google": "Войти через Google",
+      "github": "Войти через GitHub",
+      "discord": "Войти через Discord"
+    },
+    "switchToRegister": "Нет аккаунта? Регистрация",
+    "switchToLogin": "Уже есть аккаунт? Войти",
+    "errors": {
+      "oauthProviderUnavailable": "Интеграция с выбранным провайдером ещё не доступна.",
+      "loginEmailPasswordRequired": "Введите email и пароль.",
+      "emailInvalid": "Введите корректный email.",
+      "loginFailed": "Не удалось войти.",
+      "oauthPending": "Требуется завершить регистрацию. Пожалуйста, используйте обычную форму регистрации.",
+      "oauthError": "Ошибка авторизации",
+      "oauthPopupBlocked": "Разрешите всплывающие окна для OAuth авторизации или используйте обычную регистрацию.",
+      "oauthCancelled": "Авторизация отменена",
+      "oauthStartFailed": "Не удалось начать вход через провайдера.",
+      "passwordTooShort": "Пароль должен быть минимум 6 символов.",
+      "nameLastNameRequired": "Введите имя и фамилию.",
+      "familyNameRequired": "Введите название семьи.",
+      "familyCodeRequired": "Введите код семьи.",
+      "interestsRequired": "Выбери хотя бы один интерес.",
+      "ageInvalid": "Возраст должен быть числом.",
+      "registerFailed": "Не удалось зарегистрироваться.",
+      "roleRequired": "Пожалуйста, выбери роль",
+      "emailNotConfirmed": "Ваш email не подтверждён. Пожалуйста, проверьте почту и перейдите по ссылке подтверждения."
+    },
+    "info": {
+      "registerSuccess": "Регистрация прошла успешно! Войдите, используя указанные данные.",
+      "registerSuccessCheckEmail": "Регистрация прошла успешно! Проверьте почту и перейдите по ссылке подтверждения, прежде чем войти.",
+      "resendSuccess": "Письмо с подтверждением отправлено! Проверьте почту."
+    },
+    "resendConfirmation": "Отправить письмо повторно",
+    "resendingConfirmation": "Отправка...",
+    "welcomeBack": "Добро пожаловать обратно!",
+    "startAdventure": "Начни своё приключение",
+    "passwordPlaceholder": "Минимум 6 символов",
+    "tryDemo": "Попробовать демо",
+    "switchCreate": "Создай",
+    "switchLogin": "Войди",
+    "chooseRole": "Выбери свою роль",
+    "roleWarning": "⚠️ Роль нельзя изменить позже, выбери внимательно!",
+    "continue": "Продолжить",
+    "createFamily": "Создай семью",
+    "createFamilySubtitle": "Дай ей название и выбери эмблему",
+    "familyNamePlaceholder": "Семья Иванова",
+    "submitFamilyNameRequired": "Заполните название семьи",
+    "submitCreating": "Создаётся...",
+    "submitCreateFamily": "Создать семью",
+    "createProfile": "Создай профиль",
+    "createProfileSubtitle": "Заполни информацию о себе",
+    "firstNamePlaceholder": "Иван",
+    "lastNamePlaceholder": "Иванов",
+    "submitJoining": "Присоединяется...",
+    "submitJoinFamily": "Присоединиться к семье",
+    "hints": {
+      "password": "Выбери надёжный пароль из минимум 6 символов, с буквами и цифрами для безопасности!",
+      "role": "Мы рекомендуем роль Ребёнка для возраста от 6 до 16 лет, и роль Родителя для взрослых.",
+      "familyName0": "Семья Супергероев",
+      "familyName1": "Космические Исследователи",
+      "familyName2": "Команда Дракона",
+      "familyName3": "Лига Справедливости",
+      "familyName4": "Семья Викингов"
+    },
+    "demo": {
+      "name": "Тест",
+      "lastName": "Пользователь",
+      "familyName": "Демо Семья"
+    }
+  },
+  "rewardsShop": {
+    "errors": {
+      "loadTitle": "Ошибка загрузки",
+      "loadProducts": "Не удалось загрузить товары магазина",
+      "loadOrders": "Не удалось загрузить заказы"
+    },
+    "empty": {
+      "title": "Магазин пуст",
+      "parentHint": "Добавьте первую награду, чтобы начать мотивировать ребёнка",
+      "childHint": "Пока нет доступных наград. Скоро появятся новые!"
+    },
+    "emptyCategory": "В этой категории пока нет наград",
+    "stock": {
+      "outOfStock": "Нет в наличии",
+      "inStock": "{count} шт.",
+      "hidden": "Скрыта"
+    },
+    "fallbackDescription": "Уникальная награда за достижения",
+    "pointsShort": "баллов",
+    "rewardCount": {
+      "one": "награда",
+      "few": "награды",
+      "many": "наград",
+      "other": "наград"
+    },
+    "actions": {
+      "unavailable": "Недоступно",
+      "exchange": "Обменять баллы",
+      "edit": "Править",
+      "delete": "Удалить",
+      "confirming": "Подтверждение...",
+      "confirmDelivery": "Подтвердить выдачу награды",
+      "confirmReceipt": "Подтвердить получение",
+      "saving": "Сохранение...",
+      "saveChanges": "Сохранить изменения"
+    },
+    "createdAt": "Создано {date}",
+    "catalog": {
+      "title": "Каталог наград",
+      "parentSubtitle": "Редактируйте награды и управляйте запасами",
+      "childSubtitle": "Выбирайте и обменивайте баллы на желанные подарки",
+      "addReward": "Добавить награду"
+    },
+    "orders": {
+      "title": "Мои обмены",
+      "subtitle": "История обмена баллов на награды",
+      "emptyTitle": "Нет заказов",
+      "emptySubtitle": "Обменивайте заработанные баллы на награды из каталога",
+      "orderNumber": "Заказ #{id}",
+      "itemsCount": "{count} позиций",
+      "parentNote": "Комментарий родителя:"
+    },
+    "status": {
+      "pending": "Ожидает оплаты",
+      "paid": "Оплачен",
+      "awaitingDelivery": "Ожидает выдачи",
+      "delivered": "Награда выдана",
+      "confirmed": "Получение подтверждено",
+      "completed": "Завершён",
+      "cancelled": "Отменён",
+      "unknown": "Статус неизвестен"
+    },
+    "orderTotal": "Итого",
+    "quantityShort": "{count} шт.",
+    "unitPrice": "{value} за шт.",
+    "toasts": {
+      "productUnavailable": {
+        "title": "Товар недоступен",
+        "description": "Этого товара нет в наличии."
+      },
+      "orderCreated": {
+        "title": "Заказ создан",
+        "description": "{name} добавлен в ваши заказы"
+      },
+      "orderFailed": {
+        "title": "Не удалось создать заказ"
+      },
+      "tryAgain": "Попробуйте ещё раз",
+      "rewardDeleted": "Награда удалена",
+      "rewardCreated": {
+        "title": "Награда создана",
+        "description": "Награда \"{name}\" добавлена в каталог"
+      },
+      "rewardCreateFailed": {
+        "title": "Не удалось создать награду"
+      },
+      "rewardDeleteFailed": {
+        "title": "Не удалось удалить награду"
+      },
+      "rewardNameRequired": "Введите название награды",
+      "rewardUpdated": "Награда обновлена",
+      "rewardUpdateFailed": {
+        "title": "Не удалось обновить награду"
+      },
+      "success": "Успешно!",
+      "deliveryConfirmed": "Вы отметили, что награда выдана",
+      "deliveryFailed": "Не удалось подтвердить выдачу награды",
+      "receiptConfirmed": "Вы подтвердили получение награды",
+      "receiptFailed": "Не удалось подтвердить получение награды"
+    },
+    "confirmDelete": "Удалить награду «{name}»?",
+    "edit": {
+      "title": "Редактировать награду",
+      "subtitle": "Обновите информацию о награде, стоимость или доступность",
+      "name": "Название награды",
+      "namePlaceholder": "Например: Поход в кино",
+      "description": "Описание",
+      "descriptionPlaceholder": "Опишите награду подробнее...",
+      "price": "Стоимость (баллы)",
+      "stock": "Количество",
+      "activeTitle": "Отображать в магазине",
+      "activeHint": "Награда будет видна в каталоге для детей"
+    },
+    "tiers": {
+      "instant": {
+        "label": "Мгновенные",
+        "description": "Быстрые и легкодоступные награды",
+        "range": "20–40 очков"
+      },
+      "medium": {
+        "label": "Еженедельные",
+        "description": "Награды среднего уровня",
+        "range": "100–150 очков"
+      },
+      "big": {
+        "label": "Большие награды",
+        "description": "Долгосрочные цели",
+        "range": "300+ очков"
+      }
+    }
+  },
+  "rewardCreation": {
+    "title": "Создать новую награду",
+    "subtitle": "Добавьте награду вручную или используйте ИИ для генерации идей",
+    "modeAi": "С помощью ИИ",
+    "modeManual": "Вручную",
+    "selectType": "Выберите тип награды",
+    "points": "очков",
+    "examplesLabel": "Примеры:",
+    "forWhom": "Для кого награда?",
+    "forAllChildren": "Для всех детей",
+    "aiConsidersInterests": "ИИ учтет увлечения выбранного ребенка при генерации",
+    "childInterests": "Увлечения и хобби ребёнка",
+    "childInterestsHint": "Укажите интересы ребёнка — ИИ подберёт награду именно под него",
+    "interestPlaceholder": "Футбол, Лего, Рисование...",
+    "quickInterests": "Футбол, Рисование, Лего, Minecraft, Танцы, Чтение, Музыка, Плавание",
+    "aiHintPlaceholderChild": "Например: Хочу что-то связанное с любимым мультиком, или награда за хорошие оценки...",
+    "aiAnalyzingChild": "ИИ подбирает идеальную награду для {name} на основе интересов...",
+    "aiHint": "Подсказка для ИИ (необязательно)",
+    "aiHintPlaceholder": "Например: Ребенок хочет что-то связанное с динозаврами, или Награда для особого случая...",
+    "generating": "Генерируем награду...",
+    "generatingTime": "(может занять до минуты)",
+    "generateWithAi": "Сгенерировать с помощью ИИ",
+    "aiAnalyzing": "ИИ анализирует интересы и придумывает идеальную награду...",
+    "rewardName": "Название награды",
+    "rewardNamePlaceholder": "Например: Час игр на консоли",
+    "description": "Описание",
+    "descriptionPlaceholder": "Подробное описание награды...",
+    "costInPoints": "Стоимость в очках",
+    "recommendedRange": "Рекомендуемый диапазон: {min}–{max} очков",
+    "recommended": "Рекомендовано: {points} очков",
+    "stockCount": "Количество наград",
+    "adjustCost": "Изменить",
+    "motivationTip": "💡 Совет по мотивации",
+    "motivationTipText": "Дети остаются мотивированными, когда награды кажутся достижимыми. Мгновенные награды (20–40 очков) для быстрой радости, еженедельные (100–150) для среднесрочных целей, большие (300+) для долгосрочной мотивации.",
+    "saving": "Сохраняем",
+    "createReward": "Создать награду",
+    "categories": {
+      "instant": {
+        "label": "⚡ Мгновенные",
+        "description": "Быстрые награды, которые можно получить сразу",
+        "examples": "Стикеры, Дополнительная сказка на ночь, 15 мин дополнительного экрана, Выбор десерта"
+      },
+      "medium": {
+        "label": "🎯 Еженедельные",
+        "description": "Награды среднего уровня за неделю усилий",
+        "examples": "Маленькая игрушка, Вечер кино, Пицца на ужин, Поход в кафе"
+      },
+      "big": {
+        "label": "🏆 Большие",
+        "description": "Долгосрочные цели за месяц+ усилий",
+        "examples": "Поездка в парк развлечений, Новая видеоигра, Особый подарок, День по выбору ребёнка"
+      }
+    },
+    "toast": {
+      "aiGenerated": "ИИ сгенерировал награду",
+      "aiGeneratedDesc": "{title} - {cost} баллов",
+      "generationError": "Ошибка генерации"
+    },
+    "errors": {
+      "default": "Не удалось сгенерировать награду. Попробуйте еще раз.",
+      "timeout": "ИИ долго обрабатывает запрос. Попробуйте упростить подсказку или попробовать позже.",
+      "serverOverloaded": "Сервер ИИ перегружен. Попробуйте через несколько секунд."
+    }
+  },
+  "rewardCatalog": {
+    "title": "Каталог наград",
+    "subtitle": "Предложенные награды для вдохновения",
+    "popularRewards": "Популярные награды",
+    "allRewards": "Все награды",
+    "filters": "Фильтры",
+    "points": "очков",
+    "add": "Добавить",
+    "difficulty": {
+      "easy": "Легко",
+      "medium": "Средне",
+      "hard": "Сложно"
+    },
+    "categories": {
+      "entertainment": "Развлечение",
+      "food": "Еда",
+      "digital": "Цифровое",
+      "technology": "Технология",
+      "privilege": "Привилегия",
+      "education": "Обучение",
+      "clothing": "Одежда"
+    },
+    "items": {
+      "movieTrip": {
+        "name": "Поход в кино",
+        "description": "Семейный вечер в кинотеатре на фильм по выбору"
+      },
+      "pizza": {
+        "name": "Пицца",
+        "description": "Заказ пиццы на ужин"
+      },
+      "avatarSkin": {
+        "name": "Новый скин для аватара",
+        "description": "Цифровой скин, меняющий внешний вид персонажа"
+      },
+      "chocolate": {
+        "name": "Шоколад",
+        "description": "Плитка качественного шоколада"
+      },
+      "videoGame": {
+        "name": "Видеоигра",
+        "description": "Выбор игры в App Store или Steam"
+      },
+      "dayOff": {
+        "name": "День без домашних дел",
+        "description": "Полный день без выполнения обязанностей"
+      },
+      "book": {
+        "name": "Книга",
+        "description": "Любимая книга или комикс"
+      },
+      "sneakers": {
+        "name": "Новые кроссовки",
+        "description": "Кроссовки на выбор"
+      }
+    }
+  },
+  "activityHeatmap": {
+    "title": "Активность за год",
+    "tasksCount": "{count} задач",
+    "activeDaysCount": "{count} активных дней",
+    "less": "Меньше",
+    "more": "Больше",
+    "taskOne": "задача",
+    "taskFew": "задачи",
+    "taskMany": "задач",
+    "months": {
+      "jan": "Янв",
+      "feb": "Фев",
+      "mar": "Мар",
+      "apr": "Апр",
+      "may": "Май",
+      "jun": "Июн",
+      "jul": "Июл",
+      "aug": "Авг",
+      "sep": "Сен",
+      "oct": "Окт",
+      "nov": "Ноя",
+      "dec": "Дек"
+    },
+    "days": {
+      "mon": "Пн",
+      "tue": "Вт",
+      "wed": "Ср",
+      "thu": "Чт",
+      "fri": "Пт",
+      "sat": "Сб",
+      "sun": "Вс"
+    }
+  },
+  "notificationsPopover": {
+    "title": "Уведомления",
+    "markAllRead": "Прочитать все",
+    "noNotifications": "Нет уведомлений",
+    "newCount": "Новые ({count})",
+    "read": "Прочитанные",
+    "andMore": "И ещё {count}...",
+    "justNow": "только что",
+    "minutesAgo": "{count} мин. назад",
+    "hoursAgo": "{count} ч. назад",
+    "daysAgo": "{count} дн. назад",
+    "demo": {
+      "taskCompletedTitle": "Задача выполнена!",
+      "taskCompletedMessage": "Ребёнок выполнил задачу «Уборка комнаты»",
+      "streakBonusTitle": "Бонус за серию! 🔥",
+      "streakBonusMessage": "7 дней подряд! Множитель очков теперь ×1.3",
+      "rewardPurchasedTitle": "Награда куплена",
+      "rewardPurchasedMessage": "«Поход в кино» куплена за 150 очков",
+      "levelUpTitle": "Новый уровень! ⬆️",
+      "levelUpMessage": "Поздравляем! Достигнут 5 уровень"
+    }
+  },
+  "taskReview": {
+    "title": "Проверка задачи: {taskTitle}",
+    "childLabel": "Ребёнок: {childName}",
+    "submissionTitle": "Отправка ребёнка:",
+    "filesLabel": "Файлы: ",
+    "uploadedMaterials": "✓ Загруженные материалы",
+    "checklistLabel": "Чек-лист: ",
+    "checklistDone": "✓ Выполнен",
+    "commentLabel": "Комментарий: ",
+    "chooseAction": "Выберите действие:",
+    "approve": "Подтвердить",
+    "clarify": "Уточнить",
+    "reject": "Отклонить",
+    "approveFeedbackLabel": "✓ Отзыв при подтверждении",
+    "approvePlaceholder": "Напишите поощрительный отзыв (опционально)...",
+    "rejectReasonLabel": "✗ Причина отклонения",
+    "rejectPlaceholder": "Объясните, почему отклоняется задача...",
+    "requestInfoLabel": "? Запросить дополнительную информацию",
+    "requestInfoPlaceholder": "Какая дополнительная информация нужна? Например: нужно ещё одно фото с другого угла...",
+    "goBack": "Вернуться",
+    "request": "Запросить"
+  },
+  "aiAssistant": {
+    "title": "ИИ Помощник",
+    "subtitle": "Получите персональные рекомендации по управлению семейными задачами и мотивации детей",
+    "onlineStatus": "Онлайн и готов помочь",
+    "chatTitle": "Диалог с ИИ",
+    "messageCountOne": "сообщение",
+    "messageCountMany": "сообщений",
+    "inputPlaceholder": "Задайте вопрос ИИ помощнику...",
+    "welcomeMessage": "👋 Привет! Я ваш ИИ помощник в управлении семьей.\n\n✨ Я могу помочь вам:\n• Создать интересные задачи для детей\n• Дать советы по мотивации\n• Настроить систему наград\n• Проанализировать прогресс\n\nВыберите тему ниже или задайте свой вопрос!",
+    "mockResponse": "Спасибо за вопрос! 💡\n\nНа основе вашего запроса \"{query}\", вот мои рекомендации:\n\n✅ **Начните с малого**\nСоздавайте 2-3 задачи в день, чтобы не перегружать ребёнка\n\n🎯 **Варьируйте сложность**\nЧередуйте простые и сложные задачи для поддержания интереса\n\n📊 **Регулярная проверка**\nОтслеживайте прогресс еженедельно и корректируйте подход\n\n🏆 **Моментальное поощрение**\nНаграждайте достижения сразу для лучшей мотивации\n\nХотите узнать подробнее о каком-то из этих пунктов?",
+    "suggestions": {
+      "createTasks": {
+        "title": "Какие задачи создать?",
+        "description": "Получи идеи для эффективных домашних дел",
+        "prompt": "Подскажи идеи для домашних задач для ребёнка 8-12 лет"
+      },
+      "motivate": {
+        "title": "Как мотивировать?",
+        "description": "Советы по повышению мотивации ребёнка",
+        "prompt": "Как мотивировать ребёнка выполнять задачи?"
+      },
+      "rewards": {
+        "title": "Система наград",
+        "description": "Рекомендации для справедливой системы",
+        "prompt": "Помоги создать систему наград для семьи"
+      },
+      "progress": {
+        "title": "Анализ прогресса",
+        "description": "Советы по улучшению результатов",
+        "prompt": "Как анализировать прогресс ребёнка?"
+      }
+    }
+  },
+  "taskRequirements": {
+    "title": "Установить требования: {taskTitle}",
+    "description": "Укажите, как ребёнок должен подтвердить выполнение",
+    "confirmationType": "Тип подтверждения",
+    "photoLabel": "📸 Фото",
+    "photoDescription": "Ребёнок должен загрузить фотографию",
+    "videoLabel": "🎥 Видео",
+    "videoDescription": "Ребёнок должен загрузить видеоролик",
+    "checklistLabel": "✓ Чек-лист",
+    "checklistDescription": "Ребёнок должен отметить пункты выполнения",
+    "detailedRequirements": "Детальное описание требований",
+    "photoPlaceholder": "Например: Загрузить фото комнаты со всех четырёх углов, освещение яркое...",
+    "videoPlaceholder": "Например: Записать видео процесса от начала до конца (минимум 2 минуты)...",
+    "checklistPlaceholder": "Например: Отметить все пункты по мере выполнения...",
+    "requirementsHint": "Это описание будет показано ребёнку при выполнении задачи",
+    "childPreview": "Как это увидит ребёнок:",
+    "typeLabel": "Тип:",
+    "requirementsLabel": "Требования:",
+    "saveRequirements": "Сохранить требования"
+  },
+  "taskRow": {
+    "evidenceNone": "Без подтверждения",
+    "evidenceNoneHint": "Можно завершить сразу",
+    "evidencePhoto": "Фото",
+    "evidencePhotoHint": "Подойдёт любой снимок результата",
+    "evidenceVideo": "Видео",
+    "evidenceVideoHint": "Короткий ролик или сторис",
+    "evidenceDocument": "Документ",
+    "evidenceDocumentHint": "PDF или скан отчёта",
+    "fileReceived": "Файл получен",
+    "awaitingFile": "Ждём файл от ребёнка",
+    "canCompleteDirect": "Можно завершить сразу",
+    "dueTo": "До {date}",
+    "editShort": "Ред.",
+    "done": "Сделано",
+    "noDescription": "Добавьте подробности, чтобы ребёнку было проще понять шаги.",
+    "created": "Создана",
+    "plan": "План",
+    "control": "Контроль",
+    "view": "Посмотреть",
+    "replaceFile": "Заменить файл",
+    "sendFile": "Отправить файл",
+    "reject": "Отклонить",
+    "confirm": "Подтвердить",
+    "taskClosed": "Задача закрыта",
+    "expand": "Развернуть",
+    "viewEvidence": "Смотреть доказательство",
+    "submitEvidence": "Отправить доказательство",
+    "changeEvidence": "Изменить доказательство",
+    "progress": "Прогресс",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "complete": "Завершить",
+    "reject": "Отклонить",
+    "approve": "Одобрить",
+    "completed": "Завершёно",
+    "evidenceSubmitted": "Отправлено",
+    "evidenceRequired": "Требуется"
+  },
+  "familyGoals": {
+    "title": "Цели семьи",
+    "subtitle": "Работайте вместе для достижения общих целей",
+    "newGoal": "Новая цель",
+    "daysLeft": "{count} дней",
+    "rewardLabel": "Награда:",
+    "difficultyLabel": "Сложность:",
+    "difficultyMedium": "Средняя",
+    "difficultyHard": "Сложная",
+    "goal1Title": "Выполнить 50 задач в месяц",
+    "goal1Description": "Работайте вместе, чтобы достичь цели",
+    "goal1Reward": "Семейный поход в кино",
+    "goal2Title": "7 дней без просрочек",
+    "goal2Description": "Все задачи выполняются вовремя",
+    "goal2Reward": "+500 XP каждому",
+    "goal3Title": "Командные задания",
+    "goal3Description": "Выполнить 10 совместных заданий",
+    "goal3Reward": "Пицца на выходных"
+  },
+  "taskCalendar": {
+    "title": "Календарь задач",
+    "completed": "Выполнено",
+    "inProgress": "В процессе",
+    "overdue": "Просрочено",
+    "mon": "Пн",
+    "tue": "Вт",
+    "wed": "Ср",
+    "thu": "Чт",
+    "fri": "Пт",
+    "sat": "Сб",
+    "sun": "Вс",
+    "january": "Январь",
+    "february": "Февраль",
+    "march": "Март",
+    "april": "Апрель",
+    "may": "Май",
+    "june": "Июнь",
+    "july": "Июль",
+    "august": "Август",
+    "september": "Сентябрь",
+    "october": "Октябрь",
+    "november": "Ноябрь",
+    "december": "Декабрь"
+  },
+  "familyCreation": {
+    "title": "Создай семью",
+    "subtitle": "Как называется ваша семья?",
+    "familyNameLabel": "Название семьи",
+    "familyNamePlaceholder": "Например: Семья Ивановых",
+    "selectEmblem": "Выберите эмблему семьи",
+    "createButton": "Создать семью",
+    "emblemHome": "Дом",
+    "emblemTree": "Дерево",
+    "emblemHeart": "Сердце",
+    "emblemShield": "Герб",
+    "emblemSun": "Солнце",
+    "emblemStar": "Звезда",
+    "emblemGlobe": "Глобус",
+    "emblemAward": "Награда",
+    "emblemCrown": "Корона",
+    "emblemSparkle": "Искра"
+  },
+  "taskEdit": {
+    "title": "Редактировать задачу",
+    "nameLabel": "Название",
+    "namePlaceholder": "Название задачи",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Описание задачи",
+    "difficultyLabel": "Сложность",
+    "categoryLabel": "Категория",
+    "categoryHome": "Дом",
+    "categoryStudy": "Учёба",
+    "categoryPets": "Питомцы",
+    "categoryHelp": "Помощь",
+    "rewardLabel": "Награда",
+    "confirmationLabel": "Требуется подтверждение",
+    "photoVideo": "Фото/видео",
+    "noConfirmation": "Без подтверждения",
+    "cancel": "Отмена",
+    "save": "Сохранить"
+  },
+  "errorScreens": {
+    "retry": "Попробовать снова",
+    "goHome": "На главную",
+    "noInternetTitle": "Нет подключения к интернету",
+    "noInternetDescription": "Проверьте ваше соединение и попробуйте снова",
+    "notFoundTitle": "Страница не найдена",
+    "notFoundDescription": "К сожалению, эта страница больше не существует",
+    "noFamilyTitle": "Семья не создана",
+    "noFamilyDescription": "Сначала создайте семью, чтобы продолжить",
+    "familyNotFoundTitle": "Семья не найдена",
+    "familyNotFoundDescription": "Код семьи неверный или семья удалена",
+    "invalidCodeTitle": "Неверный код",
+    "invalidCodeDescription": "Пожалуйста, проверьте код семьи и попробуйте снова",
+    "noTasksTitle": "Нет задач",
+    "noTasksDescription": "Задач пока нет. Родитель создаст их вскоре"
+  },
+  "parentChatSelector": {
+    "title": "Чаты с детьми",
+    "subtitle": "Выберите общий чат или персональную беседу с ребёнком",
+    "groupChatTitle": "Общий чат семьи",
+    "groupChatDescription": "Общайтесь со всеми детьми одновременно",
+    "childrenCount": "{count} детей",
+    "privateChats": "Приватные чаты",
+    "noChildren": "Пока нет детей в семье",
+    "inviteChildren": "Пригласите детей используя код семьи",
+    "yearsOld": "{age} лет",
+    "personalChat": "Персональный чат"
+  },
+  "subscriptionManager": {
+    "tierFree": "Бесплатный",
+    "tierBasic": "Базовый",
+    "tierPremium": "Премиум",
+    "tierFamily": "Семейный",
+    "subscriptionCancelled": "Подписка отменена",
+    "switchedToFree": "Вы перешли на бесплатный тариф",
+    "cancelError": "Не удалось отменить подписку",
+    "viewPlans": "Выбрать план",
+    "validUntil": "Действует до",
+    "includedFeatures": "Ваши функции",
+    "featureAI": "AI Ассистент",
+    "featureAnalytics": "Расширенная аналитика",
+    "featureRewards": "Свои награды",
+    "featureSupport": "Приоритетная поддержка",
+    "limitChildren": "Лимит детей",
+    "limitTasks": "Лимит задач",
+    "perDay": "/день"
+  },
+  "taskDetails": {
+    "description": "Описание",
+    "difficulty": "Сложность",
+    "experience": "Опыт",
+    "points": "Очки",
+    "uploadPhotoProof": "Загрузить фото доказательство",
+    "replacePhoto": "Заменить фото",
+    "clickToUploadPhoto": "Нажми чтобы загрузить фото",
+    "photoTip": "Совет: сделай фото при хорошем освещении для лучшей проверки!",
+    "completionCheck": "Проверка выполнения",
+    "aiTip": "Совет ИИ: Если у тебя есть вопросы, нажми кнопку \"ИИ помощник\" в главной вкладке!",
+    "submitForReview": "Отправить на проверку"
+  },
+  "analyticsDashboard": {
+    "loadError": "Ошибка загрузки аналитики",
+    "loading": "Загрузка аналитики...",
+    "noData": "Нет данных",
+    "tryAgain": "Попробовать снова",
+    "chartOf": "График {current} из {total}",
+    "wholeFamily": "Вся семья",
+    "quickSwitch": "Быстрое переключение",
+    "child": "Ребёнок"
+  },
+  "parentalControl": {
+    "title": "Родительский контроль",
+    "nightMode": "Ночной режим",
+    "nightModeDescription": "Ограничить активность в ночное время",
+    "from": "С",
+    "to": "До",
+    "timeLimit": "Лимит времени",
+    "maxMinutesPerDay": "Максимум минут в день",
+    "spendingLimit": "Лимит покупок",
+    "maxPointsPerDay": "Максимум очков в день",
+    "saveSettings": "Сохранить параметры"
+  },
+  "aiControl": {
+    "title": "ИИ-ассистент",
+    "description": "Управление взаимодействием ИИ с вашей семьёй",
+    "enableChat": "Включить ИИ-чат",
+    "enableChatDesc": "Разрешить использование ИИ-ассистента в семейном чате",
+    "canCreateTasks": "ИИ может создавать задачи",
+    "canCreateTasksDesc": "Разрешить ИИ предлагать и создавать задачи напрямую",
+    "canCreateRewards": "ИИ может создавать награды",
+    "canCreateRewardsDesc": "Разрешить ИИ предлагать и создавать награды напрямую",
+    "tone": "Тон ИИ",
+    "toneDesc": "Выберите стиль общения ИИ",
+    "tone_friendly": "Дружелюбный",
+    "tone_educational": "Обучающий",
+    "tone_strict": "Строгий"
+  },
+  "notificationsCenter": {
+    "title": "Уведомления",
+    "clearAll": "Очистить все",
+    "noNotifications": "У тебя нет новых уведомлений",
+    "ago": "назад",
+    "mockNewTask": "Новая задача",
+    "mockNewTaskMessage": "Родитель создал задачу Помыть посуду",
+    "mockRewardBought": "Награда куплена",
+    "mockRewardBoughtMessage": "Ты купил(а) Пицца за 500 очков",
+    "mockAchievement": "Достижение!",
+    "mockAchievementMessage": "Разблокировано: Юный помощник",
+    "mockNewLevel": "Новый уровень",
+    "mockNewLevelMessage": "Ты достиг(ла) уровня 10!",
+    "mockTime1h": "1 ч",
+    "mockTime3h": "3 ч",
+    "mockTimeYesterday": "вчера",
+    "mockTime2days": "2 дня"
+  },
+  "profileCreation": {
+    "title": "Создай свой профиль",
+    "subtitle": "Расскажи нам о себе",
+    "selectAvatar": "Выбери аватар",
+    "nameRequired": "Имя *",
+    "namePlaceholder": "Введи своё имя",
+    "ageOptional": "Возраст (необязательно)",
+    "agePlaceholder": "Сколько тебе лет?",
+    "parentRole": "👨‍👩‍👧‍👦 Родитель",
+    "childRole": "🧒 Ребёнок",
+    "continue": "Продолжить"
+  },
+  "childMotivational": {
+    "title": "Мотивация",
+    "storyTitle": "Твоя история успеха",
+    "storyContent": "Ты уже выполнил 25 задач! Это отличный результат. Продолжай в том же духе!",
+    "tipTitle": "Советы",
+    "tipContent": "Начни день с лёгкой задачи, чтобы набрать импульс. Это поможет тебе мотивироваться на остальное.",
+    "praiseTitle": "Похвала",
+    "praiseContent": "Твоя серия из 7 дней - это потрясающе! Такая дисциплина поможет тебе в жизни!"
+  },
+  "dailyMissions": {
+    "dailyHeading": "Ежедневные миссии",
+    "weeklyHeading": "Недельные миссии",
+    "subtitle": "Выполняй миссии для дополнительных наград",
+    "completed": "Выполнено",
+    "progress": "Прогресс",
+    "daily": "Дневные",
+    "weekly": "Недельные",
+    "loadError": "Не удалось загрузить миссии. Попробуйте обновить страницу.",
+    "emptyState": "Миссии ещё не назначены. Загляни позже!"
+  },
+  "parentAiInsights": {
+    "title": "ИИ Аналитика",
+    "lowMotivationTitle": "Низкая мотивация",
+    "lowMotivationMessage": "Мария не выполняла задачи 3 дня. Рекомендуем создать более привлекательные награды.",
+    "greatProgressTitle": "Отличный прогресс",
+    "greatProgressMessage": "Иван достигает все поставленные цели. Рекомендуем увеличить сложность задач.",
+    "rewardAnalysisTitle": "Анализ наград",
+    "rewardAnalysisMessage": "Дешёвые награды (до 100 очков) мотивируют сильнее. Добавь больше микро-наград."
+  },
+  "familyBulletin": {
+    "title": "Доска объявлений",
+    "inputPlaceholder": "Напиши заметку или объявление...",
+    "announcementTitle": "Объявление",
+    "announcementMessage": "В воскресенье семейный пикник!",
+    "shoppingTitle": "Список покупок",
+    "shoppingMessage": "Молоко, хлеб, яйца",
+    "noteTitle": "Заметка",
+    "noteMessage": "Первый помощник месяца - Иван!",
+    "newNoteTitle": "Новая заметка",
+    "authorParent": "Родитель",
+    "authorMom": "Мама",
+    "authorDad": "Папа",
+    "authorMe": "Я"
+  },
+  "joinFamily": {
+    "title": "Присоединись к семье",
+    "subtitle": "Попроси родителей поделиться кодом",
+    "inviteCodeLabel": "Код приглашения",
+    "inviteCodePlaceholder": "Введи код",
+    "errorEmpty": "Пожалуйста, введи код приглашения",
+    "errorInvalid": "Неверный код приглашения",
+    "joinButton": "Присоединиться"
+  },
+  "joinPage": {
+    "checking": "Проверяем приглашение...",
+    "invalidLink": "Неверная ссылка",
+    "invalidDescription": "Эта ссылка-приглашение недействительна или устарела",
+    "goHome": "На главную",
+    "inviteTitle": "Приглашение в семью!",
+    "inviteSubtitle": "Вас пригласили присоединиться к семье",
+    "parentAddsChild": "Детей добавляют родители через свою панель управления",
+    "shareCodeWithParent": "Поделитесь этим кодом с родителем, чтобы он смог вас добавить",
+    "parentDashboardAdd": "Родитель создаст вашу учётную запись и передаст данные для входа",
+    "goToLogin": "Перейти ко входу",
+    "cancel": "Отмена",
+    "footerNote": "Попросите родителя добавить вас через панель управления"
+  },
+  "taskCompletion": {
+    "title": "Подтверждение выполнения",
+    "photoDescription": "Загрузите фото подтверждения выполнения задачи",
+    "photoUploaded": "Фото загружено!",
+    "uploadPhoto": "Нажмите для загрузки фото",
+    "checklistDescription": "Отметьте все пункты чек-листа",
+    "submitForReview": "Отправить на проверку"
+  },
+  "updateHistory": {
+    "title": "История изменений",
+    "dateDec20": "20 Дек",
+    "dateDec18": "18 Дек",
+    "fieldName": "Название",
+    "fieldRewardXP": "Награда XP",
+    "fieldDifficulty": "Сложность",
+    "oldWashPlates": "Помыть тарелки",
+    "newWashDishes": "Помыть посуду",
+    "byParent": "Родитель",
+    "stars2": "2 звезды",
+    "stars3": "3 звезды"
+  },
+  "xpBreakdown": {
+    "title": "Прирост опыта",
+    "totalXPForDays": "Всего XP за 2 дня",
+    "cleanRoom": "Убрать комнату",
+    "washDishes": "Помыть посуду",
+    "dailyMission": "Ежедневная миссия",
+    "achievementUnlocked": "Достижение разблокировано",
+    "today": "Сегодня",
+    "yesterday": "Вчера"
+  },
+  "familyTimeline": {
+    "title": "История семьи",
+    "userIvan": "Иван",
+    "userMaria": "Мария",
+    "userParent": "Родитель",
+    "unlockedAchievement": "разблокировал достижение Юный помощник",
+    "boughtReward": "купила награду Пицца",
+    "createdTask": "создал задачу Помыть посуду",
+    "reachedLevel": "достиг уровня 10!",
+    "hoursAgo2": "2 часа назад",
+    "hoursAgo4": "4 часа назад",
+    "yesterday": "вчера"
+  },
+  "parentSettings": {
+    "shareTitle": "Присоединяйся к нашей семье!",
+    "shareText": "Привет! Присоединяйся к нашей семье в приложении Family Tasks. Код семьи: {familyCode}",
+    "tabs": {
+      "family": "Семья",
+      "notifications": "Уведомления",
+      "ai": "ИИ",
+      "appearance": "Оформление",
+      "danger": "Опасно"
+    }
+  },
+  "rewardHistory": {
+    "title": "История покупок",
+    "dateDec20": "20 Дек 2024",
+    "dateDec18": "18 Дек 2024",
+    "dateDec15": "15 Дек 2024",
+    "dateDec10": "10 Дек 2024",
+    "pizza": "Пицца",
+    "cinemaTrip": "Поход в кино",
+    "newGame": "Новая игра",
+    "stickerPack": "Стикер-пак",
+    "userMaria": "Мария",
+    "userIvan": "Иван"
+  },
+  "roleSelector": {
+    "title": "Кто ты в семье?",
+    "subtitle": "Выбери свою роль, чтобы продолжить",
+    "parent": "Родитель",
+    "parentDescription": "Создает задания, награды и следит за прогрессом",
+    "child": "Ребёнок",
+    "childDescription": "Получает задания, выполняет их и зарабатывает награды"
+  },
+  "achievementTree": {
+    "unlocked": "Открыто",
+    "title": "Дерево достижений",
+    "subtitle": "Собирай достижения и открывай новые уровни",
+    "loadError": "Не удалось загрузить достижения",
+    "comingSoon": "Достижения скоро появятся!"
+  },
+  "leaderboard": {
+    "title": "Таблица лидеров",
+    "level": "Уровень {level}",
+    "mockName1": "Мария",
+    "mockName2": "Иван",
+    "mockName3": "Анна"
+  },
+  "taskDelete": {
+    "title": "Удаление задачи",
+    "confirmMessage": "Вы уверены, что хотите удалить задачу «{taskTitle}»?",
+    "cancel": "Отмена",
+    "delete": "Удалить"
+  },
+  "taskSubmission": {
+    "title": "Отправка выполнения",
+    "requirementsLabel": "Требования:",
+    "cancel": "Отмена",
+    "submitting": "Отправка...",
+    "submit": "Отправить"
+  },
+  "themeToggle": {
+    "toggleTheme": "Переключить тему",
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "system": "Системная"
+  },
+  "levelUp": {
+    "title": "Новый уровень!",
+    "congratulations": "Поздравляем! Вы достигли нового уровня!"
+  },
+  "splash": {
+    "loadingAdventure": "Загружаем приключение...",
+    "preparingTasks": "Подготавливаем задания..."
+  },
+  "offline": {
+    "message": "Нет подключения к интернету. Некоторые функции могут быть недоступны."
+  },
+  "welcomeScreen": {
+    "slideLabel": "Слайд {number}"
+  },
+  "parentAiSuggestions": {
+    "suggestTasks": "Предложить задачи",
+    "suggestTasksDesc": "ИИ проанализирует возраст и активность детей и предложит подходящие задачи",
+    "rewardIdeas": "Идеи наград",
+    "rewardIdeasDesc": "ИИ рекомендует популярные награды и поможет сбалансировать цены",
+    "suggestedTasks": "Предложенные задачи",
+    "describeTask": "Опишите задачу (необязательно)",
+    "generate": "Получить",
+    "loading": "Загрузка...",
+    "use": "Использовать",
+    "close": "Закрыть",
+    "popularRewards": "Популярные награды",
+    "aiUnavailable": "ИИ недоступен",
+    "fetchError": "Не удалось получить предложения",
+    "friendlyTone": "дружелюбный",
+    "mockTasks": {
+      "washDishes": {
+        "title": "Помыть посуду",
+        "description": "Помойте всю посуду после обеда"
+      },
+      "waterFlowers": {
+        "title": "Полить цветы",
+        "description": "Полейте домашние растения"
+      },
+      "homework": {
+        "title": "Сделать домашнее задание",
+        "description": "Выполнить 3 задания из учебника"
+      },
+      "walkDog": {
+        "title": "Погулять с собакой",
+        "description": "Гулять 30 минут в парке"
+      },
+      "cleanRoom": {
+        "title": "Убрать свою комнату",
+        "description": "Расставить вещи по местам и пропылесосить"
+      }
+    },
+    "mockRewards": {
+      "pizza": "Пицца",
+      "cinema": "Поход в кино",
+      "newGame": "Новая игра",
+      "parkWalk": "Прогулка в парк",
+      "dessert": "Десерт на выбор"
+    }
+  },
+  "notificationsPage": {
+    "back": "Назад",
+    "readAll": "Прочитать все",
+    "clearAll": "Очистить все",
+    "title": "Уведомления",
+    "newCount": "новых",
+    "historySubtitle": "История всех ваших уведомлений",
+    "searchPlaceholder": "Поиск уведомлений...",
+    "filterAll": "Все",
+    "filterUnread": "Непрочитанные",
+    "filterTasks": "📝 Задачи",
+    "filterRewards": "🎁 Награды",
+    "filterAchievements": "🏆 Достижения",
+    "noNotifications": "Нет уведомлений",
+    "nothingFound": "По вашему запросу ничего не найдено",
+    "emptyMessage": "Здесь будут появляться ваши уведомления",
+    "confirmDeleteAll": "Удалить все уведомления?",
+    "demo": {
+      "newTask": {
+        "title": "Новая задача",
+        "message": "Родитель создал задачу «Помыть посуду»",
+        "time": "1 час назад"
+      },
+      "rewardReceived": {
+        "title": "Награда получена!",
+        "message": "Ты обменял 50 очков на «Дополнительная сказка на ночь»",
+        "time": "3 часа назад"
+      },
+      "newAchievement": {
+        "title": "Новое достижение!",
+        "message": "Разблокировано: «Юный помощник» — выполни 5 задач",
+        "time": "вчера"
+      },
+      "newLevel": {
+        "title": "Новый уровень!",
+        "message": "Поздравляем! Ты достиг уровня 5!",
+        "time": "2 дня назад"
+      },
+      "taskCompleted": {
+        "title": "Задача выполнена",
+        "message": "Ты успешно выполнил задачу «Прибраться в комнате»",
+        "time": "3 дня назад"
+      },
+      "newMember": {
+        "title": "Новый член семьи",
+        "message": "К семье присоединился новый участник",
+        "time": "5 дней назад"
+      },
+      "newRewardInShop": {
+        "title": "Новая награда в магазине",
+        "message": "Родитель добавил награду «Поход в кино» за 150 очков",
+        "time": "неделю назад"
+      },
+      "streak": {
+        "title": "Серия выполнения!",
+        "message": "Ты выполняешь задачи 7 дней подряд! 🔥",
+        "time": "неделю назад"
+      },
+      "welcome": {
+        "title": "Добро пожаловать!",
+        "message": "Добро пожаловать в FamilyQuest! Начни выполнять задачи и зарабатывай награды.",
+        "time": "2 недели назад"
+      }
+    }
+  },
+  "authPage": {
+    "oauthCancelled": "Авторизация прервана пользователем.",
+    "noAccessToken": "Не получен токен доступа от провайдера. Попробуйте ещё раз или вернитесь на главную.",
+    "noUserInfo": "Провайдер не вернул необходимые данные пользователя (email). Попробуйте другой аккаунт или вернитесь на главную.",
+    "serverError": "Ошибка при обработке запроса на сервере. Попробуйте позже.",
+    "unknownResponse": "Неизвестный ответ аутентификации.",
+    "noToken": "Не удалось получить токен авторизации.",
+    "loginFailed": "Не удалось завершить вход.",
+    "profileFetchFailed": "Не удалось получить данные профиля.",
+    "unknownStatus": "Получен неизвестный статус авторизации.",
+    "completing": "Завершаем авторизацию...",
+    "errorTitle": "Что-то пошло не так",
+    "goHome": "Вернуться на главную",
+    "dataUnavailable": "Данные авторизации недоступны.",
+    "welcomeUser": "Добро пожаловать, {name}",
+    "setupProfile": "Выберите роль и завершите настройку профиля.",
+    "avatar": "Аватар",
+    "emailLabel": "Email",
+    "emailImported": "Email импортирован из профиля провайдера",
+    "nameLabel": "Имя",
+    "namePlaceholder": "Имя",
+    "lastNameLabel": "Фамилия",
+    "lastNamePlaceholder": "Фамилия",
+    "roleLabel": "Роль",
+    "roleParent": "Родитель",
+    "roleChild": "Ребёнок",
+    "inviteHint": "Чтобы присоединиться к существующей семье как ребёнок, используйте ссылку-приглашение от родителя",
+    "familyNameLabel": "Название семьи",
+    "familyNamePlaceholder": "Например, Семья Соколовых",
+    "familyCodeLabel": "Код семьи",
+    "codeImported": "✓ Код импортирован из приглашения",
+    "ageLabel": "Возраст",
+    "ageUnit": "лет",
+    "cancel": "Отмена",
+    "saving": "Сохраняем...",
+    "finish": "Завершить",
+    "enterNameAndLastName": "Введите имя и фамилию.",
+    "enterValidEmail": "Введите корректный email.",
+    "enterFamilyName": "Введите название семьи.",
+    "enterFamilyCode": "Введите код семьи.",
+    "ageRange": "Возраст должен быть от 5 до 16 лет.",
+    "enterChildAge": "Введите возраст ребёнка.",
+    "registrationFailed": "Не удалось завершить регистрацию."
+  },
+  "newTaskPage": {
+    "redirecting": "Перенаправление..."
+  },
+  "profilePage": {
+    "noActiveSession": "Нет активной сессии",
+    "title": "Профиль",
+    "editProfile": "Редактировать профиль",
+    "editProfileSub": "Имя, фото, личные данные",
+    "accountSettings": "Аккаунт и безопасность",
+    "accountSettingsSub": "Почта, пароль, удаление аккаунта",
+    "family": "Семья",
+    "code": "Код",
+    "theme": "Тема",
+    "language": "Язык",
+    "tapToChange": "Нажмите, чтобы изменить фото",
+    "name": "Имя",
+    "lastName": "Фамилия",
+    "age": "Возраст",
+    "email": "Эл. почта",
+    "role": "Роль",
+    "familyCode": "Код семьи",
+    "enterName": "Введите имя",
+    "enterLastName": "Введите фамилию",
+    "dangerZone": "Опасная зона",
+    "deleteAccount": "Удалить аккаунт",
+    "deleteConfirm": "Это навсегда удалит ваш аккаунт и все связанные данные. Это действие нельзя отменить.",
+    "changePhoto": "Изменить фото",
+    "security": "Безопасность",
+    "changePassword": "Изменить пароль",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmNewPassword": "Подтвердите новый пароль",
+    "passwordMismatch": "Пароли не совпадают",
+    "passwordTooShort": "Пароль должен содержать минимум 6 символов",
+    "changeEmail": "Изменить почту",
+    "newEmail": "Новая почта",
+    "confirmWithPassword": "Подтвердите паролем",
+    "invalidEmail": "Неверный адрес электронной почты"
+  },
+  "routes": {
+    "welcome": "Добро пожаловать",
+    "auth": "Аутентификация",
+    "parentDashboard": "Панель родителя",
+    "childDashboard": "Панель ребёнка",
+    "taskCreate": "Создать задачу",
+    "aiAssistant": "AI ассистент"
+  },
+  "createTaskDialog": {
+    "title": "Новая задача",
+    "describePlaceholder": "Опишите, что нужно сделать...",
+    "aiPlaceholder": "Просто опишите задачу — ИИ сделает остальное...",
+    "titleLabel": "Название",
+    "titlePlaceholder": "Например: Убрать комнату",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Что именно нужно сделать...",
+    "difficultyLabel": "Сложность",
+    "pts": "очк.",
+    "categoryLabel": "Категория",
+    "forChild": "Для:",
+    "selectChild": "Выберите ребёнка",
+    "dateTimePlaceholder": "Выберите дату и время",
+    "deadline": "Срок",
+    "photoConfirmation": "Фото-подтверждение",
+    "extraOptions": "Дополнительно",
+    "xpAndPoints": "{xp} XP · {points} очк.",
+    "withAi": "С ИИ",
+    "manual": "Вручную",
+    "quick": "Быстро",
+    "aiThinking": "ИИ думает...",
+    "creating": "Создаём...",
+    "createWithAi": "Создать с ИИ",
+    "generateWithAi": "Сгенерировать с ИИ",
+    "aiFilledToast": "ИИ заполнил поля задачи",
+    "aiError": "Не удалось сгенерировать. Попробуйте ещё раз.",
+    "orChooseIdea": "Или выберите идею:",
+    "taskCreatedToast": "Задача успешно создана!",
+    "createError": "Не удалось создать задачу. Попробуйте ещё раз.",
+    "quickIdeas": {
+      "cleanRoom": "Убрать комнату",
+      "readBook": "Почитать книгу",
+      "helpWithDinner": "Помочь с ужином",
+      "doExercise": "Сделать зарядку",
+      "makeBed": "Застелить кровать",
+      "foldClothes": "Сложить одежду"
+    }
+  },
+  "taskCreation": {
+    "title": "Новая задача",
+    "subtitle": "Опишите задачу для ребёнка",
+    "newTask": "Новая задача",
+    "describeTask": "Опишите, что нужно сделать",
+    "describeWhatToDo": "Пожалуйста, опишите, что нужно сделать",
+    "selectAssignee": "Пожалуйста, выберите ребёнка",
+    "submitError": "Не удалось создать задачу",
+    "creating": "Создаём...",
+    "whatToDo": "Что нужно сделать?",
+    "placeholder": "Подробно опишите задачу...",
+    "deadline": "Срок выполнения",
+    "confirmation": "Подтверждение",
+    "confirmationPhoto": "Фото-подтверждение",
+    "noConfirmation": "Без подтверждения",
+    "assignChild": "Назначить ребёнку",
+    "noChildren": "В семье нет детей",
+    "selectChild": "Выберите ребёнка",
+    "yearsOld": "лет",
+    "selectChildRequired": "Выберите ребёнка для назначения задачи",
+    "taskAssignedTo": "Задача будет назначена {name}",
+    "quickIdeas": "Быстрые идеи",
+    "oneClick": "Создайте задачу в один клик",
+    "preview": "Предпросмотр",
+    "hasDueDate": "Есть срок",
+    "noDueDate": "Без срока",
+    "reward": "{xp} XP",
+    "formula": "XP = 60 + 20 × сложность",
+    "points": "Очки",
+    "pointsHint": "Очки за выполнение задачи",
+    "requiresConfirmation": "Требуется фото-подтверждение",
+    "assignedTo": "Назначено: {name}",
+    "unknown": "Неизвестно",
+    "categoryLabel": "Категория: {category}",
+    "categories": {
+      "home": "Домашние дела"
+    },
+    "templates": {
+      "cleaning": "Уборка",
+      "cleaningDesc": "Убрать комнату и навести порядок",
+      "study": "Учёба",
+      "studyDesc": "Сделать уроки или почитать книгу",
+      "care": "Кухня",
+      "careDesc": "Помочь приготовить еду или помыть посуду",
+      "activity": "Физическая активность",
+      "activityDesc": "Зарядка или прогулка на свежем воздухе"
+    }
+  },
+  "tasksList": {
+    "evidence": {
+      "noneLabel": "Без подтверждения",
+      "noneHint": "Можно выполнить напрямую",
+      "photoLabel": "Фото",
+      "photoHint": "Подойдёт любое фото результата",
+      "videoLabel": "Видео",
+      "videoHint": "Короткий клип или сторис",
+      "documentLabel": "Документ",
+      "documentHint": "PDF или скан отчёта",
+      "title": "Доказательства"
+    },
+    "status": {
+      "pending": "Ожидает",
+      "inProgress": "В процессе",
+      "completed": "Выполнено",
+      "overdue": "Просрочено"
+    },
+    "journey": {
+      "assigned": "Назначено",
+      "inProgress": "В процессе",
+      "review": "Проверка",
+      "done": "Готово"
+    },
+    "filters": {
+      "all": "Все",
+      "allHint": "Показать все задачи",
+      "pending": "Ожидают",
+      "pendingHint": "Показать ожидающие задачи",
+      "inProgress": "В процессе",
+      "inProgressHint": "Показать задачи в процессе",
+      "completed": "Выполнено",
+      "completedHint": "Показать выполненные задачи",
+      "overdue": "Просрочено",
+      "overdueHint": "Показать просроченные задачи"
+    },
+    "heroStats": {
+      "active": "Активные",
+      "activeHint": "Задачи в процессе выполнения",
+      "done": "Готово",
+      "doneHint": "Выполненные задачи",
+      "focus": "Фокус",
+      "focusHint": "Задачи, требующие внимания"
+    },
+    "toast": {
+      "taskUpdated": "Задача обновлена",
+      "taskUpdatedDesc": "Статус задачи был изменён",
+      "updateError": "Ошибка обновления",
+      "tryAgain": "Попробуйте ещё раз",
+      "evidenceSubmitted": "Доказательство отправлено",
+      "evidenceSubmittedDesc": "Ваше подтверждение ожидает проверки",
+      "uploadFailed": "Не удалось загрузить",
+      "viewEvidenceFailed": "Не удалось загрузить доказательство",
+      "taskDeleted": "Задача удалена",
+      "taskDeletedDesc": "Задача была удалена",
+      "deleteFailed": "Не удалось удалить задачу"
+    },
+    "confirmDelete": "Вы уверены, что хотите удалить эту задачу?",
+    "errors": {
+      "unauthorized": "Войдите в аккаунт для просмотра задач",
+      "loadError": "Не удалось загрузить задачи",
+      "tryRefresh": "Попробуйте обновить страницу"
+    },
+    "showPerPage": "Показывать на странице",
+    "of": "из",
+    "tasks": "задач",
+    "pagination": {
+      "prev": "Назад",
+      "next": "Вперёд"
+    },
+    "evidenceViewer": {
+      "subtitle": "Отправленные доказательства",
+      "altText": "Изображение доказательства",
+      "download": "Скачать"
+    },
+    "evidenceStatus": {
+      "fileReceived": "Файл получен",
+      "awaitingEvidence": "Ожидание подтверждения",
+      "awaitingShort": "Ждём фото",
+      "canCompleteDirect": "Можно выполнить напрямую"
+    },
+    "dueBy": "Срок до",
+    "pointsLabel": "очк.",
+    "stage": "Этап",
+    "stageShort": "Этап {{current}} из {{total}}",
+    "ariaLabels": {
+      "editTask": "Редактировать задачу",
+      "deleteTask": "Удалить задачу",
+      "hideDetails": "Скрыть детали",
+      "showDetails": "Показать детали"
+    },
+    "progressLabel": "Прогресс",
+    "descriptionLabel": "Описание",
+    "noDescription": "Описание не указано",
+    "created": "Создано",
+    "deadline": "Срок",
+    "journeySteps": "Путь задачи",
+    "actions": {
+      "viewFile": "Посмотреть файл",
+      "replaceFile": "Заменить файл",
+      "submitFile": "Отправить файл",
+      "reject": "Отклонить",
+      "confirm": "Подтвердить",
+      "awaitEvidenceHint": "Сперва нужно отправить подтверждение",
+      "iDidIt": "Я сделал(а)!",
+      "attachEvidenceFirst": "Сначала прикрепите подтверждение"
+    },
+    "taskClosed": "Задача закрыта",
+    "searchPlaceholder": "Поиск задач...",
+    "noSearchResults": "Ничего не найдено по запросу \"{{query}}\"",
+    "clearSearch": "Очистить поиск"
+  },
+  "taskTemplates": {
+    "myTemplates": "Мои шаблоны",
+    "savedTemplatesDescription": "Сохранённые шаблоны задач для быстрого создания",
+    "aiIdeasButton": "Идеи ИИ",
+    "newTemplate": "Новый шаблон",
+    "createTaskTemplate": "Создать шаблон задачи",
+    "createTaskTemplateDescription": "Сохраните шаблон для повторного использования",
+    "titleLabel": "Название",
+    "titlePlaceholder": "Введите название шаблона",
+    "iconLabel": "Иконка",
+    "categoryLabel": "Категория",
+    "categoryPlaceholder": "Выберите категорию",
+    "difficultyLabel": "Сложность",
+    "verificationLabel": "Способ подтверждения",
+    "descriptionLabel": "Описание",
+    "descriptionPlaceholder": "Опишите задачу...",
+    "createTemplate": "Создать шаблон",
+    "aiSuggestedIdeas": "Предложения ИИ",
+    "addToMyTemplates": "Добавить в мои шаблоны",
+    "savedTemplates": "Сохранённые шаблоны",
+    "useTemplate": "Использовать шаблон",
+    "builtInTemplates": "Встроенные шаблоны",
+    "categories": {
+      "home": "Дом",
+      "kitchen": "Кухня",
+      "pets": "Питомцы",
+      "study": "Учёба",
+      "help": "Помощь",
+      "garden": "Сад"
+    },
+    "templates": {
+      "cleanRoom": {
+        "title": "Убрать комнату",
+        "description": "Навести порядок в комнате, разложить вещи по местам, пропылесосить"
+      },
+      "washDishes": {
+        "title": "Помыть посуду",
+        "description": "Помыть всю посуду после еды и протереть стол"
+      },
+      "walkDog": {
+        "title": "Погулять с собакой",
+        "description": "Погулять с собакой минимум 30 минут и покормить её"
+      },
+      "doHomework": {
+        "title": "Сделать уроки",
+        "description": "Выполнить все домашние задания на сегодня"
+      },
+      "waterPlants": {
+        "title": "Полить цветы",
+        "description": "Полить все комнатные растения и проверить почву"
+      },
+      "takeOutTrash": {
+        "title": "Вынести мусор",
+        "description": "Вынести мусор и вставить новый пакет"
+      },
+      "feedPet": {
+        "title": "Покормить питомца",
+        "description": "Дать свежую еду и воду питомцу"
+      },
+      "helpShopping": {
+        "title": "Помочь с покупками",
+        "description": "Помочь донести продукты и разложить их"
+      }
+    },
+    "verification": {
+      "photo": {
+        "label": "Фото",
+        "description": "Загрузить фото как доказательство"
+      },
+      "video": {
+        "label": "Видео",
+        "description": "Записать короткое видео"
+      },
+      "checklist": {
+        "label": "Чек-лист",
+        "description": "Отметить пункты по мере выполнения"
+      },
+      "text": {
+        "label": "Текст",
+        "description": "Написать краткий отчёт"
+      },
+      "audio": {
+        "label": "Аудио",
+        "description": "Записать голосовое сообщение"
+      }
+    },
+    "aiIdeas": {
+      "organizeBookshelf": {
+        "title": "Организовать книжную полку",
+        "description": "Расставить книги по размеру или теме и протереть полки от пыли"
+      },
+      "helpCooking": {
+        "title": "Помочь с готовкой",
+        "description": "Помочь приготовить еду: помыть овощи, накрыть на стол"
+      },
+      "weedGarden": {
+        "title": "Прополоть грядки",
+        "description": "Убрать сорняки из грядок и полить растения"
+      },
+      "writeLetterGrandma": {
+        "title": "Написать письмо бабушке",
+        "description": "Написать письмо или нарисовать рисунок для бабушки"
+      },
+      "washCar": {
+        "title": "Помочь помыть машину",
+        "description": "Помочь помыть машину: намылить, сполоснуть и протереть"
+      }
+    }
+  },
+  "childDashboard": {
+    "aiChat": "ИИ-помощник",
+    "profileAvatar": "Аватар профиля",
+    "streakDays": "Серия {count} дней",
+    "bonusMultiplier": "×{value} бонус",
+    "rewardProgress": "Прогресс наград",
+    "pointsLabel": "очков",
+    "tasksNeeded": "~{count} задач осталось",
+    "daysNeeded": "~{count} дней осталось",
+    "weeksNeeded": "~{count} недель осталось",
+    "missions": "Миссии",
+    "familyChat": "Семейный чат",
+    "familyChatDescription": "Общайтесь с членами семьи",
+    "aiHelper": "ИИ-помощник",
+    "loadingAdvice": "Загружаем совет...",
+    "getMoreAdvice": "Ещё совет",
+    "chooseAvatar": "Выберите аватар",
+    "uploadImage": "Загрузить изображение",
+    "userNotFound": "Пользователь не найден",
+    "avatarUploadError": "Не удалось загрузить аватар",
+    "level": "Ур.",
+    "done": "Сделано",
+    "nextLevel": "Следующий уровень",
+    "xpToNext": "{xp} XP до повышения уровня",
+    "heroMessage": "Выполняй задания, получай награды и повышай уровень!",
+    "greetingMorning": "Доброе утро",
+    "greetingAfternoon": "Добрый день",
+    "greetingEvening": "Добрый вечер",
+    "nav": {
+      "tasks": "Задания",
+      "gallery": "Галерея",
+      "quests": "Квесты",
+      "shop": "Магазин",
+      "achievements": "Награды",
+      "me": "Я"
+    },
+    "rewards": {
+      "stickers": "Стикеры и мелочи",
+      "toy": "Небольшая игрушка",
+      "gift": "Большой подарок или поход"
+    },
+    "aiSuggestions": {
+      "tip1": "Начни с самого лёгкого задания, чтобы набрать разгон!",
+      "tip2": "Попробуй выполнить все задания до ужина — получишь бонус!",
+      "tip3": "Попроси родителей поставить особую награду за 7-дневную серию!",
+      "tip4": "Разбивай большие задания на маленькие шаги — так проще!"
+    }
+  },
+  "gameHub": {
+    "title": "Центр квестов",
+    "subtitle": "Выполняй миссии, собирай стикеры и поднимайся в рейтинге!",
+    "dayStreak": "дней подряд",
+    "bonus": "бонус"
+  },
+  "childProfile": {
+    "avatar": "Аватар",
+    "profileId": "ID профиля",
+    "familyCode": "Код семьи:",
+    "pageTitle": "Профиль - {{name}}",
+    "pageSubtitle": "Посмотри свои достижения и статистику",
+    "changePhoto": "Изменить фото",
+    "photoDialogDescription": "Выбери эмодзи или загрузи фото, чтобы обновить аватар",
+    "chooseEmoji": "Выбери эмодзи:",
+    "uploadPhotoFile": "Загрузить фото:",
+    "uploadPrompt": "Нажми, чтобы загрузить или перетащи сюда",
+    "photoUploadError": "Ошибка загрузки фото",
+    "tabs": {
+      "overview": "Обзор",
+      "achievements": "Достижения",
+      "planner": "Планер",
+      "appearance": "Оформление"
+    },
+    "rank": {
+      "novice": "Новичок",
+      "seeker": "Искатель",
+      "master": "Мастер",
+      "legend": "Легенда"
+    },
+    "appearance": {
+      "title": "Внешний вид",
+      "mode": "Режим",
+      "light": "Светлый",
+      "dark": "Тёмный",
+      "colorTheme": "Цветовая тема",
+      "chooseColor": "Выберите свой любимый цвет"
+    },
+    "stats": {
+      "currentStreak": "Текущая серия",
+      "streakDescription": "Выполняй задания каждый день, чтобы серия не прервалась!",
+      "rank": "Ранг",
+      "level": "Уровень",
+      "purchasedRewards": "Купленные награды",
+      "fromShop": "из магазина",
+      "progressTitle": "Общий прогресс",
+      "pointsBalance": "Баланс очков",
+      "xpEarned": "Заработано XP",
+      "tasksCompleted": "Задач выполнено",
+      "pointsSpent": "Очков потрачено"
+    },
+    "achievements": {
+      "title": "Достижения",
+      "loadError": "Не удалось загрузить достижения",
+      "empty": "Достижений пока нет. Выполняй задания, чтобы получить!",
+      "unlocked": "Разблокировано"
+    }
+  },
+  "familyChat": {
+    "messageSent": "Сообщение отправлено",
+    "sendError": "Не удалось отправить сообщение",
+    "tryAgain": "Попробуйте ещё раз",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "online": "Онлайн",
+    "offline": "Не в сети",
+    "noParticipants": "Пока нет других участников",
+    "attachedTask": "Прикреплённая задача",
+    "searchTask": "Поиск задач...",
+    "noTasksFound": "Задачи не найдены",
+    "availableTasks": "Доступные задачи",
+    "taskHintPrefix": "Нажмите",
+    "taskHintSuffix": "чтобы прикрепить задачу"
+  },
+  "helpFaq": {
+    "title": "Помощь и FAQ",
+    "subtitle": "Ответы на частые вопросы",
+    "searchPlaceholder": "Поиск вопросов...",
+    "allCategories": "Все",
+    "noResults": "По вашему запросу ничего не найдено",
+    "categories": {
+      "registration": "Регистрация",
+      "tasks": "Задачи",
+      "rewards": "Награды",
+      "gamification": "Геймификация",
+      "settings": "Настройки",
+      "family": "Семья"
+    },
+    "faq1": {
+      "question": "Как зарегистрироваться и создать семью?",
+      "answer": "Скачайте приложение, зарегистрируйтесь по email, выберите роль Родитель и создайте семью. Поделитесь кодом семьи с ребёнком, чтобы он мог присоединиться."
+    },
+    "faq2": {
+      "question": "Как создать задачу для ребёнка?",
+      "answer": "Перейдите на вкладку Задачи, нажмите «Новая задача», опишите, что нужно сделать, укажите сложность и срок. Вы также можете использовать ИИ для создания описания задачи."
+    },
+    "faq3": {
+      "question": "Как работает система наград?",
+      "answer": "Дети зарабатывают очки за выполнение задач. Очки можно обменять на награды в магазине. Родители создают награды и устанавливают их стоимость в очках."
+    },
+    "faq4": {
+      "question": "Можно ли создавать свои награды?",
+      "answer": "Да! Перейдите на вкладку Награды и нажмите «Новая награда». Укажите название, описание и стоимость в очках. Также ИИ может предложить идеи наград."
+    },
+    "faq5": {
+      "question": "Что такое достижения и серии?",
+      "answer": "Достижения — это награды за выполнение определённых целей. Серии — это бонусы за выполнение задач подряд каждый день. Обе механики мотивируют детей оставаться активными."
+    },
+    "faq6": {
+      "question": "Как изменить язык или тему?",
+      "answer": "Перейдите в Настройки и найдите раздел Оформление. Там можно переключиться между светлой и тёмной темами, а также изменить язык приложения."
+    },
+    "faq7": {
+      "question": "Как настроить уведомления?",
+      "answer": "В Настройках включите уведомления, чтобы получать оповещения о выполнении задач, добавлении новых наград или получении достижений."
+    },
+    "faq8": {
+      "question": "Как пригласить ещё детей в семью?",
+      "answer": "Перейдите на вкладку Дети и поделитесь кодом семьи или ссылкой-приглашением. Дети могут присоединиться, введя код при регистрации."
+    }
+  },
+  "activityFeed": {
+    "sampleName": {
+      "masha": "Маша",
+      "papa": "Папа",
+      "kirill": "Кирилл",
+      "mama": "Мама"
+    },
+    "message": {
+      "completedTaskFemale": "выполнила задачу",
+      "createdReward": "создал(а) награду",
+      "gotLevel": "достиг(ла) нового уровня",
+      "unlockedAchievement": "открыл(а) достижение",
+      "completedTaskMale": "выполнил задачу",
+      "leftComment": "оставил(а) комментарий"
+    },
+    "detail": {
+      "cleanRoom": "Убрать комнату",
+      "parkTrip": "Поход в парк",
+      "level5": "Уровень 5",
+      "fastRocket": "Быстрая ракета",
+      "washDishes": "Помыть посуду",
+      "greatThanks": "Отлично, спасибо!"
+    },
+    "time": {
+      "5min": "5 мин назад",
+      "15min": "15 мин назад",
+      "1hour": "1 час назад",
+      "2hours": "2 часа назад",
+      "3hours": "3 часа назад",
+      "4hours": "4 часа назад"
+    }
+  },
+  "mediaUpload": {
+    "takePhoto": "Сделать фото",
+    "fromGallery": "Из галереи",
+    "recordVideo": "Записать видео",
+    "uploadVideo": "Загрузить видео",
+    "chooseFile": "Выбрать файл",
+    "browserNoCamera": "Ваш браузер не поддерживает доступ к камере",
+    "browserNoRecording": "Ваш браузер не поддерживает запись видео",
+    "cameraAccessDenied": "Доступ к камере запрещён. Разрешите камеру в настройках браузера.",
+    "cameraNotFound": "Камера не найдена на этом устройстве",
+    "cameraAccessError": "Ошибка доступа к камере: ",
+    "cameraAccessGenericError": "Не удалось получить доступ к камере",
+    "bytes": "байт",
+    "kilobytes": "КБ",
+    "megabytes": "МБ",
+    "photoInstruction": "Сделайте чёткое фото выполненного задания",
+    "videoInstruction": "Запишите короткое видео с результатом",
+    "documentInstruction": "Загрузите документ как подтверждение",
+    "defaultInstruction": "Загрузите подтверждение выполнения задачи",
+    "fileSelected": "Файл выбран",
+    "preview": "Предпросмотр",
+    "chooseAnotherFile": "Выбрать другой файл",
+    "recording": "Запись...",
+    "stop": "Стоп",
+    "recordingTip": "Направьте камеру на результат и расскажите, что вы сделали",
+    "howToUpload": "Как загрузить",
+    "tip": "Совет",
+    "photoTip": "Делайте фото при хорошем освещении для лучшего качества",
+    "videoTip": "Видео не должно быть длинным — 10-30 секунд достаточно",
+    "documentTip": "Убедитесь, что документ читаемый и не размытый"
+  },
+  "onboarding": {
+    "tip0Title": "Добро пожаловать в FamilyQuest!",
+    "tip0Description": "Весёлый способ развивать полезные привычки всей семьёй",
+    "tip0Detail0": "Выполняйте задания и зарабатывайте очки",
+    "tip0Detail1": "Обменивайте очки на настоящие награды",
+    "tip0Detail2": "Отслеживайте прогресс и празднуйте достижения",
+    "tip1Title": "Задания — это весело",
+    "tip1Description": "Родители создают задания, дети выполняют",
+    "tip1Detail0": "ИИ помогает создавать интересные описания заданий",
+    "tip1Detail1": "Устанавливайте сложность для справедливых наград",
+    "tip1Detail2": "Загружайте фото для подтверждения выполнения",
+    "tip2Title": "Зарабатывайте награды",
+    "tip2Description": "Очки можно обменять на награды",
+    "tip2Detail0": "Моментальные награды для быстрой мотивации",
+    "tip2Detail1": "Еженедельные награды за стабильные усилия",
+    "tip2Detail2": "Большие призы за долгосрочные цели",
+    "tip3Title": "Собирайте достижения",
+    "tip3Description": "Открывайте значки и вехи прогресса",
+    "tip3Detail0": "Получайте достижения за регулярное выполнение задач",
+    "tip3Detail1": "Собирайте стикеры в тематических сериях",
+    "tip3Detail2": "Соревнуйтесь в семейном рейтинге",
+    "tip4Title": "Строй серию побед",
+    "tip4Description": "Выполняй задания каждый день для бонусов",
+    "tip4Detail0": "Серия 3 дня: +10% бонус к очкам",
+    "tip4Detail1": "Серия 7 дней: +30% бонус к очкам",
+    "tip4Detail2": "Серия 30 дней: +50% бонус к очкам",
+    "tip5Title": "Готовы начать?",
+    "tip5Description": "Ваше семейное приключение начинается!",
+    "tip5Detail0": "Создайте первую задачу",
+    "tip5Detail1": "Добавьте награды в магазин",
+    "tip5Detail2": "Наблюдайте, как растёт ваша семья",
+    "start": "Начать",
+    "step": "Шаг {current} из {total}"
+  },
+  "profileOverview": {
+    "title": "Мой профиль",
+    "subtitle": "Управление личной информацией",
+    "updateError": "Не удалось обновить профиль",
+    "avatarUploadError": "Не удалось загрузить аватар. Попробуйте ещё раз.",
+    "changeAvatar": "Сменить аватар",
+    "noFamily": "Нет семьи",
+    "yearsOld": "лет",
+    "toDashboard": "На главную",
+    "logout": "Выйти",
+    "profilePhoto": "Фото профиля",
+    "role": {
+      "parent": "Родитель",
+      "child": "Ребёнок"
+    },
+    "identifier": "ID пользователя",
+    "age": "Возраст",
+    "form": {
+      "name": "Имя",
+      "namePlaceholder": "Введите ваше имя",
+      "lastName": "Фамилия",
+      "lastNamePlaceholder": "Введите вашу фамилию",
+      "avatarLabel": "Аватар",
+      "age": "Возраст",
+      "editTitle": "Редактировать профиль",
+      "accountInfo": "Информация об аккаунте",
+      "save": "Сохранить изменения",
+      "success": "Профиль успешно обновлён",
+      "error": "Не удалось обновить профиль",
+      "hint": "Нет изменений для сохранения"
+    },
+    "avatarPicker": {
+      "title": "Сменить аватар",
+      "subtitle": "Выберите эмодзи или загрузите фото",
+      "chooseEmoji": "Выберите эмодзи",
+      "uploadPhoto": "Или загрузите фото",
+      "chooseFile": "Выбрать фото",
+      "uploading": "Загрузка…",
+      "hint": "PNG, JPEG или WebP. Максимум 2 МБ."
+    },
+    "family": {
+      "title": "Семья",
+      "code": "Код:",
+      "description": "Вы являетесь членом этой семьи"
+    },
+    "quickActions": {
+      "title": "Быстрые действия",
+      "goToDashboard": "На главную",
+      "logout": "Выйти",
+      "tips": "Обновите профиль, чтобы приложение стало более персональным"
+    },
+    "dangerZone": {
+      "title": "Опасная зона",
+      "description": "Безвозвратно удалить ваш аккаунт и все связанные данные. Это действие нельзя отменить.",
+      "deleteButton": "Удалить аккаунт",
+      "confirmTitle": "Вы абсолютно уверены?",
+      "confirmDescription": "Это навсегда удалит ваш аккаунт и все связанные с ним данные:",
+      "willDelete": {
+        "profile": "Ваш профиль и личную информацию",
+        "family": "Семейные связи и настройки",
+        "tasks": "Все задания и историю прогресса",
+        "data": "Все награды, достижения и статистику"
+      },
+      "typeConfirm": "Введите DELETE для подтверждения:",
+      "confirmDelete": "Удалить мой аккаунт",
+      "cancel": "Отмена",
+      "error": "Не удалось удалить аккаунт. Попробуйте ещё раз."
+    },
+    "tabs": {
+      "profile": "Профиль",
+      "tasks": "Задания",
+      "rewards": "Награды",
+      "analytics": "Аналитика",
+      "children": "Дети",
+      "chat": "Чат",
+      "settings": "Настройки"
+    },
+    "security": {
+      "title": "Безопасность",
+      "changePassword": "Смена пароля",
+      "changeEmail": "Смена почты",
+      "currentPassword": "Текущий пароль",
+      "newPassword": "Новый пароль",
+      "confirmPassword": "Подтвердите новый пароль",
+      "updatePassword": "Изменить пароль",
+      "passwordChanged": "Пароль изменён!",
+      "changePasswordError": "Не удалось изменить пароль",
+      "passwordsMismatch": "Пароли не совпадают",
+      "passwordTooShort": "Пароль должен содержать минимум 6 символов",
+      "newEmail": "Новый адрес электронной почты",
+      "passwordToConfirm": "Текущий пароль для подтверждения",
+      "updateEmail": "Изменить почту",
+      "emailChanged": "Почта изменена!",
+      "changeEmailError": "Не удалось изменить почту",
+      "invalidEmail": "Введите корректный адрес электронной почты"
+    }
+  },
+  "paymentModal": {
+    "title": "Оплата",
+    "description": "Подписка {tierName} за ${price}/мес.",
+    "errorTitle": "Ошибка проверки",
+    "fillAllFields": "Пожалуйста, заполните все данные карты",
+    "paymentSuccess": "Оплата прошла успешно",
+    "subscriptionActivatedToast": "Подписка {tierName} активирована!",
+    "successTitle": "Подписка активирована!",
+    "successDescription": "Спасибо! Ваша подписка активна, все функции разблокированы.",
+    "cardDetails": "Данные карты",
+    "cardSecure": "Ваши платёжные данные зашифрованы и защищены",
+    "cardNumber": "Номер карты",
+    "cardholderName": "Имя держателя карты",
+    "expiryDate": "Срок действия",
+    "totalAmount": "Итого",
+    "cancel": "Отмена",
+    "processing": "Обработка...",
+    "pay": "Оплатить ${price}",
+    "subscribingTo": "Подключение",
+    "billingCycle": "Период оплаты",
+    "monthly": "Ежемесячно",
+    "yearly": "Ежегодно",
+    "mo": "мес",
+    "year": "год",
+    "plan": "План",
+    "billing": "Оплата",
+    "perYear": "в год",
+    "perMonthShort": "в месяц",
+    "continueToPayment": "Перейти к оплате",
+    "backToPlan": "Назад к плану",
+    "agreeToTerms": "Я принимаю условия сервиса и политику автопродления. Отписаться можно в любое время.",
+    "processingPayment": "Обработка платежа...",
+    "doNotClose": "Пожалуйста, не закрывайте это окно",
+    "secureTransaction": "Защищённая зашифрованная транзакция",
+    "activated": "Активировано",
+    "nowAvailable": "Теперь доступно",
+    "featureAI": "AI Ассистент и умные рекомендации",
+    "featureAnalytics": "Расширенная аналитика и отчёты",
+    "featureFamily": "Безлимитный семейный доступ"
+  },
+  "stickerCollection": {
+    "lion": "Лев",
+    "panda": "Панда",
+    "fox": "Лиса",
+    "koala": "Коала",
+    "owl": "Сова",
+    "frog": "Лягушка",
+    "robot": "Робот",
+    "alien": "Пришелец",
+    "rocket": "Ракета",
+    "mechanism": "Механизм",
+    "battery": "Батарейка",
+    "computer": "Компьютер",
+    "unicorn": "Единорог",
+    "dragon": "Дракон",
+    "wizard": "Волшебник",
+    "crown": "Корона",
+    "sword": "Меч",
+    "castle": "Замок",
+    "seriesPercent": "{percent}% собрано",
+    "outOf": "{unlocked} из {total} собрано",
+    "locked": "Заблокировано"
+  },
+  "addChild": {
+    "title": "Добавить ребёнка",
+    "subtitle": "Создайте аккаунт для вашего ребёнка",
+    "firstName": "Имя",
+    "firstNamePlaceholder": "Имя ребёнка",
+    "lastName": "Фамилия",
+    "lastNamePlaceholder": "Фамилия ребёнка",
+    "email": "Email",
+    "emailPlaceholder": "child@example.com",
+    "emailHint": "Используется для входа ребёнка — можно использовать ваш email с суффиксом +child",
+    "password": "Пароль",
+    "passwordPlaceholder": "Минимум 6 символов",
+    "passwordHint": "Передайте эти данные ребёнку для входа в приложение",
+    "age": "Возраст",
+    "avatar": "Аватар",
+    "createButton": "Добавить ребёнка",
+    "creating": "Создание...",
+    "success": "Ребёнок успешно добавлен!",
+    "error": "Не удалось добавить ребёнка. Попробуйте ещё раз.",
+    "addButton": "Добавить ребёнка",
+    "emptyHint": "Добавьте первого ребёнка, чтобы начать работу с задачами и наградами"
+  },
+  "gallery": {
+    "title": "Галерея подтверждений",
+    "filter": "Фильтр по статусу",
+    "noEvidence": "Нет подтверждений для отображения",
+    "completed": "Выполнено",
+    "pending": "В ожидании",
+    "inProgress": "В процессе",
+    "overdue": "Просрочено"
+  }
+}

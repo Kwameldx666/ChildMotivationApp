@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, LogIn } from "lucide-react"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslation } from "@/i18n/provider"
 
 interface WelcomeScreenProps {
   onStart: () => void
@@ -12,6 +14,7 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) {
+  const { t } = useTranslation()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const intervalRef = useRef<number | null>(null)
@@ -20,38 +23,38 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
   const [dragOffsetPx, setDragOffsetPx] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 
-  const screenshots = [
+  const screenshots = useMemo(() => [
     {
-      title: "Управляй задачами",
-      description: "Создавай, назначай и отмечай выполнение всей семьёй.",
+      title: t("welcome.slides.tasks.title"),
+      description: t("welcome.slides.tasks.description"),
       icon: "🧾",
     },
     {
-      title: "Получай награды",
-      description: "Зарабатывай очки и обменивай их на призы и бонусы.",
+      title: t("welcome.slides.rewards.title"),
+      description: t("welcome.slides.rewards.description"),
       icon: "🎁",
     },
     {
-      title: "Собирай достижения",
-      description: "Открывай уровни, бейджи и серии за регулярность.",
+      title: t("welcome.slides.achievements.title"),
+      description: t("welcome.slides.achievements.description"),
       icon: "🏆",
     },
     {
-      title: "Следи за прогрессом",
-      description: "Понимай, что сделано сегодня и что в планах на неделю.",
+      title: t("welcome.slides.progress.title"),
+      description: t("welcome.slides.progress.description"),
       icon: "📈",
     },
     {
-      title: "Поддерживай мотивацию",
-      description: "Мягкие подсказки и цели помогают не бросать начатое.",
+      title: t("welcome.slides.motivation.title"),
+      description: t("welcome.slides.motivation.description"),
       icon: "✨",
     },
     {
-      title: "AI-помощник",
-      description: "Идеи задач и наград — быстрее старт и меньше рутины.",
+      title: t("welcome.slides.ai.title"),
+      description: t("welcome.slides.ai.description"),
       icon: "🤖",
     },
-  ]
+  ], [t])
 
   const goToSlide = (index: number) => {
     setCurrentSlide((index + screenshots.length) % screenshots.length)
@@ -142,6 +145,9 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
 
   return (
     <div className="h-[100dvh] bg-gradient-to-br from-sky-400 via-purple-400 to-purple-500 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       {/* Decorative waves */}
       <div className="absolute inset-0 opacity-20">
         <svg className="w-full h-full" viewBox="0 0 1440 800" preserveAspectRatio="none">
@@ -176,10 +182,10 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
         {/* Logo and tagline */}
         <div className="text-center pointer-events-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-balance drop-shadow-sm">
-            FamilyQuest
+            {t("welcome.appName")}
           </h1>
           <p className="mt-2 text-sm sm:text-base md:text-base text-white/70 max-w-xl text-balance leading-snug">
-            Превращаем домашние обязанности в увлекательную игру
+            {t("welcome.tagline")}
           </p>
         </div>
 
@@ -207,8 +213,8 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                   <Card className="bg-gradient-to-br from-white/75 via-white/65 to-white/55 backdrop-blur-md shadow-none w-full rounded-none border border-white/35">
                     <CardContent className="py-5 sm:py-6 text-center">
                       <div className="text-4xl sm:text-5xl mb-2.5 drop-shadow-sm">{slide.icon}</div>
-                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-foreground">{slide.title}</h3>
-                      <p className="text-sm text-muted-foreground/75 leading-relaxed max-w-md mx-auto">
+                      <h3 className="text-lg sm:text-xl font-bold mb-2 text-gray-900">{slide.title}</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed max-w-md mx-auto">
                         {slide.description}
                       </p>
                     </CardContent>
@@ -226,7 +232,7 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                   key={item.title}
                   type="button"
                   onClick={() => goToSlide(i)}
-                  aria-label={`Слайд ${i + 1}`}
+                  aria-label={t("welcomeScreen.slideLabel", { number: i + 1 })}
                   className={[
                     "h-9 w-9 rounded-xl text-xl",
                     "grid place-items-center",
@@ -259,7 +265,7 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                 "hover:after:translate-x-[120%]",
               ].join(" ")}
             >
-              <span className="relative z-10 text-lg sm:text-xl">Начать приключение</span>
+              <span className="relative z-10 text-lg sm:text-xl">{t("welcome.getStarted")}</span>
               <span className="relative z-10 ml-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 shadow-md transition-transform group-hover:translate-x-1">
                 <ArrowRight className="h-5 w-5 text-white" />
               </span>
@@ -272,11 +278,11 @@ export default function WelcomeScreen({ onStart, onLogin }: WelcomeScreenProps) 
                 className="rounded-2xl bg-white/15 backdrop-blur-sm text-white border-white/40 hover:bg-white/25 px-6 sm:px-7 py-3.5 sm:py-4 h-auto shadow-2xl transition-all hover:shadow-3xl"
               >
                 <LogIn className="mr-2 h-5 w-5" />
-                Войти
+                {t("welcome.login")}
               </Button>
             )}
           </div>
-          <div className="text-xs sm:text-sm text-white/70">Для всей семьи • Займёт 2 минуты</div>
+          <div className="text-xs sm:text-sm text-white/70">{t("welcome.subtitle")}</div>
         </div>
       </div>
     </div>

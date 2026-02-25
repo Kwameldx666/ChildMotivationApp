@@ -1,4 +1,4 @@
-const browserBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5147'
+const browserBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'
 const serverBaseUrl = process.env.INTERNAL_API_URL ?? browserBaseUrl
 
 export const DEFAULT_API_BASE_URL = typeof window === 'undefined' ? serverBaseUrl : browserBaseUrl
@@ -8,11 +8,11 @@ export const STORAGE_REFRESH_TOKEN_KEY = 'familyapp_refresh_token'
 
 export interface HttpClientConfig {
   baseUrl?: string
-  getToken?: () => string | null
 }
 
 export interface RequestOptions extends RequestInit {
   auth?: boolean
+  responseType?: 'json' | 'text' | 'blob'
 }
 
 export class ApiError<T = unknown> extends Error {
@@ -27,15 +27,22 @@ export class ApiError<T = unknown> extends Error {
   }
 }
 
+import { clearSession, setSession } from '@/features/auth/store/authSlice'
 import { appStore } from '@/store/appStore'
+
+const AUTH_REFRESH_PATH = '/api-gateway/auth/refresh'
+
+interface TokenPairResponse {
+  accessToken: string
+  refreshToken?: string | null
+}
 
 export class HttpClient {
   private readonly baseUrl: string
-  private readonly getToken?: () => string | null
+  private refreshPromise: Promise<string | null> | null = null
 
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = config.baseUrl ?? DEFAULT_API_BASE_URL
-    this.getToken = config.getToken
   }
 
   private resolveUrl(path: string) {
@@ -51,34 +58,71 @@ export class HttpClient {
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { auth = true, headers: incomingHeaders, body } = options
+    const { auth = true, headers: incomingHeaders, body, responseType = 'json', ...rest } = options
     const headers = new Headers(incomingHeaders)
 
-    if (this.shouldAttachJsonBody(body)) {
+    // Guard & auto-fix: rewrite `/api/*` -> `/api-gateway/*` and warn (show stack in dev)
+    let requestPath = path
+
+    if (typeof requestPath === 'string' && requestPath.startsWith('/api/') && !requestPath.startsWith('/api-gateway/')) {
+      console.warn('[http-client] Request uses /api/* path — rewriting to /api-gateway/* so requests go through the Gateway:', requestPath)
+      if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+        console.warn(new Error().stack)
+      }
+      requestPath = requestPath.replace(/^\/api\//, '/api-gateway/')
+    }
+
+    const preparedBody = body
+
+    if (this.shouldAttachJsonBody(preparedBody)) {
       headers.set('Content-Type', headers.get('Content-Type') ?? 'application/json')
     }
 
-    if (auth && this.getToken) {
-      const token = this.getToken()
-      if (token) headers.set('Authorization', `Bearer ${token}`)
+    if (auth && process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+      // Dev-time hint: auth requested but cookies may be missing
+      console.debug('[http-client] Auth requested; relying on HTTP-only cookies for auth:', requestPath)
     }
 
-    const response = await fetch(this.resolveUrl(path), {
-      ...options,
+    const requestInit: RequestInit = {
+      ...rest,
       headers,
-    })
+      body: preparedBody,
+      credentials: rest.credentials ?? 'include',
+    }
 
-    const payload = await this.parsePayload(response)
+    const url = this.resolveUrl(requestPath)
+    let response = await fetch(url, requestInit)
+
+    if (response.status === 401 && auth) {
+      const retryResponse = await this.tryRefreshAndRetry(url, requestInit)
+      if (retryResponse) {
+        response = retryResponse
+      }
+    }
+
+    const payload = await this.parsePayload(response, responseType)
 
     if (!response.ok) {
+      if (response.status === 401) {
+        this.resetSessionState()
+      }
       throw new ApiError(response.statusText || 'API Error', response.status, payload)
     }
 
     return payload as T
   }
 
-  private async parsePayload(response: Response) {
+  private async parsePayload(response: Response, responseType: NonNullable<RequestOptions['responseType']>) {
     if (response.status === 204) return undefined
+
+    if (responseType === 'blob') {
+      return await response.blob()
+    }
+
+    if (responseType === 'text') {
+      return await response.text().catch(() => undefined)
+    }
+
     const contentType = response.headers.get('Content-Type') ?? ''
 
     if (contentType.includes('application/json')) {
@@ -124,19 +168,64 @@ export class HttpClient {
   delete<T>(path: string, options?: RequestOptions) {
     return this.request<T>(path, { ...(options ?? {}), method: 'DELETE' })
   }
-}
 
-// Lazy import to avoid circular dependency at module evaluation time
-const resolveAccessToken = () => {
-  const stateToken = appStore.getState().auth.session?.accessToken ?? null
-  if (stateToken) {
-    return stateToken
+  private resetSessionState() {
+    appStore.dispatch(clearSession())
   }
 
-  return typeof window === 'undefined' ? null : localStorage.getItem(STORAGE_TOKEN_KEY)
+  private async refreshAccessToken(): Promise<string | null> {
+    if (!this.refreshPromise) {
+      this.refreshPromise = (async () => {
+        try {
+          const response = await fetch(this.resolveUrl(AUTH_REFRESH_PATH), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+          })
+
+          if (!response.ok) return null
+
+          const data = (await response.json()) as TokenPairResponse
+          if (!data.accessToken) return null
+
+          const currentSession = appStore.getState().auth.session
+          if (currentSession) {
+            const nextSession = {
+              ...currentSession,
+              accessToken: data.accessToken ?? currentSession.accessToken,
+              refreshToken: data.refreshToken ?? currentSession.refreshToken,
+            }
+            appStore.dispatch(setSession(nextSession))
+          }
+
+          return data.accessToken
+        } catch (error) {
+          console.warn('[http-client] Failed to refresh token', error)
+          return null
+        } finally {
+          this.refreshPromise = null
+        }
+      })()
+    }
+
+    return this.refreshPromise
+  }
+
+  private async tryRefreshAndRetry(url: string, requestInit: RequestInit) {
+    const newAccessToken = await this.refreshAccessToken()
+    if (!newAccessToken) {
+      this.resetSessionState()
+      return null
+    }
+
+    return fetch(url, {
+      ...requestInit,
+    })
+  }
 }
 
 export const httpClient = new HttpClient({
   baseUrl: DEFAULT_API_BASE_URL,
-  getToken: resolveAccessToken,
 })

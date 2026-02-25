@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface TaskDeleteModalProps {
   open: boolean
@@ -19,22 +20,24 @@ interface TaskDeleteModalProps {
 }
 
 export default function TaskDeleteModal({ open, onOpenChange, taskTitle, onConfirm }: TaskDeleteModalProps) {
+  const { t } = useTranslation()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-destructive" />
-            Удалить задачу?
+            {t("taskDelete.title")}
           </DialogTitle>
           <DialogDescription>
-            Вы уверены что хотите удалить задачу "{taskTitle}"? Это действие невозможно отменить.
+            {t("taskDelete.confirmMessage", { taskTitle: taskTitle ?? "" })}
           </DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Отмена
+            {t("taskDelete.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -43,7 +46,7 @@ export default function TaskDeleteModal({ open, onOpenChange, taskTitle, onConfi
             }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Удалить
+            {t("taskDelete.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

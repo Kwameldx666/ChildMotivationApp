@@ -9,10 +9,7 @@ public class ScopeRequirementHandler : AuthorizationHandler<ScopeRequirement>
     {
         var scopes = context.User.FindAll(ClaimConstants.Scope).Select(c => c.Value).ToList();
 
-        if (requirement.Scopes.All(s => scopes.Contains(s)))
-        {
-            context.Succeed(requirement);
-        }
+        if (requirement.Scopes.All(s => scopes.Contains(s))) context.Succeed(requirement);
 
         return Task.CompletedTask;
     }

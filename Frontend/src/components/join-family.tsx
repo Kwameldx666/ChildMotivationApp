@@ -7,23 +7,25 @@ import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, AlertCircle } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface JoinFamilyProps {
   onJoinFamily: (code: string) => void
 }
 
 export default function JoinFamily({ onJoinFamily }: JoinFamilyProps) {
+  const { t } = useTranslation()
   const [code, setCode] = useState("")
   const [error, setError] = useState("")
 
   const handleJoin = () => {
     if (!code.trim()) {
-      setError("Пожалуйста, введи код приглашения")
+      setError(t("joinFamily.errorEmpty"))
       return
     }
 
     if (code.length < 6) {
-      setError("Неверный код приглашения")
+      setError(t("joinFamily.errorInvalid"))
       return
     }
 
@@ -42,14 +44,14 @@ export default function JoinFamily({ onJoinFamily }: JoinFamilyProps) {
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold mb-2">Присоединись к семье</h2>
-          <p className="text-muted-foreground">Попроси родителей поделиться кодом</p>
+          <h2 className="text-3xl font-bold mb-2">{t("joinFamily.title")}</h2>
+          <p className="text-muted-foreground">{t("joinFamily.subtitle")}</p>
         </div>
 
         <div className="space-y-6">
           {/* Code input */}
           <div className="space-y-2">
-            <Label htmlFor="invite-code">Код приглашения</Label>
+            <Label htmlFor="invite-code">{t("joinFamily.inviteCodeLabel")}</Label>
             <Input
               id="invite-code"
               value={code}
@@ -57,7 +59,7 @@ export default function JoinFamily({ onJoinFamily }: JoinFamilyProps) {
                 setCode(e.target.value)
                 setError("")
               }}
-              placeholder="Введи код"
+              placeholder={t("joinFamily.inviteCodePlaceholder")}
               className={`text-lg text-center font-mono uppercase ${error ? "border-destructive" : ""}`}
               maxLength={8}
             />
@@ -73,7 +75,7 @@ export default function JoinFamily({ onJoinFamily }: JoinFamilyProps) {
 
           {/* Submit button */}
           <Button onClick={handleJoin} disabled={!code.trim()} className="w-full h-12 text-lg" size="lg">
-            Присоединиться
+            {t("joinFamily.joinButton")}
           </Button>
         </div>
       </Card>

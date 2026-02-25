@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Lock, Clock, ShoppingBag } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface ParentalControlPageProps {
   onBack: () => void
@@ -13,17 +14,18 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
   const [nightMode, setNightMode] = useState({ enabled: true, start: "21:00", end: "08:00" })
   const [timeLimit, setTimeLimit] = useState({ enabled: false, minutes: 120 })
   const [spendingLimit, setSpendingLimit] = useState({ enabled: false, pointsPerDay: 100 })
+  const { t } = useTranslation()
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border p-4">
         <Button variant="ghost" onClick={onBack} className="mb-2">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Button>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Lock className="w-5 h-5" />
-          Родительский контроль
+          {t("parentalControl.title")}
         </h1>
       </header>
 
@@ -32,8 +34,8 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold">Ночной режим</h3>
-                <p className="text-xs text-muted-foreground">Ограничить активность в ночное время</p>
+                <h3 className="font-semibold">{t("parentalControl.nightMode")}</h3>
+                <p className="text-xs text-muted-foreground">{t("parentalControl.nightModeDescription")}</p>
               </div>
               <input
                 type="checkbox"
@@ -45,7 +47,7 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
             {nightMode.enabled && (
               <div className="space-y-3">
                 <div>
-                  <label className="text-sm">С</label>
+                  <label className="text-sm">{t("parentalControl.from")}</label>
                   <input
                     type="time"
                     value={nightMode.start}
@@ -54,7 +56,7 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
                   />
                 </div>
                 <div>
-                  <label className="text-sm">До</label>
+                  <label className="text-sm">{t("parentalControl.to")}</label>
                   <input
                     type="time"
                     value={nightMode.end}
@@ -73,9 +75,9 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
               <div>
                 <h3 className="font-semibold flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  Лимит времени
+                  {t("parentalControl.timeLimit")}
                 </h3>
-                <p className="text-xs text-muted-foreground">Максимум минут в день</p>
+                <p className="text-xs text-muted-foreground">{t("parentalControl.maxMinutesPerDay")}</p>
               </div>
               <input
                 type="checkbox"
@@ -101,9 +103,9 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
               <div>
                 <h3 className="font-semibold flex items-center gap-2">
                   <ShoppingBag className="w-4 h-4" />
-                  Лимит покупок
+                  {t("parentalControl.spendingLimit")}
                 </h3>
-                <p className="text-xs text-muted-foreground">Максимум очков в день</p>
+                <p className="text-xs text-muted-foreground">{t("parentalControl.maxPointsPerDay")}</p>
               </div>
               <input
                 type="checkbox"
@@ -123,7 +125,7 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
           </CardContent>
         </Card>
 
-        <Button className="w-full bg-gradient-to-r from-primary to-secondary">Сохранить параметры</Button>
+        <Button className="w-full bg-gradient-to-r from-primary to-secondary">{t("parentalControl.saveSettings")}</Button>
       </main>
     </div>
   )

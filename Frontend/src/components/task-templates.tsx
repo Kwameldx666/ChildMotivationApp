@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "@/i18n/provider"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,88 +16,98 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-const DEFAULT_TEMPLATES = [
+const getDefaultTemplates = (t: (key: string) => string): DefaultTemplate[] => [
   {
     id: 1,
-    title: "Убрать комнату",
+    title: t("taskTemplates.templates.cleanRoom.title"),
     icon: "🧹",
-    category: "Дом",
+    category: t("taskTemplates.categories.home"),
     difficulty: 2,
-    description: "Навести порядок в комнате",
+    description: t("taskTemplates.templates.cleanRoom.description"),
     verificationMethod: "photo",
   },
   {
     id: 2,
-    title: "Помыть посуду",
+    title: t("taskTemplates.templates.washDishes.title"),
     icon: "🍽️",
-    category: "Кухня",
+    category: t("taskTemplates.categories.kitchen"),
     difficulty: 1,
-    description: "Вымыть всю посуду",
+    description: t("taskTemplates.templates.washDishes.description"),
     verificationMethod: "photo",
   },
   {
     id: 3,
-    title: "Погулять с собакой",
+    title: t("taskTemplates.templates.walkDog.title"),
     icon: "🐕",
-    category: "Питомцы",
+    category: t("taskTemplates.categories.pets"),
     difficulty: 2,
-    description: "Прогулка с питомцем",
+    description: t("taskTemplates.templates.walkDog.description"),
     verificationMethod: "photo",
   },
   {
     id: 4,
-    title: "Сделать домашнее задание",
+    title: t("taskTemplates.templates.doHomework.title"),
     icon: "📚",
-    category: "Учёба",
+    category: t("taskTemplates.categories.study"),
     difficulty: 3,
-    description: "Выполнить ДЗ",
+    description: t("taskTemplates.templates.doHomework.description"),
     verificationMethod: "text",
   },
   {
     id: 5,
-    title: "Полить цветы",
+    title: t("taskTemplates.templates.waterPlants.title"),
     icon: "🌱",
-    category: "Дом",
+    category: t("taskTemplates.categories.home"),
     difficulty: 1,
-    description: "Полить комнатные растения",
+    description: t("taskTemplates.templates.waterPlants.description"),
     verificationMethod: "photo",
   },
   {
     id: 6,
-    title: "Вынести мусор",
+    title: t("taskTemplates.templates.takeOutTrash.title"),
     icon: "🗑️",
-    category: "Дом",
+    category: t("taskTemplates.categories.home"),
     difficulty: 1,
-    description: "Вынести мусорные мешки",
+    description: t("taskTemplates.templates.takeOutTrash.description"),
     verificationMethod: "photo",
   },
   {
     id: 7,
-    title: "Покормить питомца",
+    title: t("taskTemplates.templates.feedPet.title"),
     icon: "🐾",
-    category: "Питомцы",
+    category: t("taskTemplates.categories.pets"),
     difficulty: 1,
-    description: "Покормить кота/собаку",
+    description: t("taskTemplates.templates.feedPet.description"),
     verificationMethod: "photo",
   },
   {
     id: 8,
-    title: "Помощь с покупками",
+    title: t("taskTemplates.templates.helpShopping.title"),
     icon: "🛒",
-    category: "Помощь",
+    category: t("taskTemplates.categories.help"),
     difficulty: 2,
-    description: "Помочь с продуктами",
+    description: t("taskTemplates.templates.helpShopping.description"),
     verificationMethod: "text",
   },
 ]
 
-const VERIFICATION_METHODS = [
-  { value: "photo", label: "📸 Фото", description: "Ребёнок отправляет фотографию" },
-  { value: "video", label: "🎥 Видео", description: "Ребёнок отправляет видео" },
-  { value: "checklist", label: "✓ Чек-лист", description: "Ребёнок отмечает пункты" },
-  { value: "text", label: "📝 Текст", description: "Ребёнок пишет описание" },
-  { value: "audio", label: "🎙️ Аудио", description: "Ребёнок записывает аудио" },
+const getVerificationMethods = (t: (key: string) => string) => [
+  { value: "photo", label: t("taskTemplates.verification.photo.label"), description: t("taskTemplates.verification.photo.description") },
+  { value: "video", label: t("taskTemplates.verification.video.label"), description: t("taskTemplates.verification.video.description") },
+  { value: "checklist", label: t("taskTemplates.verification.checklist.label"), description: t("taskTemplates.verification.checklist.description") },
+  { value: "text", label: t("taskTemplates.verification.text.label"), description: t("taskTemplates.verification.text.description") },
+  { value: "audio", label: t("taskTemplates.verification.audio.label"), description: t("taskTemplates.verification.audio.description") },
 ]
+
+interface DefaultTemplate {
+  id: number
+  title: string
+  icon: string
+  category: string
+  difficulty: number
+  description: string
+  verificationMethod: string
+}
 
 interface CustomTemplate {
   id: string
@@ -109,6 +120,10 @@ interface CustomTemplate {
 }
 
 export default function TaskTemplates() {
+  const { t } = useTranslation()
+  const DEFAULT_TEMPLATES = getDefaultTemplates(t)
+  const VERIFICATION_METHODS = getVerificationMethods(t)
+
   const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [showAIGenerator, setShowAIGenerator] = useState(false)
@@ -150,47 +165,47 @@ export default function TaskTemplates() {
     const aiIdeas: CustomTemplate[] = [
       {
         id: "ai-1",
-        title: "Организовать полку с книгами",
+        title: t("taskTemplates.aiIdeas.organizeBookshelf.title"),
         icon: "📚",
-        category: "Дом",
+        category: t("taskTemplates.categories.home"),
         difficulty: 2,
-        description: "Аккуратно расставить книги на полку",
+        description: t("taskTemplates.aiIdeas.organizeBookshelf.description"),
         verificationMethod: "photo",
       },
       {
         id: "ai-2",
-        title: "Помощь с приготовлением обеда",
+        title: t("taskTemplates.aiIdeas.helpCooking.title"),
         icon: "🍳",
-        category: "Кухня",
+        category: t("taskTemplates.categories.kitchen"),
         difficulty: 3,
-        description: "Помочь приготовить простое блюдо",
+        description: t("taskTemplates.aiIdeas.helpCooking.description"),
         verificationMethod: "video",
       },
       {
         id: "ai-3",
-        title: "Прополка грядки",
+        title: t("taskTemplates.aiIdeas.weedGarden.title"),
         icon: "🌿",
-        category: "Сад",
+        category: t("taskTemplates.categories.garden"),
         difficulty: 2,
-        description: "Пропополоть овощную грядку",
+        description: t("taskTemplates.aiIdeas.weedGarden.description"),
         verificationMethod: "photo",
       },
       {
         id: "ai-4",
-        title: "Написать письмо бабушке",
+        title: t("taskTemplates.aiIdeas.writeLetterGrandma.title"),
         icon: "💌",
-        category: "Помощь",
+        category: t("taskTemplates.categories.help"),
         difficulty: 1,
-        description: "Написать и отправить письмо родственнику",
+        description: t("taskTemplates.aiIdeas.writeLetterGrandma.description"),
         verificationMethod: "text",
       },
       {
         id: "ai-5",
-        title: "Помыть машину",
+        title: t("taskTemplates.aiIdeas.washCar.title"),
         icon: "🚗",
-        category: "Дом",
+        category: t("taskTemplates.categories.home"),
         difficulty: 3,
-        description: "Помочь помыть семейную машину",
+        description: t("taskTemplates.aiIdeas.washCar.description"),
         verificationMethod: "photo",
       },
     ]
@@ -208,7 +223,7 @@ export default function TaskTemplates() {
     setCustomTemplates(customTemplates.filter((t) => t.id !== id))
   }
 
-  const handleUseTemplate = (template: CustomTemplate | (typeof DEFAULT_TEMPLATES)[0]) => {
+  const handleUseTemplate = (template: CustomTemplate | DefaultTemplate) => {
     console.log("Using template:", template.title)
   }
 
@@ -220,39 +235,39 @@ export default function TaskTemplates() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold mb-1">Мои шаблоны</h3>
-          <p className="text-sm text-muted-foreground">Ваши сохраненные шаблоны задач</p>
+          <h3 className="text-lg font-bold mb-1">{t("taskTemplates.myTemplates")}</h3>
+          <p className="text-sm text-muted-foreground">{t("taskTemplates.savedTemplatesDescription")}</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleGenerateAIIdeas} variant="outline" className="gap-2 bg-transparent">
             <Sparkles className="w-4 h-4" />
-            ИИ Идеи
+            {t("taskTemplates.aiIdeasButton")}
           </Button>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                Новый шаблон
+                {t("taskTemplates.newTemplate")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Создать шаблон задачи</DialogTitle>
-                <DialogDescription>Сохраните шаблон для быстрого создания похожих задач</DialogDescription>
+                <DialogTitle>{t("taskTemplates.createTaskTemplate")}</DialogTitle>
+                <DialogDescription>{t("taskTemplates.createTaskTemplateDescription")}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Название *</Label>
+                  <Label htmlFor="title">{t("taskTemplates.titleLabel")} *</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Убрать комнату"
+                    placeholder={t("taskTemplates.titlePlaceholder")}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="icon">Иконка</Label>
+                    <Label htmlFor="icon">{t("taskTemplates.iconLabel")}</Label>
                     <Input
                       id="icon"
                       value={formData.icon}
@@ -262,18 +277,18 @@ export default function TaskTemplates() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="category">Категория *</Label>
+                    <Label htmlFor="category">{t("taskTemplates.categoryLabel")} *</Label>
                     <Input
                       id="category"
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      placeholder="Дом"
+                      placeholder={t("taskTemplates.categoryPlaceholder")}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="difficulty">Сложность</Label>
+                    <Label htmlFor="difficulty">{t("taskTemplates.difficultyLabel")}</Label>
                     <select
                       id="difficulty"
                       value={formData.difficulty}
@@ -288,7 +303,7 @@ export default function TaskTemplates() {
                     </select>
                   </div>
                   <div>
-                    <Label htmlFor="verification">Подтверждение *</Label>
+                    <Label htmlFor="verification">{t("taskTemplates.verificationLabel")} *</Label>
                     <select
                       id="verification"
                       value={formData.verificationMethod}
@@ -304,16 +319,16 @@ export default function TaskTemplates() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="description">Описание</Label>
+                  <Label htmlFor="description">{t("taskTemplates.descriptionLabel")}</Label>
                   <Input
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Детальное описание задачи"
+                    placeholder={t("taskTemplates.descriptionPlaceholder")}
                   />
                 </div>
                 <Button onClick={handleAddTemplate} className="w-full">
-                  Создать шаблон
+                  {t("taskTemplates.createTemplate")}
                 </Button>
               </div>
             </DialogContent>
@@ -327,7 +342,7 @@ export default function TaskTemplates() {
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-semibold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-accent" />
-                ИИ предложил новые идеи
+                {t("taskTemplates.aiSuggestedIdeas")}
               </h4>
               <Button size="sm" variant="ghost" onClick={() => setShowAIGenerator(false)}>
                 ✕
@@ -353,7 +368,7 @@ export default function TaskTemplates() {
                       </div>
                     </div>
                     <Button size="sm" className="w-full" onClick={() => handleAcceptAIIdea(idea)}>
-                      Добавить в мои шаблоны
+                      {t("taskTemplates.addToMyTemplates")}
                     </Button>
                   </CardContent>
                 </Card>
@@ -365,7 +380,7 @@ export default function TaskTemplates() {
 
       {customTemplates.length > 0 && (
         <div>
-          <h4 className="font-semibold mb-3">Сохраненные шаблоны</h4>
+          <h4 className="font-semibold mb-3">{t("taskTemplates.savedTemplates")}</h4>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {customTemplates.map((template) => (
               <Card key={template.id} className="hover:shadow-md transition-all group">
@@ -391,7 +406,7 @@ export default function TaskTemplates() {
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" onClick={() => handleUseTemplate(template)} className="flex-1 gap-1">
                       <Copy className="w-3 h-3" />
-                      Использовать
+                      {t("taskTemplates.useTemplate")}
                     </Button>
                     <Button
                       size="sm"
@@ -410,7 +425,7 @@ export default function TaskTemplates() {
       )}
 
       <div>
-        <h4 className="font-semibold mb-3">Встроенные шаблоны</h4>
+        <h4 className="font-semibold mb-3">{t("taskTemplates.builtInTemplates")}</h4>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {DEFAULT_TEMPLATES.map((template) => (
             <Card key={template.id} className="hover:shadow-md transition-all group">
@@ -436,7 +451,7 @@ export default function TaskTemplates() {
                 <div className="flex gap-2 mt-3">
                   <Button size="sm" onClick={() => handleUseTemplate(template)} className="flex-1 gap-1">
                     <Plus className="w-3 h-3" />
-                    Использовать
+                    {t("taskTemplates.useTemplate")}
                   </Button>
                 </div>
               </CardContent>

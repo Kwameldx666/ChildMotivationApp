@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Persistence.Repositories;
 
-public class RefreshTokenRepository(AuthDbContext context) : IRefreshTokenRepository
+public class RefreshTokenRepository(AuthDbContext context)
+    : IRefreshTokenRepository
 {
     public async Task<RefreshToken?> GetByTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {

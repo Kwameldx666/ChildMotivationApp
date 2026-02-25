@@ -1,0 +1,2797 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "settings": "Settings",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "help": "Help",
+    "about": "About",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "saveChanges": "Save Changes",
+    "confirmDelete": "Yes, Delete",
+    "done": "Done",
+    "child": "Child",
+    "parent": "Parent"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "rememberMe": "Remember Me",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginSuccess": "Successfully logged in",
+    "loginError": "Login failed",
+    "registerSuccess": "Account created successfully",
+    "registerError": "Registration failed",
+    "invalidCredentials": "Invalid email or password",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordsDoNotMatch": "Passwords do not match"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "myTasks": "My Tasks",
+    "allTasks": "All Tasks",
+    "createTask": "Create Task",
+    "editTask": "Edit Task",
+    "taskTitle": "Task Title",
+    "taskDescription": "Description",
+    "dueDate": "Due Date",
+    "difficulty": "Difficulty",
+    "category": "Category",
+    "assignTo": "Assign to",
+    "status": "Status",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled",
+    "confirmationType": "Confirmation Type",
+    "photo": "Photo",
+    "noConfirmation": "No Confirmation",
+    "points": "Points",
+    "taskCreated": "Task created",
+    "taskUpdated": "Task updated",
+    "taskDeleted": "Task deleted",
+    "taskCompleted": "Task completed!",
+    "noTasks": "No tasks yet",
+    "noTasksDescription": "Create your first task — your child will see it right after you save it.",
+    "addFirstTask": "Create task",
+    "quickIdeas": "Quick Ideas",
+    "useAI": "Use AI",
+    "aiHelp": "AI will enhance your task description",
+    "categories": {
+      "home": "Home",
+      "study": "Study",
+      "health": "Health",
+      "creativity": "Creativity",
+      "social": "Social",
+      "other": "Other"
+    },
+    "difficultyLevels": {
+      "1": "Very Easy",
+      "2": "Easy",
+      "3": "Medium",
+      "4": "Hard",
+      "5": "Very Hard"
+    }
+  },
+  "rewards": {
+    "title": "Rewards",
+    "shop": "Reward Shop",
+    "myRewards": "My Rewards",
+    "createReward": "Create Reward",
+    "editReward": "Edit Reward",
+    "rewardName": "Reward Name",
+    "rewardDescription": "Description",
+    "price": "Price",
+    "buy": "Buy",
+    "redeem": "Redeem",
+    "confirmDelivery": "Confirm Delivery",
+    "confirmReceived": "Confirm Received",
+    "pending": "Pending",
+    "delivered": "Delivered",
+    "received": "Received",
+    "noRewards": "No rewards available",
+    "insufficientPoints": "Not enough points",
+    "purchaseSuccess": "Reward purchased!",
+    "purchaseError": "Failed to purchase reward"
+  },
+  "family": {
+    "title": "Family",
+    "familyName": "Family Name",
+    "familyCode": "Family Code",
+    "inviteCode": "Invite Code",
+    "inviteLink": "Invite Link",
+    "copyCode": "Copy Code",
+    "copyLink": "Copy Link",
+    "shareLink": "Share Link",
+    "codeCopied": "Code copied!",
+    "linkCopied": "Link copied!",
+    "joinFamily": "Join Family",
+    "createFamily": "Create Family",
+    "leaveFamily": "Leave Family",
+    "members": "Members",
+    "parent": "Parent",
+    "child": "Child",
+    "children": "Children",
+    "addChild": "Add Child",
+    "noChildren": "No children connected yet",
+    "noChildrenDescription": "Share the family code with your child. After they connect, their profile will appear here automatically.",
+    "inviteChild": "Invite a child to join your family",
+    "createFamilyPrompt": "Create a family",
+    "createFamilyDescription": "To see connected children, create a family and share the code with your child",
+    "loadingChildren": "Loading connected children...",
+    "failedToLoadChildren": "Failed to get list of children",
+    "shareCodeHint": "Share this code with your child. After they connect, their profile will appear here automatically.",
+    "familyInfo": "Family Information",
+    "familyInfoDescription": "Your family data and inviting children",
+    "shareCode": "Share the family code so your child can join:",
+    "inviteCodeLabel": "Invitation code for children",
+    "shareLinkLabel": "Share link",
+    "shareInviteLink": "Share link",
+    "inviteLinkHint": "Send this link to your child - they will automatically join the family when you open it",
+    "copied": "Copied!"
+  },
+  "profile": {
+    "title": "Profile",
+    "myProfile": "My Profile",
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "avatar": "Avatar",
+    "changeAvatar": "Change Avatar",
+    "uploadAvatar": "Upload Avatar",
+    "dateOfBirth": "Date of Birth",
+    "age": "Age",
+    "level": "Level",
+    "experience": "Experience",
+    "totalPoints": "Total Points",
+    "currentStreak": "Current Streak",
+    "days": "days",
+    "ageNotSpecified": "Age not specified",
+    "copyId": "Copy ID",
+    "idCopied": "ID copied!",
+    "profileUpdated": "Profile updated",
+    "profileError": "Failed to update profile"
+  },
+  "subscription": {
+    "title": "Subscription",
+    "currentPlan": "Current Plan",
+    "changePlan": "Change Plan",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "cancel": "Cancel Subscription",
+    "cancelConfirm": "Are you sure you want to cancel?",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "currency": "lei",
+    "free": "Free",
+    "basic": "Basic",
+    "premium": "Premium",
+    "family": "Family",
+    "features": "Features",
+    "choosePlan": "Choose Plan",
+    "currentlyActive": "Currently Active",
+    "mostPopular": "Most Popular",
+    "bestValue": "Best Value",
+    "subscriptionChanged": "Subscription updated",
+    "subscriptionCancelled": "Subscription cancelled",
+    "daysRemaining": "Days remaining",
+    "autoRenewal": "Auto-renewal enabled",
+    "tierDescriptions": {
+      "free": "Basic app features",
+      "basic": "Extended features for active families",
+      "premium": "All app capabilities",
+      "family": "Maximum features for large families"
+    },
+    "benefitsList": "Premium Subscription Benefits:",
+    "benefit1": "AI assistant for smart recommendations",
+    "benefit2": "Unlimited number of tasks and children",
+    "benefit3": "Advanced analytics and reports",
+    "benefit4": "Exclusive rewards and achievements",
+    "currentSubscription": "Current Subscription",
+    "managePlan": "Plan Management",
+    "upgradeBenefits": "Premium Subscription Benefits:",
+    "chooseYourPlan": "Choose Your Plan",
+    "upgradeDescription": "Upgrade your subscription to access advanced features",
+    "selectPlan": "Select Plan",
+    "switchToYearlySave": "Switch to yearly to save 15%",
+    "plansInclude": "Plans include:",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "Try the app with your family",
+        "price": "Free",
+        "features": [
+          "1 child profile",
+          "Create & assign tasks manually",
+          "Basic star rewards",
+          "Family chat"
+        ]
+      },
+      "basic": {
+        "name": "Basic",
+        "tagline": "Daily help with chores & motivation",
+        "price": "299",
+        "priceAmount": "299 lei",
+        "yearlyPrice": "2990",
+        "yearlyMonthlyPrice": "249 lei",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Unlimited children",
+          "AI generates age-appropriate tasks",
+          "Reward shop — kids spend earned points",
+          "Photo proof of completed tasks",
+          "Weekly progress summary",
+          "Email support"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "tagline": "Insights that help you raise kids better",
+        "price": "599",
+        "priceAmount": "599 lei",
+        "yearlyPrice": "5990",
+        "yearlyMonthlyPrice": "499 lei",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Everything in Basic",
+          "AI adapts tasks to child's behavior",
+          "Detailed analytics — strengths & weak spots",
+          "PDF reports (for teachers or therapists)",
+          "Recurring tasks & smart scheduling",
+          "Custom themes & task templates",
+          "Priority support (24h response)"
+        ]
+      },
+      "family": {
+        "name": "Family",
+        "tagline": "Both parents, grandparents & nanny in sync",
+        "price": "999",
+        "priceAmount": "999 lei",
+        "yearlyPrice": "9990",
+        "yearlyMonthlyPrice": "833 lei",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Everything in Premium",
+          "Up to 5 caregiver accounts",
+          "Each adult gets their own login",
+          "Push notifications for all caregivers",
+          "Shared family activity feed",
+          "Dedicated support manager"
+        ]
+      }
+    },
+    "trial": {
+      "badge": "7-day free trial",
+      "startTrial": "Start Free Trial",
+      "trialActive": "Trial Active",
+      "trialDaysLeft": "{days} trial days left",
+      "trialDescription": "Try Basic features free for 7 days. Cancel anytime.",
+      "trialExpired": "Trial expired"
+    },
+    "downgradeBlocked": "You already have a higher plan",
+    "cannotDowngrade": "Downgrade is not available. Contact support to change plans."
+  },
+  "featureGate": {
+    "lockedTitle": "Feature Locked",
+    "requiresPlan": "Requires {plan} plan",
+    "description": "Upgrade your subscription to unlock {feature} and more.",
+    "whatYouGet": "What you'll get",
+    "upgrade": "Upgrade",
+    "upgradeTo": "Upgrade to {plan}",
+    "startingAt": "Starting at {price}/month",
+    "taskLimitReached": "Daily task limit reached ({count}/{limit}). Upgrade for more.",
+    "childrenLimitReached": "Children limit reached ({count}/{limit}). Upgrade for more.",
+    "featureNames": {
+      "aiAssistant": "AI Assistant",
+      "advancedAnalytics": "Advanced Analytics",
+      "customRewards": "Custom Rewards",
+      "prioritySupport": "Priority Support",
+      "familySharing": "Family Sharing",
+      "offlineMode": "Offline Mode",
+      "maxChildren": "More Children",
+      "maxTasksPerDay": "More Tasks Per Day"
+    },
+    "benefits": {
+      "basic1": "AI-powered task suggestions",
+      "basic2": "Up to 5 children profiles",
+      "basic3": "Up to 50 tasks per day",
+      "premium1": "Advanced analytics & reports",
+      "premium2": "Custom rewards creation",
+      "premium3": "Offline mode & priority support",
+      "family1": "Unlimited children & tasks",
+      "family2": "Family sharing across devices",
+      "family3": "Personal manager & API access"
+    }
+  },
+  "achievements": {
+    "title": "Achievements",
+    "unlocked": "Unlocked!",
+    "locked": "Locked",
+    "progress": "Progress",
+    "tree": "Achievement Tree",
+    "description": "Complete achievements and earn rewards",
+    "noAchievements": "Achievements coming soon!"
+  },
+  "stickers": {
+    "title": "Sticker Collection",
+    "description": "Collect stickers by completing tasks",
+    "new": "New!",
+    "animals": "Animals",
+    "robots": "Robots",
+    "fantasy": "Fantasy",
+    "seriesProgress": "Series Progress"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "tasksCompleted": "Tasks Completed",
+    "totalPoints": "Total Points",
+    "currentStreak": "Current Streak",
+    "weeklyActivity": "Weekly Activity",
+    "childStats": "Child Statistics",
+    "categoryBreakdown": "By Category",
+    "weeklyProgress": "Weekly Progress",
+    "taskStatus": "Task Status",
+    "pointsTrend": "Points Trend",
+    "periodSelection": {
+      "7days": "7 days",
+      "30days": "30 days",
+      "90days": "90 days"
+    },
+    "export": {
+      "png": "PNG",
+      "pdf": "PDF"
+    },
+    "exportAll": {
+      "button": "Export All Charts (PDF)",
+      "generating": "Generating PDF...",
+      "currentView": "Current View",
+      "currentPng": "Save as PNG image",
+      "currentPdf": "Save as PDF",
+      "reportTitle": "Analytics Report",
+      "period": "Period",
+      "days": "days",
+      "renderError": "Failed to render this chart"
+    },
+    "exportDialog": {
+      "title": "Export Settings",
+      "selectChild": "Select Child",
+      "selectCharts": "Select Charts",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "generate": "Generate PDF"
+    },
+    "cards": {
+      "totalPoints": "Total Points",
+      "earnedForPeriod": "Earned this period",
+      "completedTasks": "Completed Tasks",
+      "outOf": "Out of {total} total",
+      "completionRate": "Completion Rate",
+      "successRate": "Success Rate",
+      "activeChildren": "Active Children",
+      "participatingInTasks": "Participating in tasks"
+    },
+    "charts": {
+      "activityPulse": "Activity Pulse",
+      "childrenLeaderboard": "Children Leaderboard",
+      "difficultyRadar": "Difficulty Mastery",
+      "completionMomentum": "Completion Dynamics",
+      "taskStatusDonut": "Task Status",
+      "pointsGrowth": "Points Growth",
+      "streakHeatmap": "Quest Journey"
+    },
+    "chartDescriptions": {
+      "activityPulse": "How many tasks are completed each day and how many points are earned. The dashed line shows the average trend.",
+      "childrenLeaderboard": "A ranking of children by points earned — who is the most active this period.",
+      "difficultyRadar": "Distribution of tasks by difficulty level — shows what kind of tasks the child completes most often.",
+      "completionMomentum": "What percentage of assigned tasks are completed each week. The dashed line shows the 80% target.",
+      "taskStatusDonut": "Current status of all tasks — how many are completed, in progress, or overdue.",
+      "pointsGrowth": "How earned points change day by day — growth dynamics over the chosen period.",
+      "streakHeatmap": "A quest adventure! Track daily streaks, earn achievements, and level up through consistent activity."
+    },
+    "chartLabels": {
+      "tasks": "Tasks",
+      "points": "Points",
+      "completed": "Completed",
+      "total": "Total",
+      "inProgress": "In Progress",
+      "overdue": "Overdue",
+      "pending": "Pending",
+      "remaining": "Remaining",
+      "completionRate": "Completion %",
+      "trend": "Trend",
+      "avgRate": "Average",
+      "completionPercent": "Completion %",
+      "goal": "Goal",
+      "currentStreak": "Current Streak",
+      "bestStreak": "Best Streak",
+      "activeDays": "Active Days",
+      "days": "days",
+      "less": "Less",
+      "more": "More",
+      "level": "Level",
+      "xp": "XP",
+      "questPath": "Quest Path",
+      "achievements": "Achievements",
+      "firstStep": "First Step",
+      "firstStepDesc": "Complete your first day",
+      "onFire": "On Fire!",
+      "onFireDesc": "3-day streak",
+      "unstoppable": "Unstoppable",
+      "unstoppableDesc": "7-day streak",
+      "legendary": "Legendary",
+      "legendaryDesc": "14-day streak",
+      "mythical": "Mythical",
+      "mythicalDesc": "30-day streak",
+      "today": "Today",
+      "tasksCompleted": "tasks completed",
+      "streak": "streak",
+      "noActivity": "Rest day",
+      "familyQuest": "Family Quest",
+      "memberActivity": "Member activity"
+    },
+    "quickSwitch": "Quick Switch",
+    "chartNumbers": {
+      "1": "1. Activity Pulse",
+      "2": "2. Children Leaderboard",
+      "3": "3. Difficulty Mastery",
+      "4": "4. Completion Dynamics",
+      "5": "5. Task Status",
+      "6": "6. Points Growth",
+      "7": "7. Quest Journey"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "enable": "Enable Notifications",
+    "enableNotifications": "Enable notifications",
+    "taskCompletionDesc": "Get notified when tasks are completed",
+    "sound": "Sound Notifications",
+    "soundDescription": "Play sound for notifications",
+    "soundNotifications": "Sound notifications",
+    "soundNotificationsDesc": "Enable sound for notifications",
+    "nightMode": "Night Mode",
+    "nightModeStart": "Night mode starts",
+    "nightModeEnd": "Night mode ends",
+    "nightModeDescription": "Only urgent notifications during night mode",
+    "nightModeHint": "In night mode, only urgent notifications will arrive",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "taskCompleted": "Task Completed",
+    "taskAssigned": "New Task!",
+    "taskUpdated": "Task Updated"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLabel": "Theme",
+    "themeDescription": "Choose your preferred visual style",
+    "themeLight": "Light theme enabled",
+    "themeDark": "Dark theme enabled",
+    "lightTheme": "Light theme enabled",
+    "darkTheme": "Dark theme",
+    "switchToLight": "Light",
+    "switchToDark": "Dark",
+    "lightThemeLabel": "Light",
+    "darkThemeLabel": "Dark",
+    "dangerZone": "Danger Zone",
+    "dangerDescription": "Actions that cannot be undone",
+    "clearData": "Clear All Data",
+    "clearDataConfirm": "Are you sure?",
+    "clearDataDescription": "This will delete all your family data. This cannot be undone.",
+    "clearAllData": "Clear all data",
+    "clearAllDataConfirm": "Are you sure?",
+    "clearAllDataMessage": "This action will delete all data of your family. This cannot be undone.",
+    "whatWillBeDeleted": "Will be deleted:",
+    "willBeDeleted": "Will be deleted:",
+    "allTasks": "All tasks",
+    "allTasksDeleted": "All tasks",
+    "allRewards": "All rewards",
+    "allRewardsDeleted": "All rewards",
+    "allStats": "All statistics",
+    "allStatisticsDeleted": "All statistics",
+    "childProfiles": "Child profiles",
+    "childProfilesDeleted": "Child profiles"
+  },
+  "activity": {
+    "title": "Family Activity Feed",
+    "taskCompleted": "{name} completed task \"{task}\"",
+    "taskCreated": "{name} created task \"{task}\"",
+    "rewardPurchased": "{name} purchased \"{reward}\"",
+    "achievementUnlocked": "{name} unlocked achievement \"{achievement}\"",
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago"
+  },
+  "points": {
+    "title": "Points System",
+    "basePoints": "Base Points",
+    "streakBonus": "Streak Bonus",
+    "timeBonus": "Time Bonus",
+    "earlyBonus": "Early Completion Bonus",
+    "totalEarned": "Total Earned",
+    "bonuses": {
+      "streak3": "3 days in a row",
+      "streak7": "7 days in a row",
+      "streak14": "14 days in a row",
+      "streak30": "30 days in a row",
+      "morning": "Morning (6-12)",
+      "afternoon": "Afternoon (12-18)",
+      "evening": "Evening (18-22)",
+      "early1day": "1+ day before deadline",
+      "early3hours": "3+ hours before deadline"
+    }
+  },
+  "child": {
+    "greeting": "Hello, {name}! 👋",
+    "subtitle": "Complete tasks and earn rewards",
+    "stats": {
+      "level": "Level",
+      "experience": "XP",
+      "points": "Points",
+      "streak": "Streak 🔥",
+      "familyCode": "Family Code",
+      "age": "Age"
+    },
+    "navigation": {
+      "tasks": "Tasks",
+      "rewards": "Rewards",
+      "achievements": "Achievements",
+      "stickers": "Stickers",
+      "shop": "Shop",
+      "chat": "Chat",
+      "profile": "Profile",
+      "changeAvatar": "Change Avatar",
+      "logout": "Sign Out"
+    },
+    "messages": {
+      "completeTask": "Complete tasks to earn experience and points",
+      "earnRewards": "Spend your points on rewards",
+      "viewAchievements": "View your achievements and milestones",
+      "manageProfile": "Manage your avatar, settings, and appearance"
+    }
+  },
+  "chat": {
+    "title": "Chats with Children",
+    "subtitle": "Select a group chat or private conversation with your child",
+    "familyChat": "Family Group Chat",
+    "familyChatDescription": "Chat with all children at once",
+    "privateChats": "Private Chats",
+    "noChildren": "No children in family yet",
+    "noChildrenDescription": "Invite children using the family code",
+    "childrenCount": "{count} children",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "noMessages": "No messages yet",
+    "typing": "{name} is typing..."
+  },
+  "aiChat": {
+    "title": "AI Assistant",
+    "placeholder": "Ask me anything about tasks...",
+    "thinking": "Thinking...",
+    "error": "Failed to get response",
+    "suggestions": "Suggestions",
+    "actions": "Suggested Actions",
+    "fallbackReply": "Could you please clarify your request? I lost the context.",
+    "fetchError": "Failed to get AI response. Please try again.",
+    "actionSuccess": "Action completed successfully!",
+    "actionFailed": "Failed to perform the action",
+    "actionError": "Error while performing the action"
+  },
+  "aiChatPage": {
+    "quickActions": {
+      "taskSprint": {
+        "title": "Task Sprint",
+        "description": "Ask AI to compile tasks for a specific goal",
+        "prompt": "Create a weekly task sprint for the child to build responsibility and help with homework."
+      },
+      "rewardBoost": {
+        "title": "Reward Boost",
+        "description": "Let AI refresh the reward store",
+        "prompt": "Suggest fresh rewards up to 400 points focused on family rituals."
+      },
+      "childDialog": {
+        "title": "Talk with Child",
+        "description": "Get a conversation scenario",
+        "prompt": "Suggest how to talk to the child about declining motivation so they don't shut down."
+      }
+    },
+    "starterIdeas": {
+      "weeklySchedule": "Create a weekly task schedule with timing and XP",
+      "microBonuses": "Break the 'museum trip' reward into micro-bonuses",
+      "weekSummary": "Compose a warm message for the family chat with weekly results",
+      "morningChecklist": "Make a morning preparation checklist for a 9-year-old"
+    },
+    "greeting": {
+      "childPersona": "Your family mentor is here",
+      "parentPersona": "Ready to build a family strategy",
+      "familySuffix": "of the \u00ab{familyName}\u00bb family",
+      "helpMessage": "I'll help with tasks, rewards, and communication",
+      "cta": "Describe your request \u2014 and I'll handle the rest."
+    },
+    "header": {
+      "title": "Family Intelligence Assistant",
+      "description": "Ask to create task sets, weekly summaries, or prepare messages \u2014 the assistant will fulfill your request considering family context."
+    },
+    "status": {
+      "thinking": "AI is forming a response",
+      "online": "Online",
+      "lastReply": "Last reply {time}",
+      "dialogStart": "Dialog is just starting"
+    },
+    "dialog": {
+      "label": "Dialog",
+      "title": "AI Operator",
+      "reset": "Reset"
+    },
+    "messages": {
+      "you": "You",
+      "ai": "AI",
+      "system": "System",
+      "preparing": "Preparing response\u2026"
+    },
+    "actions": {
+      "available": "Available actions",
+      "executing": "Executing\u2026"
+    },
+    "input": {
+      "placeholder": "Tell the assistant what to do. For example: \u201cPrepare a letter to parents with weekly results and Monday's task list.\u201d",
+      "shiftEnterHint": "Shift+Enter \u2014 new line",
+      "randomIdea": "Random idea",
+      "send": "Send"
+    },
+    "sidebar": {
+      "quickActions": "Quick Actions",
+      "promptTemplates": "Prompt Templates",
+      "insertToField": "Insert into field",
+      "contextInfo": "Context Information"
+    },
+    "context": {
+      "roleChild": "child",
+      "roleParent": "parent",
+      "roleLabel": "Role: {role}",
+      "nameLabel": "Name: {name}",
+      "familyLabel": "Family: {family}",
+      "description": "The assistant uses role and family context to generate responses for all scenarios: task creation, reward recommendations, rule explanations, family chat messages."
+    }
+  },
+  "aiWidget": {
+    "openChat": "Open AI assistant",
+    "title": "AI Assistant",
+    "assistantName": "AI Assistant",
+    "online": "Online",
+    "thinking": "Thinking…",
+    "greeting": "Hi",
+    "greetingSuffix": "How can I help you today?",
+    "startersLabel": "Quick start",
+    "starters": {
+      "tasks": "Create tasks",
+      "tasksPrompt": "Create a set of age-appropriate tasks for the child for this week.",
+      "rewards": "Suggest rewards",
+      "rewardsPrompt": "Suggest creative rewards up to 500 points that motivate the child.",
+      "talk": "Conversation tips",
+      "talkPrompt": "How to talk to the child about low motivation without pressure?",
+      "summary": "Week summary",
+      "summaryPrompt": "Summarize the child's progress this week with key achievements."
+    },
+    "inputPlaceholder": "Type your message…",
+    "newChat": "New conversation",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "close": "Close",
+    "actions": "Available actions",
+    "executing": "Executing…",
+    "poweredBy": "Powered by AI · FamilyQuest"
+  },
+  "childTaskPlanner": {
+    "title": "Calendar & Planning",
+    "subtitle": "Pick a day and plan tasks — it helps keep the streak and earn points.",
+    "streakLabel": "Streak: {count} days",
+    "selectedDate": "Selected date",
+    "taskCount": "{count} tasks",
+    "pointsCount": "{count} points",
+    "dayPlan": {
+      "title": "Plan for the day",
+      "subtitle": "What needs to be done"
+    },
+    "status": {
+      "inProgress": "In progress",
+      "free": "Free"
+    },
+    "emptyState": "No planned tasks yet. Add ideas from the list below.",
+    "possibleTasks": {
+      "title": "Possible tasks",
+      "subtitle": "Ideas you can add to the plan."
+    },
+    "pointsBadge": "+{count}",
+    "pointsInline": "+{count} points",
+    "buttons": {
+      "planned": "Planned",
+      "schedule": "Schedule"
+    },
+    "tasks": {
+      "cleanToys": {
+        "title": "Tidy up toys",
+        "category": "Home",
+        "duration": "10 min"
+      },
+      "readPages": {
+        "title": "Read 10 pages",
+        "category": "Study",
+        "duration": "20 min"
+      },
+      "exercise": {
+        "title": "Do some exercise",
+        "category": "Activity",
+        "duration": "15 min"
+      },
+      "waterPlants": {
+        "title": "Water the plants",
+        "category": "Care",
+        "duration": "8 min"
+      },
+      "helpKitchen": {
+        "title": "Help in the kitchen",
+        "category": "Family",
+        "duration": "15 min"
+      }
+    }
+  },
+  "errors": {
+    "networkError": "Network error. Please check your connection.",
+    "serverError": "Server error. Please try again later.",
+    "unauthorized": "Please log in to continue.",
+    "forbidden": "You don't have permission to do this.",
+    "notFound": "Not found.",
+    "validationError": "Please check your input.",
+    "unknownError": "Something went wrong."
+  },
+  "welcome": {
+    "appName": "FamilyTask",
+    "tagline": "Shared Goals — Shared Joy!",
+    "getStarted": "Get Started",
+    "login": "Login",
+    "subtitle": "For the whole family • Takes 2 minutes",
+    "slides": {
+      "tasks": {
+        "title": "Manage Tasks",
+        "description": "Create, assign, and track completion as a family."
+      },
+      "rewards": {
+        "title": "Earn Rewards",
+        "description": "Earn points and exchange them for prizes and bonuses."
+      },
+      "achievements": {
+        "title": "Collect Achievements",
+        "description": "Unlock levels, badges, and streaks for consistency."
+      },
+      "progress": {
+        "title": "Track Progress",
+        "description": "See what's done today and what's planned for the week."
+      },
+      "motivation": {
+        "title": "Stay Motivated",
+        "description": "Gentle reminders and goals help you stay on track."
+      },
+      "ai": {
+        "title": "AI Assistant",
+        "description": "Task and reward ideas — faster start and less routine."
+      }
+    }
+  },
+  "parentDashboard": {
+    "familyNameFallback": "My family",
+    "familyCodeLabel": "Family code",
+    "aiChat": "AI chat",
+    "profileAvatarAlt": "Profile avatar",
+    "profile": "Profile",
+    "logout": "Log out",
+    "rewardAddedTitle": "Reward added",
+    "rewardAddedDescription": "New reward has been added to the shop",
+    "rewardAddErrorTitle": "Error",
+    "rewardAddErrorDescription": "Failed to add reward",
+    "tabs": {
+      "tasks": "Tasks",
+      "rewards": "Rewards",
+      "analytics": "Analytics",
+      "children": "Children",
+      "chat": "Chat",
+      "templates": "Templates",
+      "settings": "Settings"
+    },
+    "sections": {
+      "tasks": {
+        "title": "Task management",
+        "subtitle": "Create and track tasks for kids",
+        "newAction": "New task"
+      },
+      "rewards": {
+        "title": "Rewards",
+        "subtitle": "Create rewards for your children",
+        "newAction": "New reward"
+      },
+      "analytics": {
+        "title": "Analytics",
+        "subtitle": "Detailed family activity stats"
+      },
+      "children": {
+        "title": "Child management",
+        "subtitle": "Add, edit, and manage child profiles"
+      },
+      "templates": {
+        "title": "Task templates",
+        "subtitle": "Use templates to create tasks quickly"
+      },
+      "settings": {
+        "title": "Settings",
+        "subtitle": "Manage family and app preferences"
+      },
+      "chat": {
+        "empty": "Create a family to use chat"
+      }
+    }
+  },
+  "authChoice": {
+    "back": "Back",
+    "title": "Welcome!",
+    "subtitle": "Choose what brings you here",
+    "newUser": {
+      "title": "I'm new here",
+      "description": "I'll create an account and join FamilyQuest",
+      "bullets": {
+        "role": "✓ Choose a role (parent or child)",
+        "profile": "✓ Fill in my profile",
+        "family": "✓ Create or join a family"
+      },
+      "action": "Sign up"
+    },
+    "existingUser": {
+      "title": "I already have an account",
+      "description": "I'll sign in to my existing account",
+      "bullets": {
+        "credentials": "✓ Enter my email and password",
+        "profile": "✓ Return to my profile",
+        "continue": "✓ Continue where I left off"
+      },
+      "action": "Sign in"
+    }
+  },
+  "authScreen": {
+    "rolePrompt": "Choose a role and complete your profile",
+    "roles": {
+      "parent": "Parent",
+      "child": "Child",
+      "parentDesc": "Create tasks, manage rewards and track progress",
+      "childDesc": "Complete tasks, earn rewards and achieve goals"
+    },
+    "inviteNote": "⚠️ You are joining via an invite link. Role is set to \"Child\".",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "requiredField": "Required field",
+    "age": "Age",
+    "years": "years",
+    "avatar": "Avatar",
+    "avatarAlt": "Avatar",
+    "uploadPhoto": "Upload photo",
+    "interestsTitle": "What do you like? *",
+    "interestsSubtitle": "Pick at least one interest",
+    "interests": {
+      "sports": "Sports",
+      "music": "Music",
+      "art": "Art",
+      "gaming": "Gaming",
+      "reading": "Reading",
+      "science": "Science",
+      "cooking": "Cooking",
+      "nature": "Nature",
+      "movies": "Movies",
+      "dancing": "Dancing"
+    },
+    "familyName": "Family name",
+    "familyCodeAuto": "Family code will be generated automatically after registration.",
+    "addChildLater": "After registration, you can add children from your dashboard",
+    "familyCode": "Family code",
+    "familyCodePlaceholder": "ABC123",
+    "submitFillRequired": "Fill required fields",
+    "submitLoading": "Please wait...",
+    "submitRegister": "Sign up",
+    "submitLogin": "Sign in",
+    "or": "or",
+    "oauth": {
+      "google": "Sign in with Google",
+      "github": "Sign in with GitHub",
+      "discord": "Sign in with Discord"
+    },
+    "switchToRegister": "No account? Sign up",
+    "switchToLogin": "Already have an account? Sign in",
+    "errors": {
+      "oauthProviderUnavailable": "Integration with this provider is not available yet.",
+      "loginEmailPasswordRequired": "Enter email and password.",
+      "emailInvalid": "Enter a valid email.",
+      "loginFailed": "Could not sign in.",
+      "oauthPending": "Registration must be completed. Please use the standard registration form.",
+      "oauthError": "Authorization error",
+      "oauthPopupBlocked": "Allow pop-ups for OAuth or use standard registration.",
+      "oauthCancelled": "Authorization cancelled",
+      "oauthStartFailed": "Could not start provider sign-in.",
+      "passwordTooShort": "Password must be at least 6 characters.",
+      "nameLastNameRequired": "Enter first and last name.",
+      "familyNameRequired": "Enter family name.",
+      "familyCodeRequired": "Enter family code.",
+      "interestsRequired": "Pick at least one interest.",
+      "ageInvalid": "Age must be a number.",
+      "registerFailed": "Could not register.",
+      "roleRequired": "Please choose a role",
+      "emailNotConfirmed": "Your email is not confirmed. Please check your inbox and click the confirmation link."
+    },
+    "info": {
+      "registerSuccess": "Registration successful! Sign in using your credentials.",
+      "registerSuccessCheckEmail": "Registration successful! Please check your email and click the confirmation link before signing in.",
+      "resendSuccess": "Confirmation email sent! Check your inbox."
+    },
+    "resendConfirmation": "Resend confirmation email",
+    "resendingConfirmation": "Sending...",
+    "welcomeBack": "Welcome back!",
+    "startAdventure": "Start your adventure",
+    "passwordPlaceholder": "Minimum 6 characters",
+    "tryDemo": "Try demo",
+    "switchCreate": "Create one",
+    "switchLogin": "Log in",
+    "chooseRole": "Choose your role",
+    "roleWarning": "⚠️ Role cannot be changed later, choose carefully!",
+    "continue": "Continue",
+    "createFamily": "Create a family",
+    "createFamilySubtitle": "Give it a name and choose an emblem",
+    "familyNamePlaceholder": "Ivanov Family",
+    "submitFamilyNameRequired": "Enter family name",
+    "submitCreating": "Creating...",
+    "submitCreateFamily": "Create family",
+    "createProfile": "Create profile",
+    "createProfileSubtitle": "Fill in your information",
+    "firstNamePlaceholder": "Ivan",
+    "lastNamePlaceholder": "Ivanov",
+    "submitJoining": "Joining...",
+    "submitJoinFamily": "Join family",
+    "hints": {
+      "password": "Choose a strong password of at least 6 characters, with letters and numbers for security!",
+      "role": "We recommend the Child role for ages 6 to 16, and the Parent role for adults.",
+      "familyName0": "Superhero Family",
+      "familyName1": "Space Explorers",
+      "familyName2": "Dragon Team",
+      "familyName3": "Justice League",
+      "familyName4": "Viking Family"
+    },
+    "demo": {
+      "name": "Test",
+      "lastName": "User",
+      "familyName": "Demo Family"
+    }
+  },
+  "rewardsShop": {
+    "errors": {
+      "loadTitle": "Load error",
+      "loadProducts": "Could not load shop items",
+      "loadOrders": "Could not load orders"
+    },
+    "empty": {
+      "title": "Shop is empty",
+      "parentHint": "Add your first reward to start motivating your child",
+      "childHint": "No rewards available yet. New ones coming soon!"
+    },
+    "emptyCategory": "No rewards in this category yet",
+    "stock": {
+      "outOfStock": "Out of stock",
+      "inStock": "{count} pcs",
+      "hidden": "Hidden"
+    },
+    "fallbackDescription": "A unique reward for achievements",
+    "pointsShort": "points",
+    "rewardCount": {
+      "one": "reward",
+      "few": "rewards",
+      "many": "rewards",
+      "other": "rewards"
+    },
+    "actions": {
+      "unavailable": "Unavailable",
+      "exchange": "Redeem points",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirming": "Confirming...",
+      "confirmDelivery": "Confirm reward delivery",
+      "confirmReceipt": "Confirm receipt",
+      "saving": "Saving...",
+      "saveChanges": "Save changes"
+    },
+    "createdAt": "Created {date}",
+    "catalog": {
+      "title": "Rewards catalog",
+      "parentSubtitle": "Edit rewards and manage stock",
+      "childSubtitle": "Choose and exchange points for desired gifts",
+      "addReward": "Add Reward"
+    },
+    "orders": {
+      "title": "My redemptions",
+      "subtitle": "Points redemption history",
+      "emptyTitle": "No orders",
+      "emptySubtitle": "Redeem earned points for rewards from the catalog",
+      "orderNumber": "Order #{id}",
+      "itemsCount": "{count} items",
+      "parentNote": "Parent note:"
+    },
+    "status": {
+      "pending": "Awaiting payment",
+      "paid": "Paid",
+      "awaitingDelivery": "Awaiting delivery",
+      "delivered": "Reward delivered",
+      "confirmed": "Receipt confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown status"
+    },
+    "orderTotal": "Total",
+    "quantityShort": "{count} pcs",
+    "unitPrice": "{value} per item",
+    "toasts": {
+      "productUnavailable": {
+        "title": "Product unavailable",
+        "description": "This item is out of stock."
+      },
+      "orderCreated": {
+        "title": "Order created",
+        "description": "{name} added to your orders"
+      },
+      "orderFailed": {
+        "title": "Failed to create order"
+      },
+      "tryAgain": "Please try again",
+      "rewardDeleted": "Reward deleted",
+      "rewardCreated": {
+        "title": "Reward created",
+        "description": "Reward \"{name}\" added to catalog"
+      },
+      "rewardCreateFailed": {
+        "title": "Failed to create reward"
+      },
+      "rewardDeleteFailed": {
+        "title": "Failed to delete reward"
+      },
+      "rewardNameRequired": "Enter reward name",
+      "rewardUpdated": "Reward updated",
+      "rewardUpdateFailed": {
+        "title": "Failed to update reward"
+      },
+      "success": "Success!",
+      "deliveryConfirmed": "You marked the reward as delivered",
+      "deliveryFailed": "Could not confirm reward delivery",
+      "receiptConfirmed": "You confirmed receipt of the reward",
+      "receiptFailed": "Could not confirm reward receipt"
+    },
+    "confirmDelete": "Delete reward \"{name}\"?",
+    "edit": {
+      "title": "Edit reward",
+      "subtitle": "Update reward details, price or availability",
+      "name": "Reward name",
+      "namePlaceholder": "e.g., Movie night",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the reward...",
+      "price": "Price (points)",
+      "stock": "Quantity",
+      "activeTitle": "Show in shop",
+      "activeHint": "Reward will be visible in the catalog for children"
+    },
+    "tiers": {
+      "instant": {
+        "label": "Instant rewards",
+        "description": "Quick and easy rewards",
+        "range": "20-40 points"
+      },
+      "medium": {
+        "label": "Weekly rewards",
+        "description": "Mid-level rewards",
+        "range": "100-150 points"
+      },
+      "big": {
+        "label": "Big rewards",
+        "description": "Long-term goals",
+        "range": "300+ points"
+      }
+    }
+  },
+  "rewardCreation": {
+    "title": "Create new reward",
+    "subtitle": "Add a reward manually or use AI to generate ideas",
+    "modeAi": "AI Assisted",
+    "modeManual": "Manual",
+    "selectType": "Select reward type",
+    "points": "points",
+    "examplesLabel": "Examples:",
+    "forWhom": "Who is the reward for?",
+    "forAllChildren": "For all children",
+    "aiConsidersInterests": "AI will consider the selected child's interests when generating",
+    "childInterests": "Child's interests & hobbies",
+    "childInterestsHint": "Add the child's interests — AI will tailor the reward just for them",
+    "interestPlaceholder": "Soccer, Lego, Drawing...",
+    "quickInterests": "Soccer, Drawing, Lego, Minecraft, Dancing, Reading, Music, Swimming",
+    "aiHintPlaceholderChild": "For example: Something related to their favorite cartoon, or a reward for good grades...",
+    "aiAnalyzingChild": "AI is picking the perfect reward for {name} based on their interests...",
+    "aiHint": "Hint for AI (optional)",
+    "aiHintPlaceholder": "For example: The child wants something related to dinosaurs, or A reward for a special occasion...",
+    "generating": "Generating reward...",
+    "generatingTime": "(may take up to a minute)",
+    "generateWithAi": "Generate with AI",
+    "aiAnalyzing": "AI is analyzing interests and coming up with the perfect reward...",
+    "rewardName": "Reward name",
+    "rewardNamePlaceholder": "For example: An hour of console gaming",
+    "description": "Description",
+    "descriptionPlaceholder": "Detailed reward description...",
+    "costInPoints": "Cost in points",
+    "recommendedRange": "Recommended range: {min}–{max} points",
+    "recommended": "Recommended: {points} points",
+    "stockCount": "Reward quantity",
+    "adjustCost": "Adjust",
+    "motivationTip": "💡 Motivation tip",
+    "motivationTipText": "Children stay motivated when rewards seem achievable. Instant rewards (20–40 points) for quick joy, weekly (100–150) for mid-term goals, big (300+) for long-term motivation.",
+    "saving": "Saving",
+    "createReward": "Create reward",
+    "categories": {
+      "instant": {
+        "label": "⚡ Instant",
+        "description": "Quick rewards that can be received immediately",
+        "examples": "Stickers, Extra bedtime story, 15 min extra screen time, Dessert choice"
+      },
+      "medium": {
+        "label": "🎯 Weekly",
+        "description": "Mid-level rewards for a week of effort",
+        "examples": "Small toy, Movie night, Pizza for dinner, Café trip"
+      },
+      "big": {
+        "label": "🏆 Big",
+        "description": "Long-term goals for a month+ of effort",
+        "examples": "Amusement park trip, New video game, Special gift, Child's choice day"
+      }
+    },
+    "toast": {
+      "aiGenerated": "AI generated a reward",
+      "aiGeneratedDesc": "{title} - {cost} points",
+      "generationError": "Generation error"
+    },
+    "errors": {
+      "default": "Failed to generate reward. Please try again.",
+      "timeout": "AI is taking too long. Try simplifying the hint or try later.",
+      "serverOverloaded": "AI server is overloaded. Try again in a few seconds."
+    }
+  },
+  "rewardCatalog": {
+    "title": "Rewards catalog",
+    "subtitle": "Suggested rewards for inspiration",
+    "popularRewards": "Popular rewards",
+    "allRewards": "All rewards",
+    "filters": "Filters",
+    "points": "points",
+    "add": "Add",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "categories": {
+      "entertainment": "Entertainment",
+      "food": "Food",
+      "digital": "Digital",
+      "technology": "Technology",
+      "privilege": "Privilege",
+      "education": "Education",
+      "clothing": "Clothing"
+    },
+    "items": {
+      "movieTrip": {
+        "name": "Movie trip",
+        "description": "Family evening at the cinema for a movie of choice"
+      },
+      "pizza": {
+        "name": "Pizza",
+        "description": "Pizza order for dinner"
+      },
+      "avatarSkin": {
+        "name": "New avatar skin",
+        "description": "Digital skin that changes character appearance"
+      },
+      "chocolate": {
+        "name": "Chocolate",
+        "description": "A bar of quality chocolate"
+      },
+      "videoGame": {
+        "name": "Video game",
+        "description": "Game of choice in App Store or Steam"
+      },
+      "dayOff": {
+        "name": "Day off from chores",
+        "description": "Full day without doing chores"
+      },
+      "book": {
+        "name": "Book",
+        "description": "Favorite book or comic"
+      },
+      "sneakers": {
+        "name": "New sneakers",
+        "description": "Sneakers of choice"
+      }
+    }
+  },
+  "activityHeatmap": {
+    "title": "Activity for the year",
+    "tasksCount": "{count} tasks",
+    "activeDaysCount": "{count} active days",
+    "less": "Less",
+    "more": "More",
+    "taskOne": "task",
+    "taskFew": "tasks",
+    "taskMany": "tasks",
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Nov",
+      "dec": "Dec"
+    },
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
+  },
+  "notificationsPopover": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No notifications",
+    "newCount": "New ({count})",
+    "read": "Read",
+    "andMore": "And {count} more...",
+    "justNow": "just now",
+    "minutesAgo": "{count} min ago",
+    "hoursAgo": "{count} hr ago",
+    "daysAgo": "{count} d ago",
+    "demo": {
+      "taskCompletedTitle": "Task completed!",
+      "taskCompletedMessage": "Child completed the task \"Room cleaning\"",
+      "streakBonusTitle": "Streak bonus! 🔥",
+      "streakBonusMessage": "7 days in a row! Points multiplier is now ×1.3",
+      "rewardPurchasedTitle": "Reward purchased",
+      "rewardPurchasedMessage": "\"Movie trip\" purchased for 150 points",
+      "levelUpTitle": "Level up! ⬆️",
+      "levelUpMessage": "Congratulations! Reached level 5"
+    }
+  },
+  "taskReview": {
+    "title": "Review task: {taskTitle}",
+    "childLabel": "Child: {childName}",
+    "submissionTitle": "Child's submission:",
+    "filesLabel": "Files: ",
+    "uploadedMaterials": "✓ Uploaded materials",
+    "checklistLabel": "Checklist: ",
+    "checklistDone": "✓ Completed",
+    "commentLabel": "Comment: ",
+    "chooseAction": "Choose an action:",
+    "approve": "Approve",
+    "clarify": "Clarify",
+    "reject": "Reject",
+    "approveFeedbackLabel": "✓ Approval feedback",
+    "approvePlaceholder": "Write an encouraging feedback (optional)...",
+    "rejectReasonLabel": "✗ Rejection reason",
+    "rejectPlaceholder": "Explain why the task is rejected...",
+    "requestInfoLabel": "? Request additional information",
+    "requestInfoPlaceholder": "What additional information is needed? For example: need another photo from a different angle...",
+    "goBack": "Go back",
+    "request": "Request"
+  },
+  "aiAssistant": {
+    "title": "AI Assistant",
+    "subtitle": "Get personalized recommendations for managing family tasks and motivating children",
+    "onlineStatus": "Online and ready to help",
+    "chatTitle": "Chat with AI",
+    "messageCountOne": "message",
+    "messageCountMany": "messages",
+    "inputPlaceholder": "Ask the AI assistant a question...",
+    "welcomeMessage": "👋 Hello! I'm your AI assistant for family management.\n\n✨ I can help you:\n• Create interesting tasks for children\n• Give motivation tips\n• Set up a reward system\n• Analyze progress\n\nChoose a topic below or ask your own question!",
+    "mockResponse": "Thanks for the question! 💡\n\nBased on your request \"{query}\", here are my recommendations:\n\n✅ **Start small**\nCreate 2-3 tasks per day to avoid overwhelming the child\n\n🎯 **Vary the difficulty**\nAlternate between easy and hard tasks to maintain interest\n\n📊 **Regular check-ins**\nTrack progress weekly and adjust your approach\n\n🏆 **Instant rewards**\nReward achievements immediately for better motivation\n\nWant to learn more about any of these points?",
+    "suggestions": {
+      "createTasks": {
+        "title": "What tasks to create?",
+        "description": "Get ideas for effective household chores",
+        "prompt": "Suggest ideas for household tasks for a child aged 8-12"
+      },
+      "motivate": {
+        "title": "How to motivate?",
+        "description": "Tips for improving child's motivation",
+        "prompt": "How to motivate a child to complete tasks?"
+      },
+      "rewards": {
+        "title": "Reward system",
+        "description": "Recommendations for a fair system",
+        "prompt": "Help create a reward system for the family"
+      },
+      "progress": {
+        "title": "Progress analysis",
+        "description": "Tips for improving results",
+        "prompt": "How to analyze a child's progress?"
+      }
+    }
+  },
+  "taskRequirements": {
+    "title": "Set requirements: {taskTitle}",
+    "description": "Specify how the child should confirm completion",
+    "confirmationType": "Confirmation type",
+    "photoLabel": "📸 Photo",
+    "photoDescription": "Child must upload a photo",
+    "videoLabel": "🎥 Video",
+    "videoDescription": "Child must upload a video",
+    "checklistLabel": "✓ Checklist",
+    "checklistDescription": "Child must check off completion items",
+    "detailedRequirements": "Detailed requirements description",
+    "photoPlaceholder": "For example: Upload a photo of the room from all four corners, bright lighting...",
+    "videoPlaceholder": "For example: Record a video of the process from start to finish (minimum 2 minutes)...",
+    "checklistPlaceholder": "For example: Check off all items as they are completed...",
+    "requirementsHint": "This description will be shown to the child when completing the task",
+    "childPreview": "How the child will see it:",
+    "typeLabel": "Type:",
+    "requirementsLabel": "Requirements:",
+    "saveRequirements": "Save requirements"
+  },
+  "taskRow": {
+    "evidenceNone": "No confirmation",
+    "evidenceNoneHint": "Can be completed directly",
+    "evidencePhoto": "Photo",
+    "evidencePhotoHint": "Any photo of the result will do",
+    "evidenceVideo": "Video",
+    "evidenceVideoHint": "Short clip or story",
+    "evidenceDocument": "Document",
+    "evidenceDocumentHint": "PDF or scan of a report",
+    "fileReceived": "File received",
+    "awaitingFile": "Waiting for file from child",
+    "canCompleteDirect": "Can be completed directly",
+    "dueTo": "Due {date}",
+    "editShort": "Edit",
+    "done": "Done",
+    "noDescription": "Add details to help the child understand the steps.",
+    "created": "Created",
+    "plan": "Plan",
+    "control": "Verification",
+    "view": "View",
+    "replaceFile": "Replace file",
+    "sendFile": "Send file",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "taskClosed": "Task closed",
+    "expand": "Expand",
+    "viewEvidence": "View Evidence",
+    "submitEvidence": "Submit Evidence",
+    "changeEvidence": "Change Evidence",
+    "progress": "Progress",
+    "edit": "Edit",
+    "delete": "Delete",
+    "complete": "Complete",
+    "reject": "Reject",
+    "approve": "Approve",
+    "completed": "Completed",
+    "evidenceSubmitted": "Submitted",
+    "evidenceRequired": "Required"
+  },
+  "familyGoals": {
+    "title": "Family Goals",
+    "subtitle": "Work together to achieve common goals",
+    "newGoal": "New Goal",
+    "daysLeft": "{count} days",
+    "rewardLabel": "Reward:",
+    "difficultyLabel": "Difficulty:",
+    "difficultyMedium": "Medium",
+    "difficultyHard": "Hard",
+    "goal1Title": "Complete 50 tasks in a month",
+    "goal1Description": "Work together to reach the goal",
+    "goal1Reward": "Family trip to the cinema",
+    "goal2Title": "7 days without overdue",
+    "goal2Description": "All tasks completed on time",
+    "goal2Reward": "+500 XP for everyone",
+    "goal3Title": "Team tasks",
+    "goal3Description": "Complete 10 joint tasks",
+    "goal3Reward": "Pizza on the weekend"
+  },
+  "taskCalendar": {
+    "title": "Task Calendar",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "overdue": "Overdue",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun",
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "familyCreation": {
+    "title": "Create a Family",
+    "subtitle": "What is your family called?",
+    "familyNameLabel": "Family Name",
+    "familyNamePlaceholder": "For example: The Smiths",
+    "selectEmblem": "Choose a family emblem",
+    "createButton": "Create Family",
+    "emblemHome": "Home",
+    "emblemTree": "Tree",
+    "emblemHeart": "Heart",
+    "emblemShield": "Shield",
+    "emblemSun": "Sun",
+    "emblemStar": "Star",
+    "emblemGlobe": "Globe",
+    "emblemAward": "Award",
+    "emblemCrown": "Crown",
+    "emblemSparkle": "Sparkle"
+  },
+  "taskEdit": {
+    "title": "Edit Task",
+    "nameLabel": "Name",
+    "namePlaceholder": "Task name",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Task description",
+    "difficultyLabel": "Difficulty",
+    "categoryLabel": "Category",
+    "categoryHome": "Home",
+    "categoryStudy": "Study",
+    "categoryPets": "Pets",
+    "categoryHelp": "Help",
+    "rewardLabel": "Reward",
+    "confirmationLabel": "Requires confirmation",
+    "photoVideo": "Photo/video",
+    "noConfirmation": "No confirmation",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "errorScreens": {
+    "retry": "Try Again",
+    "goHome": "Go Home",
+    "noInternetTitle": "No Internet Connection",
+    "noInternetDescription": "Check your connection and try again",
+    "notFoundTitle": "Page Not Found",
+    "notFoundDescription": "Unfortunately, this page no longer exists",
+    "noFamilyTitle": "No Family Created",
+    "noFamilyDescription": "Create a family first to continue",
+    "familyNotFoundTitle": "Family Not Found",
+    "familyNotFoundDescription": "Family code is invalid or family has been deleted",
+    "invalidCodeTitle": "Invalid Code",
+    "invalidCodeDescription": "Please check the family code and try again",
+    "noTasksTitle": "No Tasks",
+    "noTasksDescription": "No tasks yet. A parent will create them soon"
+  },
+  "parentChatSelector": {
+    "title": "Chats with Children",
+    "subtitle": "Choose a group chat or a private conversation with a child",
+    "groupChatTitle": "Family Group Chat",
+    "groupChatDescription": "Chat with all children at once",
+    "childrenCount": "{count} children",
+    "privateChats": "Private Chats",
+    "noChildren": "No children in the family yet",
+    "inviteChildren": "Invite children using the family code",
+    "yearsOld": "{age} years old",
+    "personalChat": "Personal chat"
+  },
+  "subscriptionManager": {
+    "tierFree": "Free",
+    "tierBasic": "Basic",
+    "tierPremium": "Premium",
+    "tierFamily": "Family",
+    "subscriptionCancelled": "Subscription cancelled",
+    "switchedToFree": "You have switched to the free plan",
+    "cancelError": "Failed to cancel subscription",
+    "viewPlans": "View Plans",
+    "validUntil": "Valid until",
+    "includedFeatures": "Your Features",
+    "featureAI": "AI Assistant",
+    "featureAnalytics": "Advanced Analytics",
+    "featureRewards": "Custom Rewards",
+    "featureSupport": "Priority Support",
+    "limitChildren": "Children limit",
+    "limitTasks": "Tasks limit",
+    "perDay": "/day"
+  },
+  "taskDetails": {
+    "description": "Description",
+    "difficulty": "Difficulty",
+    "experience": "Experience",
+    "points": "Points",
+    "uploadPhotoProof": "Upload photo proof",
+    "replacePhoto": "Replace photo",
+    "clickToUploadPhoto": "Click to upload a photo",
+    "photoTip": "Tip: take a photo in good lighting for better verification!",
+    "completionCheck": "Completion check",
+    "aiTip": "AI Tip: If you have questions, press the \"AI Assistant\" button on the main tab!",
+    "submitForReview": "Submit for review"
+  },
+  "analyticsDashboard": {
+    "loadError": "Error loading analytics",
+    "loading": "Loading analytics...",
+    "noData": "No data",
+    "tryAgain": "Try again",
+    "chartOf": "Chart {current} of {total}",
+    "wholeFamily": "Whole family",
+    "quickSwitch": "Quick switch",
+    "child": "Child"
+  },
+  "parentalControl": {
+    "title": "Parental Control",
+    "nightMode": "Night Mode",
+    "nightModeDescription": "Restrict activity during nighttime",
+    "from": "From",
+    "to": "To",
+    "timeLimit": "Time Limit",
+    "maxMinutesPerDay": "Maximum minutes per day",
+    "spendingLimit": "Spending Limit",
+    "maxPointsPerDay": "Maximum points per day",
+    "saveSettings": "Save settings"
+  },
+  "aiControl": {
+    "title": "AI Assistant",
+    "description": "Control how the AI assistant interacts with your family",
+    "enableChat": "Enable AI Chat",
+    "enableChatDesc": "Allow the AI assistant to be used in the family chat",
+    "canCreateTasks": "AI Can Create Tasks",
+    "canCreateTasksDesc": "Allow AI to suggest and create tasks directly",
+    "canCreateRewards": "AI Can Create Rewards",
+    "canCreateRewardsDesc": "Allow AI to suggest and create rewards directly",
+    "tone": "AI Tone",
+    "toneDesc": "Choose how the AI communicates",
+    "tone_friendly": "Friendly",
+    "tone_educational": "Educational",
+    "tone_strict": "Strict"
+  },
+  "notificationsCenter": {
+    "title": "Notifications",
+    "clearAll": "Clear all",
+    "noNotifications": "You have no new notifications",
+    "ago": "ago",
+    "mockNewTask": "New Task",
+    "mockNewTaskMessage": "Parent created a task: Wash the dishes",
+    "mockRewardBought": "Reward Purchased",
+    "mockRewardBoughtMessage": "You bought Pizza for 500 points",
+    "mockAchievement": "Achievement!",
+    "mockAchievementMessage": "Unlocked: Young Helper",
+    "mockNewLevel": "New Level",
+    "mockNewLevelMessage": "You reached level 10!",
+    "mockTime1h": "1 hr",
+    "mockTime3h": "3 hrs",
+    "mockTimeYesterday": "yesterday",
+    "mockTime2days": "2 days"
+  },
+  "profileCreation": {
+    "title": "Create Your Profile",
+    "subtitle": "Tell us about yourself",
+    "selectAvatar": "Choose an avatar",
+    "nameRequired": "Name *",
+    "namePlaceholder": "Enter your name",
+    "ageOptional": "Age (optional)",
+    "agePlaceholder": "How old are you?",
+    "parentRole": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 Parent",
+    "childRole": "\ud83e\uddd2 Child",
+    "continue": "Continue"
+  },
+  "childMotivational": {
+    "title": "Motivation",
+    "storyTitle": "Your Success Story",
+    "storyContent": "You've already completed 25 tasks! That's a great result. Keep it up!",
+    "tipTitle": "Tips",
+    "tipContent": "Start the day with an easy task to build momentum. It will help motivate you for the rest.",
+    "praiseTitle": "Praise",
+    "praiseContent": "Your 7-day streak is amazing! This discipline will help you in life!"
+  },
+  "dailyMissions": {
+    "dailyHeading": "Daily Missions",
+    "weeklyHeading": "Weekly Missions",
+    "subtitle": "Complete missions for extra rewards",
+    "completed": "Completed",
+    "progress": "Progress",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "loadError": "Failed to load missions. Try refreshing the page.",
+    "emptyState": "No missions assigned yet. Check back later!"
+  },
+  "parentAiInsights": {
+    "title": "AI Analytics",
+    "lowMotivationTitle": "Low Motivation",
+    "lowMotivationMessage": "Maria hasn't completed tasks for 3 days. We recommend creating more attractive rewards.",
+    "greatProgressTitle": "Great Progress",
+    "greatProgressMessage": "Ivan is achieving all set goals. We recommend increasing task difficulty.",
+    "rewardAnalysisTitle": "Reward Analysis",
+    "rewardAnalysisMessage": "Cheap rewards (up to 100 points) motivate better. Add more micro-rewards."
+  },
+  "familyBulletin": {
+    "title": "Bulletin Board",
+    "inputPlaceholder": "Write a note or announcement...",
+    "announcementTitle": "Announcement",
+    "announcementMessage": "Family picnic on Sunday!",
+    "shoppingTitle": "Shopping List",
+    "shoppingMessage": "Milk, bread, eggs",
+    "noteTitle": "Note",
+    "noteMessage": "Helper of the month - Ivan!",
+    "newNoteTitle": "New Note",
+    "authorParent": "Parent",
+    "authorMom": "Mom",
+    "authorDad": "Dad",
+    "authorMe": "Me"
+  },
+  "joinFamily": {
+    "title": "Join Your Family",
+    "subtitle": "Ask your parents to share the code",
+    "inviteCodeLabel": "Invite Code",
+    "inviteCodePlaceholder": "Enter code",
+    "errorEmpty": "Please enter the invite code",
+    "errorInvalid": "Invalid invite code",
+    "joinButton": "Join"
+  },
+  "joinPage": {
+    "checking": "Checking invitation...",
+    "invalidLink": "Invalid Link",
+    "invalidDescription": "This invitation link is invalid or has expired",
+    "goHome": "Go to Home",
+    "inviteTitle": "Family Invitation!",
+    "inviteSubtitle": "You have been invited to join a family",
+    "parentAddsChild": "Children are added by parents from their dashboard",
+    "shareCodeWithParent": "Share this code with the parent so they can add you",
+    "parentDashboardAdd": "The parent will create your account and share login details",
+    "goToLogin": "Go to Login",
+    "cancel": "Cancel",
+    "footerNote": "Ask your parent to add you from their dashboard"
+  },
+  "taskCompletion": {
+    "title": "Confirm Completion",
+    "photoDescription": "Upload a photo to confirm task completion",
+    "photoUploaded": "Photo uploaded!",
+    "uploadPhoto": "Click to upload a photo",
+    "checklistDescription": "Check all items on the checklist",
+    "submitForReview": "Submit for Review"
+  },
+  "updateHistory": {
+    "title": "Change History",
+    "dateDec20": "Dec 20",
+    "dateDec18": "Dec 18",
+    "fieldName": "Name",
+    "fieldRewardXP": "Reward XP",
+    "fieldDifficulty": "Difficulty",
+    "oldWashPlates": "Wash plates",
+    "newWashDishes": "Wash dishes",
+    "byParent": "Parent",
+    "stars2": "2 stars",
+    "stars3": "3 stars"
+  },
+  "xpBreakdown": {
+    "title": "XP Gain",
+    "totalXPForDays": "Total XP for 2 days",
+    "cleanRoom": "Clean room",
+    "washDishes": "Wash dishes",
+    "dailyMission": "Daily mission",
+    "achievementUnlocked": "Achievement unlocked",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "familyTimeline": {
+    "title": "Family History",
+    "userIvan": "Ivan",
+    "userMaria": "Maria",
+    "userParent": "Parent",
+    "unlockedAchievement": "unlocked achievement Young Helper",
+    "boughtReward": "bought reward Pizza",
+    "createdTask": "created task Wash dishes",
+    "reachedLevel": "reached level 10!",
+    "hoursAgo2": "2 hours ago",
+    "hoursAgo4": "4 hours ago",
+    "yesterday": "yesterday"
+  },
+  "parentSettings": {
+    "shareTitle": "Join our family!",
+    "shareText": "Hi! Join our family in Family Tasks app. Family code: {familyCode}",
+    "tabs": {
+      "family": "Family",
+      "notifications": "Notifications",
+      "ai": "AI",
+      "appearance": "Appearance",
+      "danger": "Danger"
+    }
+  },
+  "rewardHistory": {
+    "title": "Purchase History",
+    "dateDec20": "Dec 20, 2024",
+    "dateDec18": "Dec 18, 2024",
+    "dateDec15": "Dec 15, 2024",
+    "dateDec10": "Dec 10, 2024",
+    "pizza": "Pizza",
+    "cinemaTrip": "Cinema trip",
+    "newGame": "New game",
+    "stickerPack": "Sticker pack",
+    "userMaria": "Maria",
+    "userIvan": "Ivan"
+  },
+  "roleSelector": {
+    "title": "Who are you in the family?",
+    "subtitle": "Choose your role to continue",
+    "parent": "Parent",
+    "parentDescription": "Creates tasks, rewards and tracks progress",
+    "child": "Child",
+    "childDescription": "Receives tasks, completes them and earns rewards"
+  },
+  "achievementTree": {
+    "unlocked": "Unlocked",
+    "title": "Achievement Tree",
+    "subtitle": "Collect achievements and unlock new levels",
+    "loadError": "Failed to load achievements",
+    "comingSoon": "Achievements coming soon!"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "level": "Level {level}",
+    "mockName1": "Maria",
+    "mockName2": "Ivan",
+    "mockName3": "Anna"
+  },
+  "taskDelete": {
+    "title": "Delete Task",
+    "confirmMessage": "Are you sure you want to delete the task \"{taskTitle}\"?",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "taskSubmission": {
+    "title": "Submit Completion",
+    "requirementsLabel": "Requirements:",
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "submit": "Submit"
+  },
+  "themeToggle": {
+    "toggleTheme": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "levelUp": {
+    "title": "Level Up!",
+    "congratulations": "Congratulations! You've reached a new level!"
+  },
+  "splash": {
+    "loadingAdventure": "Loading your adventure...",
+    "preparingTasks": "Preparing tasks..."
+  },
+  "offline": {
+    "message": "No internet connection. Some features may be unavailable."
+  },
+  "welcomeScreen": {
+    "slideLabel": "Slide {number}"
+  },
+  "parentAiSuggestions": {
+    "suggestTasks": "Suggest Tasks",
+    "suggestTasksDesc": "AI will analyze children's age and activity and suggest suitable tasks",
+    "rewardIdeas": "Reward Ideas",
+    "rewardIdeasDesc": "AI recommends popular rewards and helps balance prices",
+    "suggestedTasks": "Suggested Tasks",
+    "describeTask": "Describe a task (optional)",
+    "generate": "Generate",
+    "loading": "Loading...",
+    "use": "Use",
+    "close": "Close",
+    "popularRewards": "Popular Rewards",
+    "aiUnavailable": "AI unavailable",
+    "fetchError": "Failed to get suggestions",
+    "friendlyTone": "friendly",
+    "mockTasks": {
+      "washDishes": {
+        "title": "Wash the dishes",
+        "description": "Wash all the dishes after lunch"
+      },
+      "waterFlowers": {
+        "title": "Water the flowers",
+        "description": "Water the houseplants"
+      },
+      "homework": {
+        "title": "Do homework",
+        "description": "Complete 3 exercises from the textbook"
+      },
+      "walkDog": {
+        "title": "Walk the dog",
+        "description": "Walk for 30 minutes in the park"
+      },
+      "cleanRoom": {
+        "title": "Clean your room",
+        "description": "Put things in order and vacuum"
+      }
+    },
+    "mockRewards": {
+      "pizza": "Pizza",
+      "cinema": "Movie trip",
+      "newGame": "New game",
+      "parkWalk": "Park walk",
+      "dessert": "Dessert of choice"
+    }
+  },
+  "notificationsPage": {
+    "back": "Back",
+    "readAll": "Read all",
+    "clearAll": "Clear all",
+    "title": "Notifications",
+    "newCount": "new",
+    "historySubtitle": "History of all your notifications",
+    "searchPlaceholder": "Search notifications...",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "filterTasks": "📝 Tasks",
+    "filterRewards": "🎁 Rewards",
+    "filterAchievements": "🏆 Achievements",
+    "noNotifications": "No notifications",
+    "nothingFound": "Nothing found for your query",
+    "emptyMessage": "Your notifications will appear here",
+    "confirmDeleteAll": "Delete all notifications?",
+    "demo": {
+      "newTask": {
+        "title": "New task",
+        "message": "Parent created a task \"Wash the dishes\"",
+        "time": "1 hour ago"
+      },
+      "rewardReceived": {
+        "title": "Reward received!",
+        "message": "You exchanged 50 points for \"Extra bedtime story\"",
+        "time": "3 hours ago"
+      },
+      "newAchievement": {
+        "title": "New achievement!",
+        "message": "Unlocked: \"Young helper\" — complete 5 tasks",
+        "time": "yesterday"
+      },
+      "newLevel": {
+        "title": "New level!",
+        "message": "Congratulations! You reached level 5!",
+        "time": "2 days ago"
+      },
+      "taskCompleted": {
+        "title": "Task completed",
+        "message": "You successfully completed the task \"Clean up the room\"",
+        "time": "3 days ago"
+      },
+      "newMember": {
+        "title": "New family member",
+        "message": "A new member joined the family",
+        "time": "5 days ago"
+      },
+      "newRewardInShop": {
+        "title": "New reward in the shop",
+        "message": "Parent added a reward \"Movie trip\" for 150 points",
+        "time": "a week ago"
+      },
+      "streak": {
+        "title": "Completion streak!",
+        "message": "You've been completing tasks for 7 days in a row! 🔥",
+        "time": "a week ago"
+      },
+      "welcome": {
+        "title": "Welcome!",
+        "message": "Welcome to FamilyQuest! Start completing tasks and earn rewards.",
+        "time": "2 weeks ago"
+      }
+    }
+  },
+  "authPage": {
+    "oauthCancelled": "Authorization cancelled by user.",
+    "noAccessToken": "Access token not received from provider. Please try again or return to home page.",
+    "noUserInfo": "Provider did not return required user data (email). Try a different account or return to home page.",
+    "serverError": "Error processing request on server. Please try later.",
+    "unknownResponse": "Unknown authentication response.",
+    "noToken": "Failed to obtain authorization token.",
+    "loginFailed": "Failed to complete sign in.",
+    "profileFetchFailed": "Failed to fetch profile data.",
+    "unknownStatus": "Unknown authorization status received.",
+    "completing": "Completing authorization...",
+    "errorTitle": "Something went wrong",
+    "goHome": "Return to home page",
+    "dataUnavailable": "Authorization data unavailable.",
+    "welcomeUser": "Welcome, {name}",
+    "setupProfile": "Choose a role and complete your profile setup.",
+    "avatar": "Avatar",
+    "emailLabel": "Email",
+    "emailImported": "Email imported from provider profile",
+    "nameLabel": "First name",
+    "namePlaceholder": "First name",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Last name",
+    "roleLabel": "Role",
+    "roleParent": "Parent",
+    "roleChild": "Child",
+    "inviteHint": "To join an existing family as a child, use the invitation link from a parent",
+    "familyNameLabel": "Family name",
+    "familyNamePlaceholder": "e.g., The Smith Family",
+    "familyCodeLabel": "Family code",
+    "codeImported": "✓ Code imported from invitation",
+    "ageLabel": "Age",
+    "ageUnit": "years",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "finish": "Finish",
+    "enterNameAndLastName": "Enter first and last name.",
+    "enterValidEmail": "Enter a valid email.",
+    "enterFamilyName": "Enter family name.",
+    "enterFamilyCode": "Enter family code.",
+    "ageRange": "Age must be between 5 and 16 years.",
+    "enterChildAge": "Enter child's age.",
+    "registrationFailed": "Failed to complete registration."
+  },
+  "newTaskPage": {
+    "redirecting": "Redirecting..."
+  },
+  "profilePage": {
+    "noActiveSession": "No active session",
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "editProfileSub": "Name, photo, personal info",
+    "accountSettings": "Account & Security",
+    "accountSettingsSub": "Email, password, danger zone",
+    "family": "Family",
+    "code": "Code",
+    "theme": "Theme",
+    "language": "Language",
+    "tapToChange": "Tap to change photo",
+    "name": "First Name",
+    "lastName": "Last Name",
+    "age": "Age",
+    "email": "Email",
+    "role": "Role",
+    "familyCode": "Family Code",
+    "enterName": "Enter your name",
+    "enterLastName": "Enter your last name",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete Account",
+    "deleteConfirm": "This will permanently delete your account and all associated data. This action cannot be undone.",
+    "changePhoto": "Change Photo",
+    "security": "Security",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "changeEmail": "Change Email",
+    "newEmail": "New Email",
+    "confirmWithPassword": "Confirm with password",
+    "invalidEmail": "Invalid email address"
+  },
+  "routes": {
+    "welcome": "Welcome",
+    "auth": "Authentication",
+    "parentDashboard": "Parent dashboard",
+    "childDashboard": "Child dashboard",
+    "taskCreate": "Create task",
+    "aiAssistant": "AI assistant"
+  },
+  "createTaskDialog": {
+    "title": "New Task",
+    "describePlaceholder": "Describe what needs to be done...",
+    "aiPlaceholder": "Just describe the task — AI will handle the rest...",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g., Clean the room",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What exactly needs to be done...",
+    "difficultyLabel": "Difficulty",
+    "pts": "pts",
+    "categoryLabel": "Category",
+    "forChild": "For:",
+    "selectChild": "Select child",
+    "dateTimePlaceholder": "Select date & time",
+    "deadline": "Deadline",
+    "photoConfirmation": "Photo confirmation",
+    "extraOptions": "More options",
+    "xpAndPoints": "{xp} XP · {points} pts",
+    "withAi": "With AI",
+    "manual": "Manual",
+    "quick": "Quick",
+    "aiThinking": "AI is thinking...",
+    "creating": "Creating...",
+    "createWithAi": "Create with AI",
+    "generateWithAi": "Generate with AI",
+    "aiFilledToast": "AI filled in the task fields",
+    "aiError": "Generation failed. Please try again.",
+    "orChooseIdea": "Or choose an idea:",
+    "taskCreatedToast": "Task created successfully!",
+    "createError": "Failed to create task. Please try again.",
+    "quickIdeas": {
+      "cleanRoom": "Clean the room",
+      "readBook": "Read a book",
+      "helpWithDinner": "Help with dinner",
+      "doExercise": "Do exercise",
+      "makeBed": "Make the bed",
+      "foldClothes": "Fold clothes"
+    }
+  },
+  "taskCreation": {
+    "title": "New Task",
+    "subtitle": "Describe a task for the child",
+    "newTask": "New task",
+    "describeTask": "Describe what needs to be done",
+    "describeWhatToDo": "Please describe what needs to be done",
+    "selectAssignee": "Please select a child",
+    "submitError": "Failed to create task",
+    "creating": "Creating...",
+    "whatToDo": "What needs to be done?",
+    "placeholder": "Describe the task in detail...",
+    "deadline": "Deadline",
+    "confirmation": "Confirmation",
+    "confirmationPhoto": "Photo confirmation",
+    "noConfirmation": "No confirmation needed",
+    "assignChild": "Assign to child",
+    "noChildren": "No children in the family",
+    "selectChild": "Select a child",
+    "yearsOld": "years old",
+    "selectChildRequired": "Please select a child to assign the task",
+    "taskAssignedTo": "Task will be assigned to {name}",
+    "quickIdeas": "Quick Ideas",
+    "oneClick": "Create a task in one click",
+    "preview": "Preview",
+    "hasDueDate": "Has deadline",
+    "noDueDate": "No deadline",
+    "reward": "{xp} XP",
+    "formula": "XP = 60 + 20 × difficulty",
+    "points": "Points",
+    "pointsHint": "Points earned for completing the task",
+    "requiresConfirmation": "Requires photo confirmation",
+    "assignedTo": "Assigned to {name}",
+    "unknown": "Unknown",
+    "categoryLabel": "Category: {category}",
+    "categories": {
+      "home": "Home"
+    },
+    "templates": {
+      "cleaning": "Cleaning",
+      "cleaningDesc": "Clean the room and tidy up",
+      "study": "Study",
+      "studyDesc": "Do homework or read a book",
+      "care": "Kitchen help",
+      "careDesc": "Help cook or wash dishes",
+      "activity": "Physical activity",
+      "activityDesc": "Exercise or outdoor play"
+    }
+  },
+  "tasksList": {
+    "evidence": {
+      "noneLabel": "No confirmation",
+      "noneHint": "Can be completed directly",
+      "photoLabel": "Photo",
+      "photoHint": "Any photo of the result will do",
+      "videoLabel": "Video",
+      "videoHint": "Short clip or story",
+      "documentLabel": "Document",
+      "documentHint": "PDF or scan of a report",
+      "title": "Evidence"
+    },
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "overdue": "Overdue"
+    },
+    "journey": {
+      "assigned": "Assigned",
+      "inProgress": "In Progress",
+      "review": "Review",
+      "done": "Done"
+    },
+    "filters": {
+      "all": "All",
+      "allHint": "Show all tasks",
+      "pending": "Pending",
+      "pendingHint": "Show pending tasks",
+      "inProgress": "In Progress",
+      "inProgressHint": "Show tasks in progress",
+      "completed": "Completed",
+      "completedHint": "Show completed tasks",
+      "overdue": "Overdue",
+      "overdueHint": "Show overdue tasks"
+    },
+    "heroStats": {
+      "active": "Active",
+      "activeHint": "Tasks currently in progress",
+      "done": "Done",
+      "doneHint": "Completed tasks",
+      "focus": "Focus",
+      "focusHint": "Tasks requiring attention"
+    },
+    "toast": {
+      "taskUpdated": "Task updated",
+      "taskUpdatedDesc": "Task status has been changed",
+      "updateError": "Update failed",
+      "tryAgain": "Please try again",
+      "evidenceSubmitted": "Evidence submitted",
+      "evidenceSubmittedDesc": "Your evidence is now awaiting review",
+      "uploadFailed": "Upload failed",
+      "viewEvidenceFailed": "Failed to load evidence",
+      "taskDeleted": "Task deleted",
+      "taskDeletedDesc": "The task has been removed",
+      "deleteFailed": "Failed to delete task"
+    },
+    "confirmDelete": "Are you sure you want to delete this task?",
+    "errors": {
+      "unauthorized": "Please log in to view tasks",
+      "loadError": "Failed to load tasks",
+      "tryRefresh": "Try refreshing the page"
+    },
+    "showPerPage": "Show per page",
+    "of": "of",
+    "tasks": "tasks",
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "evidenceViewer": {
+      "subtitle": "Submitted evidence",
+      "altText": "Evidence image",
+      "download": "Download"
+    },
+    "evidenceStatus": {
+      "fileReceived": "File received",
+      "awaitingEvidence": "Awaiting evidence",
+      "awaitingShort": "Needs photo",
+      "canCompleteDirect": "Can complete directly"
+    },
+    "dueBy": "Due by",
+    "pointsLabel": "pts",
+    "stage": "Stage",
+    "stageShort": "Step {{current}} of {{total}}",
+    "ariaLabels": {
+      "editTask": "Edit task",
+      "deleteTask": "Delete task",
+      "hideDetails": "Hide details",
+      "showDetails": "Show details"
+    },
+    "progressLabel": "Progress",
+    "descriptionLabel": "Description",
+    "noDescription": "No description provided",
+    "created": "Created",
+    "deadline": "Deadline",
+    "journeySteps": "Journey",
+    "actions": {
+      "viewFile": "View file",
+      "replaceFile": "Replace file",
+      "submitFile": "Submit file",
+      "reject": "Reject",
+      "confirm": "Confirm",
+      "awaitEvidenceHint": "Evidence must be submitted first",
+      "iDidIt": "I did it!",
+      "attachEvidenceFirst": "Please attach evidence first"
+    },
+    "taskClosed": "Task closed",
+    "searchPlaceholder": "Search tasks...",
+    "noSearchResults": "No results for \"{{query}}\"",
+    "clearSearch": "Clear search"
+  },
+  "taskTemplates": {
+    "myTemplates": "My Templates",
+    "savedTemplatesDescription": "Your saved task templates for quick creation",
+    "aiIdeasButton": "AI Ideas",
+    "newTemplate": "New Template",
+    "createTaskTemplate": "Create Task Template",
+    "createTaskTemplateDescription": "Save a reusable task template",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Enter template title",
+    "iconLabel": "Icon",
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "Select category",
+    "difficultyLabel": "Difficulty",
+    "verificationLabel": "Verification method",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Describe the task...",
+    "createTemplate": "Create Template",
+    "aiSuggestedIdeas": "AI Suggested Ideas",
+    "addToMyTemplates": "Add to My Templates",
+    "savedTemplates": "Saved Templates",
+    "useTemplate": "Use Template",
+    "builtInTemplates": "Built-in Templates",
+    "categories": {
+      "home": "Home",
+      "kitchen": "Kitchen",
+      "pets": "Pets",
+      "study": "Study",
+      "help": "Help",
+      "garden": "Garden"
+    },
+    "templates": {
+      "cleanRoom": {
+        "title": "Clean the room",
+        "description": "Tidy up the room, put things in their places, vacuum the floor"
+      },
+      "washDishes": {
+        "title": "Wash dishes",
+        "description": "Wash all the dishes after the meal and wipe the table"
+      },
+      "walkDog": {
+        "title": "Walk the dog",
+        "description": "Walk the dog for at least 30 minutes and feed it"
+      },
+      "doHomework": {
+        "title": "Do homework",
+        "description": "Complete all homework assignments for today"
+      },
+      "waterPlants": {
+        "title": "Water the plants",
+        "description": "Water all the houseplants and check the soil"
+      },
+      "takeOutTrash": {
+        "title": "Take out trash",
+        "description": "Take the trash out and put a new bag in the bin"
+      },
+      "feedPet": {
+        "title": "Feed the pet",
+        "description": "Give fresh food and water to the pet"
+      },
+      "helpShopping": {
+        "title": "Help with shopping",
+        "description": "Help carry groceries and put them away"
+      }
+    },
+    "verification": {
+      "photo": {
+        "label": "Photo",
+        "description": "Upload a photo as proof"
+      },
+      "video": {
+        "label": "Video",
+        "description": "Record a short video"
+      },
+      "checklist": {
+        "label": "Checklist",
+        "description": "Check off items as completed"
+      },
+      "text": {
+        "label": "Text",
+        "description": "Write a short report"
+      },
+      "audio": {
+        "label": "Audio",
+        "description": "Record an audio message"
+      }
+    },
+    "aiIdeas": {
+      "organizeBookshelf": {
+        "title": "Organize bookshelf",
+        "description": "Sort books by size or topic and dust the shelves"
+      },
+      "helpCooking": {
+        "title": "Help with cooking",
+        "description": "Help prepare a meal: wash vegetables, set the table"
+      },
+      "weedGarden": {
+        "title": "Weed the garden",
+        "description": "Pull weeds from the garden beds and water the plants"
+      },
+      "writeLetterGrandma": {
+        "title": "Write a letter to Grandma",
+        "description": "Write a letter or draw a picture for grandma"
+      },
+      "washCar": {
+        "title": "Help wash the car",
+        "description": "Help wash the car: soap, rinse, and dry"
+      }
+    }
+  },
+  "childDashboard": {
+    "aiChat": "AI Helper",
+    "profileAvatar": "Profile avatar",
+    "streakDays": "{count} days streak",
+    "bonusMultiplier": "×{value} bonus",
+    "rewardProgress": "Reward Progress",
+    "pointsLabel": "points",
+    "tasksNeeded": "~{count} tasks to go",
+    "daysNeeded": "~{count} days to go",
+    "weeksNeeded": "~{count} weeks to go",
+    "missions": "Missions",
+    "familyChat": "Family Chat",
+    "familyChatDescription": "Chat with your family members",
+    "aiHelper": "AI Helper",
+    "loadingAdvice": "Loading advice...",
+    "getMoreAdvice": "Get more advice",
+    "chooseAvatar": "Choose Avatar",
+    "uploadImage": "Upload image",
+    "userNotFound": "User not found",
+    "avatarUploadError": "Failed to upload avatar",
+    "level": "Lv.",
+    "done": "Done",
+    "nextLevel": "Next Level",
+    "xpToNext": "{xp} XP to level up",
+    "heroMessage": "Complete tasks, earn rewards, and level up!",
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "nav": {
+      "tasks": "Tasks",
+      "gallery": "Gallery",
+      "quests": "Quests",
+      "shop": "Shop",
+      "achievements": "Awards",
+      "me": "Me"
+    },
+    "rewards": {
+      "stickers": "Stickers & extras",
+      "toy": "Small toy or treat",
+      "gift": "Big gift or outing"
+    },
+    "aiSuggestions": {
+      "tip1": "Start with the easiest task to build momentum!",
+      "tip2": "Try to complete all tasks before dinner for a bonus!",
+      "tip3": "Ask parents for a special reward after a 7-day streak!",
+      "tip4": "Break big tasks into small steps — it's easier that way!"
+    }
+  },
+  "gameHub": {
+    "title": "Quest Center",
+    "subtitle": "Complete missions, collect stickers, and climb the leaderboard!",
+    "dayStreak": "day streak",
+    "bonus": "bonus"
+  },
+  "childProfile": {
+    "avatar": "Avatar",
+    "profileId": "Profile ID",
+    "familyCode": "Family code:",
+    "pageTitle": "Profile - {{name}}",
+    "pageSubtitle": "View your achievements and stats",
+    "changePhoto": "Change Photo",
+    "photoDialogDescription": "Choose an emoji or upload a photo to update your avatar",
+    "chooseEmoji": "Choose an emoji:",
+    "uploadPhotoFile": "Upload a photo:",
+    "uploadPrompt": "Click to upload or drag and drop",
+    "photoUploadError": "Failed to upload photo",
+    "tabs": {
+      "overview": "Overview",
+      "achievements": "Achievements",
+      "planner": "Planner",
+      "appearance": "Appearance"
+    },
+    "rank": {
+      "novice": "Novice",
+      "seeker": "Seeker",
+      "master": "Master",
+      "legend": "Legend"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "mode": "Mode",
+      "light": "Light",
+      "dark": "Dark",
+      "colorTheme": "Color theme",
+      "chooseColor": "Choose your favorite color"
+    },
+    "stats": {
+      "currentStreak": "Current Streak",
+      "streakDescription": "Complete tasks daily to keep your streak going!",
+      "rank": "Rank",
+      "level": "Level",
+      "purchasedRewards": "Purchased Rewards",
+      "fromShop": "from the shop",
+      "progressTitle": "Overall Progress",
+      "pointsBalance": "Points balance",
+      "xpEarned": "XP earned",
+      "tasksCompleted": "Tasks completed",
+      "pointsSpent": "Points spent"
+    },
+    "achievements": {
+      "title": "Achievements",
+      "loadError": "Failed to load achievements",
+      "empty": "No achievements yet. Complete tasks to earn them!",
+      "unlocked": "Unlocked"
+    }
+  },
+  "familyChat": {
+    "messageSent": "Message sent",
+    "sendError": "Failed to send message",
+    "tryAgain": "Please try again",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "online": "Online",
+    "offline": "Offline",
+    "noParticipants": "No other participants yet",
+    "attachedTask": "Attached task",
+    "searchTask": "Search tasks...",
+    "noTasksFound": "No tasks found",
+    "availableTasks": "Available tasks",
+    "taskHintPrefix": "Press",
+    "taskHintSuffix": "to attach a task"
+  },
+  "helpFaq": {
+    "title": "Help & FAQ",
+    "subtitle": "Find answers to common questions",
+    "searchPlaceholder": "Search questions...",
+    "allCategories": "All",
+    "noResults": "No results found for your query",
+    "categories": {
+      "registration": "Registration",
+      "tasks": "Tasks",
+      "rewards": "Rewards",
+      "gamification": "Gamification",
+      "settings": "Settings",
+      "family": "Family"
+    },
+    "faq1": {
+      "question": "How do I register and create a family?",
+      "answer": "Download the app, sign up with your email, choose the Parent role, and create a family. Share the family code with your child so they can join."
+    },
+    "faq2": {
+      "question": "How do I create tasks for the child?",
+      "answer": "Go to the Tasks tab, click 'New Task', describe what needs to be done, set difficulty and deadline. You can also use AI to help create better task descriptions."
+    },
+    "faq3": {
+      "question": "How does the reward system work?",
+      "answer": "Children earn points for completing tasks. Points can be exchanged for rewards in the shop. Parents create rewards and set their point cost."
+    },
+    "faq4": {
+      "question": "Can I create custom rewards?",
+      "answer": "Yes! Go to the Rewards tab and click 'New Reward'. Set a name, description, and point cost. You can also use AI to generate reward ideas."
+    },
+    "faq5": {
+      "question": "What are achievements and streaks?",
+      "answer": "Achievements are milestones earned by completing certain goals. Streaks are bonuses for completing tasks for consecutive days. Both motivate children to stay active."
+    },
+    "faq6": {
+      "question": "How do I change the language or theme?",
+      "answer": "Go to Settings and find the Appearance section. You can switch between light and dark themes, and change the app language."
+    },
+    "faq7": {
+      "question": "How do I set up notifications?",
+      "answer": "In Settings, enable notifications to get alerts when tasks are completed, new rewards are added, or achievements are unlocked."
+    },
+    "faq8": {
+      "question": "How do I invite more children to the family?",
+      "answer": "Go to the Children tab and share the family code or invite link. Children can join by entering the code during registration."
+    }
+  },
+  "activityFeed": {
+    "sampleName": {
+      "masha": "Masha",
+      "papa": "Dad",
+      "kirill": "Kirill",
+      "mama": "Mom"
+    },
+    "message": {
+      "completedTaskFemale": "completed a task",
+      "createdReward": "created a reward",
+      "gotLevel": "reached a new level",
+      "unlockedAchievement": "unlocked an achievement",
+      "completedTaskMale": "completed a task",
+      "leftComment": "left a comment"
+    },
+    "detail": {
+      "cleanRoom": "Clean the room",
+      "parkTrip": "Trip to the park",
+      "level5": "Level 5",
+      "fastRocket": "Fast Rocket",
+      "washDishes": "Wash dishes",
+      "greatThanks": "Great job, thanks!"
+    },
+    "time": {
+      "5min": "5 min ago",
+      "15min": "15 min ago",
+      "1hour": "1 hour ago",
+      "2hours": "2 hours ago",
+      "3hours": "3 hours ago",
+      "4hours": "4 hours ago"
+    }
+  },
+  "mediaUpload": {
+    "takePhoto": "Take photo",
+    "fromGallery": "From gallery",
+    "recordVideo": "Record video",
+    "uploadVideo": "Upload video",
+    "chooseFile": "Choose file",
+    "browserNoCamera": "Your browser does not support camera access",
+    "browserNoRecording": "Your browser does not support video recording",
+    "cameraAccessDenied": "Camera access denied. Please allow camera in browser settings.",
+    "cameraNotFound": "No camera found on this device",
+    "cameraAccessError": "Camera access error: ",
+    "cameraAccessGenericError": "Could not access the camera",
+    "bytes": "bytes",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "photoInstruction": "Take a clear photo of the completed task",
+    "videoInstruction": "Record a short video showing the result",
+    "documentInstruction": "Upload a document as proof",
+    "defaultInstruction": "Upload proof of task completion",
+    "fileSelected": "File selected",
+    "preview": "Preview",
+    "chooseAnotherFile": "Choose another file",
+    "recording": "Recording...",
+    "stop": "Stop",
+    "recordingTip": "Point the camera at the result and describe what you did",
+    "howToUpload": "How to upload",
+    "tip": "Tip",
+    "photoTip": "Take the photo in good lighting for a clearer image",
+    "videoTip": "Keep the video short — 10-30 seconds is enough",
+    "documentTip": "Make sure the document is readable and not blurry"
+  },
+  "onboarding": {
+    "tip0Title": "Welcome to FamilyQuest!",
+    "tip0Description": "A fun way to build good habits as a family",
+    "tip0Detail0": "Complete tasks and earn points",
+    "tip0Detail1": "Exchange points for real rewards",
+    "tip0Detail2": "Track progress and celebrate achievements",
+    "tip1Title": "Tasks made fun",
+    "tip1Description": "Parents create tasks, children complete them",
+    "tip1Detail0": "AI helps create interesting task descriptions",
+    "tip1Detail1": "Set difficulty for fair XP rewards",
+    "tip1Detail2": "Upload photos to confirm completion",
+    "tip2Title": "Earn rewards",
+    "tip2Description": "Points can be exchanged for rewards",
+    "tip2Detail0": "Instant rewards for quick motivation",
+    "tip2Detail1": "Weekly rewards for consistent effort",
+    "tip2Detail2": "Big prizes for long-term goals",
+    "tip3Title": "Collect achievements",
+    "tip3Description": "Unlock badges and milestones",
+    "tip3Detail0": "Earn achievements for regular task completion",
+    "tip3Detail1": "Collect stickers in themed series",
+    "tip3Detail2": "Compete on the family leaderboard",
+    "tip4Title": "Build a streak",
+    "tip4Description": "Complete tasks daily for bonus rewards",
+    "tip4Detail0": "3-day streak: +10% points bonus",
+    "tip4Detail1": "7-day streak: +30% points bonus",
+    "tip4Detail2": "30-day streak: +50% points bonus",
+    "tip5Title": "Ready to start?",
+    "tip5Description": "Your family adventure begins now!",
+    "tip5Detail0": "Set up your first task",
+    "tip5Detail1": "Add rewards to the shop",
+    "tip5Detail2": "Watch your family grow together",
+    "start": "Get Started",
+    "step": "Step {current} of {total}"
+  },
+  "profileOverview": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "updateError": "Failed to update profile",
+    "avatarUploadError": "Failed to upload avatar. Please try again.",
+    "changeAvatar": "Change Avatar",
+    "noFamily": "No family",
+    "yearsOld": "years old",
+    "toDashboard": "Go to Dashboard",
+    "logout": "Log Out",
+    "profilePhoto": "Profile photo",
+    "role": {
+      "parent": "Parent",
+      "child": "Child"
+    },
+    "identifier": "User ID",
+    "age": "Age",
+    "form": {
+      "name": "First name",
+      "namePlaceholder": "Enter your name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Enter your last name",
+      "avatarLabel": "Avatar",
+      "age": "Age",
+      "editTitle": "Edit Profile",
+      "accountInfo": "Account Information",
+      "save": "Save changes",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "hint": "No changes to save"
+    },
+    "avatarPicker": {
+      "title": "Change Avatar",
+      "subtitle": "Choose an emoji or upload a photo",
+      "chooseEmoji": "Choose an emoji",
+      "uploadPhoto": "Or upload a photo",
+      "chooseFile": "Choose Photo",
+      "uploading": "Uploading…",
+      "hint": "PNG, JPEG or WebP. Max 2 MB."
+    },
+    "family": {
+      "title": "Family",
+      "code": "Code:",
+      "description": "You are a member of this family"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "goToDashboard": "Go to Dashboard",
+      "logout": "Log Out",
+      "tips": "Update your profile to make the app more personalized"
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "deleteButton": "Delete Account",
+      "confirmTitle": "Are you absolutely sure?",
+      "confirmDescription": "This will permanently delete your account and all data associated with it:",
+      "willDelete": {
+        "profile": "Your profile and personal information",
+        "family": "Family connections and settings",
+        "tasks": "All tasks and progress history",
+        "data": "All rewards, achievements and statistics"
+      },
+      "typeConfirm": "Type DELETE to confirm:",
+      "confirmDelete": "Delete My Account",
+      "cancel": "Cancel",
+      "error": "Failed to delete account. Please try again."
+    },
+    "tabs": {
+      "profile": "Profile",
+      "tasks": "Tasks",
+      "rewards": "Rewards",
+      "analytics": "Analytics",
+      "children": "Children",
+      "chat": "Chat",
+      "settings": "Settings"
+    },
+    "security": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "changeEmail": "Change Email",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "updatePassword": "Update Password",
+      "passwordChanged": "Password changed!",
+      "changePasswordError": "Failed to change password",
+      "passwordsMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "newEmail": "New email address",
+      "passwordToConfirm": "Current password to confirm",
+      "updateEmail": "Update Email",
+      "emailChanged": "Email changed!",
+      "changeEmailError": "Failed to change email",
+      "invalidEmail": "Please enter a valid email address"
+    }
+  },
+  "paymentModal": {
+    "title": "Payment",
+    "description": "Subscribe to {tierName} plan for ${price}/month",
+    "errorTitle": "Validation Error",
+    "fillAllFields": "Please fill in all card fields",
+    "paymentSuccess": "Payment Successful",
+    "subscriptionActivatedToast": "{tierName} subscription activated!",
+    "successTitle": "Subscription Activated!",
+    "successDescription": "Thank you! Your subscription is now active and all features are unlocked.",
+    "cardDetails": "Card Details",
+    "cardSecure": "Your payment information is encrypted and secure",
+    "cardNumber": "Card number",
+    "cardholderName": "Cardholder name",
+    "expiryDate": "Expiry date",
+    "totalAmount": "Total",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "pay": "Pay ${price}",
+    "subscribingTo": "Subscribing to",
+    "billingCycle": "Billing Cycle",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "mo": "mo",
+    "year": "year",
+    "plan": "Plan",
+    "billing": "Billing",
+    "perYear": "per year",
+    "perMonthShort": "per month",
+    "continueToPayment": "Continue to Payment",
+    "backToPlan": "Back to plan",
+    "agreeToTerms": "I agree to the Terms of Service and auto-renewal policy. You can cancel anytime.",
+    "processingPayment": "Processing your payment...",
+    "doNotClose": "Please don't close this window",
+    "secureTransaction": "Secure encrypted transaction",
+    "activated": "Activated",
+    "nowAvailable": "Now Available",
+    "featureAI": "AI Assistant & Smart Suggestions",
+    "featureAnalytics": "Advanced Analytics & Reports",
+    "featureFamily": "Unlimited Family Sharing"
+  },
+  "stickerCollection": {
+    "lion": "Lion",
+    "panda": "Panda",
+    "fox": "Fox",
+    "koala": "Koala",
+    "owl": "Owl",
+    "frog": "Frog",
+    "robot": "Robot",
+    "alien": "Alien",
+    "rocket": "Rocket",
+    "mechanism": "Mechanism",
+    "battery": "Battery",
+    "computer": "Computer",
+    "unicorn": "Unicorn",
+    "dragon": "Dragon",
+    "wizard": "Wizard",
+    "crown": "Crown",
+    "sword": "Sword",
+    "castle": "Castle",
+    "seriesPercent": "{percent}% collected",
+    "outOf": "{unlocked} of {total} collected",
+    "locked": "Locked"
+  },
+  "addChild": {
+    "title": "Add Child",
+    "subtitle": "Create an account for your child",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Child's first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Child's last name",
+    "email": "Email",
+    "emailPlaceholder": "child@example.com",
+    "emailHint": "Used for child login – can be parent's email with +child suffix",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "passwordHint": "Share these credentials with your child for login",
+    "age": "Age",
+    "avatar": "Avatar",
+    "createButton": "Add Child",
+    "creating": "Creating...",
+    "success": "Child added successfully!",
+    "error": "Failed to add child. Please try again.",
+    "addButton": "Add Child",
+    "emptyHint": "Add your first child to get started with tasks and rewards"
+  },
+  "gallery": {
+    "title": "Evidence Gallery",
+    "filter": "Filter by status",
+    "noEvidence": "No evidence to display",
+    "completed": "Completed",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "overdue": "Overdue"
+  }
+}

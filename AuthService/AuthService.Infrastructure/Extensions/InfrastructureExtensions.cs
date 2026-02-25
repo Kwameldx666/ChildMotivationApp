@@ -1,25 +1,24 @@
-using AuthService.Application.Abstractions.Infrastructure;
-using AuthService.Application.Abstractions.Infrastructure.Clients;
-using AuthService.Application.Abstractions.Persistence;
-using AuthService.Common.Constants.HttpUrls;
+using AuthService.Application.Abstractions;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Abstractions.Authentication.Internal;
 using AuthService.Domain.Entities;
-using AuthService.Common.ExternalOptions.SignIn;
+using AuthService.Infrastructure.Common;
+using AuthService.Infrastructure.Options;
+using AuthService.Infrastructure.Options.External;
+using AuthService.Infrastructure.Options.JwtBearer;
 using AuthService.Infrastructure.Services.Authentication.Token;
-using AuthService.Infrastructure.Services.Clients;
+using AuthService.Infrastructure.Services.Authentication.External;
 using AuthService.Infrastructure.Services.Email;
-using AuthService.Infrastructure.Services.Identity;
 using AuthService.Infrastructure.Services.OAuth;
-using AuthService.Infrastructure.Services.User;
 using AuthService.Infrastructure.Services.Quartz;
+using AuthService.Infrastructure.Services.Identity;
 using AuthService.Persistence.Context;
-using AuthService.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Caching.Distributed;
 using Quartz;
-using JwtBearerOptions = AuthService.Application.Options.JwtBearerOptions;
-using SmtpOptions = AuthService.Application.Options.SmtpOptions;
 
 namespace AuthService.Infrastructure.Extensions;
 
@@ -33,14 +32,58 @@ public static class InfrastructureExtensions
         services.ConfigureEndpoints(configuration);
         services.AddProxies();
 
-        services.AddMemoryCache();
-        services.AddSingleton<IGoogleStateStore, GoogleStateStore>();
-        services.AddSingleton<IOAuthSessionStore, OAuthSessionStore>();
-        services.AddSingleton<IOAuthPendingUserStore, OAuthPendingUserStore>();
+        var useDistributed = configuration.GetValue<bool>("Authentication:UseDistributedStateStore");
+        if (useDistributed)
+        {
+            var redisConn = configuration.GetConnectionString("Redis") 
+                ?? configuration["Redis:Configuration"] 
+                ?? $"{configuration["Redis:Host"] ?? "redis"}:{configuration["Redis:Port"] ?? "6379"}";
+            
+            services.AddStackExchangeRedisCache(options => 
+            { 
+                options.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
+                {
+                    EndPoints = { redisConn },
+                    ConnectTimeout = 5000,
+                    SyncTimeout = 5000,
+                    AsyncTimeout = 5000,
+                    ConnectRetry = 3,
+                    AbortOnConnectFail = false,
+                    AllowAdmin = false
+                };
+                options.InstanceName = "auth:";
+            });
 
+            services.TryAddSingleton<DistributedOAuthStateStore>();
+            services.TryAddSingleton<DistributedOAuthSessionStore>();
+            services.TryAddSingleton<DistributedOAuthPendingUserStore>();
+
+            services.AddSingleton<IOAuthSessionStore>(sp => sp.GetRequiredService<DistributedOAuthSessionStore>());
+            services.AddSingleton<IOAuthPendingUserStore>(sp => sp.GetRequiredService<DistributedOAuthPendingUserStore>());
+            services.AddSingleton<IOAuthStateStore>(sp =>
+            {
+                var dist = sp.GetService<IDistributedCache>();
+                if (dist is not null)
+                    return sp.GetRequiredService<DistributedOAuthStateStore>();
+
+                throw new InvalidOperationException(
+                    "Distributed cache (Redis) is required for IOAuthStateStore.");
+            });
+        }
+        else
+        {
+            services.AddSingleton<IOAuthSessionStore, NoopOAuthSessionStore>();
+            services.AddSingleton<IOAuthPendingUserStore, NoopOAuthPendingUserStore>();
+        }
+
+        services.AddScoped<IExternalLoginSessionBuilder, ExternalLoginSessionBuilder>();
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
-        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUserManagement, UserManagementService>();
+
+        // Email confirmation
+        services.AddOptions<SmtpOptions>()
+            .Bind(configuration.GetSection("Smtp"));
+        services.AddOptions<EmailConfirmationOptions>()
+            .Bind(configuration.GetSection("EmailConfirmation"));
         services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
@@ -52,33 +95,50 @@ public static class InfrastructureExtensions
             .Bind(configuration.GetSection("JwtBearer"))
             .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "JwtBearer:Secret must be provided.")
             .Validate(options => options.AccessTokenLifetime > 0,
-                "JwtBearer:AccessTokenLifetime must be greater than zero.")
-            .ValidateOnStart();
-
-        services.AddOptions<SmtpOptions>()
-            .Bind(configuration.GetSection("Smtp"))
-            .ValidateOnStart();
+                "JwtBearer:AccessTokenLifetime must be greater than zero.");
 
         services.AddOptions<GoogleOptions>()
-            .Bind(configuration.GetSection("Authentication:Google"))
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Client secret must be provided.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Client id must be provided.")
-            .Validate(options => !string.IsNullOrEmpty(options.RedirectUri), "Redirect uri must be provided.")
-            .Validate(options => !string.IsNullOrWhiteSpace(options.PostSignInRedirectUri),
-                "Post sign-in redirect uri must be provided.")
-            .ValidateOnStart();
+            .Bind(configuration.GetSection("Authentication:Google"));
+
+        services.AddOptions<GitHubOptions>()
+            .Bind(configuration.GetSection("Authentication:GitHub"));
+
+        services.AddOptions<DiscordOptions>()
+            .Bind(configuration.GetSection("Authentication:Discord"));
     }
 
     private static void ConfigureEndpoints(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<GoogleEndpoints>(configuration.GetSection("ServicesEndpoints:Google"));
+        services.Configure<GitHubEndpoints>(configuration.GetSection("ServicesEndpoints:GitHub"));
+        services.Configure<DiscordEndpoints>(configuration.GetSection("ServicesEndpoints:Discord"));
     }
 
     private static void AddProxies(this IServiceCollection services)
     {
-        services.AddHttpClient();
+        services.AddHttpClient(Constants.DefaultHttpClientNames.Google, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
+        
+        services.AddHttpClient(Constants.DefaultHttpClientNames.GitHub, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
+        
+        services.AddHttpClient(Constants.DefaultHttpClientNames.Discord, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.Add("User-Agent", "AuthService/1.0");
+        });
 
-        services.AddScoped<IGoogleServiceClient, GoogleServiceClient>();
+        services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
+        services.AddScoped<IExternalAuthProvider, GitHubAuthProvider>();
+        services.AddScoped<IExternalAuthProvider, DiscordAuthProvider>();
+
+        services.AddScoped<IExternalAuthProviderFactory, ExternalAuthProviderFactory>();
     }
 
     private static void ConfigureQuartz(this IServiceCollection services, IConfiguration configuration)

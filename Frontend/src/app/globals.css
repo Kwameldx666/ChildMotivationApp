@@ -51,38 +51,139 @@
 }
 
 .dark {
-  --background: oklch(0.12 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.18 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.18 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.7 0.25 290);
-  --primary-foreground: oklch(0.12 0 0);
-  --secondary: oklch(0.8 0.2 25);
-  --secondary-foreground: oklch(0.12 0 0);
-  --accent: oklch(0.88 0.16 86);
-  --accent-foreground: oklch(0.12 0 0);
-  --muted: oklch(0.35 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --destructive: oklch(0.65 0.2 25);
-  --destructive-foreground: oklch(0.12 0 0);
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.25 0 0);
-  --ring: oklch(0.7 0.25 290);
-  --chart-1: oklch(0.8 0.2 25);
-  --chart-2: oklch(0.7 0.25 290);
-  --chart-3: oklch(0.75 0.16 140);
-  --chart-4: oklch(0.88 0.16 86);
-  --chart-5: oklch(0.8 0.14 180);
-  --sidebar: oklch(0.15 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.7 0.25 290);
+  /* Neutral dark palette — no purple tint, softer on the eyes */
+  --background: oklch(0.17 0.005 260);
+  --foreground: oklch(0.93 0.005 260);
+  --card: oklch(0.21 0.005 260);
+  --card-foreground: oklch(0.93 0.005 260);
+  --popover: oklch(0.21 0.005 260);
+  --popover-foreground: oklch(0.93 0.005 260);
+  --primary: oklch(0.72 0.18 290);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.42 0.12 25);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.45 0.1 86);
+  --accent-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.27 0.005 260);
+  --muted-foreground: oklch(0.68 0.005 260);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0 0);
+  --border: oklch(0.32 0.005 260);
+  --input: oklch(0.25 0.005 260);
+  --ring: oklch(0.72 0.18 290);
+  --chart-1: oklch(0.75 0.18 25);
+  --chart-2: oklch(0.72 0.2 290);
+  --chart-3: oklch(0.7 0.14 140);
+  --chart-4: oklch(0.78 0.14 86);
+  --chart-5: oklch(0.75 0.12 180);
+  --sidebar: oklch(0.19 0.005 260);
+  --sidebar-foreground: oklch(0.93 0.005 260);
+  --sidebar-primary: oklch(0.72 0.18 290);
   --sidebar-primary-foreground: oklch(0.95 0 0);
-  --sidebar-accent: oklch(0.8 0.2 25);
+  --sidebar-accent: oklch(0.42 0.12 25);
   --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.28 0 0);
-  --sidebar-ring: oklch(0.7 0.25 290);
+  --sidebar-border: oklch(0.32 0.005 260);
+  --sidebar-ring: oklch(0.72 0.18 290);
+}
+
+/* Розовая тема */
+.theme-rose {
+  --primary: oklch(0.6 0.25 350);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.75 0.2 340);
+  --accent: oklch(0.88 0.15 330);
+  --ring: oklch(0.6 0.25 350);
+  --sidebar-primary: oklch(0.6 0.25 350);
+  --sidebar-accent: oklch(0.75 0.2 340);
+}
+
+.theme-rose.dark {
+  --primary: oklch(0.72 0.18 350);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.45 0.12 340);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.48 0.1 330);
+  --accent-foreground: oklch(0.95 0 0);
+}
+
+/* Синяя тема */
+.theme-blue {
+  --primary: oklch(0.55 0.25 240);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.7 0.2 220);
+  --accent: oklch(0.8 0.15 200);
+  --ring: oklch(0.55 0.25 240);
+  --sidebar-primary: oklch(0.55 0.25 240);
+  --sidebar-accent: oklch(0.7 0.2 220);
+}
+
+.theme-blue.dark {
+  --primary: oklch(0.7 0.18 240);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.42 0.12 220);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.45 0.1 200);
+  --accent-foreground: oklch(0.95 0 0);
+}
+
+/* Зелёная тема */
+.theme-green {
+  --primary: oklch(0.6 0.22 145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.7 0.18 130);
+  --accent: oklch(0.82 0.15 160);
+  --ring: oklch(0.6 0.22 145);
+  --sidebar-primary: oklch(0.6 0.22 145);
+  --sidebar-accent: oklch(0.7 0.18 130);
+}
+
+.theme-green.dark {
+  --primary: oklch(0.7 0.16 145);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.42 0.1 130);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.45 0.1 160);
+  --accent-foreground: oklch(0.95 0 0);
+}
+
+/* Фиолетовая тема */
+.theme-purple {
+  --primary: oklch(0.58 0.26 285);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.72 0.22 270);
+  --accent: oklch(0.85 0.18 300);
+  --ring: oklch(0.58 0.26 285);
+  --sidebar-primary: oklch(0.58 0.26 285);
+  --sidebar-accent: oklch(0.72 0.22 270);
+}
+
+.theme-purple.dark {
+  --primary: oklch(0.72 0.18 285);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.42 0.12 270);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.48 0.1 300);
+  --accent-foreground: oklch(0.95 0 0);
+}
+
+/* Оранжевая тема */
+.theme-orange {
+  --primary: oklch(0.65 0.22 45);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.75 0.18 35);
+  --accent: oklch(0.85 0.15 60);
+  --ring: oklch(0.65 0.22 45);
+  --sidebar-primary: oklch(0.65 0.22 45);
+  --sidebar-accent: oklch(0.75 0.18 35);
+}
+
+.theme-orange.dark {
+  --primary: oklch(0.72 0.16 45);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.42 0.1 35);
+  --secondary-foreground: oklch(0.95 0 0);
+  --accent: oklch(0.48 0.1 60);
+  --accent-foreground: oklch(0.95 0 0);
 }
 
 @theme inline {
@@ -126,6 +227,180 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ═══════════ Child Dashboard Animations ═══════════ */
+@keyframes kid-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes kid-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-6deg); }
+  40% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(4deg); }
+}
+@keyframes kid-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 12px 4px rgba(139, 92, 246, 0.15); }
+}
+@keyframes streak-flame {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.15) rotate(-3deg); }
+  50% { transform: scale(1.2) rotate(0deg); }
+  75% { transform: scale(1.15) rotate(3deg); }
+}
+@keyframes xp-fill {
+  from { width: 0%; }
+}
+@keyframes coin-spin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+@keyframes tab-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; filter: blur(12px); }
+  50% { opacity: 0.7; filter: blur(18px); }
+}
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(20px) rotate(360deg); opacity: 0; }
+}
+@keyframes rainbow-border {
+  0% { border-color: #f87171; }
+  16% { border-color: #fb923c; }
+  33% { border-color: #fbbf24; }
+  50% { border-color: #34d399; }
+  66% { border-color: #60a5fa; }
+  83% { border-color: #a78bfa; }
+  100% { border-color: #f87171; }
+}
+@keyframes treasure-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(251, 191, 36, 0.2), 0 0 20px rgba(251, 191, 36, 0.05); }
+  50% { box-shadow: 0 0 16px rgba(251, 191, 36, 0.35), 0 0 40px rgba(251, 191, 36, 0.1); }
+}
+@keyframes badge-unlock {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes card-appear {
+  0% { opacity: 0; transform: translateY(16px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes progress-stripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(2deg); }
+  75% { transform: translateY(4px) rotate(-1deg); }
+}
+@keyframes success-pop {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.animate-kid-bounce { animation: kid-bounce 2s ease-in-out infinite; }
+.animate-kid-wiggle { animation: kid-wiggle 0.6s ease-in-out; }
+.animate-kid-pulse-glow { animation: kid-pulse-glow 2.5s ease-in-out infinite; }
+.animate-streak-flame { animation: streak-flame 1.2s ease-in-out infinite; }
+.animate-xp-fill { animation: xp-fill 1s ease-out forwards; }
+.animate-coin-spin { animation: coin-spin 2s linear infinite; }
+.animate-tab-pop { animation: tab-pop 0.35s ease-out; }
+.animate-float-gentle { animation: float-gentle 3s ease-in-out infinite; }
+.animate-ring-spin { animation: ring-spin 8s linear infinite; }
+.animate-sparkle { animation: sparkle 2s ease-in-out infinite; }
+.animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up-fade 0.4s ease-out; }
+.animate-confetti { animation: confetti-fall 1.5s ease-out forwards; }
+.animate-rainbow-border { animation: rainbow-border 3s linear infinite; }
+.animate-treasure-glow { animation: treasure-glow 2.5s ease-in-out infinite; }
+.animate-badge-unlock { animation: badge-unlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-card-appear { animation: card-appear 0.5s ease-out forwards; }
+.animate-star-twinkle { animation: star-twinkle 2s ease-in-out infinite; }
+.animate-hero-float { animation: hero-float 6s ease-in-out infinite; }
+.animate-success-pop { animation: success-pop 0.4s ease-out; }
+
+/* Fun striped progress bar for children */
+.progress-stripes {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255,255,255,0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 40px 40px;
+  animation: progress-stripes 1s linear infinite;
+}
+
+/* Cute card hover lift */
+.child-card-hover {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.child-card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px -8px rgba(0,0,0,0.12), 0 4px 16px -4px rgba(0,0,0,0.08);
+}
+
+/* Fun interactive button bounce */
+.btn-bounce:active {
+  transform: scale(0.92);
+  transition: transform 0.1s ease;
+}
+
+/* Sticker-style card for achievements */
+.sticker-card {
+  position: relative;
+  overflow: hidden;
+}
+.sticker-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.08), transparent 30%);
+  animation: ring-spin 4s linear infinite;
+  pointer-events: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -133,4 +408,220 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ═══════════ Dark Mode Fixes ═══════════ */
+/* Time inputs in dark mode */
+.dark input[type="time"],
+.dark input[type="date"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark;
+  color: var(--foreground);
+  background-color: var(--input);
+}
+
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Placeholder text visibility in dark mode */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+
+/* Select elements in dark mode */
+.dark select,
+.dark select option {
+  color: var(--foreground);
+  background-color: var(--card);
+}
+
+/* ═══ Generic light-only utility overrides for dark mode ═══ */
+
+/* bg-white → dark card */
+.dark .bg-white { background-color: var(--card) !important; }
+.dark .bg-white\/80 { background-color: oklch(0.21 0.005 260 / 0.8) !important; }
+.dark .bg-white\/90 { background-color: oklch(0.21 0.005 260 / 0.9) !important; }
+.dark .bg-white\/95 { background-color: oklch(0.21 0.005 260 / 0.95) !important; }
+
+/* Gradient from-white / to-white */
+.dark .from-white\/75 { --tw-gradient-from: oklch(0.21 0.005 260 / 0.75); }
+.dark .from-white\/65 { --tw-gradient-from: oklch(0.21 0.005 260 / 0.65); }
+.dark .via-white\/65 { --tw-gradient-via: oklch(0.21 0.005 260 / 0.65); }
+.dark .to-white\/55 { --tw-gradient-to: oklch(0.21 0.005 260 / 0.55); }
+
+/* text-gray → slate tones in dark */
+.dark .text-gray-900 { color: oklch(0.93 0 0) !important; }
+.dark .text-gray-800 { color: oklch(0.9 0 0) !important; }
+.dark .text-gray-700 { color: oklch(0.82 0 0) !important; }
+.dark .text-gray-600 { color: oklch(0.72 0 0) !important; }
+.dark .text-gray-500 { color: oklch(0.62 0 0) !important; }
+
+/* border-gray / border-white in dark */
+.dark .border-gray-300 { border-color: var(--border) !important; }
+.dark .border-gray-200 { border-color: var(--border) !important; }
+.dark .border-white\/50 { border-color: oklch(0.32 0.005 260 / 0.3) !important; }
+.dark .border-white\/40 { border-color: oklch(0.32 0.005 260 / 0.25) !important; }
+.dark .border-2.border-gray-300 { border-color: var(--border) !important; }
+
+/* bg-gray light backgrounds → dark card tones */
+.dark .bg-gray-50 { background-color: var(--muted) !important; }
+.dark .bg-gray-100 { background-color: var(--muted) !important; }
+
+/* Colored light backgrounds (bg-*-50 etc) → subtle dark versions */
+.dark .bg-purple-50 { background-color: oklch(0.25 0.04 290 / 0.3) !important; }
+.dark .bg-purple-100 { background-color: oklch(0.28 0.05 290 / 0.35) !important; }
+.dark .bg-blue-50 { background-color: oklch(0.25 0.04 240 / 0.3) !important; }
+.dark .bg-blue-100 { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+.dark .bg-green-50 { background-color: oklch(0.25 0.04 145 / 0.3) !important; }
+.dark .bg-green-100 { background-color: oklch(0.28 0.05 145 / 0.35) !important; }
+.dark .bg-red-50 { background-color: oklch(0.25 0.04 25 / 0.3) !important; }
+.dark .bg-red-100 { background-color: oklch(0.28 0.05 25 / 0.35) !important; }
+.dark .bg-amber-50 { background-color: oklch(0.25 0.04 80 / 0.3) !important; }
+.dark .bg-amber-100 { background-color: oklch(0.28 0.05 80 / 0.35) !important; }
+.dark .bg-yellow-50 { background-color: oklch(0.25 0.04 90 / 0.3) !important; }
+.dark .bg-orange-50 { background-color: oklch(0.25 0.04 50 / 0.3) !important; }
+.dark .bg-emerald-50 { background-color: oklch(0.25 0.04 160 / 0.3) !important; }
+.dark .bg-emerald-50\/50 { background-color: oklch(0.25 0.04 160 / 0.15) !important; }
+
+/* Colored border overrides for dark */
+.dark .border-blue-200 { border-color: oklch(0.4 0.08 240 / 0.4) !important; }
+.dark .border-blue-300 { border-color: oklch(0.45 0.1 240 / 0.4) !important; }
+.dark .border-green-200 { border-color: oklch(0.4 0.08 145 / 0.4) !important; }
+.dark .border-red-200 { border-color: oklch(0.4 0.08 25 / 0.4) !important; }
+.dark .border-amber-200 { border-color: oklch(0.4 0.08 80 / 0.4) !important; }
+.dark .border-yellow-200 { border-color: oklch(0.4 0.08 90 / 0.4) !important; }
+.dark .border-orange-200 { border-color: oklch(0.4 0.08 50 / 0.4) !important; }
+.dark .border-emerald-200 { border-color: oklch(0.4 0.08 160 / 0.4) !important; }
+.dark .border-emerald-300 { border-color: oklch(0.45 0.1 160 / 0.4) !important; }
+.dark .border-purple-200 { border-color: oklch(0.4 0.08 290 / 0.4) !important; }
+.dark .border-purple-300 { border-color: oklch(0.45 0.1 290 / 0.4) !important; }
+
+/* Colored text overrides for readability in dark */
+.dark .text-blue-900 { color: oklch(0.78 0.12 240) !important; }
+.dark .text-blue-800 { color: oklch(0.75 0.1 240) !important; }
+.dark .text-red-600 { color: oklch(0.72 0.15 25) !important; }
+.dark .text-purple-600 { color: oklch(0.72 0.14 290) !important; }
+.dark .text-emerald-700 { color: oklch(0.72 0.14 160) !important; }
+
+/* Hover states for colored backgrounds in dark */
+.dark .hover\:bg-red-50:hover { background-color: oklch(0.28 0.05 25 / 0.35) !important; }
+.dark .hover\:bg-green-100:hover { background-color: oklch(0.3 0.06 145 / 0.35) !important; }
+.dark .hover\:bg-blue-50:hover { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+.dark .hover\:bg-purple-50:hover { background-color: oklch(0.28 0.05 290 / 0.35) !important; }
+.dark .hover\:bg-orange-100:hover { background-color: oklch(0.3 0.06 50 / 0.35) !important; }
+.dark .hover\:bg-emerald-100:hover { background-color: oklch(0.3 0.06 160 / 0.35) !important; }
+
+/* Status badge text contrast in dark mode */
+.dark .bg-slate-900\/5 { background-color: oklch(0.3 0.005 260 / 0.3); }
+.dark .text-slate-700 { color: oklch(0.78 0.005 260); }
+.dark .ring-slate-200 { --tw-ring-color: oklch(0.35 0.005 260); }
+
+.dark .bg-blue-500\/10 { background-color: oklch(0.35 0.1 240 / 0.3); }
+.dark .text-blue-700 { color: oklch(0.72 0.14 240); }
+.dark .ring-blue-200 { --tw-ring-color: oklch(0.4 0.1 240); }
+
+.dark .bg-emerald-500\/15 { background-color: oklch(0.35 0.1 160 / 0.3); }
+.dark .text-emerald-700 { color: oklch(0.72 0.14 160); }
+.dark .ring-emerald-200 { --tw-ring-color: oklch(0.4 0.1 160); }
+
+.dark .bg-red-500\/10 { background-color: oklch(0.35 0.1 25 / 0.3); }
+.dark .text-red-700 { color: oklch(0.72 0.14 25); }
+.dark .ring-red-200 { --tw-ring-color: oklch(0.4 0.1 25); }
+
+.dark .bg-amber-500\/10 { background-color: oklch(0.35 0.1 80 / 0.3); }
+.dark .text-amber-700 { color: oklch(0.78 0.14 80); }
+.dark .ring-amber-200 { --tw-ring-color: oklch(0.4 0.1 80); }
+
+.dark .bg-purple-500\/10 { background-color: oklch(0.35 0.1 290 / 0.3); }
+.dark .text-purple-700 { color: oklch(0.72 0.14 290); }
+.dark .ring-purple-200 { --tw-ring-color: oklch(0.4 0.1 290); }
+
+.dark .bg-rose-500\/10 { background-color: oklch(0.35 0.1 10 / 0.3); }
+.dark .text-rose-700 { color: oklch(0.72 0.14 10); }
+
+.dark .bg-cyan-500\/10 { background-color: oklch(0.35 0.1 200 / 0.3); }
+.dark .text-cyan-700 { color: oklch(0.72 0.14 200); }
+
+/* Card & card accents in dark mode */
+.dark .from-rose-50 { --tw-gradient-from: oklch(0.24 0.02 350); }
+.dark .from-emerald-50 { --tw-gradient-from: oklch(0.24 0.02 160); }
+.dark .from-amber-50 { --tw-gradient-from: oklch(0.24 0.02 80); }
+.dark .to-orange-50 { --tw-gradient-to: oklch(0.24 0.02 50); }
+.dark .to-teal-50 { --tw-gradient-to: oklch(0.24 0.02 180); }
+.dark .to-fuchsia-50 { --tw-gradient-to: oklch(0.24 0.02 320); }
+
+/* Page-level pastel gradient backgrounds → dark subtle gradients */
+.dark .from-sky-100 { --tw-gradient-from: oklch(0.2 0.02 230) !important; }
+.dark .via-purple-100 { --tw-gradient-via: oklch(0.19 0.02 290) !important; }
+.dark .to-purple-200 { --tw-gradient-to: oklch(0.2 0.03 290) !important; }
+.dark .from-sky-400 { --tw-gradient-from: oklch(0.35 0.08 230) !important; }
+.dark .via-purple-400 { --tw-gradient-via: oklch(0.32 0.08 290) !important; }
+.dark .to-purple-500 { --tw-gradient-to: oklch(0.3 0.1 290) !important; }
+
+/* White gradients in cards → dark card colors */
+.dark .from-white\/35 { --tw-gradient-from: oklch(0.25 0.005 260 / 0.35) !important; }
+.dark .via-white\/10 { --tw-gradient-via: oklch(0.25 0.005 260 / 0.1) !important; }
+.dark .to-white\/0 { --tw-gradient-to: transparent !important; }
+.dark .from-white\/75 { --tw-gradient-from: oklch(0.23 0.005 260 / 0.75) !important; }
+.dark .via-white\/65 { --tw-gradient-via: oklch(0.22 0.005 260 / 0.65) !important; }
+.dark .to-white\/55 { --tw-gradient-to: oklch(0.21 0.005 260 / 0.55) !important; }
+
+/* Slider / carousel dots in dark mode */
+.dark .bg-white\/90 { background-color: oklch(0.3 0.005 260 / 0.9) !important; }
+.dark .bg-white\/30 { background-color: oklch(0.3 0.005 260 / 0.3) !important; }
+.dark .hover\:bg-white\/45:hover { background-color: oklch(0.35 0.005 260 / 0.45) !important; }
+.dark .ring-white\/20 { --tw-ring-color: oklch(0.5 0 0 / 0.2) !important; }
+.dark .ring-white\/80 { --tw-ring-color: oklch(0.5 0 0 / 0.4) !important; }
+.dark .bg-white\/10 { background-color: oklch(0.3 0.005 260 / 0.1) !important; }
+
+/* Border white overrides for dark */
+.dark .border-white\/35 { border-color: oklch(0.35 0.005 260 / 0.3) !important; }
+
+/* Emerald info text in dark */
+.dark .bg-emerald-100 { background-color: oklch(0.28 0.06 160 / 0.4) !important; }
+.dark .text-emerald-600 { color: oklch(0.72 0.14 160) !important; }
+
+/* Hover action button colors in dark */
+.dark .hover\:text-blue-700:hover { color: oklch(0.72 0.14 240) !important; }
+.dark .hover\:border-blue-300:hover { border-color: oklch(0.45 0.1 240 / 0.4) !important; }
+.dark .hover\:text-purple-700:hover { color: oklch(0.72 0.14 290) !important; }
+.dark .hover\:border-purple-300:hover { border-color: oklch(0.45 0.1 290 / 0.4) !important; }
+.dark .hover\:text-red-700:hover { color: oklch(0.72 0.14 25) !important; }
+.dark .hover\:text-gray-300:hover { color: oklch(0.7 0 0) !important; }
+
+/* Task button hovers in dark */
+.dark .hover\:bg-blue-50:hover { background-color: oklch(0.28 0.05 240 / 0.35) !important; }
+
+/* Colored text overrides that weren't yet covered */
+.dark .text-violet-600 { color: oklch(0.72 0.14 280) !important; }
+.dark .text-green-600 { color: oklch(0.72 0.14 145) !important; }
+.dark .text-orange-600 { color: oklch(0.72 0.12 50) !important; }
+.dark .text-slate-400 { color: oklch(0.6 0.005 260) !important; }
+
+/* Ensure disabled inputs visible in dark */
+.dark input:disabled,
+.dark textarea:disabled {
+  color: oklch(0.65 0.005 260);
+  opacity: 0.8;
+  -webkit-text-fill-color: oklch(0.65 0.005 260);
+}
+
+/* Better scrollbar in dark mode */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: oklch(0.19 0.005 260);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.35 0.005 260);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.45 0.005 260);
 }

@@ -11,27 +11,71 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_owner_net -d db_net -h postgres -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   auth-service:
     build:
       context: .
       dockerfile: AuthService/AuthService.Api/Dockerfile
     depends_on:
-      - postgres
-      - mailhog
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
-      Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID}
-      Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
-      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/auth/google/callback}
+      Authentication__UseDistributedStateStore: true
+      Redis__Configuration: redis:6379
+      ConnectionStrings__Redis: redis:6379
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-      Smtp__Host: mailhog
-      Smtp__Port: 1025
-      Smtp__FromEmail: noreply@familytasks.local
-      Smtp__FromName: FamilyTasks
-      Smtp__UseSsl: "false"
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
+      Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
+      Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
+      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID:-dev}
+      Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET:-dev}
+      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-http://localhost:8080/auth-service/github/callback}
+      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Authentication__Discord__ClientId: ${AUTH_DISCORD_CLIENT_ID:-dev}
+      Authentication__Discord__ClientSecret: ${AUTH_DISCORD_CLIENT_SECRET:-dev}
+      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI:-http://localhost:8080/auth-service/discord/callback}
+      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Smtp__Host: ${SMTP_HOST:-smtp.gmail.com}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__Username: ${SMTP_USERNAME:-wonderfulll_by@bk.ru}
+      Smtp__Password: ${SMTP_PASSWORD:-H6NBUAub1WhsM1BYd0Fj}
+      Smtp__FromEmail: ${SMTP_FROM_EMAIL:-wonderfulll_by@bk.ru}
+      Smtp__FromName: ${SMTP_FROM_NAME:-ChildMotivation}
+      Smtp__UseSsl: ${SMTP_USE_SSL:-true}
+      EmailConfirmation__FrontendBaseUrl: ${EMAIL_CONFIRMATION_FRONTEND_URL:-http://localhost:3000}
+      EmailConfirmation__ConfirmEmailPath: /confirm-email
     ports:
       - "8080:8080"
+    volumes:
+      - auth_keys:/root/.aspnet/DataProtection-Keys
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/auth-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   user-service:
     build:
       context: .
@@ -41,29 +85,181 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+    volumes:
+      - avatar_data:/app/wwwroot/avatars
     ports:
       - "8082:8080"
+
+  postgres-task:
+    image: postgres:15
+    container_name: postgres_task_db
+    restart: unless-stopped
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: task_db
+      POSTGRES_USER: task_owner
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_task_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U task_owner -d task_db -h postgres-task -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  task-service:
+    build:
+      context: .
+      dockerfile: TaskService/TaskService.Api/Dockerfile
+    depends_on:
+      postgres-task:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ANALYTICS_USE_MOCK: "true"
+      ConnectionStrings__TaskService: ${TASKSERVICE_DB_CONNECTION:-Host=postgres-task;Port=5432;Database=task_db;Username=task_owner;Password=postgres}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
+    ports:
+      - "8083:8080"
+    volumes:
+      - task_evidence:/app/evidence
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/task-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  postgres-shop:
+    image: postgres:15
+    container_name: postgres_shop_db
+    restart: unless-stopped
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: shop_db
+      POSTGRES_USER: shop_owner
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_shop_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop_owner -d shop_db -h postgres-shop -p 5432 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  shop-service:
+    build:
+      context: .
+      dockerfile: ShopService/ShopService.Api/Dockerfile
+    depends_on:
+      postgres-shop:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__ShopService: ${SHOPSERVICE_DB_CONNECTION:-Host=postgres-shop;Port=5432;Database=shop_db;Username=shop_owner;Password=postgres}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
+    ports:
+      - "8091:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/shop-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: AiService/AiService.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      AiProvider__Provider: OpenAI
+      AiProvider__BaseUrl: https://api.gptgod.online/v1/
+      AiProvider__ChatEndpoint: chat/completions
+      AiProvider__Model: gpt-3.5-turbo
+      AiProvider__Temperature: 0.6
+      AiProvider__MaxTokens: 700
+      AiProvider__TimeoutSeconds: 45
+      AiProvider__ApiKey: ${OPENAI_API_KEY:-}
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
+    ports:
+      - "8095:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ai-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: NotificationService/NotificationService.Api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: ${NOTIFICATION_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+      Cors__AllowedOrigins__0: http://localhost:4000
+      Cors__AllowedOrigins__1: http://localhost:3000
+      Cors__AllowedOrigins__2: http://frontend:3000
+    ports:
+      - "8090:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/notification-service/health || exit 1"]
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
   gateway-service:
     build:
       context: .
       dockerfile: GatewayService/Gateway.Api/Dockerfile
     depends_on:
-      - auth-service
-      - user-service
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      task-service:
+        condition: service_started
+      shop-service:
+        condition: service_started
+      ai-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8081
-      Services__AuthService: http://auth-service:8080/
-      JwtBearer__Secret: ${GATEWAY_JWT_SECRET:-your_gateway_jwt_secret_here}
-      ServiceEndpoints__AuthService__Register: auth-service/auth/register
-      ServiceEndpoints__AuthService__Login: auth-service/auth/login
-      Services__UserService: http://user-service:8080/
-      ServiceEndpoints__UserService__Profile: user-service/profile
+      Services__Auth__BaseUrl: http://auth-service:8080
+      Services__Auth__TimeoutSeconds: 30
+      Services__Auth__MaxRetries: 3
+      Services__User__BaseUrl: http://user-service:8080
+      Services__User__TimeoutSeconds: 30
+      Services__User__MaxRetries: 3
+      Services__Task__BaseUrl: http://task-service:8080
+      Services__Task__TimeoutSeconds: 30
+      Services__Task__MaxRetries: 3
+      Services__Shop__BaseUrl: http://shop-service:8080
+      Services__Shop__TimeoutSeconds: 30
+      Services__Shop__MaxRetries: 3
+      Services__Ai__BaseUrl: http://ai-service:8080
+      Services__Ai__TimeoutSeconds: 30
+      Services__Ai__MaxRetries: 3
+      Services__Notification__BaseUrl: http://notification-service:8080
+      Services__Notification__TimeoutSeconds: 30
+      Services__Notification__MaxRetries: 3
+      JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
     ports:
       - "8081:8081"
+
   frontend:
     build:
       context: .
@@ -71,13 +267,17 @@ services:
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8081
         INTERNAL_API_URL: http://gateway-service:8081
+        NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
     depends_on:
       - gateway-service
+      - notification-service
     environment:
-      NEXT_PUBLIC_API_URL: http://host.docker.internal:8081
+      NEXT_PUBLIC_API_URL: http://localhost:8081
       INTERNAL_API_URL: http://gateway-service:8081
+      NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
     ports:
-      - "3000:3000"
+      - "4000:3000"
+
   mailhog:
     image: mailhog/mailhog:latest
     container_name: mailhog
@@ -85,5 +285,11 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+
 volumes:
   postgres_data:
+  auth_keys:
+  postgres_task_data:
+  postgres_shop_data:
+  task_evidence:
+  avatar_data:

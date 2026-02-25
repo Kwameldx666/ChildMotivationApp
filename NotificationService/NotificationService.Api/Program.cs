@@ -1,0 +1,125 @@
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using NotificationService.Application.Extensions;
+using NotificationService.Infrastructure.Extensions;
+using NotificationService.Infrastructure.Persistence;
+using NotificationService.Infrastructure.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Serialize enums as strings instead of numbers
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Add SignalR
+builder.Services.AddSignalR();
+
+// Add Application and Infrastructure layers
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SignalRPolicy", policy =>
+    {
+        policy.WithOrigins(
+                builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+                ?? new[] { "http://localhost:3000", "http://localhost:5173" }
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // Required for SignalR
+    });
+});
+
+builder.Services.AddHealthChecks();
+
+var app = builder.Build();
+
+// Auto-create database tables
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetService<NotificationDbContext>();
+    if (db is not null)
+    {
+        try
+        {
+            // EnsureCreated skips if the DB already exists (e.g. created by AuthService).
+            // Use raw SQL to guarantee the notifications table is present.
+            await db.Database.ExecuteSqlRawAsync("""
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id UUID PRIMARY KEY,
+                    user_id VARCHAR(128) NOT NULL,
+                    type VARCHAR(64) NOT NULL,
+                    title VARCHAR(512) NOT NULL,
+                    message VARCHAR(2048) NOT NULL,
+                    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                    data JSONB
+                );
+                CREATE INDEX IF NOT EXISTS ix_notifications_user_id ON notifications (user_id);
+                CREATE INDEX IF NOT EXISTS ix_notifications_user_id_is_read ON notifications (user_id, is_read);
+                CREATE INDEX IF NOT EXISTS ix_notifications_created_at ON notifications (created_at);
+                """);
+            app.Logger.LogInformation("Notification database initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning(ex, "Could not initialize notification database, falling back to in-memory storage");
+        }
+    }
+}
+
+var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+if (!isRunningInContainer)
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("SignalRPolicy");
+
+app.UseRouting();
+app.UseAuthorization();
+
+app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
+
+// Health check endpoints
+app.MapGet("/_ping", () => Results.Ok("pong"));
+app.MapGet("/notification-service/_ping", () => Results.Ok("pong"));
+app.MapGet("/notification-service/health", () => Results.Ok(new { status = "ok" }));
+
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = new
+        {
+            status = report.Status.ToString(),
+            totalDuration = report.TotalDuration.TotalMilliseconds,
+            checks = report.Entries.ToDictionary(e => e.Key, e => new
+            {
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description,
+                duration = e.Value.Duration.TotalMilliseconds
+            })
+        };
+        await context.Response.WriteAsJsonAsync(result);
+    }
+});
+
+app.Run();

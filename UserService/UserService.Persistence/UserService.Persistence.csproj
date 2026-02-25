@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\AuthService\AuthService.Domain\AuthService.Domain.csproj" />
+    <ProjectReference Include="..\UserService.Application\UserService.Application.csproj" />
+    <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -31,6 +31,17 @@ export default function Home() {
     }
   }, [bootstrap])
 
+  // Проверяем, есть ли pending приглашение в семью
+  useEffect(() => {
+    if (typeof window !== "undefined" && screen === "welcome") {
+      const pendingCode = localStorage.getItem("pendingFamilyCode")
+      if (pendingCode) {
+        // Если есть код приглашения, сразу показываем регистрацию
+        startAuthFlow("register")
+      }
+    }
+  }, [screen, startAuthFlow])
+
   const handleSplashComplete = () => {
     setScreen((current) => (current === "splash" ? "welcome" : current))
   }
@@ -72,6 +83,7 @@ export default function Home() {
   if (screen === "parent-dashboard" && session) {
     return (
       <ParentDashboard
+        userId={session.user.id}
         userProfile={session.profile}
         familyCode={session.family?.code ?? null}
         familyName={session.family?.name ?? null}
@@ -82,7 +94,14 @@ export default function Home() {
   }
 
   if (screen === "child-dashboard" && session) {
-    return <ChildDashboard userProfile={session.profile} familyCode={session.family?.code ?? ""} onLogout={handleLogout} />
+    return (
+      <ChildDashboard
+        userId={session.user.id}
+        userProfile={session.profile}
+        familyCode={session.family?.code ?? ""}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   return <WelcomeScreen onStart={handleStartAdventure} />

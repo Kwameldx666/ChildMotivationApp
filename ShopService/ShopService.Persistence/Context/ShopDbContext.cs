@@ -1,0 +1,74 @@
+using Microsoft.EntityFrameworkCore;
+using ShopService.Domain.Entities;
+using ShopService.Domain.Enums;
+
+namespace ShopService.Persistence.Context;
+
+public class ShopDbContext(DbContextOptions<ShopDbContext> options) : DbContext(options)
+{
+    public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<OrderItem> OrderItems { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Product>(b =>
+        {
+            b.ToTable("products");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Description).HasMaxLength(2000);
+            b.Property(x => x.Price).HasColumnType("numeric(12,2)").IsRequired();
+            b.Property(x => x.Stock).HasDefaultValue(0);
+            b.Property(x => x.IsActive).HasDefaultValue(true);
+            b.Property(x => x.CreatedAt).IsRequired();
+            
+            // Premium поля
+            b.Property(x => x.IsPremium).HasDefaultValue(false);
+            b.Property(x => x.RequiredTier).HasMaxLength(50);
+            b.Property(x => x.Category).HasMaxLength(100);
+            b.Property(x => x.ImageUrl).HasMaxLength(500);
+            b.Property(x => x.RecommendedAge);
+            b.Property(x => x.IsExclusive).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<Order>(b =>
+        {
+            b.ToTable("orders");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.UserId).HasMaxLength(64).IsRequired();
+            b.Property(x => x.Status).HasConversion<int>().HasDefaultValue(OrderStatus.Pending);
+            b.Property(x => x.CreatedAt).IsRequired();
+            b.Property(x => x.TotalAmount).HasColumnType("numeric(12,2)").IsRequired();
+            
+            // Новые поля для подтверждения выдачи награды
+            b.Property(x => x.DeliveredAt);
+            b.Property(x => x.DeliveredByUserId).HasMaxLength(64);
+            b.Property(x => x.ConfirmedAt);
+            b.Property(x => x.ConfirmedByUserId).HasMaxLength(64);
+            b.Property(x => x.DeliveryNotes).HasMaxLength(1000);
+
+            b.HasMany(o => o.Items)
+                .WithOne(i => i.Order)
+                .HasForeignKey(i => i.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderItem>(b =>
+        {
+            b.ToTable("order_items");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.ProductName).HasMaxLength(200).IsRequired();
+            b.Property(x => x.UnitPrice).HasColumnType("numeric(12,2)").IsRequired();
+            b.Property(x => x.LineTotal).HasColumnType("numeric(12,2)").IsRequired();
+            b.Property(x => x.Quantity).IsRequired();
+
+            b.HasOne(i => i.Product)
+                .WithMany()
+                .HasForeignKey(i => i.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+}

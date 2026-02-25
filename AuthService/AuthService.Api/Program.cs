@@ -1,22 +1,21 @@
+using System.Security.Claims;
+using AuthService.Application.Claim;
 using AuthService.Application.Extensions;
+using AuthService.Domain.Enums;
 using AuthService.Extensions;
 using AuthService.Infrastructure.Extensions;
-using AuthService.Persistence.Extensions;
-using Microsoft.EntityFrameworkCore;
 using AuthService.Persistence.Context;
+using AuthService.Persistence.Extensions;
 using Microsoft.AspNetCore.Identity;
-using AuthService.Domain.Entities;
-using AuthService.Domain.Enums;
-using AuthService.Common.Constants.Claim;
-using Microsoft.Extensions.Options;
-using AuthService.Common.ExternalOptions.SignIn;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPresentation();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -30,8 +29,36 @@ if (app.Environment.IsDevelopment())
 
 if (!isRunningInContainer) app.UseHttpsRedirection();
 
+app.UseCors(AuthService.Extensions.PresentationExtensions.CorsPolicyName);
 app.UseExceptionHandler(_ => { });
 app.MapControllers();
+
+// Simple ping endpoints for readiness debugging (hosted under root and auth-service base)
+app.MapGet("/_ping", () => Results.Ok("pong"));
+app.MapGet("/auth-service/_ping", () => Results.Ok("pong"));
+
+// Expose JSON health endpoints that report readiness of dependent services (postgres, redis).
+// Provide both root and auth-service-prefixed paths so container/cluster probes can target either.
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = (check) => check.Tags.Contains("ready"),
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = new
+        {
+            status = report.Status.ToString(),
+            totalDuration = report.TotalDuration.TotalMilliseconds,
+            checks = report.Entries.ToDictionary(e => e.Key, e => new {
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description,
+                duration = e.Value.Duration.TotalMilliseconds,
+                data = e.Value.Data
+            })
+        };
+        await context.Response.WriteAsJsonAsync(result);
+    }
+});
 
 // Apply pending EF Core migrations and ensure roles/claims are seeded at startup.
 using (var scope = app.Services.CreateScope())
@@ -74,27 +101,39 @@ using (var scope = app.Services.CreateScope())
 
                         logger.LogInformation("Adding scope claim {Scope} to role {Role}", scopeClaim, roleName);
                         await roleManager.AddClaimAsync(role,
-                            new System.Security.Claims.Claim(ClaimConstants.Scope, scopeClaim));
+                            new Claim(ClaimConstants.Scope, scopeClaim));
                     }
                 }
             }
 
             logger.LogInformation("Database migrations and seeding finished.");
 
-            // Log Google OAuth configuration for diagnostics (do not log the secret itself)
+            // Log presence of OAuth configuration from raw configuration keys (do not create options objects at startup).
             try
             {
-                var googleOptions = services.GetRequiredService<IOptions<GoogleOptions>>().Value;
-                var maskedSecret = string.IsNullOrWhiteSpace(googleOptions.ClientSecret)
-                    ? "(not set)"
-                    : "****REDACTED****";
+                var config = services.GetRequiredService<IConfiguration>();
+                var gClientId = config["Authentication:Google:ClientId"];
+                var gRedirect = config["Authentication:Google:RedirectUri"];
+                var gHasSecret = !string.IsNullOrWhiteSpace(config["Authentication:Google:ClientSecret"]);
                 logger.LogInformation(
-                    "Google OAuth configuration: ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
-                    googleOptions.ClientId, googleOptions.RedirectUri, maskedSecret);
-            }
+                    "Google OAuth configuration (raw): ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
+                    gClientId ?? "(none)", gRedirect ?? "(none)", gHasSecret);
+
+                var ghClientId = config["Authentication:GitHub:ClientId"];
+                var ghRedirect = config["Authentication:GitHub:RedirectUri"];
+                var ghHasSecret = !string.IsNullOrWhiteSpace(config["Authentication:GitHub:ClientSecret"]);
+                logger.LogInformation(
+                    "GitHub OAuth configuration (raw): ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
+                    ghClientId ?? "(none)", ghRedirect ?? "(none)", ghHasSecret);
+                var dClientId = config["Authentication:Discord:ClientId"]; 
+                var dRedirect = config["Authentication:Discord:RedirectUri"]; 
+                var dHasSecret = !string.IsNullOrWhiteSpace(config["Authentication:Discord:ClientSecret"]);
+                logger.LogInformation(
+                    "Discord OAuth configuration (raw): ClientId={ClientId}, RedirectUri={RedirectUri}, ClientSecretSet={HasSecret}",
+                    dClientId ?? "(none)", dRedirect ?? "(none)", dHasSecret);            }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to read Google options at startup.");
+                logger.LogWarning(ex, "Failed to read raw OAuth configuration at startup.");
             }
 
             succeeded = true;

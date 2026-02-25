@@ -1,0 +1,2759 @@
+{
+  "common": {
+    "language": "Limba",
+    "theme": "Temă",
+    "loading": "Se încarcă...",
+    "error": "Eroare",
+    "success": "Succes",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "create": "Creează",
+    "confirm": "Confirmă",
+    "back": "Înapoi",
+    "next": "Înainte",
+    "close": "Închide",
+    "search": "Caută",
+    "filter": "Filtru",
+    "sort": "Sortare",
+    "all": "Toate",
+    "none": "Niciunul",
+    "yes": "Da",
+    "no": "Nu",
+    "ok": "OK",
+    "retry": "Reîncearcă",
+    "refresh": "Reîmprospătează",
+    "logout": "Deconectare",
+    "login": "Autentificare",
+    "register": "Înregistrare",
+    "settings": "Setări",
+    "profile": "Profil",
+    "notifications": "Notificări",
+    "help": "Ajutor",
+    "about": "Despre",
+    "dark": "Închis",
+    "light": "Deschis",
+    "saving": "Se salvează...",
+    "saved": "Salvat!",
+    "saveChanges": "Salvează modificările",
+    "confirmDelete": "Da, șterge",
+    "child": "Copil",
+    "parent": "Părinte",
+    "name": "Nume",
+    "price": "Preț",
+    "daysRemaining": "{days} zile rămase"
+  },
+  "auth": {
+    "signIn": "Conectare",
+    "signUp": "Înregistrare",
+    "signOut": "Deconectare",
+    "email": "Email",
+    "password": "Parolă",
+    "confirmPassword": "Confirmă parola",
+    "forgotPassword": "Ai uitat parola?",
+    "resetPassword": "Resetează parola",
+    "rememberMe": "Ține-mă conectat",
+    "noAccount": "Nu ai cont?",
+    "hasAccount": "Ai deja cont?",
+    "loginSuccess": "Conectare reușită",
+    "loginError": "Eroare de conectare",
+    "registerSuccess": "Cont creat cu succes",
+    "registerError": "Eroare de înregistrare",
+    "invalidCredentials": "Email sau parolă incorectă",
+    "emailRequired": "Introdu email-ul",
+    "passwordRequired": "Introdu parola",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+    "passwordsDoNotMatch": "Parolele nu se potrivesc"
+  },
+  "aiWidget": {
+    "openChat": "Deschide asistentul AI",
+    "title": "Asistent AI",
+    "assistantName": "Asistent AI",
+    "online": "Online",
+    "thinking": "Se gândește…",
+    "greeting": "Salut",
+    "greetingSuffix": "Cu ce te pot ajuta astăzi?",
+    "startersLabel": "Start rapid",
+    "starters": {
+      "tasks": "Creează sarcini",
+      "tasksPrompt": "Creează un set de sarcini adecvate vârstei copilului pentru această săptămână.",
+      "rewards": "Sugerează recompense",
+      "rewardsPrompt": "Sugerează recompense creative de până la 500 de puncte care motivează copilul.",
+      "talk": "Sfaturi de comunicare",
+      "talkPrompt": "Cum să vorbesc cu copilul despre motivația scăzută fără presiune?",
+      "summary": "Rezumatul săptămânii",
+      "summaryPrompt": "Rezumă progresul copilului din această săptămână cu realizările cheie."
+    },
+    "inputPlaceholder": "Scrie un mesaj…",
+    "newChat": "Conversație nouă",
+    "expand": "Extinde",
+    "collapse": "Restrânge",
+    "close": "Închide",
+    "actions": "Acțiuni disponibile",
+    "executing": "Se execută…",
+    "poweredBy": "Alimentat de AI · FamilyQuest"
+  },
+  "childTaskPlanner": {
+    "title": "Calendar și planificare",
+    "subtitle": "Alege o zi și planifică sarcini — astfel e mai ușor să ții seria și să câștigi puncte.",
+    "streakLabel": "Serie: {count} zile",
+    "selectedDate": "Data selectată",
+    "taskCount": "{count} sarcini",
+    "pointsCount": "{count} puncte",
+    "dayPlan": {
+      "title": "Planul zilei",
+      "subtitle": "Ce trebuie făcut"
+    },
+    "status": {
+      "inProgress": "În lucru",
+      "free": "Liber"
+    },
+    "emptyState": "Nu există încă sarcini planificate. Adaugă idei din lista de mai jos.",
+    "possibleTasks": {
+      "title": "Sarcini posibile",
+      "subtitle": "Idei pe care le poți adăuga în plan."
+    },
+    "pointsBadge": "+{count}",
+    "pointsInline": "+{count} puncte",
+    "buttons": {
+      "planned": "În plan",
+      "schedule": "Planifică"
+    },
+    "tasks": {
+      "cleanToys": {
+        "title": "Strânge jucăriile",
+        "category": "Acasă",
+        "duration": "10 min"
+      },
+      "readPages": {
+        "title": "Citește 10 pagini",
+        "category": "Studiu",
+        "duration": "20 min"
+      },
+      "exercise": {
+        "title": "Fă exerciții",
+        "category": "Activitate",
+        "duration": "15 min"
+      },
+      "waterPlants": {
+        "title": "Udă plantele",
+        "category": "Îngrijire",
+        "duration": "8 min"
+      },
+      "helpKitchen": {
+        "title": "Ajută în bucătărie",
+        "category": "Familie",
+        "duration": "15 min"
+      }
+    }
+  },
+  "welcome": {
+    "appName": "FamilyTask",
+    "tagline": "Obiective comune — bucurie comună!",
+    "getStarted": "Începe",
+    "login": "Autentificare",
+    "subtitle": "Pentru toată familia • Durează 2 minute",
+    "slides": {
+      "tasks": {
+        "title": "Gestionează sarcinile",
+        "description": "Creează, atribuie și marchează finalizarea în familie."
+      },
+      "rewards": {
+        "title": "Câștigă recompense",
+        "description": "Câștigă puncte și schimbă-le pe premii și bonusuri."
+      },
+      "achievements": {
+        "title": "Colectează realizări",
+        "description": "Deblochează niveluri, insigne și serii pentru consistență."
+      },
+      "progress": {
+        "title": "Urmărește progresul",
+        "description": "Vezi ce s-a făcut azi și ce e planificat pentru săptămână."
+      },
+      "motivation": {
+        "title": "Menține motivația",
+        "description": "Mementouri blânde și obiective te ajută să continui."
+      },
+      "ai": {
+        "title": "Asistent AI",
+        "description": "Idei de sarcini și recompense — start rapid și mai puțină rutină."
+      }
+    }
+  },
+  "parentDashboard": {
+    "familyNameFallback": "Familia mea",
+    "familyCodeLabel": "Codul familiei",
+    "aiChat": "Chat AI",
+    "profileAvatarAlt": "Avatar profil",
+    "profile": "Profil",
+    "logout": "Deconectare",
+    "rewardAddedTitle": "Recompensă adăugată",
+    "rewardAddedDescription": "O nouă recompensă a fost adăugată în magazin",
+    "rewardAddErrorTitle": "Eroare",
+    "rewardAddErrorDescription": "Nu s-a putut adăuga recompensa",
+    "tabs": {
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "analytics": "Analitice",
+      "children": "Copii",
+      "chat": "Chat",
+      "templates": "Șabloane",
+      "settings": "Setări"
+    },
+    "sections": {
+      "tasks": {
+        "title": "Gestionarea sarcinilor",
+        "subtitle": "Creează și urmărește sarcinile pentru copii",
+        "newAction": "Sarcină nouă"
+      },
+      "rewards": {
+        "title": "Magazin de recompense",
+        "subtitle": "Creează recompense sau folosește AI pentru generare",
+        "newAction": "Recompensă nouă"
+      },
+      "analytics": {
+        "title": "Analitice",
+        "subtitle": "Statistici detaliate ale activității familiei"
+      },
+      "children": {
+        "title": "Gestionarea copiilor",
+        "subtitle": "Adaugă, editează și gestionează profilele copiilor"
+      },
+      "templates": {
+        "title": "Șabloane de sarcini",
+        "subtitle": "Folosește șabloane pentru a crea rapid sarcini"
+      },
+      "settings": {
+        "title": "Setări",
+        "subtitle": "Gestionează preferințele familiei și aplicației"
+      },
+      "chat": {
+        "empty": "Creează o familie pentru a folosi chatul"
+      }
+    }
+  },
+  "authChoice": {
+    "back": "Înapoi",
+    "title": "Bine ai venit!",
+    "subtitle": "Alege ce te aduce aici",
+    "newUser": {
+      "title": "Sunt utilizator nou",
+      "description": "Voi crea un cont și mă voi alătura FamilyQuest",
+      "bullets": {
+        "role": "✓ Voi alege un rol (părinte sau copil)",
+        "profile": "✓ Îmi completez profilul",
+        "family": "✓ Creez sau mă alătur unei familii"
+      },
+      "action": "Înregistrare"
+    },
+    "existingUser": {
+      "title": "Am deja un cont",
+      "description": "Mă voi autentifica în contul meu existent",
+      "bullets": {
+        "credentials": "✓ Voi introduce emailul și parola",
+        "profile": "✓ Mă întorc la profilul meu",
+        "continue": "✓ Continui de unde am rămas"
+      },
+      "action": "Autentificare"
+    }
+  },
+  "authScreen": {
+    "rolePrompt": "Alege un rol și completează profilul",
+    "roles": {
+      "parent": "Părinte",
+      "child": "Copil",
+      "parentDesc": "Crează sarcini, gestionează recompense și urmărește progresul",
+      "childDesc": "Completează sarcini, câștigă recompense și atinge obiective"
+    },
+    "inviteNote": "⚠️ Te alături prin link de invitație. Rolul este setat automat ca \"Copil\".",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "requiredField": "Câmp obligatoriu",
+    "age": "Vârstă",
+    "years": "ani",
+    "avatar": "Avatar",
+    "avatarAlt": "Avatar",
+    "uploadPhoto": "Încarcă fotografie",
+    "interestsTitle": "Ce îți place? *",
+    "interestsSubtitle": "Alege cel puțin un interes",
+    "interests": {
+      "sports": "Sport",
+      "music": "Muzică",
+      "art": "Desen",
+      "gaming": "Jocuri",
+      "reading": "Citit",
+      "science": "Știință",
+      "cooking": "Gătit",
+      "nature": "Natură",
+      "movies": "Filme",
+      "dancing": "Dans"
+    },
+    "familyName": "Numele familiei",
+    "familyCodeAuto": "Codul familiei se va genera automat după înregistrare.",
+    "addChildLater": "După înregistrare, puteți adăuga copii din panoul de control",
+    "familyCode": "Codul familiei",
+    "familyCodePlaceholder": "ABC123",
+    "submitFillRequired": "Completează câmpurile obligatorii",
+    "submitLoading": "Te rugăm să aștepți...",
+    "submitRegister": "Înregistrare",
+    "submitLogin": "Autentificare",
+    "or": "sau",
+    "oauth": {
+      "google": "Autentificare cu Google",
+      "github": "Autentificare cu GitHub",
+      "discord": "Autentificare cu Discord"
+    },
+    "switchToRegister": "Nu ai cont? Înregistrare",
+    "switchToLogin": "Ai deja cont? Autentificare",
+    "errors": {
+      "oauthProviderUnavailable": "Integrarea cu acest furnizor nu este disponibilă încă.",
+      "loginEmailPasswordRequired": "Introdu emailul și parola.",
+      "emailInvalid": "Introdu un email valid.",
+      "loginFailed": "Autentificarea a eșuat.",
+      "oauthPending": "Înregistrarea trebuie finalizată. Folosește formularul standard de înregistrare.",
+      "oauthError": "Eroare de autorizare",
+      "oauthPopupBlocked": "Permite ferestrele pop-up pentru OAuth sau folosește înregistrarea standard.",
+      "oauthCancelled": "Autorizare anulată",
+      "oauthStartFailed": "Nu am putut începe autentificarea cu furnizorul.",
+      "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere.",
+      "nameLastNameRequired": "Introdu prenumele și numele.",
+      "familyNameRequired": "Introdu numele familiei.",
+      "familyCodeRequired": "Introdu codul familiei.",
+      "interestsRequired": "Alege cel puțin un interes.",
+      "ageInvalid": "Vârsta trebuie să fie un număr.",
+      "registerFailed": "Înregistrarea a eșuat.",
+      "roleRequired": "Te rugăm să alegi un rol",
+      "emailNotConfirmed": "Email-ul nu este confirmat. Verifică-ți căsuța poștală și urmează linkul de confirmare."
+    },
+    "info": {
+      "registerSuccess": "Înregistrare reușită! Autentifică-te folosind datele tale.",
+      "registerSuccessCheckEmail": "Înregistrare reușită! Verifică-ți email-ul și urmează linkul de confirmare înainte de autentificare.",
+      "resendSuccess": "Email de confirmare trimis! Verifică-ți căsuța poștală."
+    },
+    "resendConfirmation": "Retrimite email de confirmare",
+    "resendingConfirmation": "Se trimite...",
+    "welcomeBack": "Bine ai revenit!",
+    "startAdventure": "Începe aventura ta",
+    "passwordPlaceholder": "Minim 6 caractere",
+    "tryDemo": "Încearcă demo",
+    "switchCreate": "Creează",
+    "switchLogin": "Autentifică-te",
+    "chooseRole": "Alege-ți rolul",
+    "roleWarning": "⚠️ Rolul nu poate fi schimbat mai târziu, alege cu atenție!",
+    "continue": "Continuă",
+    "createFamily": "Creează o familie",
+    "createFamilySubtitle": "Dă-i un nume și alege o emblemă",
+    "familyNamePlaceholder": "Familia Ionescu",
+    "submitFamilyNameRequired": "Completează numele familiei",
+    "submitCreating": "Se creează...",
+    "submitCreateFamily": "Creează familia",
+    "createProfile": "Creează profil",
+    "createProfileSubtitle": "Completează informațiile despre tine",
+    "firstNamePlaceholder": "Ion",
+    "lastNamePlaceholder": "Ionescu",
+    "submitJoining": "Se alătură...",
+    "submitJoinFamily": "Alătură-te familiei",
+    "hints": {
+      "password": "Alege o parolă sigură de cel puțin 6 caractere, cu litere și cifre pentru securitate!",
+      "role": "Recomandăm rolul de Copil pentru vârste de la 6 la 16 ani, și rolul de Părinte pentru adulți.",
+      "familyName0": "Familia Supereroi",
+      "familyName1": "Exploratori Spațiali",
+      "familyName2": "Echipa Dragonului",
+      "familyName3": "Liga Dreptății",
+      "familyName4": "Familia Vikingilor"
+    },
+    "demo": {
+      "name": "Test",
+      "lastName": "Utilizator",
+      "familyName": "Familie Demo"
+    }
+  },
+  "rewardsShop": {
+    "errors": {
+      "loadTitle": "Eroare la încărcare",
+      "loadProducts": "Nu s-au putut încărca produsele din magazin",
+      "loadOrders": "Nu s-au putut încărca comenzile"
+    },
+    "empty": {
+      "title": "Magazinul este gol",
+      "parentHint": "Adaugă prima recompensă pentru a motiva copilul",
+      "childHint": "Nu sunt recompense disponibile încă. Vor apărea în curând!"
+    },
+    "emptyCategory": "Nu există încă recompense în această categorie",
+    "stock": {
+      "outOfStock": "Stoc epuizat",
+      "inStock": "{count} buc.",
+      "hidden": "Ascunsă"
+    },
+    "fallbackDescription": "O recompensă unică pentru realizări",
+    "pointsShort": "puncte",
+    "rewardCount": {
+      "one": "recompensă",
+      "few": "recompense",
+      "many": "recompense",
+      "other": "recompense"
+    },
+    "actions": {
+      "unavailable": "Indisponibil",
+      "exchange": "Schimbă puncte",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "confirming": "Se confirmă...",
+      "confirmDelivery": "Confirmă livrarea recompensei",
+      "confirmReceipt": "Confirmă primirea",
+      "saving": "Se salvează...",
+      "saveChanges": "Salvează modificările"
+    },
+    "createdAt": "Creat {date}",
+    "catalog": {
+      "title": "Catalog de recompense",
+      "parentSubtitle": "Editează recompensele și gestionează stocul",
+      "childSubtitle": "Alege și schimbă puncte pentru cadouri dorite"
+    },
+    "orders": {
+      "title": "Schimburile mele",
+      "subtitle": "Istoricul schimburilor de puncte pe recompense",
+      "emptyTitle": "Nu există comenzi",
+      "emptySubtitle": "Schimbă punctele câștigate pe recompense din catalog",
+      "orderNumber": "Comanda #{id}",
+      "itemsCount": "{count} poziții",
+      "parentNote": "Comentariul părintelui:"
+    },
+    "status": {
+      "pending": "În așteptarea plății",
+      "paid": "Plătit",
+      "awaitingDelivery": "În așteptarea livrării",
+      "delivered": "Recompensă livrată",
+      "confirmed": "Primire confirmată",
+      "completed": "Finalizat",
+      "cancelled": "Anulat",
+      "unknown": "Stare necunoscută"
+    },
+    "quantityShort": "{count} buc.",
+    "unitPrice": "{value} per buc.",
+    "toasts": {
+      "productUnavailable": {
+        "title": "Produs indisponibil",
+        "description": "Acest produs nu este în stoc."
+      },
+      "orderCreated": {
+        "title": "Comanda a fost creată",
+        "description": "{name} a fost adăugat la comenzile tale"
+      },
+      "orderFailed": {
+        "title": "Nu s-a putut crea comanda"
+      },
+      "tryAgain": "Încearcă din nou",
+      "rewardDeleted": "Recompensa a fost ștearsă",
+      "rewardDeleteFailed": {
+        "title": "Nu s-a putut șterge recompensa"
+      },
+      "rewardNameRequired": "Introdu numele recompensei",
+      "rewardUpdated": "Recompensa a fost actualizată",
+      "rewardUpdateFailed": {
+        "title": "Nu s-a putut actualiza recompensa"
+      },
+      "success": "Succes!",
+      "deliveryConfirmed": "Ai marcat recompensa ca livrată",
+      "deliveryFailed": "Nu s-a putut confirma livrarea recompensei",
+      "receiptConfirmed": "Ai confirmat primirea recompensei",
+      "receiptFailed": "Nu s-a putut confirma primirea recompensei"
+    },
+    "confirmDelete": "Ștergi recompensa \"{name}\"?",
+    "edit": {
+      "title": "Editează recompensa",
+      "subtitle": "Actualizează informațiile, prețul sau disponibilitatea",
+      "name": "Numele recompensei",
+      "namePlaceholder": "De ex.: Ieșire la cinema",
+      "description": "Descriere",
+      "descriptionPlaceholder": "Descrie recompensa...",
+      "price": "Preț (puncte)",
+      "stock": "Cantitate",
+      "activeTitle": "Afișează în magazin",
+      "activeHint": "Recompensa va fi vizibilă în catalog pentru copii"
+    },
+    "tiers": {
+      "instant": {
+        "label": "Recompense instant",
+        "description": "Recompense rapide și ușor de obținut",
+        "range": "20-40 puncte"
+      },
+      "medium": {
+        "label": "Recompense săptămânale",
+        "description": "Recompense de nivel mediu",
+        "range": "100-150 puncte"
+      },
+      "big": {
+        "label": "Recompense mari",
+        "description": "Obiective pe termen lung",
+        "range": "300+ puncte"
+      }
+    }
+  },
+  "tasks": {
+    "title": "Sarcini",
+    "myTasks": "Sarcinile mele",
+    "allTasks": "Toate sarcinile",
+    "createTask": "Creează sarcină",
+    "editTask": "Editează sarcină",
+    "taskTitle": "Titlu sarcină",
+    "taskDescription": "Descriere",
+    "dueDate": "Data scadenței",
+    "difficulty": "Dificultate",
+    "category": "Categorie",
+    "assignTo": "Atribuie",
+    "status": "Stare",
+    "pending": "În așteptare",
+    "inProgress": "În lucru",
+    "completed": "Finalizat",
+    "overdue": "Expirat",
+    "cancelled": "Anulat",
+    "confirmationType": "Tip confirmare",
+    "photo": "Fotografie",
+    "noConfirmation": "Fără confirmare",
+    "points": "Puncte",
+    "taskCreated": "Sarcină creată",
+    "taskUpdated": "Sarcină actualizată",
+    "taskDeleted": "Sarcină ștearsă",
+    "taskCompleted": "Sarcină finalizată!",
+    "noTasks": "Deocamdată, nicio sarcină",
+    "noTasksDescription": "Creează prima sarcină — copilul o va vedea imediat după ce o salvezi.",
+    "addFirstTask": "Creează sarcină",
+    "quickIdeas": "Idei rapide",
+    "useAI": "Folosește AI",
+    "aiHelp": "AI va îmbunătăți descrierea sarcinii",
+    "categories": {
+      "home": "Treburi casnice",
+      "study": "Studiu",
+      "health": "Sănătate",
+      "creativity": "Creativitate",
+      "social": "Socializare",
+      "other": "Altele"
+    },
+    "difficultyLevels": {
+      "1": "Foarte ușor",
+      "2": "Ușor",
+      "3": "Mediu",
+      "4": "Greu",
+      "5": "Foarte greu"
+    }
+  },
+  "rewards": {
+    "title": "Recompense",
+    "shop": "Magazin recompense",
+    "myRewards": "Recompensele mele",
+    "createReward": "Creează recompensă",
+    "editReward": "Editează recompensă",
+    "rewardName": "Nume recompensă",
+    "rewardDescription": "Descriere",
+    "price": "Preț",
+    "buy": "Cumpără",
+    "redeem": "Obține",
+    "confirmDelivery": "Confirmă livrarea",
+    "confirmReceived": "Confirmă primirea",
+    "pending": "În așteptare",
+    "delivered": "Livrată",
+    "received": "Primită",
+    "noRewards": "Nicio recompensă disponibilă",
+    "insufficientPoints": "Puncte insuficiente",
+    "purchaseSuccess": "Recompensă achiziționată!",
+    "purchaseError": "Nu s-a putut achiziționa recompensa"
+  },
+  "family": {
+    "title": "Familie",
+    "familyName": "Nume familie",
+    "familyCode": "Cod familie",
+    "inviteCode": "Cod invitație",
+    "inviteLink": "Link invitație",
+    "copyCode": "Copiază cod",
+    "copyLink": "Copiază link",
+    "shareLink": "Partajează link",
+    "codeCopied": "Cod copiat!",
+    "linkCopied": "Link copiat!",
+    "joinFamily": "Alătură-te familiei",
+    "createFamily": "Creează familie",
+    "leaveFamily": "Pleacă din familie",
+    "members": "Membri",
+    "parent": "Părinte",
+    "child": "Copil",
+    "children": "Copii",
+    "addChild": "Adaugă copil",
+    "noChildren": "Nici un copil nu s-a conectat încă",
+    "noChildrenDescription": "Partajează codul familiei cu copilul. După conectare, profilul va apărea aici automat.",
+    "inviteChild": "Invită un copil în familie",
+    "createFamilyPrompt": "Creează o familie",
+    "createFamilyDescription": "Pentru a vedea copiii conectați, creează o familie și partajează codul cu copilul tău",
+    "loadingChildren": "Se încarcă lista copiilor conectați…",
+    "failedToLoadChildren": "Nu s-a putut obține lista copiilor",
+    "shareCodeHint": "Partajează acest cod cu copilul tău. După conectare, profilul va apărea aici automat.",
+    "familyInfo": "Informații familie",
+    "familyInfoDescription": "Datele familiei și invitarea copiilor",
+    "shareCode": "Partajează codul acestei familii cu copilul tău:"
+  },
+  "profile": {
+    "title": "Profil",
+    "myProfile": "Profilul meu",
+    "editProfile": "Editează profil",
+    "displayName": "Nume afișaj",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "avatar": "Avatar",
+    "changeAvatar": "Schimbă avatar",
+    "uploadAvatar": "Încarcă avatar",
+    "dateOfBirth": "Data nașterii",
+    "age": "Vârstă",
+    "level": "Nivel",
+    "experience": "Experiență",
+    "totalPoints": "Total puncte",
+    "currentStreak": "Seria curentă",
+    "days": "zile",
+    "ageNotSpecified": "Vârstă nespecificată",
+    "copyId": "Copiază ID",
+    "idCopied": "ID copiat!",
+    "profileUpdated": "Profil actualizat",
+    "profileError": "Nu s-a putut actualiza profilul"
+  },
+  "subscription": {
+    "title": "Abonament",
+    "currentPlan": "Plan curent",
+    "changePlan": "Schimbă plan",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "cancel": "Anulează abonament",
+    "cancelConfirm": "Ești sigur că dorești să anulezi?",
+    "perMonth": "/lună",
+    "perYear": "/an",
+    "free": "Gratuit",
+    "basic": "Bază",
+    "premium": "Premium",
+    "family": "Familie",
+    "features": "Funcționalități",
+    "choosePlan": "Alege plan",
+    "currentlyActive": "Activ",
+    "mostPopular": "Cel mai popular",
+    "bestValue": "Cel mai bun raport",
+    "subscriptionChanged": "Abonament actualizat",
+    "subscriptionCancelled": "Abonament anulat",
+    "daysRemaining": "Zile rămase",
+    "autoRenewal": "Reînnoire automată activată",
+    "tierDescriptions": {
+      "free": "Funcționalități de bază ale aplicației",
+      "basic": "Funcții extinse pentru familii active",
+      "premium": "Toate capabilitățile aplicației",
+      "family": "Maximum de funcționalități pentru familii mari"
+    },
+    "benefitsList": "Beneficiile abonamentului Premium:",
+    "benefit1": "Asistent AI pentru recomandări inteligente",
+    "benefit2": "Sarcini și copii nelimitați",
+    "benefit3": "Analitice și rapoarte avansate",
+    "benefit4": "Recompense și realizări exclusive",
+    "currentSubscription": "Abonament curent",
+    "managePlan": "Gestionarea planului tarifar",
+    "upgradeBenefits": "Beneficiile abonamentului Premium:",
+    "chooseYourPlan": "Alege planul tău",
+    "upgradeDescription": "Îmbunătățiți abonamentul pentru a accesa funcții avansate",
+    "selectPlan": "Selectează",
+    "switchToYearlySave": "Treci la anual și economisești 15%",
+    "plansInclude": "Planurile includ:",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "Încercați aplicația cu familia",
+        "price": "Gratuit",
+        "features": [
+          "1 profil de copil",
+          "Crearea sarcinilor manual",
+          "Recompense de bază cu stele",
+          "Chat familial"
+        ]
+      },
+      "basic": {
+        "name": "Basic",
+        "tagline": "Ajutor zilnic cu treburile și motivația",
+        "price": "49",
+        "priceAmount": "49 lei",
+        "yearlyPrice": "499",
+        "yearlyMonthlyPrice": "41 lei",
+        "yearlyDiscount": "-15%",
+        "features": [
+          "Copii nelimitați",
+          "AI generează sarcini pe vârstă",
+          "Magazin recompense — copilul cheltuie puncte",
+          "Confirmare foto a sarcinilor",
+          "Sumar săptămânal al progresului",
+          "Suport email"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "tagline": "Perspective care ajută în creșterea copiilor",
+        "price": "99",
+        "priceAmount": "99 lei",
+        "yearlyPrice": "999",
+        "yearlyMonthlyPrice": "83 lei",
+        "yearlyDiscount": "-16%",
+        "features": [
+          "Tot din Basic",
+          "AI adaptează sarcinile la comportamentul copilului",
+          "Analiză detaliată — puncte forte și slabe",
+          "Rapoarte PDF (pentru profesori sau psiholog)",
+          "Sarcini recurente și programare inteligentă",
+          "Teme și șabloane personalizate",
+          "Suport prioritar (răspuns în 24h)"
+        ]
+      },
+      "family": {
+        "name": "Family",
+        "tagline": "Ambii părinți, bunicii și bona — sincronizați",
+        "price": "149",
+        "priceAmount": "149 lei",
+        "yearlyPrice": "1499",
+        "yearlyMonthlyPrice": "124 lei",
+        "yearlyDiscount": "-17%",
+        "features": [
+          "Tot din Premium",
+          "Până la 5 conturi de adulți",
+          "Fiecare adult cu login propriu",
+          "Notificări push pentru toți adulții",
+          "Feed comun de activitate familială",
+          "Manager dedicat de suport"
+        ]
+      }
+    },
+    "trial": {
+      "badge": "7 zile gratuit",
+      "startTrial": "Începe perioada de probă",
+      "trialActive": "Perioadă de probă",
+      "trialDaysLeft": "{days} zile rămase din perioada de probă",
+      "trialDescription": "Încearcă Basic gratuit 7 zile. Anulare oricând.",
+      "trialExpired": "Perioada de probă a expirat"
+    },
+    "downgradeBlocked": "Aveți deja un plan superior",
+    "cannotDowngrade": "Trecerea la un plan inferior nu este disponibilă. Contactați suportul."
+  },
+  "featureGate": {
+    "lockedTitle": "Funcție blocată",
+    "requiresPlan": "Necesită planul {plan}",
+    "description": "Actualizează abonamentul pentru a debloca {feature} și multe altele.",
+    "whatYouGet": "Ce vei primi",
+    "upgrade": "Upgrade",
+    "upgradeTo": "Treci la {plan}",
+    "startingAt": "De la {price}/lună",
+    "taskLimitReached": "Limita de sarcini pe zi atinsă ({count}/{limit}). Fă upgrade.",
+    "childrenLimitReached": "Limita de copii atinsă ({count}/{limit}). Fă upgrade.",
+    "featureNames": {
+      "aiAssistant": "Asistent AI",
+      "advancedAnalytics": "Analitice avansate",
+      "customRewards": "Recompense personalizate",
+      "prioritySupport": "Suport prioritar",
+      "familySharing": "Acces familial",
+      "offlineMode": "Mod offline",
+      "maxChildren": "Mai mulți copii",
+      "maxTasksPerDay": "Mai multe sarcini pe zi"
+    },
+    "benefits": {
+      "basic1": "Sugestii inteligente de sarcini AI",
+      "basic2": "Până la 5 profiluri de copii",
+      "basic3": "Până la 50 de sarcini pe zi",
+      "premium1": "Analitice și rapoarte avansate",
+      "premium2": "Creare de recompense personalizate",
+      "premium3": "Mod offline și suport prioritar",
+      "family1": "Copii și sarcini nelimitate",
+      "family2": "Acces familial pe mai multe dispozitive",
+      "family3": "Manager personal și acces API"
+    }
+  },
+  "achievements": {
+    "title": "Realizări",
+    "unlocked": "Deblocat!",
+    "locked": "Blocat",
+    "progress": "Progres",
+    "tree": "Arbore realizări",
+    "description": "Completează realizări și câștigă recompense",
+    "noAchievements": "Realizările vor apărea în curând!"
+  },
+  "stickers": {
+    "title": "Colecție stickere",
+    "description": "Colectează stickere pentru finalizarea sarcinilor",
+    "new": "Nou!",
+    "animals": "Animale",
+    "robots": "Roboți",
+    "fantasy": "Fantezie",
+    "seriesProgress": "Progres serie"
+  },
+  "analytics": {
+    "title": "Analitice",
+    "overview": "Privire generală",
+    "tasksCompleted": "Sarcini finalizate",
+    "totalPoints": "Total puncte",
+    "currentStreak": "Seria curentă",
+    "weeklyActivity": "Activitate săptămânală",
+    "childStats": "Statistici copii",
+    "categoryBreakdown": "După categorii",
+    "weeklyProgress": "Progres săptămânal",
+    "taskStatus": "Stare sarcini",
+    "pointsTrend": "Trend puncte",
+    "periodSelection": {
+      "7days": "7 zile",
+      "30days": "30 zile",
+      "90days": "90 zile"
+    },
+    "export": {
+      "png": "PNG",
+      "pdf": "PDF"
+    },
+    "exportAll": {
+      "button": "Exportă toate graficele (PDF)",
+      "generating": "Se generează PDF...",
+      "currentView": "Vizualizare curentă",
+      "currentPng": "Salvează ca imagine PNG",
+      "currentPdf": "Salvează ca PDF",
+      "reportTitle": "Raport analitic",
+      "period": "Perioadă",
+      "days": "zile",
+      "renderError": "Nu s-a putut randa graficul"
+    },
+    "cards": {
+      "totalPoints": "Total puncte",
+      "earnedForPeriod": "Câștigate pentru perioada",
+      "completedTasks": "Sarcini finalizate",
+      "outOf": "Din {total} total",
+      "completionRate": "Procent finalizare",
+      "successRate": "Rată succes",
+      "activeChildren": "Copii activi",
+      "participatingInTasks": "Participă la sarcini"
+    },
+    "charts": {
+      "activityPulse": "Puls de activitate",
+      "childrenLeaderboard": "Clasament copii",
+      "difficultyRadar": "Harta dificultății",
+      "completionMomentum": "Dinamica progresului",
+      "taskStatusDonut": "Stare sarcini",
+      "pointsGrowth": "Creștere puncte",
+      "streakHeatmap": "Calea eroului"
+    },
+    "chartDescriptions": {
+      "activityPulse": "Câte sarcini sunt finalizate zilnic și câte puncte sunt câștigate. Linia punctată arată tendința medie.",
+      "childrenLeaderboard": "Clasamentul copiilor după puncte câștigate — cine este cel mai activ în această perioadă.",
+      "difficultyRadar": "Distribuția sarcinilor pe nivel de dificultate — arată ce tip de sarcini finalizează copilul cel mai des.",
+      "completionMomentum": "Ce procent din sarcinile atribuite sunt finalizate săptămânal. Linia punctată arată obiectivul de 80%.",
+      "taskStatusDonut": "Starea actuală a tuturor sarcinilor — câte sunt finalizate, în lucru sau expirate.",
+      "pointsGrowth": "Cum se schimbă punctele câștigate zi de zi — dinamica creșterii pe perioada aleasă.",
+      "streakHeatmap": "O aventură de tip quest! Urmărește seriile zilnice, obține realizări și avansează în nivel."
+    },
+    "chartLabels": {
+      "tasks": "Sarcini",
+      "points": "Puncte",
+      "completed": "Finalizat",
+      "total": "Total",
+      "inProgress": "În lucru",
+      "overdue": "Expirat",
+      "pending": "În așteptare",
+      "remaining": "Rămase",
+      "completionRate": "Rată finalizare %",
+      "trend": "Tendință",
+      "avgRate": "Media",
+      "completionPercent": "% finalizare",
+      "goal": "Obiectiv",
+      "currentStreak": "Seria curentă",
+      "bestStreak": "Cea mai bună serie",
+      "activeDays": "Zile active",
+      "days": "zile",
+      "less": "Mai puțin",
+      "more": "Mai mult",
+      "level": "Nivel",
+      "xp": "XP",
+      "questPath": "Calea questului",
+      "achievements": "Realizări",
+      "firstStep": "Primul pas",
+      "firstStepDesc": "Finalizează prima zi",
+      "onFire": "În flăcări!",
+      "onFireDesc": "Serie de 3 zile",
+      "unstoppable": "De neoprit",
+      "unstoppableDesc": "Serie de 7 zile",
+      "legendary": "Legendar",
+      "legendaryDesc": "Serie de 14 zile",
+      "mythical": "Mitic",
+      "mythicalDesc": "Serie de 30 zile",
+      "today": "Astăzi",
+      "tasksCompleted": "sarcini finalizate",
+      "streak": "serie",
+      "noActivity": "Zi de odihnă",
+      "familyQuest": "Quest familial",
+      "memberActivity": "Activitatea membrului"
+    },
+    "quickSwitch": "Comutare rapidă",
+    "chartNumbers": {
+      "1": "1. Puls de activitate",
+      "2": "2. Clasament copii",
+      "3": "3. Harta dificultății",
+      "4": "4. Dinamica progresului",
+      "5": "5. Stare sarcini",
+      "6": "6. Creștere puncte",
+      "7": "7. Calea eroului"
+    }
+  },
+  "notifications": {
+    "title": "Notificări",
+    "enable": "Activează notificări",
+    "enableNotifications": "Activează notificări",
+    "taskCompletionDesc": "Primește notificări când sarcinile sunt finalizate",
+    "sound": "Notificări audio",
+    "soundDescription": "Activează sunet la notificări",
+    "soundNotifications": "Notificări audio",
+    "soundNotificationsDesc": "Activează sunetul la notificări",
+    "nightMode": "Mod noapte",
+    "nightModeStart": "Modul noapte începe",
+    "nightModeEnd": "Modul noapte se termină",
+    "nightModeDescription": "În mod noapte doar notificări urgente",
+    "nightModeHint": "În modul noapte vor veni doar notificări urgente",
+    "markAllRead": "Marchează toate ca citite",
+    "noNotifications": "Nicio notificare",
+    "taskCompleted": "Sarcină finalizată",
+    "taskAssigned": "Sarcină nouă!",
+    "taskUpdated": "Sarcină actualizată"
+  },
+  "settings": {
+    "title": "Setări",
+    "appearance": "Aspect",
+    "theme": "Temă",
+    "themeLabel": "Temă",
+    "themeDescription": "Alegeți stilul vizual preferat",
+    "themeLight": "Temă deschisă activată",
+    "themeDark": "Temă închisă activată",
+    "lightTheme": "Temă deschisă activată",
+    "darkTheme": "Temă închisă",
+    "switchToLight": "Deschis",
+    "switchToDark": "Închis",
+    "lightThemeLabel": "Deschis",
+    "darkThemeLabel": "Închis",
+    "dangerZone": "Acțiuni periculoase",
+    "dangerDescription": "Acțiuni care nu pot fi anulate",
+    "clearData": "Șterge toate datele",
+    "clearDataConfirm": "Ești sigur?",
+    "clearDataDescription": "Aceasta va șterge toate datele familiei. Nu se poate anula.",
+    "clearAllData": "Șterge toate datele",
+    "clearAllDataConfirm": "Ești sigur?",
+    "clearAllDataMessage": "Aceasta va șterge toate datele familiei tale. Nu se poate anula.",
+    "whatWillBeDeleted": "Vor fi șterse:",
+    "willBeDeleted": "Vor fi șterse:",
+    "allTasks": "Toate sarcinile",
+    "allTasksDeleted": "Toate sarcinile",
+    "allRewards": "Toate recompensele",
+    "allRewardsDeleted": "Toate recompensele",
+    "allStats": "Toate statisticile",
+    "allStatisticsDeleted": "Toate statisticile",
+    "childProfiles": "Profile copii",
+    "childProfilesDeleted": "Profile copii"
+  },
+  "activity": {
+    "title": "Feed activitate familie",
+    "taskCompleted": "{name} a finalizat sarcina \\\"{task}\\\"",
+    "taskCreated": "{name} a creat sarcina \\\"{task}\\\"",
+    "rewardPurchased": "{name} a achiziționat \\\"{reward}\\\"",
+    "achievementUnlocked": "{name} a deblocat realizare \\\"{achievement}\\\"",
+    "justNow": "Chiar acum",
+    "minutesAgo": "acum {count} minute",
+    "hoursAgo": "acum {count} ore",
+    "daysAgo": "acum {count} zile"
+  },
+  "points": {
+    "title": "Sistem puncte",
+    "basePoints": "Puncte bază",
+    "streakBonus": "Bonus serie",
+    "timeBonus": "Bonus timp",
+    "earlyBonus": "Bonus finalizare timpurie",
+    "totalEarned": "Total câștigat",
+    "bonuses": {
+      "streak3": "3 zile la rând",
+      "streak7": "7 zile la rând",
+      "streak14": "14 zile la rând",
+      "streak30": "30 zile la rând",
+      "morning": "Dimineață (6-12)",
+      "afternoon": "După-amiază (12-18)",
+      "evening": "Seară (18-22)",
+      "early1day": "1+ zi înainte de termen",
+      "early3hours": "3+ ore înainte de termen"
+    }
+  },
+  "child": {
+    "greeting": "Salut, {name}! 👋",
+    "subtitle": "Completează sarcini și câștigă recompense",
+    "stats": {
+      "level": "Nivel",
+      "experience": "EXP",
+      "points": "Puncte",
+      "streak": "Serie 🔥",
+      "familyCode": "Cod Familie",
+      "age": "Vârstă"
+    },
+    "navigation": {
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "achievements": "Realizări",
+      "stickers": "Stickere",
+      "shop": "Magazin",
+      "chat": "Chat",
+      "profile": "Profil",
+      "changeAvatar": "Schimbă Avatar",
+      "logout": "Deconectare"
+    },
+    "messages": {
+      "completeTask": "Completează sarcini și câștigă experiență și puncte",
+      "earnRewards": "Cheltuiește-ți punctele pe recompense",
+      "viewAchievements": "Vezi realizările și recordurile tale",
+      "manageProfile": "Gestionează-ți avatarul, setările și aspectul"
+    }
+  },
+  "chat": {
+    "title": "Chats cu copii",
+    "subtitle": "Alege chat grup sau conversație privată cu copilul",
+    "familyChat": "Chat grup familie",
+    "familyChatDescription": "Comunică cu toți copiii deodată",
+    "privateChats": "Chats private",
+    "noChildren": "Niciun copil în familie încă",
+    "noChildrenDescription": "Invită copii folosind codul familiei",
+    "childrenCount": "{count} copii",
+    "placeholder": "Scrie mesaj...",
+    "send": "Trimite",
+    "noMessages": "Niciun mesaj încă",
+    "typing": "{name} scrie..."
+  },
+  "aiChat": {
+    "title": "Asistent AI",
+    "placeholder": "Întreabă-mă ceva despre sarcini...",
+    "thinking": "Gândesc...",
+    "error": "Nu s-a putut obține răspunsul",
+    "suggestions": "Sugestii",
+    "actions": "Acțiuni recomandate",
+    "fallbackReply": "Vă rugăm să clarificați cererea, am pierdut contextul.",
+    "fetchError": "Nu s-a putut obține răspunsul AI. Încercați din nou.",
+    "actionSuccess": "Acțiunea a fost efectuată cu succes!",
+    "actionFailed": "Nu s-a putut efectua acțiunea",
+    "actionError": "Eroare la efectuarea acțiunii"
+  },
+  "aiChatPage": {
+    "quickActions": {
+      "taskSprint": {
+        "title": "Sprint de sarcini",
+        "description": "Cere AI să compileze sarcini pentru un obiectiv specific",
+        "prompt": "Creează un sprint săptămânal de sarcini pentru copil, pentru a dezvolta responsabilitatea și a ajuta la teme."
+      },
+      "rewardBoost": {
+        "title": "Boost de recompense",
+        "description": "Lasă AI să actualizeze magazinul de recompense",
+        "prompt": "Sugerează recompense noi până la 400 de puncte, cu accent pe ritualuri familiale."
+      },
+      "childDialog": {
+        "title": "Dialog cu copilul",
+        "description": "Obține un scenariu de conversație",
+        "prompt": "Sugerează cum să vorbești cu copilul despre scăderea motivației, astfel încât să nu se închidă în sine."
+      }
+    },
+    "starterIdeas": {
+      "weeklySchedule": "Creează un program săptămânal de sarcini cu timp și XP",
+      "microBonuses": "Împarte recompensa 'vizită la muzeu' în micro-bonusuri",
+      "weekSummary": "Compune un mesaj cald pentru chatul familiei cu rezultatele săptămânii",
+      "morningChecklist": "Fă o listă de verificare a pregătirii de dimineață pentru un copil de 9 ani"
+    },
+    "greeting": {
+      "childPersona": "Mentorul tău familial este aici",
+      "parentPersona": "Gata să construim o strategie familială",
+      "familySuffix": "familiei \u00ab{familyName}\u00bb",
+      "helpMessage": "te voi ajuta cu sarcini, recompense și comunicare",
+      "cta": "Formulează cererea \u2014 și eu mă ocup de restul."
+    },
+    "header": {
+      "title": "Asistentul inteligent al familiei",
+      "description": "Cere să creeze seturi de sarcini, rezumate săptămânale sau să pregătească mesaje \u2014 asistentul va îndeplini cererea ținând cont de contextul familial."
+    },
+    "status": {
+      "thinking": "AI formulează răspunsul",
+      "online": "Online",
+      "lastReply": "Ultimul răspuns {time}",
+      "dialogStart": "Dialogul abia începe"
+    },
+    "dialog": {
+      "label": "Dialog",
+      "title": "Operator AI",
+      "reset": "Resetare"
+    },
+    "messages": {
+      "you": "Tu",
+      "ai": "AI",
+      "system": "Sistem",
+      "preparing": "Pregătesc răspunsul\u2026"
+    },
+    "actions": {
+      "available": "Acțiuni disponibile",
+      "executing": "Execut\u2026"
+    },
+    "input": {
+      "placeholder": "Spune-i asistentului ce să facă. De exemplu: \u201cPregătește o scrisoare pentru părinți cu rezultatele săptămânii și lista de sarcini de luni.\u201d",
+      "shiftEnterHint": "Shift+Enter \u2014 rând nou",
+      "randomIdea": "Idee aleatorie",
+      "send": "Trimite"
+    },
+    "sidebar": {
+      "quickActions": "Acțiuni rapide",
+      "promptTemplates": "Șabloane de cereri",
+      "insertToField": "Inserează în câmp",
+      "contextInfo": "Informații despre context"
+    },
+    "context": {
+      "roleChild": "copil",
+      "roleParent": "părinte",
+      "roleLabel": "Rol: {role}",
+      "nameLabel": "Nume: {name}",
+      "familyLabel": "Familie: {family}",
+      "description": "Asistentul folosește contextul rolului și al familiei pentru a formula răspunsuri în toate scenariile: crearea sarcinilor, recomandări de recompense, explicarea regulilor, mesaje pentru chatul familiei."
+    }
+  },
+  "errors": {
+    "networkError": "Eroare de rețea. Verifică conexiunea.",
+    "serverError": "Eroare de server. Încearcă mai târziu.",
+    "unauthorized": "Intră în cont pentru a continua.",
+    "forbidden": "Nu ai permisiune pentru această acțiune.",
+    "notFound": "Nu a fost găsit.",
+    "validationError": "Verifică datele introduse.",
+    "unknownError": "Ceva a mers greșit."
+  },
+  "rewardCreation": {
+    "title": "Creează o recompensă nouă",
+    "subtitle": "Adăugați o recompensă manual sau folosiți AI pentru a genera idei",
+    "modeAi": "Cu ajutorul AI",
+    "modeManual": "Manual",
+    "selectType": "Selectați tipul recompensei",
+    "points": "puncte",
+    "examplesLabel": "Exemple:",
+    "forWhom": "Pentru cine este recompensa?",
+    "forAllChildren": "Pentru toți copiii",
+    "aiConsidersInterests": "AI va lua în considerare interesele copilului selectat la generare",
+    "aiHint": "Indiciu pentru AI (opțional)",
+    "aiHintPlaceholder": "De exemplu: Copilul vrea ceva legat de dinozauri, sau O recompensă pentru o ocazie specială...",
+    "generating": "Se generează recompensa...",
+    "generatingTime": "(poate dura până la un minut)",
+    "generateWithAi": "Generează cu AI",
+    "aiAnalyzing": "AI analizează interesele și creează recompensa perfectă...",
+    "rewardName": "Numele recompensei",
+    "rewardNamePlaceholder": "De exemplu: O oră de jocuri pe consolă",
+    "description": "Descriere",
+    "descriptionPlaceholder": "Descrierea detaliată a recompensei...",
+    "costInPoints": "Cost în puncte",
+    "recommendedRange": "Interval recomandat: {min}–{max} puncte",
+    "recommended": "Recomandat: {points} puncte",
+    "stockCount": "Cantitatea recompenselor",
+    "motivationTip": "💡 Sfat de motivare",
+    "motivationTipText": "Copiii rămân motivați când recompensele par realizabile. Recompense instantanee (20–40 puncte) pentru bucurie rapidă, săptămânale (100–150) pentru obiective pe termen mediu, mari (300+) pentru motivație pe termen lung.",
+    "saving": "Se salvează",
+    "createReward": "Creează recompensa",
+    "categories": {
+      "instant": {
+        "label": "⚡ Instantanee",
+        "description": "Recompense rapide care pot fi primite imediat",
+        "examples": "Stickere, Poveste suplimentară la culcare, 15 min ecran suplimentar, Alegerea desertului"
+      },
+      "medium": {
+        "label": "🎯 Săptămânale",
+        "description": "Recompense de nivel mediu pentru o săptămână de efort",
+        "examples": "Jucărie mică, Seară de film, Pizza la cină, Ieșire la cafenea"
+      },
+      "big": {
+        "label": "🏆 Mari",
+        "description": "Obiective pe termen lung pentru o lună+ de efort",
+        "examples": "Excursie la parcul de distracții, Joc video nou, Cadou special, Ziua la alegerea copilului"
+      }
+    },
+    "toast": {
+      "aiGenerated": "AI a generat o recompensă",
+      "aiGeneratedDesc": "{title} - {cost} puncte",
+      "generationError": "Eroare de generare"
+    },
+    "errors": {
+      "default": "Nu s-a putut genera recompensa. Încercați din nou.",
+      "timeout": "AI procesează prea mult timp. Încercați să simplificați indiciul sau încercați mai târziu.",
+      "serverOverloaded": "Serverul AI este supraîncărcat. Încercați peste câteva secunde."
+    }
+  },
+  "rewardCatalog": {
+    "title": "Catalogul recompenselor",
+    "subtitle": "Recompense sugerate pentru inspirație",
+    "popularRewards": "Recompense populare",
+    "allRewards": "Toate recompensele",
+    "filters": "Filtre",
+    "points": "puncte",
+    "add": "Adaugă",
+    "difficulty": {
+      "easy": "Ușor",
+      "medium": "Mediu",
+      "hard": "Dificil"
+    },
+    "categories": {
+      "entertainment": "Divertisment",
+      "food": "Mâncare",
+      "digital": "Digital",
+      "technology": "Tehnologie",
+      "privilege": "Privilegiu",
+      "education": "Educație",
+      "clothing": "Îmbrăcăminte"
+    },
+    "items": {
+      "movieTrip": {
+        "name": "Ieșire la cinema",
+        "description": "Seară în familie la cinematograf la filmul ales"
+      },
+      "pizza": {
+        "name": "Pizza",
+        "description": "Comandă de pizza pentru cină"
+      },
+      "avatarSkin": {
+        "name": "Skin nou pentru avatar",
+        "description": "Skin digital care schimbă aspectul personajului"
+      },
+      "chocolate": {
+        "name": "Ciocolată",
+        "description": "O tabletă de ciocolată de calitate"
+      },
+      "videoGame": {
+        "name": "Joc video",
+        "description": "Alegerea jocului din App Store sau Steam"
+      },
+      "dayOff": {
+        "name": "Zi liberă de treburi",
+        "description": "O zi întreagă fără îndeplinirea obligațiilor"
+      },
+      "book": {
+        "name": "Carte",
+        "description": "Carte sau bandă desenată preferată"
+      },
+      "sneakers": {
+        "name": "Adidași noi",
+        "description": "Adidași la alegere"
+      }
+    }
+  },
+  "activityHeatmap": {
+    "title": "Activitate pe an",
+    "tasksCount": "{count} sarcini",
+    "activeDaysCount": "{count} zile active",
+    "less": "Mai puțin",
+    "more": "Mai mult",
+    "taskOne": "sarcină",
+    "taskFew": "sarcini",
+    "taskMany": "sarcini",
+    "months": {
+      "jan": "Ian",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "Mai",
+      "jun": "Iun",
+      "jul": "Iul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct",
+      "nov": "Noi",
+      "dec": "Dec"
+    },
+    "days": {
+      "mon": "Lu",
+      "tue": "Ma",
+      "wed": "Mi",
+      "thu": "Jo",
+      "fri": "Vi",
+      "sat": "Sâ",
+      "sun": "Du"
+    }
+  },
+  "notificationsPopover": {
+    "title": "Notificări",
+    "markAllRead": "Marchează toate ca citite",
+    "noNotifications": "Nicio notificare",
+    "newCount": "Noi ({count})",
+    "read": "Citite",
+    "andMore": "Și încă {count}...",
+    "justNow": "chiar acum",
+    "minutesAgo": "acum {count} min",
+    "hoursAgo": "acum {count} ore",
+    "daysAgo": "acum {count} zile",
+    "demo": {
+      "taskCompletedTitle": "Sarcină finalizată!",
+      "taskCompletedMessage": "Copilul a finalizat sarcina «Curățarea camerei»",
+      "streakBonusTitle": "Bonus serie! 🔥",
+      "streakBonusMessage": "7 zile la rând! Multiplicatorul de puncte este acum ×1.3",
+      "rewardPurchasedTitle": "Recompensă cumpărată",
+      "rewardPurchasedMessage": "«Excursie la cinema» cumpărată pentru 150 puncte",
+      "levelUpTitle": "Nivel nou! ⬆️",
+      "levelUpMessage": "Felicitări! Ați atins nivelul 5"
+    }
+  },
+  "taskReview": {
+    "title": "Verificare sarcină: {taskTitle}",
+    "childLabel": "Copil: {childName}",
+    "submissionTitle": "Trimiterea copilului:",
+    "filesLabel": "Fișiere: ",
+    "uploadedMaterials": "✓ Materiale încărcate",
+    "checklistLabel": "Checklist: ",
+    "checklistDone": "✓ Finalizat",
+    "commentLabel": "Comentariu: ",
+    "chooseAction": "Alegeți o acțiune:",
+    "approve": "Aprobă",
+    "clarify": "Clarifică",
+    "reject": "Respinge",
+    "approveFeedbackLabel": "✓ Feedback la aprobare",
+    "approvePlaceholder": "Scrieți un feedback încurajator (opțional)...",
+    "rejectReasonLabel": "✗ Motivul respingerii",
+    "rejectPlaceholder": "Explicați de ce sarcina este respinsă...",
+    "requestInfoLabel": "? Solicitați informații suplimentare",
+    "requestInfoPlaceholder": "Ce informații suplimentare sunt necesare? De exemplu: mai este nevoie de o fotografie din alt unghi...",
+    "goBack": "Înapoi",
+    "request": "Solicită"
+  },
+  "aiAssistant": {
+    "title": "Asistent AI",
+    "subtitle": "Obțineți recomandări personalizate pentru gestionarea sarcinilor familiale și motivarea copiilor",
+    "onlineStatus": "Online și gata să ajute",
+    "chatTitle": "Dialog cu AI",
+    "messageCountOne": "mesaj",
+    "messageCountMany": "mesaje",
+    "inputPlaceholder": "Puneți o întrebare asistentului AI...",
+    "welcomeMessage": "👋 Salut! Sunt asistentul tău AI pentru gestionarea familiei.\n\n✨ Te pot ajuta cu:\n• Crearea de sarcini interesante pentru copii\n• Sfaturi de motivare\n• Configurarea unui sistem de recompense\n• Analizarea progresului\n\nAlege un subiect de mai jos sau pune propria întrebare!",
+    "mockResponse": "Mulțumesc pentru întrebare! 💡\n\nPe baza cererii tale \"{query}\", iată recomandările mele:\n\n✅ **Începe cu puțin**\nCreează 2-3 sarcini pe zi pentru a nu suprasolicita copilul\n\n🎯 **Variază dificultatea**\nAlternează sarcinile ușoare și dificile pentru a menține interesul\n\n📊 **Verificare regulată**\nUrmărește progresul săptămânal și ajustează abordarea\n\n🏆 **Recompensă imediată**\nRecompensează realizările imediat pentru o motivare mai bună\n\nVrei să afli mai multe despre vreunul dintre aceste puncte?",
+    "suggestions": {
+      "createTasks": {
+        "title": "Ce sarcini să creez?",
+        "description": "Obține idei pentru treburi casnice eficiente",
+        "prompt": "Sugerează idei de sarcini casnice pentru un copil de 8-12 ani"
+      },
+      "motivate": {
+        "title": "Cum să motivez?",
+        "description": "Sfaturi pentru îmbunătățirea motivației copilului",
+        "prompt": "Cum să motivezi un copil să îndeplinească sarcinile?"
+      },
+      "rewards": {
+        "title": "Sistem de recompense",
+        "description": "Recomandări pentru un sistem echitabil",
+        "prompt": "Ajută-mă să creez un sistem de recompense pentru familie"
+      },
+      "progress": {
+        "title": "Analiza progresului",
+        "description": "Sfaturi pentru îmbunătățirea rezultatelor",
+        "prompt": "Cum să analizez progresul copilului?"
+      }
+    }
+  },
+  "taskRequirements": {
+    "title": "Setează cerințe: {taskTitle}",
+    "description": "Specificați cum trebuie copilul să confirme finalizarea",
+    "confirmationType": "Tip de confirmare",
+    "photoLabel": "📸 Foto",
+    "photoDescription": "Copilul trebuie să încarce o fotografie",
+    "videoLabel": "🎥 Video",
+    "videoDescription": "Copilul trebuie să încarce un videoclip",
+    "checklistLabel": "✓ Checklist",
+    "checklistDescription": "Copilul trebuie să bifeze elementele de finalizare",
+    "detailedRequirements": "Descrierea detaliată a cerințelor",
+    "photoPlaceholder": "De exemplu: Încărcați o fotografie a camerei din toate cele patru colțuri, iluminare puternică...",
+    "videoPlaceholder": "De exemplu: Înregistrați un videoclip al procesului de la început până la sfârșit (minim 2 minute)...",
+    "checklistPlaceholder": "De exemplu: Bifați toate punctele pe măsură ce sunt finalizate...",
+    "requirementsHint": "Această descriere va fi afișată copilului la îndeplinirea sarcinii",
+    "childPreview": "Cum va vedea copilul:",
+    "typeLabel": "Tip:",
+    "requirementsLabel": "Cerințe:",
+    "saveRequirements": "Salvează cerințele"
+  },
+  "taskRow": {
+    "evidenceNone": "Fără confirmare",
+    "evidenceNoneHint": "Poate fi finalizat direct",
+    "evidencePhoto": "Foto",
+    "evidencePhotoHint": "Orice fotografie a rezultatului va fi potrivită",
+    "evidenceVideo": "Video",
+    "evidenceVideoHint": "Clip scurt sau poveste",
+    "evidenceDocument": "Document",
+    "evidenceDocumentHint": "PDF sau scanare a unui raport",
+    "fileReceived": "Fișier primit",
+    "awaitingFile": "Așteptăm fișierul de la copil",
+    "canCompleteDirect": "Poate fi finalizat direct",
+    "dueTo": "Până la {date}",
+    "editShort": "Edit.",
+    "done": "Gata",
+    "noDescription": "Adăugați detalii pentru a ajuta copilul să înțeleagă pașii.",
+    "created": "Creat",
+    "plan": "Plan",
+    "control": "Verificare",
+    "view": "Vizualizare",
+    "replaceFile": "Înlocuiește fișierul",
+    "sendFile": "Trimite fișierul",
+    "reject": "Respinge",
+    "confirm": "Confirmă",
+    "taskClosed": "Sarcină închisă",
+    "expand": "Extinde",
+    "viewEvidence": "Vizualizare dovadă",
+    "submitEvidence": "Trimite dovadă",
+    "changeEvidence": "Schimbă dovadă",
+    "progress": "Progres",
+    "edit": "Editare",
+    "delete": "Ștergere",
+    "complete": "Finalizare",
+    "reject": "Respinge",
+    "approve": "Aprobă",
+    "completed": "Finalizat",
+    "evidenceSubmitted": "Trimis",
+    "evidenceRequired": "Necesar"
+  },
+  "familyGoals": {
+    "title": "Obiectivele familiei",
+    "subtitle": "Lucrați împreună pentru a atinge obiective comune",
+    "newGoal": "Obiectiv nou",
+    "daysLeft": "{count} zile",
+    "rewardLabel": "Recompensă:",
+    "difficultyLabel": "Dificultate:",
+    "difficultyMedium": "Medie",
+    "difficultyHard": "Dificilă",
+    "goal1Title": "Finalizați 50 de sarcini într-o lună",
+    "goal1Description": "Lucrați împreună pentru a atinge obiectivul",
+    "goal1Reward": "Ieșire în familie la cinema",
+    "goal2Title": "7 zile fără întârzieri",
+    "goal2Description": "Toate sarcinile finalizate la timp",
+    "goal2Reward": "+500 XP pentru fiecare",
+    "goal3Title": "Sarcini de echipă",
+    "goal3Description": "Finalizați 10 sarcini comune",
+    "goal3Reward": "Pizza în weekend"
+  },
+  "taskCalendar": {
+    "title": "Calendarul sarcinilor",
+    "completed": "Finalizat",
+    "inProgress": "În curs",
+    "overdue": "Întârziat",
+    "mon": "Lu",
+    "tue": "Ma",
+    "wed": "Mi",
+    "thu": "Jo",
+    "fri": "Vi",
+    "sat": "Sâ",
+    "sun": "Du",
+    "january": "Ianuarie",
+    "february": "Februarie",
+    "march": "Martie",
+    "april": "Aprilie",
+    "may": "Mai",
+    "june": "Iunie",
+    "july": "Iulie",
+    "august": "August",
+    "september": "Septembrie",
+    "october": "Octombrie",
+    "november": "Noiembrie",
+    "december": "Decembrie"
+  },
+  "familyCreation": {
+    "title": "Creează o familie",
+    "subtitle": "Cum se numește familia ta?",
+    "familyNameLabel": "Numele familiei",
+    "familyNamePlaceholder": "De exemplu: Familia Popescu",
+    "selectEmblem": "Alegeți emblema familiei",
+    "createButton": "Creează familia",
+    "emblemHome": "Casă",
+    "emblemTree": "Copac",
+    "emblemHeart": "Inimă",
+    "emblemShield": "Scut",
+    "emblemSun": "Soare",
+    "emblemStar": "Stea",
+    "emblemGlobe": "Glob",
+    "emblemAward": "Premiu",
+    "emblemCrown": "Coroană",
+    "emblemSparkle": "Scânteie"
+  },
+  "taskEdit": {
+    "title": "Editare sarcină",
+    "nameLabel": "Denumire",
+    "namePlaceholder": "Denumirea sarcinii",
+    "descriptionLabel": "Descriere",
+    "descriptionPlaceholder": "Descrierea sarcinii",
+    "difficultyLabel": "Dificultate",
+    "categoryLabel": "Categorie",
+    "categoryHome": "Casă",
+    "categoryStudy": "Studii",
+    "categoryPets": "Animale",
+    "categoryHelp": "Ajutor",
+    "rewardLabel": "Recompensă",
+    "confirmationLabel": "Necesită confirmare",
+    "photoVideo": "Foto/video",
+    "noConfirmation": "Fără confirmare",
+    "cancel": "Anulează",
+    "save": "Salvează"
+  },
+  "errorScreens": {
+    "retry": "Încearcă din nou",
+    "goHome": "Acasă",
+    "noInternetTitle": "Fără conexiune la internet",
+    "noInternetDescription": "Verificați conexiunea și încercați din nou",
+    "notFoundTitle": "Pagina nu a fost găsită",
+    "notFoundDescription": "Din păcate, această pagină nu mai există",
+    "noFamilyTitle": "Nu a fost creată o familie",
+    "noFamilyDescription": "Creați o familie mai întâi pentru a continua",
+    "familyNotFoundTitle": "Familia nu a fost găsită",
+    "familyNotFoundDescription": "Codul familiei este invalid sau familia a fost ștearsă",
+    "invalidCodeTitle": "Cod invalid",
+    "invalidCodeDescription": "Verificați codul familiei și încercați din nou",
+    "noTasksTitle": "Nu există sarcini",
+    "noTasksDescription": "Încă nu sunt sarcini. Un părinte le va crea în curând"
+  },
+  "parentChatSelector": {
+    "title": "Chaturi cu copiii",
+    "subtitle": "Alegeți un chat de grup sau o conversație privată cu un copil",
+    "groupChatTitle": "Chatul de grup al familiei",
+    "groupChatDescription": "Discutați cu toți copiii simultan",
+    "childrenCount": "{count} copii",
+    "privateChats": "Chaturi private",
+    "noChildren": "Încă nu sunt copii în familie",
+    "inviteChildren": "Invitați copiii folosind codul familiei",
+    "yearsOld": "{age} ani",
+    "personalChat": "Chat personal"
+  },
+  "subscriptionManager": {
+    "tierFree": "Gratuit",
+    "tierBasic": "De bază",
+    "tierPremium": "Premium",
+    "tierFamily": "Familie",
+    "subscriptionCancelled": "Abonament anulat",
+    "switchedToFree": "Ați trecut la planul gratuit",
+    "cancelError": "Nu s-a putut anula abonamentul",
+    "viewPlans": "Alege un plan",
+    "validUntil": "Valabil până la",
+    "includedFeatures": "Funcțiile tale",
+    "featureAI": "Asistent AI",
+    "featureAnalytics": "Analitice avansate",
+    "featureRewards": "Recompense personalizate",
+    "featureSupport": "Suport prioritar",
+    "limitChildren": "Limită copii",
+    "limitTasks": "Limită sarcini",
+    "perDay": "/zi"
+  },
+  "taskDetails": {
+    "description": "Descriere",
+    "difficulty": "Dificultate",
+    "experience": "Experiență",
+    "points": "Puncte",
+    "uploadPhotoProof": "Încarcă dovada foto",
+    "replacePhoto": "Înlocuiește fotografia",
+    "clickToUploadPhoto": "Apasă pentru a încărca o fotografie",
+    "photoTip": "Sfat: fă o fotografie cu iluminare bună pentru o verificare mai bună!",
+    "completionCheck": "Verificarea finalizării",
+    "aiTip": "Sfat AI: Dacă ai întrebări, apasă butonul \"Asistent AI\" în fila principală!",
+    "submitForReview": "Trimite pentru verificare"
+  },
+  "analyticsDashboard": {
+    "loadError": "Eroare la încărcarea analiticilor",
+    "loading": "Se încarcă analiticile...",
+    "noData": "Nu sunt date",
+    "tryAgain": "Încearcă din nou",
+    "chartOf": "Grafic {current} din {total}",
+    "wholeFamily": "Toată familia",
+    "quickSwitch": "Comutare rapidă",
+    "child": "Copil"
+  },
+  "parentalControl": {
+    "title": "Control parental",
+    "nightMode": "Mod noapte",
+    "nightModeDescription": "Restricționează activitatea pe timp de noapte",
+    "from": "De la",
+    "to": "Până la",
+    "timeLimit": "Limită de timp",
+    "maxMinutesPerDay": "Maximum minute pe zi",
+    "spendingLimit": "Limită de cheltuieli",
+    "maxPointsPerDay": "Maximum puncte pe zi",
+    "saveSettings": "Salvează setările"
+  },
+  "aiControl": {
+    "title": "Asistent AI",
+    "description": "Controlați cum interacționează asistentul AI cu familia",
+    "enableChat": "Activare chat AI",
+    "enableChatDesc": "Permite utilizarea asistentului AI în chatul familiei",
+    "canCreateTasks": "AI poate crea sarcini",
+    "canCreateTasksDesc": "Permite AI-ului să sugereze și să creeze sarcini direct",
+    "canCreateRewards": "AI poate crea recompense",
+    "canCreateRewardsDesc": "Permite AI-ului să sugereze și să creeze recompense direct",
+    "tone": "Tonul AI",
+    "toneDesc": "Alegeți stilul de comunicare al AI-ului",
+    "tone_friendly": "Prietenos",
+    "tone_educational": "Educativ",
+    "tone_strict": "Strict"
+  },
+  "notificationsCenter": {
+    "title": "Notificări",
+    "clearAll": "Șterge tot",
+    "noNotifications": "Nu ai notificări noi",
+    "ago": "în urmă",
+    "mockNewTask": "Sarcină nouă",
+    "mockNewTaskMessage": "Părintele a creat sarcina: Spală vasele",
+    "mockRewardBought": "Recompensă cumpărată",
+    "mockRewardBoughtMessage": "Ai cumpărat Pizza pentru 500 de puncte",
+    "mockAchievement": "Realizare!",
+    "mockAchievementMessage": "Deblocat: Mic ajutor",
+    "mockNewLevel": "Nivel nou",
+    "mockNewLevelMessage": "Ai atins nivelul 10!",
+    "mockTime1h": "1 oră",
+    "mockTime3h": "3 ore",
+    "mockTimeYesterday": "ieri",
+    "mockTime2days": "2 zile"
+  },
+  "profileCreation": {
+    "title": "Creează-ți profilul",
+    "subtitle": "Spune-ne despre tine",
+    "selectAvatar": "Alege un avatar",
+    "nameRequired": "Nume *",
+    "namePlaceholder": "Introdu numele tău",
+    "ageOptional": "Vârstă (opțional)",
+    "agePlaceholder": "Câți ani ai?",
+    "parentRole": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 Părinte",
+    "childRole": "\ud83e\uddd2 Copil",
+    "continue": "Continuă"
+  },
+  "childMotivational": {
+    "title": "Motivație",
+    "storyTitle": "Povestea ta de succes",
+    "storyContent": "Ai completat deja 25 de sarcini! Este un rezultat excelent. Continuă tot așa!",
+    "tipTitle": "Sfaturi",
+    "tipContent": "Începe ziua cu o sarcină ușoară pentru a câștiga impuls. Te va ajuta să te motivezi pentru restul zilei.",
+    "praiseTitle": "Laudă",
+    "praiseContent": "Seria ta de 7 zile este uimitoare! Această disciplină te va ajuta în viață!"
+  },
+  "dailyMissions": {
+    "dailyHeading": "Misiuni zilnice",
+    "weeklyHeading": "Misiuni săptămânale",
+    "subtitle": "Completează misiuni pentru recompense suplimentare",
+    "completed": "Completat",
+    "progress": "Progres",
+    "daily": "Zilnice",
+    "weekly": "Săptămânale",
+    "loadError": "Nu s-au putut încărca misiunile. Încercați să reîmprospătați pagina.",
+    "emptyState": "Nicio misiune atribuită încă. Revino mai târziu!"
+  },
+  "parentAiInsights": {
+    "title": "Analiză IA",
+    "lowMotivationTitle": "Motivație scăzută",
+    "lowMotivationMessage": "Maria nu a completat sarcini de 3 zile. Recomandăm crearea unor recompense mai atractive.",
+    "greatProgressTitle": "Progres excelent",
+    "greatProgressMessage": "Ivan atinge toate obiectivele stabilite. Recomandăm creșterea dificultății sarcinilor.",
+    "rewardAnalysisTitle": "Analiza recompenselor",
+    "rewardAnalysisMessage": "Recompensele ieftine (până la 100 de puncte) motivează mai bine. Adaugă mai multe micro-recompense."
+  },
+  "familyBulletin": {
+    "title": "Tabla de anunțuri",
+    "inputPlaceholder": "Scrie o notă sau un anunț...",
+    "announcementTitle": "Anunț",
+    "announcementMessage": "Picnic în familie duminică!",
+    "shoppingTitle": "Lista de cumpărături",
+    "shoppingMessage": "Lapte, pâine, ouă",
+    "noteTitle": "Notă",
+    "noteMessage": "Ajutorul lunii - Ivan!",
+    "newNoteTitle": "Notă nouă",
+    "authorParent": "Părinte",
+    "authorMom": "Mama",
+    "authorDad": "Tata",
+    "authorMe": "Eu"
+  },
+  "joinFamily": {
+    "title": "Alătură-te familiei",
+    "subtitle": "Cere părinților să-ți împărtășească codul",
+    "inviteCodeLabel": "Cod de invitație",
+    "inviteCodePlaceholder": "Introdu codul",
+    "errorEmpty": "Te rugăm să introduci codul de invitație",
+    "errorInvalid": "Cod de invitație invalid",
+    "joinButton": "Alătură-te"
+  },
+  "joinPage": {
+    "checking": "Verificăm invitația...",
+    "invalidLink": "Link invalid",
+    "invalidDescription": "Acest link de invitație este invalid sau a expirat",
+    "goHome": "Acasă",
+    "inviteTitle": "Invitație în familie!",
+    "inviteSubtitle": "Ați fost invitat să vă alăturați unei familii",
+    "parentAddsChild": "Copiii sunt adăugați de părinți din panoul de control",
+    "shareCodeWithParent": "Partajați acest cod cu părintele pentru a vă putea adăuga",
+    "parentDashboardAdd": "Părintele va crea contul dvs. și va partaja datele de autentificare",
+    "goToLogin": "Mergi la autentificare",
+    "cancel": "Anulare",
+    "footerNote": "Rugați-l pe părinte să vă adauge din panoul de control"
+  },
+  "taskCompletion": {
+    "title": "Confirmarea finalizării",
+    "photoDescription": "Încarcă o fotografie pentru a confirma finalizarea sarcinii",
+    "photoUploaded": "Fotografia a fost încărcată!",
+    "uploadPhoto": "Apasă pentru a încărca o fotografie",
+    "checklistDescription": "Bifează toate punctele din lista de verificare",
+    "submitForReview": "Trimite pentru verificare"
+  },
+  "updateHistory": {
+    "title": "Istoricul modificărilor",
+    "dateDec20": "20 Dec",
+    "dateDec18": "18 Dec",
+    "fieldName": "Denumire",
+    "fieldRewardXP": "Recompensă XP",
+    "fieldDifficulty": "Dificultate",
+    "oldWashPlates": "Spălat farfuriile",
+    "newWashDishes": "Spălat vasele",
+    "byParent": "Părinte",
+    "stars2": "2 stele",
+    "stars3": "3 stele"
+  },
+  "xpBreakdown": {
+    "title": "Creșterea XP",
+    "totalXPForDays": "Total XP pe 2 zile",
+    "cleanRoom": "Curăță camera",
+    "washDishes": "Spălat vasele",
+    "dailyMission": "Misiune zilnică",
+    "achievementUnlocked": "Realizare deblocată",
+    "today": "Astăzi",
+    "yesterday": "Ieri"
+  },
+  "familyTimeline": {
+    "title": "Istoricul familiei",
+    "userIvan": "Ivan",
+    "userMaria": "Maria",
+    "userParent": "Părinte",
+    "unlockedAchievement": "a deblocat realizarea Tânăr ajutor",
+    "boughtReward": "a cumpărat recompensa Pizza",
+    "createdTask": "a creat sarcina Spălat vasele",
+    "reachedLevel": "a atins nivelul 10!",
+    "hoursAgo2": "acum 2 ore",
+    "hoursAgo4": "acum 4 ore",
+    "yesterday": "ieri"
+  },
+  "parentSettings": {
+    "shareTitle": "Alătură-te familiei noastre!",
+    "shareText": "Salut! Alătură-te familiei noastre în aplicația Family Tasks. Codul familiei: {familyCode}",
+    "tabs": {
+      "family": "Familie",
+      "notifications": "Notificări",
+      "ai": "IA",
+      "appearance": "Aspect",
+      "danger": "Pericol"
+    }
+  },
+  "rewardHistory": {
+    "title": "Istoricul achizițiilor",
+    "dateDec20": "20 Dec 2024",
+    "dateDec18": "18 Dec 2024",
+    "dateDec15": "15 Dec 2024",
+    "dateDec10": "10 Dec 2024",
+    "pizza": "Pizza",
+    "cinemaTrip": "Ieșire la cinema",
+    "newGame": "Joc nou",
+    "stickerPack": "Pachet de stickere",
+    "userMaria": "Maria",
+    "userIvan": "Ivan"
+  },
+  "roleSelector": {
+    "title": "Cine ești în familie?",
+    "subtitle": "Alege rolul tău pentru a continua",
+    "parent": "Părinte",
+    "parentDescription": "Creează sarcini, recompense și urmărește progresul",
+    "child": "Copil",
+    "childDescription": "Primește sarcini, le îndeplinește și câștigă recompense"
+  },
+  "achievementTree": {
+    "unlocked": "Deblocat",
+    "title": "Arborele realizărilor",
+    "subtitle": "Colectează realizări și deblochează niveluri noi",
+    "loadError": "Nu s-au putut încărca realizările",
+    "comingSoon": "Realizările vin în curând!"
+  },
+  "leaderboard": {
+    "title": "Clasament",
+    "level": "Nivel {level}",
+    "mockName1": "Maria",
+    "mockName2": "Ivan",
+    "mockName3": "Anna"
+  },
+  "taskDelete": {
+    "title": "Ștergerea sarcinii",
+    "confirmMessage": "Ești sigur că vrei să ștergi sarcina „{taskTitle}”?",
+    "cancel": "Anulează",
+    "delete": "Șterge"
+  },
+  "taskSubmission": {
+    "title": "Trimiterea finalizării",
+    "requirementsLabel": "Cerințe:",
+    "cancel": "Anulează",
+    "submitting": "Se trimite...",
+    "submit": "Trimite"
+  },
+  "themeToggle": {
+    "toggleTheme": "Schimbă tema",
+    "light": "Deschisă",
+    "dark": "Închisă",
+    "system": "Sistem"
+  },
+  "levelUp": {
+    "title": "Nivel nou!",
+    "congratulations": "Felicitări! Ai atins un nivel nou!"
+  },
+  "splash": {
+    "loadingAdventure": "Încarcăm aventura...",
+    "preparingTasks": "Pregătim sarcinile..."
+  },
+  "offline": {
+    "message": "Nu există conexiune la internet. Unele funcții pot fi indisponibile."
+  },
+  "welcomeScreen": {
+    "slideLabel": "Slide {number}"
+  },
+  "parentAiSuggestions": {
+    "suggestTasks": "Sugerează sarcini",
+    "suggestTasksDesc": "IA va analiza vârsta și activitatea copiilor și va sugera sarcini potrivite",
+    "rewardIdeas": "Idei de recompense",
+    "rewardIdeasDesc": "IA recomandă recompense populare și ajută la echilibrarea prețurilor",
+    "suggestedTasks": "Sarcini sugerate",
+    "describeTask": "Descrie o sarcină (opțional)",
+    "generate": "Generează",
+    "loading": "Se încarcă...",
+    "use": "Folosește",
+    "close": "Închide",
+    "popularRewards": "Recompense populare",
+    "aiUnavailable": "IA indisponibilă",
+    "fetchError": "Nu s-au putut obține sugestiile",
+    "friendlyTone": "prietenos",
+    "mockTasks": {
+      "washDishes": {
+        "title": "Spală vasele",
+        "description": "Spală toate vasele după prânz"
+      },
+      "waterFlowers": {
+        "title": "Udă florile",
+        "description": "Udă plantele de casă"
+      },
+      "homework": {
+        "title": "Fă temele",
+        "description": "Rezolvă 3 exerciții din manual"
+      },
+      "walkDog": {
+        "title": "Plimbă câinele",
+        "description": "Plimbare de 30 de minute în parc"
+      },
+      "cleanRoom": {
+        "title": "Curăță camera",
+        "description": "Pune lucrurile la loc și aspiră"
+      }
+    },
+    "mockRewards": {
+      "pizza": "Pizza",
+      "cinema": "La cinema",
+      "newGame": "Joc nou",
+      "parkWalk": "Plimbare în parc",
+      "dessert": "Desert la alegere"
+    }
+  },
+  "notificationsPage": {
+    "back": "Înapoi",
+    "readAll": "Citește toate",
+    "clearAll": "Șterge toate",
+    "title": "Notificări",
+    "newCount": "noi",
+    "historySubtitle": "Istoricul tuturor notificărilor tale",
+    "searchPlaceholder": "Caută notificări...",
+    "filterAll": "Toate",
+    "filterUnread": "Necitite",
+    "filterTasks": "📝 Sarcini",
+    "filterRewards": "🎁 Recompense",
+    "filterAchievements": "🏆 Realizări",
+    "noNotifications": "Nicio notificare",
+    "nothingFound": "Nu s-a găsit nimic pentru căutarea ta",
+    "emptyMessage": "Notificările tale vor apărea aici",
+    "confirmDeleteAll": "Ștergi toate notificările?",
+    "demo": {
+      "newTask": {
+        "title": "Sarcină nouă",
+        "message": "Părintele a creat sarcina «Spală vasele»",
+        "time": "acum 1 oră"
+      },
+      "rewardReceived": {
+        "title": "Recompensă primită!",
+        "message": "Ai schimbat 50 de puncte pe «Poveste suplimentară la culcare»",
+        "time": "acum 3 ore"
+      },
+      "newAchievement": {
+        "title": "Realizare nouă!",
+        "message": "Deblocat: «Tânăr ajutor» — finalizează 5 sarcini",
+        "time": "ieri"
+      },
+      "newLevel": {
+        "title": "Nivel nou!",
+        "message": "Felicitări! Ai atins nivelul 5!",
+        "time": "acum 2 zile"
+      },
+      "taskCompleted": {
+        "title": "Sarcină finalizată",
+        "message": "Ai finalizat cu succes sarcina «Curăță camera»",
+        "time": "acum 3 zile"
+      },
+      "newMember": {
+        "title": "Membru nou în familie",
+        "message": "Un nou membru s-a alăturat familiei",
+        "time": "acum 5 zile"
+      },
+      "newRewardInShop": {
+        "title": "Recompensă nouă în magazin",
+        "message": "Părintele a adăugat recompensa «La cinema» pentru 150 de puncte",
+        "time": "acum o săptămână"
+      },
+      "streak": {
+        "title": "Serie de finalizări!",
+        "message": "Finalizezi sarcini de 7 zile la rând! 🔥",
+        "time": "acum o săptămână"
+      },
+      "welcome": {
+        "title": "Bine ai venit!",
+        "message": "Bine ai venit în FamilyQuest! Începe să finalizezi sarcini și câștigă recompense.",
+        "time": "acum 2 săptămâni"
+      }
+    }
+  },
+  "authPage": {
+    "oauthCancelled": "Autorizare anulată de utilizator.",
+    "noAccessToken": "Token de acces neprimit de la furnizor. Încearcă din nou sau revino la pagina principală.",
+    "noUserInfo": "Furnizorul nu a returnat datele necesare ale utilizatorului (email). Încearcă un alt cont sau revino la pagina principală.",
+    "serverError": "Eroare la procesarea cererii pe server. Încearcă mai târziu.",
+    "unknownResponse": "Răspuns de autentificare necunoscut.",
+    "noToken": "Nu s-a putut obține token-ul de autorizare.",
+    "loginFailed": "Nu s-a putut finaliza autentificarea.",
+    "profileFetchFailed": "Nu s-au putut obține datele profilului.",
+    "unknownStatus": "Status de autorizare necunoscut primit.",
+    "completing": "Se finalizează autorizarea...",
+    "errorTitle": "Ceva nu a mers bine",
+    "goHome": "Înapoi la pagina principală",
+    "dataUnavailable": "Datele de autorizare nu sunt disponibile.",
+    "welcomeUser": "Bine ai venit, {name}",
+    "setupProfile": "Alege un rol și finalizează configurarea profilului.",
+    "avatar": "Avatar",
+    "emailLabel": "Email",
+    "emailImported": "Email importat din profilul furnizorului",
+    "nameLabel": "Prenume",
+    "namePlaceholder": "Prenume",
+    "lastNameLabel": "Nume de familie",
+    "lastNamePlaceholder": "Nume de familie",
+    "roleLabel": "Rol",
+    "roleParent": "Părinte",
+    "roleChild": "Copil",
+    "inviteHint": "Pentru a te alătura unei familii existente ca și copil, folosește linkul de invitație de la un părinte",
+    "familyNameLabel": "Numele familiei",
+    "familyNamePlaceholder": "De exemplu, Familia Popescu",
+    "familyCodeLabel": "Codul familiei",
+    "codeImported": "✓ Cod importat din invitație",
+    "ageLabel": "Vârstă",
+    "ageUnit": "ani",
+    "cancel": "Anulează",
+    "saving": "Se salvează...",
+    "finish": "Finalizează",
+    "enterNameAndLastName": "Introdu prenumele și numele de familie.",
+    "enterValidEmail": "Introdu un email valid.",
+    "enterFamilyName": "Introdu numele familiei.",
+    "enterFamilyCode": "Introdu codul familiei.",
+    "ageRange": "Vârsta trebuie să fie între 5 și 16 ani.",
+    "enterChildAge": "Introdu vârsta copilului.",
+    "registrationFailed": "Nu s-a putut finaliza înregistrarea."
+  },
+  "newTaskPage": {
+    "redirecting": "Se redirecționează..."
+  },
+  "profilePage": {
+    "noActiveSession": "Nicio sesiune activă",
+    "title": "Profil",
+    "editProfile": "Editează profilul",
+    "editProfileSub": "Nume, fotografie, date personale",
+    "accountSettings": "Cont și securitate",
+    "accountSettingsSub": "Email, parolă, zona de pericol",
+    "family": "Familie",
+    "code": "Cod",
+    "theme": "Temă",
+    "language": "Limbă",
+    "tapToChange": "Apasă pentru a schimba fotografia",
+    "name": "Prenume",
+    "lastName": "Nume de familie",
+    "age": "Vârstă",
+    "email": "Email",
+    "role": "Rol",
+    "familyCode": "Codul familiei",
+    "enterName": "Introduceți prenumele",
+    "enterLastName": "Introduceți numele de familie",
+    "dangerZone": "Zona periculoasă",
+    "deleteAccount": "Șterge contul",
+    "deleteConfirm": "Aceasta va șterge permanent contul tău și toate datele asociate. Această acțiune nu poate fi anulată.",
+    "changePhoto": "Schimbă fotografia",
+    "security": "Securitate",
+    "changePassword": "Schimbă parola",
+    "currentPassword": "Parola curentă",
+    "newPassword": "Parola nouă",
+    "confirmNewPassword": "Confirmă parola nouă",
+    "passwordMismatch": "Parolele nu se potrivesc",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+    "changeEmail": "Schimbă emailul",
+    "newEmail": "Email nou",
+    "confirmWithPassword": "Confirmă cu parola",
+    "invalidEmail": "Adresă de email invalidă"
+  },
+  "routes": {
+    "welcome": "Bine ai venit",
+    "auth": "Autentificare",
+    "parentDashboard": "Panoul părintelui",
+    "childDashboard": "Panoul copilului",
+    "taskCreate": "Creează sarcină",
+    "aiAssistant": "Asistent AI"
+  },
+  "createTaskDialog": {
+    "title": "Sarcină nouă",
+    "describePlaceholder": "Descrieți ce trebuie făcut...",
+    "titleLabel": "Titlul sarcinii",
+    "titlePlaceholder": "Introduceți titlul sarcinii",
+    "descriptionLabel": "Descriere",
+    "descriptionPlaceholder": "Descrieți sarcina în detaliu...",
+    "categoryLabel": "Categorie",
+    "forChild": "Pentru:",
+    "selectChild": "Selectați copilul",
+    "dateTimePlaceholder": "Selectați data și ora",
+    "deadline": "Termen limită",
+    "photoConfirmation": "Confirmare foto",
+    "xpAndPoints": "{xp} XP · {points} pct.",
+    "withAi": "Cu AI",
+    "quick": "Rapid",
+    "aiThinking": "AI se gândește...",
+    "creating": "Se creează...",
+    "taskCreatedToast": "Sarcina a fost creată cu succes!",
+    "createError": "Nu s-a putut crea sarcina. Încercați din nou.",
+    "quickIdeas": {
+      "cleanRoom": "Curăță camera",
+      "readBook": "Citește o carte",
+      "helpWithDinner": "Ajută la cină",
+      "doExercise": "Fă exerciții",
+      "makeBed": "Fă patul",
+      "foldClothes": "Împătură hainele"
+    }
+  },
+  "taskCreation": {
+    "title": "Sarcină nouă",
+    "subtitle": "Descrieți o sarcină pentru copil",
+    "newTask": "Sarcină nouă",
+    "describeTask": "Descrieți ce trebuie făcut",
+    "describeWhatToDo": "Vă rugăm descrieți ce trebuie făcut",
+    "selectAssignee": "Vă rugăm selectați un copil",
+    "submitError": "Nu s-a putut crea sarcina",
+    "creating": "Se creează...",
+    "whatToDo": "Ce trebuie făcut?",
+    "placeholder": "Descrieți sarcina în detaliu...",
+    "deadline": "Termen limită",
+    "confirmation": "Confirmare",
+    "confirmationPhoto": "Confirmare cu foto",
+    "noConfirmation": "Fără confirmare",
+    "assignChild": "Atribuie copilului",
+    "noChildren": "Nu sunt copii în familie",
+    "selectChild": "Selectați un copil",
+    "yearsOld": "ani",
+    "selectChildRequired": "Selectați un copil pentru atribuirea sarcinii",
+    "taskAssignedTo": "Sarcina va fi atribuită lui {name}",
+    "quickIdeas": "Idei rapide",
+    "oneClick": "Creați o sarcină cu un singur clic",
+    "preview": "Previzualizare",
+    "hasDueDate": "Cu termen",
+    "noDueDate": "Fără termen",
+    "reward": "{xp} XP",
+    "formula": "XP = 60 + 20 × dificultate",
+    "points": "Puncte",
+    "pointsHint": "Puncte câștigate pentru finalizarea sarcinii",
+    "requiresConfirmation": "Necesită confirmare foto",
+    "assignedTo": "Atribuit lui {name}",
+    "unknown": "Necunoscut",
+    "categoryLabel": "Categorie: {category}",
+    "categories": {
+      "home": "Acasă"
+    },
+    "templates": {
+      "cleaning": "Curățenie",
+      "cleaningDesc": "Curăță camera și fă ordine",
+      "study": "Studiu",
+      "studyDesc": "Fă temele sau citește o carte",
+      "care": "Ajutor la bucătărie",
+      "careDesc": "Ajută la gătit sau la spălat vase",
+      "activity": "Activitate fizică",
+      "activityDesc": "Exerciții sau joacă în aer liber"
+    }
+  },
+  "tasksList": {
+    "evidence": {
+      "noneLabel": "Fără confirmare",
+      "noneHint": "Se poate finaliza direct",
+      "photoLabel": "Foto",
+      "photoHint": "Orice fotografie a rezultatului",
+      "videoLabel": "Video",
+      "videoHint": "Clip scurt sau story",
+      "documentLabel": "Document",
+      "documentHint": "PDF sau scan raport",
+      "title": "Dovadă"
+    },
+    "status": {
+      "pending": "În așteptare",
+      "inProgress": "În desfășurare",
+      "completed": "Finalizat",
+      "overdue": "Întârziat"
+    },
+    "journey": {
+      "assigned": "Atribuit",
+      "inProgress": "În desfășurare",
+      "review": "Revizuire",
+      "done": "Gata"
+    },
+    "filters": {
+      "all": "Toate",
+      "allHint": "Arată toate sarcinile",
+      "pending": "În așteptare",
+      "pendingHint": "Arată sarcinile în așteptare",
+      "inProgress": "În desfășurare",
+      "inProgressHint": "Arată sarcinile în desfășurare",
+      "completed": "Finalizate",
+      "completedHint": "Arată sarcinile finalizate",
+      "overdue": "Întârziate",
+      "overdueHint": "Arată sarcinile întârziate"
+    },
+    "heroStats": {
+      "active": "Active",
+      "activeHint": "Sarcini în desfășurare",
+      "done": "Gata",
+      "doneHint": "Sarcini finalizate",
+      "focus": "Focus",
+      "focusHint": "Sarcini care necesită atenție"
+    },
+    "toast": {
+      "taskUpdated": "Sarcină actualizată",
+      "taskUpdatedDesc": "Starea sarcinii a fost modificată",
+      "updateError": "Actualizare eșuată",
+      "tryAgain": "Încercați din nou",
+      "evidenceSubmitted": "Dovadă trimisă",
+      "evidenceSubmittedDesc": "Dovada dumneavoastră așteaptă revizuirea",
+      "uploadFailed": "Încărcare eșuată",
+      "viewEvidenceFailed": "Nu s-a putut încărca dovada",
+      "taskDeleted": "Sarcină ștearsă",
+      "taskDeletedDesc": "Sarcina a fost eliminată",
+      "deleteFailed": "Nu s-a putut șterge sarcina"
+    },
+    "confirmDelete": "Sigur doriți să ștergeți această sarcină?",
+    "errors": {
+      "unauthorized": "Conectați-vă pentru a vedea sarcinile",
+      "loadError": "Nu s-au putut încărca sarcinile",
+      "tryRefresh": "Încercați să reîmprospătați pagina"
+    },
+    "showPerPage": "Arată per pagină",
+    "of": "din",
+    "tasks": "sarcini",
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Următor"
+    },
+    "evidenceViewer": {
+      "subtitle": "Dovezi trimise",
+      "altText": "Imagine dovadă",
+      "download": "Descarcă"
+    },
+    "evidenceStatus": {
+      "fileReceived": "Fișier primit",
+      "awaitingEvidence": "În așteptarea dovezii",
+      "awaitingShort": "Necesită foto",
+      "canCompleteDirect": "Se poate finaliza direct"
+    },
+    "dueBy": "Termen până la",
+    "pointsLabel": "pct.",
+    "stage": "Etapă",
+    "stageShort": "Pasul {{current}} din {{total}}",
+    "ariaLabels": {
+      "editTask": "Editează sarcina",
+      "deleteTask": "Șterge sarcina",
+      "hideDetails": "Ascunde detalii",
+      "showDetails": "Arată detalii"
+    },
+    "progressLabel": "Progres",
+    "descriptionLabel": "Descriere",
+    "noDescription": "Nu există descriere",
+    "created": "Creat",
+    "deadline": "Termen limită",
+    "journeySteps": "Traseu",
+    "actions": {
+      "viewFile": "Vezi fișierul",
+      "replaceFile": "Înlocuiește fișierul",
+      "submitFile": "Trimite fișierul",
+      "reject": "Respinge",
+      "confirm": "Confirmă",
+      "awaitEvidenceHint": "Trebuie trimisă mai întâi dovada",
+      "iDidIt": "Am terminat!",
+      "attachEvidenceFirst": "Atașați mai întâi dovada"
+    },
+    "taskClosed": "Sarcină închisă",
+    "searchPlaceholder": "Caută sarcini...",
+    "noSearchResults": "Niciun rezultat pentru \"{{query}}\"",
+    "clearSearch": "Șterge căutarea"
+  },
+  "taskTemplates": {
+    "myTemplates": "Șabloanele mele",
+    "savedTemplatesDescription": "Șabloane de sarcini salvate pentru creare rapidă",
+    "aiIdeasButton": "Idei AI",
+    "newTemplate": "Șablon nou",
+    "createTaskTemplate": "Creează șablon de sarcină",
+    "createTaskTemplateDescription": "Salvează un șablon reutilizabil",
+    "titleLabel": "Titlu",
+    "titlePlaceholder": "Introduceți titlul șablonului",
+    "iconLabel": "Pictogramă",
+    "categoryLabel": "Categorie",
+    "categoryPlaceholder": "Selectați categoria",
+    "difficultyLabel": "Dificultate",
+    "verificationLabel": "Metodă de verificare",
+    "descriptionLabel": "Descriere",
+    "descriptionPlaceholder": "Descrieți sarcina...",
+    "createTemplate": "Creează șablon",
+    "aiSuggestedIdeas": "Idei sugerate de AI",
+    "addToMyTemplates": "Adaugă la șabloanele mele",
+    "savedTemplates": "Șabloane salvate",
+    "useTemplate": "Folosește șablonul",
+    "builtInTemplates": "Șabloane integrate",
+    "categories": {
+      "home": "Acasă",
+      "kitchen": "Bucătărie",
+      "pets": "Animale",
+      "study": "Studiu",
+      "help": "Ajutor",
+      "garden": "Grădină"
+    },
+    "templates": {
+      "cleanRoom": {
+        "title": "Curăță camera",
+        "description": "Fă ordine în cameră, pune lucrurile la locul lor, aspiră"
+      },
+      "washDishes": {
+        "title": "Spală vasele",
+        "description": "Spală toate vasele după masă și șterge masa"
+      },
+      "walkDog": {
+        "title": "Plimbare cu câinele",
+        "description": "Plimbă câinele cel puțin 30 de minute și hrănește-l"
+      },
+      "doHomework": {
+        "title": "Fă temele",
+        "description": "Finalizează toate temele pentru astăzi"
+      },
+      "waterPlants": {
+        "title": "Udă plantele",
+        "description": "Udă toate plantele din casă și verifică solul"
+      },
+      "takeOutTrash": {
+        "title": "Scoate gunoiul",
+        "description": "Scoate gunoiul și pune un sac nou"
+      },
+      "feedPet": {
+        "title": "Hrănește animalul",
+        "description": "Dă mâncare și apă proaspătă animalului de companie"
+      },
+      "helpShopping": {
+        "title": "Ajutor la cumpărături",
+        "description": "Ajută la carat cumpărăturile și la aranjarea lor"
+      }
+    },
+    "verification": {
+      "photo": {
+        "label": "Foto",
+        "description": "Încarcă o fotografie ca dovadă"
+      },
+      "video": {
+        "label": "Video",
+        "description": "Înregistrează un scurt video"
+      },
+      "checklist": {
+        "label": "Checklist",
+        "description": "Bifează elementele pe măsură ce sunt finalizate"
+      },
+      "text": {
+        "label": "Text",
+        "description": "Scrie un scurt raport"
+      },
+      "audio": {
+        "label": "Audio",
+        "description": "Înregistrează un mesaj vocal"
+      }
+    },
+    "aiIdeas": {
+      "organizeBookshelf": {
+        "title": "Organizează raftul de cărți",
+        "description": "Aranjează cărțile după mărime sau subiect și șterge praful de pe rafturi"
+      },
+      "helpCooking": {
+        "title": "Ajutor la gătit",
+        "description": "Ajută la prepararea mesei: spală legumele, pune masa"
+      },
+      "weedGarden": {
+        "title": "Plivat grădina",
+        "description": "Scoate buruienile din straturi și udă plantele"
+      },
+      "writeLetterGrandma": {
+        "title": "Scrie o scrisoare bunicii",
+        "description": "Scrie o scrisoare sau desenează un desen pentru bunica"
+      },
+      "washCar": {
+        "title": "Ajutor la spălat mașina",
+        "description": "Ajută la spălat mașina: săpunește, clătește și usucă"
+      }
+    }
+  },
+  "childDashboard": {
+    "aiChat": "Asistent AI",
+    "profileAvatar": "Avatar profil",
+    "streakDays": "Serie de {count} zile",
+    "bonusMultiplier": "×{value} bonus",
+    "rewardProgress": "Progres recompense",
+    "pointsLabel": "puncte",
+    "tasksNeeded": "~{count} sarcini rămase",
+    "daysNeeded": "~{count} zile rămase",
+    "weeksNeeded": "~{count} săptămâni rămase",
+    "missions": "Misiuni",
+    "familyChat": "Chat familial",
+    "familyChatDescription": "Discutați cu membrii familiei",
+    "aiHelper": "Asistent AI",
+    "loadingAdvice": "Se încarcă sfatul...",
+    "getMoreAdvice": "Mai mult sfat",
+    "chooseAvatar": "Alege avatar",
+    "uploadImage": "Încarcă imagine",
+    "userNotFound": "Utilizator negăsit",
+    "avatarUploadError": "Nu s-a putut încărca avatarul",
+    "level": "Nv.",
+    "done": "Gata",
+    "nextLevel": "Nivelul următor",
+    "xpToNext": "{xp} XP până la avansare",
+    "heroMessage": "Completează sarcini, câștigă recompense și avansează!",
+    "greetingMorning": "Bună dimineața",
+    "greetingAfternoon": "Bună ziua",
+    "greetingEvening": "Bună seara",
+    "nav": {
+      "tasks": "Sarcini",
+      "gallery": "Galerie",
+      "quests": "Misiuni",
+      "shop": "Magazin",
+      "achievements": "Premii",
+      "me": "Eu"
+    },
+    "rewards": {
+      "stickers": "Stickere și mici recompense",
+      "toy": "Jucărie mică sau dulce",
+      "gift": "Cadou mare sau ieșire"
+    },
+    "aiSuggestions": {
+      "tip1": "Începe cu cea mai ușoară sarcină ca să prinzi avânt!",
+      "tip2": "Încearcă să termini toate sarcinile înainte de cină pentru un bonus!",
+      "tip3": "Cere părinților o recompensă specială după o serie de 7 zile!",
+      "tip4": "Împarte sarcinile mari în pași mici — e mai ușor așa!"
+    }
+  },
+  "gameHub": {
+    "title": "Centrul misiunilor",
+    "subtitle": "Completează misiuni, colectează stickere și urcă în clasament!",
+    "dayStreak": "zile la rând",
+    "bonus": "bonus"
+  },
+  "childProfile": {
+    "avatar": "Avatar",
+    "profileId": "ID profil",
+    "familyCode": "Codul familiei:",
+    "pageTitle": "Profil - {{name}}",
+    "pageSubtitle": "Vizualizează realizările și statisticile tale",
+    "changePhoto": "Schimbă fotografia",
+    "photoDialogDescription": "Alege un emoji sau încarcă o fotografie pentru a-ți actualiza avatarul",
+    "chooseEmoji": "Alege un emoji:",
+    "uploadPhotoFile": "Încarcă o fotografie:",
+    "uploadPrompt": "Fă clic pentru a încărca sau trage și plasează",
+    "photoUploadError": "Nu s-a putut încărca fotografia",
+    "tabs": {
+      "overview": "Prezentare",
+      "achievements": "Realizări",
+      "planner": "Planificator",
+      "appearance": "Aspect"
+    },
+    "rank": {
+      "novice": "Novice",
+      "seeker": "Explorator",
+      "master": "Maestru",
+      "legend": "Legendă"
+    },
+    "appearance": {
+      "title": "Aspect",
+      "mode": "Mod",
+      "light": "Deschis",
+      "dark": "Închis",
+      "colorTheme": "Temă de culori",
+      "chooseColor": "Alege culoarea ta preferată"
+    },
+    "stats": {
+      "currentStreak": "Serie curentă",
+      "streakDescription": "Finalizează sarcini zilnic pentru a menține seria!",
+      "rank": "Rang",
+      "level": "Nivel",
+      "purchasedRewards": "Recompense cumpărate",
+      "fromShop": "din magazin",
+      "progressTitle": "Progres general",
+      "pointsBalance": "Sold puncte",
+      "xpEarned": "XP câștigat",
+      "tasksCompleted": "Sarcini finalizate",
+      "pointsSpent": "Puncte cheltuite"
+    },
+    "achievements": {
+      "title": "Realizări",
+      "loadError": "Nu s-au putut încărca realizările",
+      "empty": "Nicio realizare încă. Finalizează sarcini pentru a le obține!",
+      "unlocked": "Deblocat"
+    }
+  },
+  "familyChat": {
+    "messageSent": "Mesaj trimis",
+    "sendError": "Nu s-a putut trimite mesajul",
+    "tryAgain": "Încercați din nou",
+    "today": "Astăzi",
+    "yesterday": "Ieri",
+    "online": "Online",
+    "offline": "Offline",
+    "noParticipants": "Niciun alt participant încă",
+    "attachedTask": "Sarcină atașată",
+    "searchTask": "Caută sarcini...",
+    "noTasksFound": "Nicio sarcină găsită",
+    "availableTasks": "Sarcini disponibile",
+    "taskHintPrefix": "Apasă",
+    "taskHintSuffix": "pentru a atașa o sarcină"
+  },
+  "helpFaq": {
+    "title": "Ajutor și FAQ",
+    "subtitle": "Găsiți răspunsuri la întrebări frecvente",
+    "searchPlaceholder": "Caută întrebări...",
+    "allCategories": "Toate",
+    "noResults": "Nu s-au găsit rezultate pentru căutarea dvs.",
+    "categories": {
+      "registration": "Înregistrare",
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "gamification": "Gamificare",
+      "settings": "Setări",
+      "family": "Familie"
+    },
+    "faq1": {
+      "question": "Cum mă înregistrez și creez o familie?",
+      "answer": "Descărcați aplicația, înregistrați-vă cu email-ul, alegeți rolul de Părinte și creați o familie. Partajați codul familiei cu copilul pentru a se alătura."
+    },
+    "faq2": {
+      "question": "Cum creez sarcini pentru copil?",
+      "answer": "Mergeți la tab-ul Sarcini, apăsați 'Sarcină nouă', descrieți ce trebuie făcut, setați dificultatea și termenul. Puteți folosi și AI-ul pentru descrieri mai bune."
+    },
+    "faq3": {
+      "question": "Cum funcționează sistemul de recompense?",
+      "answer": "Copiii câștigă puncte pentru finalizarea sarcinilor. Punctele pot fi schimbate pe recompense din magazin. Părinții creează recompensele și setează costul în puncte."
+    },
+    "faq4": {
+      "question": "Pot crea recompense personalizate?",
+      "answer": "Da! Mergeți la tab-ul Recompense și apăsați 'Recompensă nouă'. Setați numele, descrierea și costul în puncte. AI-ul poate sugera și idei de recompense."
+    },
+    "faq5": {
+      "question": "Ce sunt realizările și seriile?",
+      "answer": "Realizările sunt repere câștigate prin atingerea anumitor obiective. Seriile sunt bonusuri pentru finalizarea sarcinilor în zile consecutive. Ambele motivează copiii."
+    },
+    "faq6": {
+      "question": "Cum schimb limba sau tema?",
+      "answer": "Mergeți la Setări și găsiți secțiunea Aspect. Puteți comuta între tema deschisă și închisă și schimba limba aplicației."
+    },
+    "faq7": {
+      "question": "Cum setez notificările?",
+      "answer": "În Setări, activați notificările pentru a primi alerte când sarcinile sunt finalizate, recompense noi sunt adăugate sau realizări sunt deblocate."
+    },
+    "faq8": {
+      "question": "Cum invit mai mulți copii în familie?",
+      "answer": "Mergeți la tab-ul Copii și partajați codul familiei sau link-ul de invitație. Copiii se pot alătura introducând codul la înregistrare."
+    }
+  },
+  "activityFeed": {
+    "sampleName": {
+      "masha": "Maria",
+      "papa": "Tata",
+      "kirill": "Kirill",
+      "mama": "Mama"
+    },
+    "message": {
+      "completedTaskFemale": "a finalizat o sarcină",
+      "createdReward": "a creat o recompensă",
+      "gotLevel": "a atins un nivel nou",
+      "unlockedAchievement": "a deblocat o realizare",
+      "completedTaskMale": "a finalizat o sarcină",
+      "leftComment": "a lăsat un comentariu"
+    },
+    "detail": {
+      "cleanRoom": "Curăță camera",
+      "parkTrip": "Excursie în parc",
+      "level5": "Nivel 5",
+      "fastRocket": "Rachetă rapidă",
+      "washDishes": "Spală vasele",
+      "greatThanks": "Foarte bine, mulțumesc!"
+    },
+    "time": {
+      "5min": "acum 5 min",
+      "15min": "acum 15 min",
+      "1hour": "acum 1 oră",
+      "2hours": "acum 2 ore",
+      "3hours": "acum 3 ore",
+      "4hours": "acum 4 ore"
+    }
+  },
+  "mediaUpload": {
+    "takePhoto": "Fă o fotografie",
+    "fromGallery": "Din galerie",
+    "recordVideo": "Înregistrează video",
+    "uploadVideo": "Încarcă video",
+    "chooseFile": "Alege fișier",
+    "browserNoCamera": "Browserul dvs. nu suportă accesul la cameră",
+    "browserNoRecording": "Browserul dvs. nu suportă înregistrarea video",
+    "cameraAccessDenied": "Acces la cameră refuzat. Permiteți camera în setările browserului.",
+    "cameraNotFound": "Nu s-a găsit cameră pe acest dispozitiv",
+    "cameraAccessError": "Eroare acces cameră: ",
+    "cameraAccessGenericError": "Nu s-a putut accesa camera",
+    "bytes": "octeți",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "photoInstruction": "Faceți o fotografie clară a sarcinii finalizate",
+    "videoInstruction": "Înregistrați un scurt video cu rezultatul",
+    "documentInstruction": "Încărcați un document ca dovadă",
+    "defaultInstruction": "Încărcați dovada finalizării sarcinii",
+    "fileSelected": "Fișier selectat",
+    "preview": "Previzualizare",
+    "chooseAnotherFile": "Alege alt fișier",
+    "recording": "Se înregistrează...",
+    "stop": "Stop",
+    "recordingTip": "Îndreptați camera spre rezultat și descrieți ce ați făcut",
+    "howToUpload": "Cum să încărcați",
+    "tip": "Sfat",
+    "photoTip": "Faceți fotografia la lumină bună pentru o imagine mai clară",
+    "videoTip": "Păstrați video-ul scurt — 10-30 secunde sunt suficiente",
+    "documentTip": "Asigurați-vă că documentul este lizibil și nu e neclar"
+  },
+  "onboarding": {
+    "tip0Title": "Bine ai venit în FamilyQuest!",
+    "tip0Description": "Un mod distractiv de a dezvolta obiceiuri bune în familie",
+    "tip0Detail0": "Finalizați sarcini și câștigați puncte",
+    "tip0Detail1": "Schimbați punctele pe recompense reale",
+    "tip0Detail2": "Urmăriți progresul și celebrați realizările",
+    "tip1Title": "Sarcini distractive",
+    "tip1Description": "Părinții creează sarcini, copiii le finalizează",
+    "tip1Detail0": "AI ajută la crearea descrierilor interesante",
+    "tip1Detail1": "Setați dificultatea pentru recompense XP corecte",
+    "tip1Detail2": "Încărcați fotografii pentru a confirma finalizarea",
+    "tip2Title": "Câștigă recompense",
+    "tip2Description": "Punctele pot fi schimbate pe recompense",
+    "tip2Detail0": "Recompense instant pentru motivație rapidă",
+    "tip2Detail1": "Recompense săptămânale pentru efort constant",
+    "tip2Detail2": "Premii mari pentru obiective pe termen lung",
+    "tip3Title": "Colectează realizări",
+    "tip3Description": "Deblochează insigne și repere",
+    "tip3Detail0": "Câștigă realizări pentru finalizarea regulată a sarcinilor",
+    "tip3Detail1": "Colectează stickere în serii tematice",
+    "tip3Detail2": "Concurează în clasamentul familiei",
+    "tip4Title": "Construiește o serie",
+    "tip4Description": "Finalizează sarcini zilnic pentru recompense bonus",
+    "tip4Detail0": "Serie de 3 zile: +10% bonus puncte",
+    "tip4Detail1": "Serie de 7 zile: +30% bonus puncte",
+    "tip4Detail2": "Serie de 30 zile: +50% bonus puncte",
+    "tip5Title": "Gata de start?",
+    "tip5Description": "Aventura familiei tale începe acum!",
+    "tip5Detail0": "Creează prima sarcină",
+    "tip5Detail1": "Adaugă recompense în magazin",
+    "tip5Detail2": "Privește cum crește familia ta împreună",
+    "start": "Începe",
+    "step": "Pasul {current} din {total}"
+  },
+  "profileOverview": {
+    "title": "Profilul meu",
+    "subtitle": "Gestionează informațiile personale",
+    "updateError": "Nu s-a putut actualiza profilul",
+    "avatarUploadError": "Nu s-a putut încărca avatarul. Încercați din nou.",
+    "changeAvatar": "Schimbă avatarul",
+    "noFamily": "Fără familie",
+    "yearsOld": "ani",
+    "toDashboard": "La panou",
+    "logout": "Deconectare",
+    "profilePhoto": "Fotografie profil",
+    "role": {
+      "parent": "Părinte",
+      "child": "Copil"
+    },
+    "identifier": "ID utilizator",
+    "age": "Vârstă",
+    "form": {
+      "name": "Prenume",
+      "namePlaceholder": "Introduceți prenumele",
+      "lastName": "Nume de familie",
+      "lastNamePlaceholder": "Introduceți numele de familie",
+      "avatarLabel": "Avatar",
+      "age": "Vârstă",
+      "editTitle": "Editează profilul",
+      "accountInfo": "Informații despre cont",
+      "save": "Salvează modificările",
+      "success": "Profil actualizat cu succes",
+      "error": "Nu s-a putut actualiza profilul",
+      "hint": "Nu există modificări de salvat"
+    },
+    "avatarPicker": {
+      "title": "Schimbă avatarul",
+      "subtitle": "Alege un emoji sau încarcă o fotografie",
+      "chooseEmoji": "Alege un emoji",
+      "uploadPhoto": "Sau încarcă o fotografie",
+      "chooseFile": "Alege fotografia",
+      "uploading": "Se încarcă…",
+      "hint": "PNG, JPEG sau WebP. Maxim 2 MB."
+    },
+    "family": {
+      "title": "Familie",
+      "code": "Cod:",
+      "description": "Sunteți membru al acestei familii"
+    },
+    "quickActions": {
+      "title": "Acțiuni rapide",
+      "goToDashboard": "La panou",
+      "logout": "Deconectare",
+      "tips": "Actualizați-vă profilul pentru o experiență mai personalizată"
+    },
+    "dangerZone": {
+      "title": "Zonă periculoasă",
+      "description": "Ștergeți permanent contul și toate datele asociate. Această acțiune nu poate fi anulată.",
+      "deleteButton": "Șterge contul",
+      "confirmTitle": "Sunteți absolut sigur?",
+      "confirmDescription": "Aceasta va șterge permanent contul și toate datele asociate:",
+      "willDelete": {
+        "profile": "Profilul și informațiile personale",
+        "family": "Conexiunile și setările familiei",
+        "tasks": "Toate sarcinile și istoricul progresului",
+        "data": "Toate recompensele, realizările și statisticile"
+      },
+      "typeConfirm": "Tastați DELETE pentru confirmare:",
+      "confirmDelete": "Șterge contul meu",
+      "cancel": "Anulare",
+      "error": "Nu s-a putut șterge contul. Încercați din nou."
+    },
+    "tabs": {
+      "profile": "Profil",
+      "tasks": "Sarcini",
+      "rewards": "Recompense",
+      "analytics": "Analize",
+      "children": "Copii",
+      "chat": "Chat",
+      "settings": "Setări"
+    },
+    "security": {
+      "title": "Securitate",
+      "changePassword": "Schimbă parola",
+      "changeEmail": "Schimbă emailul",
+      "currentPassword": "Parola curentă",
+      "newPassword": "Parola nouă",
+      "confirmPassword": "Confirmă parola nouă",
+      "updatePassword": "Actualizează parola",
+      "passwordChanged": "Parola a fost schimbată!",
+      "changePasswordError": "Nu s-a putut schimba parola",
+      "passwordsMismatch": "Parolele nu coincid",
+      "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+      "newEmail": "Adresa de email nouă",
+      "passwordToConfirm": "Parola curentă pentru confirmare",
+      "updateEmail": "Actualizează emailul",
+      "emailChanged": "Emailul a fost schimbat!",
+      "changeEmailError": "Nu s-a putut schimba emailul",
+      "invalidEmail": "Introduceți o adresă de email validă"
+    }
+  },
+  "paymentModal": {
+    "title": "Plată",
+    "description": "Abonament {tierName} la ${price}/lună",
+    "errorTitle": "Eroare de validare",
+    "fillAllFields": "Vă rugăm completați toate datele cardului",
+    "paymentSuccess": "Plată reușită",
+    "subscriptionActivatedToast": "Abonamentul {tierName} a fost activat!",
+    "successTitle": "Abonament activat!",
+    "successDescription": "Mulțumim! Abonamentul dvs. este activ, toate funcțiile sunt deblocate.",
+    "cardDetails": "Detalii card",
+    "cardSecure": "Informațiile de plată sunt criptate și securizate",
+    "cardNumber": "Număr card",
+    "cardholderName": "Numele titularului",
+    "expiryDate": "Data expirării",
+    "totalAmount": "Total",
+    "cancel": "Anulează",
+    "processing": "Se procesează...",
+    "pay": "Plătește ${price}",
+    "subscribingTo": "Abonare la",
+    "billingCycle": "Perioada de facturare",
+    "monthly": "Lunar",
+    "yearly": "Anual",
+    "mo": "lună",
+    "year": "an",
+    "plan": "Plan",
+    "billing": "Facturare",
+    "perYear": "pe an",
+    "perMonthShort": "pe lună",
+    "continueToPayment": "Continuă la plată",
+    "backToPlan": "Înapoi la plan",
+    "agreeToTerms": "Accept termenii serviciului și politica de reînnoire automată. Puteți anula oricând.",
+    "processingPayment": "Se procesează plata...",
+    "doNotClose": "Vă rugăm nu închideți această fereastră",
+    "secureTransaction": "Tranzacție criptată securizată",
+    "activated": "Activat",
+    "nowAvailable": "Acum disponibil",
+    "featureAI": "Asistent AI și sugestii inteligente",
+    "featureAnalytics": "Analitice avansate și rapoarte",
+    "featureFamily": "Acces familial nelimitat"
+  },
+  "stickerCollection": {
+    "lion": "Leu",
+    "panda": "Panda",
+    "fox": "Vulpe",
+    "koala": "Koala",
+    "owl": "Bufniță",
+    "frog": "Broască",
+    "robot": "Robot",
+    "alien": "Extraterestru",
+    "rocket": "Rachetă",
+    "mechanism": "Mecanism",
+    "battery": "Baterie",
+    "computer": "Computer",
+    "unicorn": "Unicorn",
+    "dragon": "Dragon",
+    "wizard": "Vrăjitor",
+    "crown": "Coroană",
+    "sword": "Sabie",
+    "castle": "Castel",
+    "seriesPercent": "{percent}% colectat",
+    "outOf": "{unlocked} din {total} colectate",
+    "locked": "Blocat"
+  },
+  "addChild": {
+    "title": "Adăugați copil",
+    "subtitle": "Creați un cont pentru copilul dvs.",
+    "firstName": "Prenume",
+    "firstNamePlaceholder": "Prenumele copilului",
+    "lastName": "Nume",
+    "lastNamePlaceholder": "Numele copilului",
+    "email": "Email",
+    "emailPlaceholder": "copil@exemplu.com",
+    "emailHint": "Folosit pentru autentificarea copilului — puteți folosi emailul dvs. cu sufix +copil",
+    "password": "Parolă",
+    "passwordPlaceholder": "Minim 6 caractere",
+    "passwordHint": "Comunicați aceste date copilului pentru autentificare",
+    "age": "Vârstă",
+    "avatar": "Avatar",
+    "createButton": "Adăugați copil",
+    "creating": "Se creează...",
+    "success": "Copilul a fost adăugat cu succes!",
+    "error": "Nu s-a putut adăuga copilul. Încercați din nou.",
+    "addButton": "Adăugați copil",
+    "emptyHint": "Adăugați primul copil pentru a începe cu sarcini și recompense"
+  },
+  "gallery": {
+    "title": "Galeria dovezilor",
+    "filter": "Filtrare după status",
+    "noEvidence": "Nu sunt dovezi pentru affișare",
+    "completed": "Completat",
+    "pending": "În așteptare",
+    "inProgress": "În progres",
+    "overdue": "Expirat"
+  }
+}

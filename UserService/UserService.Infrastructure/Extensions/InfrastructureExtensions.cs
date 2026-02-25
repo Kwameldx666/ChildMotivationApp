@@ -1,7 +1,8 @@
 using AuthService.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using UserService.Application.Abstractions;
+using UserService.Application.Interfaces;
 using UserService.Infrastructure.Services;
 using UserService.Persistence.Context;
 
@@ -27,6 +28,16 @@ public static class InfrastructureExtensions
             .AddDefaultTokenProviders();
 
         services.AddScoped<IUserProfileProvider, UserProfileService>();
+
+        // Avatar store (filesystem by default)
+        services.AddSingleton<UserService.Infrastructure.Services.Avatar.IAvatarStore, UserService.Infrastructure.Services.Avatar.FileSystemAvatarStore>();
+
+        // Register MediatR handlers from Infrastructure assembly
+        var assembly = typeof(InfrastructureExtensions).Assembly;
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(assembly);
+        });
 
         return services;
     }

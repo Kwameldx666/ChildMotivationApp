@@ -1,0 +1,174 @@
+﻿using System.Net;
+using AuthService.Application.Abstractions.Authentication.External;
+using AuthService.Application.Dto.User;
+using AuthService.Application.Enums;
+using AuthService.Application.User;
+using AuthService.Common.Constants.Errors;
+using AuthService.Common.ResultPattern;
+using AuthService.Domain.Enums;
+using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+
+namespace AuthService.Application.Features.Authentication.External.GitHub.CompleteSignIn;
+
+public class CompleteGitHubSignInCommandHandler(
+    IOAuthPendingUserStore pendingUserStore,
+    UserManager<Domain.Entities.User> userManager,
+    IExternalLoginSessionBuilder externalLoginSessionBuilder,
+    ILogger<CompleteGitHubSignInCommandHandler> logger)
+    : IRequestHandler<CompleteGitHubSignInCommand, Result<ExternalLoginResponse>>
+{
+    public async Task<Result<ExternalLoginResponse>> Handle(CompleteGitHubSignInCommand request,
+        CancellationToken cancellationToken)
+    {
+        var pendingUser = await pendingUserStore.TakeAsync(request.PendingToken, cancellationToken);
+        if (pendingUser is null)
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Registration token is invalid or has expired."));
+
+        var providerKey = pendingUser.ProviderUserId?.Trim();
+        var providerName = ExternalProviderType.GitHub.ToString();
+
+        var resolvedEmail = string.IsNullOrWhiteSpace(pendingUser.Email)
+            ? request.Email?.Trim()
+            : pendingUser.Email.Trim();
+
+        if (string.IsNullOrWhiteSpace(resolvedEmail))
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Email is required to complete registration."));
+
+        var existingUser = await userManager.FindByEmailAsync(resolvedEmail);
+        if (existingUser is not null)
+        {
+            await AttachLoginForExistingUser(existingUser);
+            return await externalLoginSessionBuilder.CreateAsync(existingUser, cancellationToken);
+        }
+
+        var normalizedRole = request.Role.Trim();
+        if (!Enum.TryParse<UserType>(normalizedRole, true, out var userType))
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Provided role is not supported."));
+
+        if (userType == UserType.Child && request.Age is null)
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Age is required for the child role."));
+
+        var (familyCode, familyName, familyEmblem, errorResult) = await FamilyContextResolver.ResolveAsync(
+            userManager,
+            userType,
+            request.FamilyCode,
+            request.FamilyName,
+            request.FamilyEmblem,
+            cancellationToken);
+
+        if (errorResult is not null)
+            return Result<ExternalLoginResponse>.Failure((HttpStatusCode)errorResult.StatusCode, errorResult.Error!);
+
+        var (defaultFirstName, defaultLastName) = SplitName(pendingUser.Name);
+
+        var firstName = string.IsNullOrWhiteSpace(request.Name) ? defaultFirstName : request.Name.Trim();
+        var lastName = string.IsNullOrWhiteSpace(request.LastName) ? defaultLastName : request.LastName.Trim();
+
+        var avatar = string.IsNullOrWhiteSpace(request.Avatar) ? pendingUser.Picture : request.Avatar!.Trim();
+
+        var newUser = new Domain.Entities.User
+        {
+            Email = resolvedEmail,
+            UserName = resolvedEmail,
+            EmailConfirmed = true,
+            FamilyCode = familyCode,
+            FamilyName = familyName,
+            FamilyEmblem = familyEmblem,
+            UserStatus = UserStatuses.Active,
+            Avatar = avatar,
+            Age = request.Age,
+            UserType = userType,
+            Name = firstName,
+            LastName = lastName
+        };
+
+        var createResult = await userManager.CreateAsync(newUser);
+        if (!createResult.Succeeded)
+        {
+            var error = string.Join("; ", createResult.Errors.Select(e => e.Description));
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest(error));
+        }
+
+        var addToRoleResult = await userManager.AddToRoleAsync(newUser, normalizedRole);
+        if (!addToRoleResult.Succeeded)
+        {
+            await userManager.DeleteAsync(newUser);
+
+            var error = string.Join("; ", addToRoleResult.Errors.Select(e => e.Description));
+            return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest(error));
+        }
+
+        if (!string.IsNullOrWhiteSpace(providerKey))
+        {
+            var addLoginResult = await userManager.AddLoginAsync(
+                newUser,
+                new UserLoginInfo(providerName, providerKey, providerName));
+
+            if (!addLoginResult.Succeeded)
+            {
+                await userManager.DeleteAsync(newUser);
+
+                var error = string.Join("; ", addLoginResult.Errors.Select(e => e.Description));
+                return Result<ExternalLoginResponse>.Failure(HttpStatusCode.BadRequest,
+                    DefaultErrors.BadRequest(error));
+            }
+        }
+
+        var sessionResult = await externalLoginSessionBuilder.CreateAsync(
+            newUser,
+            cancellationToken);
+
+        return sessionResult;
+
+        async Task AttachLoginForExistingUser(Domain.Entities.User user)
+        {
+            if (string.IsNullOrWhiteSpace(providerKey))
+            {
+                return;
+            }
+
+            var existingLogins = await userManager.GetLoginsAsync(user);
+            if (existingLogins.Any(login => login.LoginProvider == providerName && login.ProviderKey == providerKey))
+            {
+                return;
+            }
+
+            var addLoginResult = await userManager.AddLoginAsync(
+                user,
+                new UserLoginInfo(providerName, providerKey, providerName));
+
+            if (!addLoginResult.Succeeded)
+            {
+                var error = string.Join("; ", addLoginResult.Errors.Select(e => e.Description));
+                logger.LogWarning(
+                    "Failed to attach GitHub login for existing user {UserId}: {Errors}",
+                    user.Id,
+                    error);
+            }
+        }
+    }
+
+    private static (string firstName, string lastName) SplitName(string source)
+    {
+        if (string.IsNullOrWhiteSpace(source)) return ("", "");
+
+        var parts = source.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return (source.Trim(), source.Trim());
+
+        if (parts.Length == 1)
+        {
+            var value = parts[0].Trim();
+            return (value, value);
+        }
+
+        return (parts[0].Trim(), parts[1].Trim());
+    }
+}

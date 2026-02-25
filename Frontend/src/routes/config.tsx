@@ -5,6 +5,8 @@ export enum AppRouteId {
   Auth = 'auth',
   ParentDashboard = 'parent-dashboard',
   ChildDashboard = 'child-dashboard',
+  TaskCreate = 'task-create',
+  AiAssistant = 'ai-assistant',
 }
 
 export interface RouteConfig {
@@ -20,30 +22,44 @@ export const routes: RouteConfig[] = [
   {
     id: AppRouteId.Welcome,
     path: '/',
-    label: 'Добро пожаловать',
+    label: 'routes.welcome',
     layout: 'public',
     isPublic: true,
   },
   {
     id: AppRouteId.Auth,
     path: '/auth',
-    label: 'Аутентификация',
+    label: 'routes.auth',
     layout: 'public',
     isPublic: true,
   },
   {
     id: AppRouteId.ParentDashboard,
     path: '/dashboard/parent',
-    label: 'Панель родителя',
+    label: 'routes.parentDashboard',
     layout: 'app',
     requiredRoles: ['parent'],
   },
   {
     id: AppRouteId.ChildDashboard,
     path: '/dashboard/child',
-    label: 'Панель ребёнка',
+    label: 'routes.childDashboard',
     layout: 'app',
     requiredRoles: ['child'],
+  },
+  {
+    id: AppRouteId.TaskCreate,
+    path: '/dashboard/tasks/new',
+    label: 'routes.taskCreate',
+    layout: 'app',
+    requiredRoles: ['parent'],
+  },
+  {
+    id: AppRouteId.AiAssistant,
+    path: '/ai',
+    label: 'routes.aiAssistant',
+    layout: 'app',
+    requiredRoles: ['parent', 'child'],
   },
 ]
 

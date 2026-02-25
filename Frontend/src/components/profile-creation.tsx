@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
+import { useTranslation } from "@/i18n/provider"
 
 interface ProfileCreationProps {
   role: "parent" | "child"
@@ -39,6 +40,7 @@ export default function ProfileCreation({ role, onCreateProfile }: ProfileCreati
   const [age, setAge] = useState("")
   const [selectedAvatar, setSelectedAvatar] = useState(AVATARS[0])
   const [showAvatars, setShowAvatars] = useState(false)
+  const { t } = useTranslation()
 
   const handleSubmit = () => {
     if (!name.trim()) return
@@ -54,14 +56,14 @@ export default function ProfileCreation({ role, onCreateProfile }: ProfileCreati
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-100 to-purple-200 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 bg-white shadow-xl">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2">Создай свой профиль</h2>
-          <p className="text-muted-foreground">Расскажи нам о себе</p>
+          <h2 className="text-3xl font-bold mb-2">{t("profileCreation.title")}</h2>
+          <p className="text-muted-foreground">{t("profileCreation.subtitle")}</p>
         </div>
 
         <div className="space-y-6">
           {/* Avatar selection */}
           <div className="flex flex-col items-center gap-3">
-            <Label>Выбери аватар</Label>
+            <Label>{t("profileCreation.selectAvatar")}</Label>
             <button
               onClick={() => setShowAvatars(!showAvatars)}
               className="w-24 h-24 rounded-full bg-primary/10 hover:bg-primary/20 transition-all flex items-center justify-center text-5xl border-4 border-primary/20 hover:border-primary/40"
@@ -91,25 +93,25 @@ export default function ProfileCreation({ role, onCreateProfile }: ProfileCreati
 
           {/* Name field */}
           <div className="space-y-2">
-            <Label htmlFor="name">Имя *</Label>
+            <Label htmlFor="name">{t("profileCreation.nameRequired")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Введи своё имя"
+              placeholder={t("profileCreation.namePlaceholder")}
               className="text-lg"
             />
           </div>
 
           {/* Age field */}
           <div className="space-y-2">
-            <Label htmlFor="age">Возраст (необязательно)</Label>
+            <Label htmlFor="age">{t("profileCreation.ageOptional")}</Label>
             <Input
               id="age"
               type="number"
               value={age}
               onChange={(e) => setAge(e.target.value)}
-              placeholder="Сколько тебе лет?"
+              placeholder={t("profileCreation.agePlaceholder")}
               className="text-lg"
             />
           </div>
@@ -123,13 +125,13 @@ export default function ProfileCreation({ role, onCreateProfile }: ProfileCreati
                   : "bg-secondary/10 text-secondary border-2 border-secondary/30"
               }`}
             >
-              {role === "parent" ? "👨‍👩‍👧‍👦 Родитель" : "🧒 Ребёнок"}
+              {role === "parent" ? t("profileCreation.parentRole") : t("profileCreation.childRole")}
             </div>
           </div>
 
           {/* Submit button */}
           <Button onClick={handleSubmit} disabled={!name.trim()} className="w-full h-12 text-lg" size="lg">
-            Продолжить
+            {t("profileCreation.continue")}
           </Button>
         </div>
       </Card>

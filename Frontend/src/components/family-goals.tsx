@@ -5,54 +5,57 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Trophy, Target, Users, Plus } from "lucide-react"
-
-const FAMILY_GOALS = [
-  {
-    id: 1,
-    icon: Target,
-    title: "Выполнить 50 задач в месяц",
-    description: "Работайте вместе, чтобы достичь цели",
-    progress: 32,
-    total: 50,
-    reward: "Семейный поход в кино",
-    daysLeft: 8,
-    difficulty: "Средняя",
-  },
-  {
-    id: 2,
-    icon: Trophy,
-    title: "7 дней без просрочек",
-    description: "Все задачи выполняются вовремя",
-    progress: 4,
-    total: 7,
-    reward: "+500 XP каждому",
-    daysLeft: 3,
-    difficulty: "Сложная",
-  },
-  {
-    id: 3,
-    icon: Users,
-    title: "Командные задания",
-    description: "Выполнить 10 совместных заданий",
-    progress: 6,
-    total: 10,
-    reward: "Пицца на выходных",
-    daysLeft: 15,
-    difficulty: "Средняя",
-  },
-]
+import { useTranslation } from "@/i18n/provider"
 
 export default function FamilyGoals() {
+  const { t } = useTranslation()
+
+  const FAMILY_GOALS = [
+    {
+      id: 1,
+      icon: Target,
+      title: t("familyGoals.goal1Title"),
+      description: t("familyGoals.goal1Description"),
+      progress: 32,
+      total: 50,
+      reward: t("familyGoals.goal1Reward"),
+      daysLeft: 8,
+      difficulty: t("familyGoals.difficultyMedium"),
+    },
+    {
+      id: 2,
+      icon: Trophy,
+      title: t("familyGoals.goal2Title"),
+      description: t("familyGoals.goal2Description"),
+      progress: 4,
+      total: 7,
+      reward: t("familyGoals.goal2Reward"),
+      daysLeft: 3,
+      difficulty: t("familyGoals.difficultyHard"),
+    },
+    {
+      id: 3,
+      icon: Users,
+      title: t("familyGoals.goal3Title"),
+      description: t("familyGoals.goal3Description"),
+      progress: 6,
+      total: 10,
+      reward: t("familyGoals.goal3Reward"),
+      daysLeft: 15,
+      difficulty: t("familyGoals.difficultyMedium"),
+    },
+  ]
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold mb-1">Цели семьи</h2>
-          <p className="text-sm text-muted-foreground">Работайте вместе для достижения общих целей</p>
+          <h2 className="text-xl font-bold mb-1">{t("familyGoals.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("familyGoals.subtitle")}</p>
         </div>
         <Button className="gap-2">
           <Plus className="w-4 h-4" />
-          Новая цель
+          {t("familyGoals.newGoal")}
         </Button>
       </div>
 
@@ -69,7 +72,7 @@ export default function FamilyGoals() {
                     <Icon className="w-6 h-6" />
                   </div>
                   <Badge variant="outline" className="gap-1">
-                    <span className="text-xs">{goal.daysLeft} дней</span>
+                    <span className="text-xs">{t("familyGoals.daysLeft", { count: goal.daysLeft })}</span>
                   </Badge>
                 </div>
                 <CardTitle className="text-base mt-3">{goal.title}</CardTitle>
@@ -90,11 +93,11 @@ export default function FamilyGoals() {
 
                 <div className="pt-2 border-t space-y-2">
                   <div>
-                    <p className="text-xs text-muted-foreground">Награда:</p>
+                    <p className="text-xs text-muted-foreground">{t("familyGoals.rewardLabel")}</p>
                     <p className="text-sm font-semibold text-accent">{goal.reward}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Сложность:</p>
+                    <p className="text-xs text-muted-foreground">{t("familyGoals.difficultyLabel")}</p>
                     <p className="text-sm font-semibold">{goal.difficulty}</p>
                   </div>
                 </div>

@@ -4,64 +4,66 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface OnboardingTipsProps {
   onComplete: () => void
 }
 
-const tips = [
-  {
-    title: "Добро пожаловать в FamilyQuest!",
-    description: "Приложение для превращения домашних обязанностей в увлекательную игру для всей семьи",
-    icon: "🎮",
-    details: [
-      "✓ Создавай задания для детей",
-      "✓ Устанавливай награды за выполнение",
-      "✓ Следи за прогрессом в реальном времени",
-    ],
-  },
-  {
-    title: "Как работают задания?",
-    description: "Задания – это способ структурировать обязанности и мотивировать ребёнка",
-    icon: "📋",
-    details: [
-      "✓ Родитель создаёт задание с описанием",
-      "✓ Устанавливает сложность (1-5 звёзд)",
-      "✓ Выбирает способ проверки (фото/чек-лист)",
-    ],
-  },
-  {
-    title: "Система наград",
-    description: "Дети зарабатывают очки и покупают желаемые призы в магазине",
-    icon: "🎁",
-    details: [
-      "✓ За каждое задание ребёнок получает очки",
-      "✓ Может использовать их в магазине",
-      "✓ Получает бейджи и достижения",
-    ],
-  },
-  {
-    title: "Геймификация",
-    description: "Дополнительная мотивация через уровни, стикеры и таблицу лидеров",
-    icon: "🏆",
-    details: ["✓ Повышай уровень выполняя задания", "✓ Собирай стикеры по сериям", "✓ Соревнуйся в таблице лидеров"],
-  },
-  {
-    title: "Ежедневные миссии",
-    description: "Специальные задачи, которые дают дополнительные награды",
-    icon: "⚡",
-    details: ["✓ Выполняй дневные и недельные миссии", "✓ Получай бонусный опыт и очки", "✓ Разблокируй новые стикеры"],
-  },
-  {
-    title: "Готово! Начинайте приключение!",
-    description: "Теперь вы готовы использовать FamilyQuest в полной мере",
-    icon: "🚀",
-    details: ["✓ Создавайте задачи и награды", "✓ Вовлекайте детей в процесс", "✓ Наслаждайтесь семейным временем"],
-  },
-]
-
 export default function OnboardingTips({ onComplete }: OnboardingTipsProps) {
+  const { t } = useTranslation()
   const [currentSlide, setCurrentSlide] = useState(0)
+
+  const tips = [
+    {
+      title: t("onboarding.tip0Title"),
+      description: t("onboarding.tip0Description"),
+      icon: "🎮",
+      details: [
+        t("onboarding.tip0Detail0"),
+        t("onboarding.tip0Detail1"),
+        t("onboarding.tip0Detail2"),
+      ],
+    },
+    {
+      title: t("onboarding.tip1Title"),
+      description: t("onboarding.tip1Description"),
+      icon: "📋",
+      details: [
+        t("onboarding.tip1Detail0"),
+        t("onboarding.tip1Detail1"),
+        t("onboarding.tip1Detail2"),
+      ],
+    },
+    {
+      title: t("onboarding.tip2Title"),
+      description: t("onboarding.tip2Description"),
+      icon: "🎁",
+      details: [
+        t("onboarding.tip2Detail0"),
+        t("onboarding.tip2Detail1"),
+        t("onboarding.tip2Detail2"),
+      ],
+    },
+    {
+      title: t("onboarding.tip3Title"),
+      description: t("onboarding.tip3Description"),
+      icon: "🏆",
+      details: [t("onboarding.tip3Detail0"), t("onboarding.tip3Detail1"), t("onboarding.tip3Detail2")],
+    },
+    {
+      title: t("onboarding.tip4Title"),
+      description: t("onboarding.tip4Description"),
+      icon: "⚡",
+      details: [t("onboarding.tip4Detail0"), t("onboarding.tip4Detail1"), t("onboarding.tip4Detail2")],
+    },
+    {
+      title: t("onboarding.tip5Title"),
+      description: t("onboarding.tip5Description"),
+      icon: "🚀",
+      details: [t("onboarding.tip5Detail0"), t("onboarding.tip5Detail1"), t("onboarding.tip5Detail2")],
+    },
+  ]
 
   const nextSlide = () => {
     if (currentSlide === tips.length - 1) {
@@ -114,7 +116,7 @@ export default function OnboardingTips({ onComplete }: OnboardingTipsProps) {
                 className="flex-1 bg-transparent"
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Назад
+                {t("common.back")}
               </Button>
 
               <div className="flex gap-2">
@@ -135,12 +137,12 @@ export default function OnboardingTips({ onComplete }: OnboardingTipsProps) {
               >
                 {currentSlide === tips.length - 1 ? (
                   <>
-                    Начать!
+                    {t("onboarding.start")}
                     <CheckCircle className="w-4 h-4 ml-2" />
                   </>
                 ) : (
                   <>
-                    Далее
+                    {t("common.next")}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -148,7 +150,7 @@ export default function OnboardingTips({ onComplete }: OnboardingTipsProps) {
             </div>
 
             <p className="text-center text-xs text-muted-foreground mt-6">
-              Шаг {currentSlide + 1} из {tips.length}
+              {t("onboarding.step", { current: currentSlide + 1, total: tips.length })}
             </p>
           </CardContent>
         </Card>

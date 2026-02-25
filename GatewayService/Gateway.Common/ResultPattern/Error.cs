@@ -2,6 +2,9 @@
 
 public class Error
 {
+    public static readonly Error None = new()
+        { ErrorType = "None", ErrorDescription = "", Impact = "", Resolution = "" };
+
     public int ErrorCode { get; init; }
     public required string ErrorType { get; init; }
 
@@ -10,6 +13,4 @@ public class Error
     public required string ErrorDescription { get; init; }
 
     public bool Recoverable { get; init; }
-
-    public static readonly Error None = new Error { ErrorType = "None", ErrorDescription = "", Impact = "", Resolution = "" };
 }

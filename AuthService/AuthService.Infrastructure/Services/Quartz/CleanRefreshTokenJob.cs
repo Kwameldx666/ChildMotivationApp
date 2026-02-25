@@ -1,5 +1,4 @@
 ﻿using AuthService.Application.Abstractions.Persistence;
-using Microsoft.Extensions.Configuration;
 using Quartz;
 
 namespace AuthService.Infrastructure.Services.Quartz;

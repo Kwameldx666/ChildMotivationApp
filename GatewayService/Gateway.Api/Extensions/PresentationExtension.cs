@@ -1,8 +1,11 @@
-﻿using Gateway.Authorization.ScopeRequirement;
+﻿using System.Text.Json.Serialization;
+using Gateway.Authorization.ScopeRequirement;
 using Gateway.Common.Constants.Scopes;
 using Gateway.Infrastructure.Handlers;
 using Gateway.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 
 namespace Gateway.Extensions;
 
@@ -12,14 +15,52 @@ internal static class PresentationExtension
 
     public static void AddPresentation(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Serialize enums as strings instead of numbers
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddMemoryCache();
         services.AddPolicies();
         services.AddCorsPolicy(configuration);
+        services.AddSwaggerGenWithAuth();
     }
-    
+
+    private static void AddSwaggerGenWithAuth(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter: Bearer {your JWT token}"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
+    }
+
     private static void AddPolicies(this IServiceCollection services)
     {
         services.AddTransient<AuthorizationForwardingHandler>();
@@ -27,10 +68,8 @@ internal static class PresentationExtension
 
         services.AddAuthorization(options =>
         {
-            foreach (var s in UserScopes.All) 
-            {
+            foreach (var s in UserScopes.All)
                 options.AddPolicy(s, policy => policy.Requirements.Add(new ScopeRequirement(s)));
-            }
         });
     }
 
@@ -40,7 +79,7 @@ internal static class PresentationExtension
 
         services.AddCors(options =>
         {
-            options.AddPolicy(CorsPolicyName, builder =>    
+            options.AddPolicy(CorsPolicyName, builder =>
             {
                 builder.WithOrigins(allowedOrigins!)
                     .AllowAnyHeader()

@@ -1,18 +1,24 @@
 "use client"
 
 import { Users, User } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 interface RoleSelectorProps {
   onSelectRole: (role: "parent" | "child") => void
 }
 
 export default function RoleSelector({ onSelectRole }: RoleSelectorProps) {
+  const { t } = useTranslation()
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-purple-100 to-purple-200">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-purple-100 to-purple-200 relative">
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <LanguageSwitcher variant="outline" size="sm" />
+      </div>
       <div className="w-full max-w-3xl px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-balance mb-3">Кто ты в семье?</h1>
-          <p className="text-lg text-muted-foreground">Выбери свою роль, чтобы продолжить</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-balance mb-3">{t("roleSelector.title")}</h1>
+          <p className="text-lg text-muted-foreground">{t("roleSelector.subtitle")}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -25,9 +31,9 @@ export default function RoleSelector({ onSelectRole }: RoleSelectorProps) {
                 <Users className="w-16 h-16 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold mb-2 text-primary">Родитель</h2>
+                <h2 className="text-3xl font-bold mb-2 text-primary">{t("roleSelector.parent")}</h2>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Создает задания, награды и следит за прогрессом
+                  {t("roleSelector.parentDescription")}
                 </p>
               </div>
             </div>
@@ -43,9 +49,9 @@ export default function RoleSelector({ onSelectRole }: RoleSelectorProps) {
                 <User className="w-16 h-16 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold mb-2 text-secondary">Ребёнок</h2>
+                <h2 className="text-3xl font-bold mb-2 text-secondary">{t("roleSelector.child")}</h2>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Получает задания, выполняет их и зарабатывает награды
+                  {t("roleSelector.childDescription")}
                 </p>
               </div>
             </div>

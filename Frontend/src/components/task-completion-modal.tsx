@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Camera, Upload, CheckSquare } from "lucide-react"
+import { useTranslation } from "@/i18n/provider"
 
 interface TaskCompletionModalProps {
   open: boolean
@@ -20,6 +21,7 @@ interface TaskCompletionModalProps {
 }
 
 export default function TaskCompletionModal({ open, onClose, task, onSubmit }: TaskCompletionModalProps) {
+  const { t } = useTranslation()
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({})
   const [photoUploaded, setPhotoUploaded] = useState(false)
 
@@ -46,7 +48,7 @@ export default function TaskCompletionModal({ open, onClose, task, onSubmit }: T
             ) : (
               <CheckSquare className="w-5 h-5 text-primary" />
             )}
-            Подтверждение выполнения
+            {t("taskCompletion.title")}
           </DialogTitle>
           <DialogDescription>{task.title}</DialogDescription>
         </DialogHeader>
@@ -54,26 +56,26 @@ export default function TaskCompletionModal({ open, onClose, task, onSubmit }: T
         <div className="space-y-4 py-4">
           {task.confirmationType === "photo" ? (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Загрузите фото подтверждения выполнения задачи</p>
+              <p className="text-sm text-muted-foreground">{t("taskCompletion.photoDescription")}</p>
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
                 {photoUploaded ? (
                   <div className="space-y-2">
                     <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
                       <CheckSquare className="w-8 h-8 text-green-600" />
                     </div>
-                    <p className="text-sm font-medium text-green-600">Фото загружено!</p>
+                    <p className="text-sm font-medium text-green-600">{t("taskCompletion.photoUploaded")}</p>
                   </div>
                 ) : (
                   <div className="space-y-2" onClick={handlePhotoUpload}>
                     <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Нажмите для загрузки фото</p>
+                    <p className="text-sm text-muted-foreground">{t("taskCompletion.uploadPhoto")}</p>
                   </div>
                 )}
               </div>
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-3">Отметьте все пункты чек-листа</p>
+              <p className="text-sm text-muted-foreground mb-3">{t("taskCompletion.checklistDescription")}</p>
               {task.checklist?.map((item, index) => (
                 <div
                   key={index}
@@ -98,10 +100,10 @@ export default function TaskCompletionModal({ open, onClose, task, onSubmit }: T
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={onClose} className="flex-1 bg-transparent">
-            Отмена
+            {t("common.cancel")}
           </Button>
           <Button onClick={onSubmit} disabled={!canSubmit} className="flex-1">
-            Отправить на проверку
+            {t("taskCompletion.submitForReview")}
           </Button>
         </div>
       </DialogContent>

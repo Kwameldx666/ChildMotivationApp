@@ -42,4 +42,32 @@ public static class AuthorizationErrors
             Recoverable = true
         };
     }
+
+    public static Error ExternalAuthFailed(string description = "")
+    {
+        return new Error
+        {
+            ErrorCode = 500,
+            ErrorType = "ExternalAuthFailed",
+            ErrorDescription = !string.IsNullOrEmpty(description)
+                ? description
+                : "Error while processing your request. Please contact your administrator.",
+            Impact = "The request cannot be processed without valid credentials.",
+            Resolution = "Ensure the request is authenticated.",
+            Recoverable = false
+        };
+    }
+
+    public static Error ExternalProviderUnavailable()
+    {
+        return new Error
+        {
+            ErrorCode = 501,
+            ErrorType = "ExternalProviderUnavailable",
+            ErrorDescription = "External  provider is not available.",
+            Impact = "The request cannot be processed without valid credentials.",
+            Resolution = "Ensure the request is authenticated.",
+            Recoverable = false
+        };
+    }
 }

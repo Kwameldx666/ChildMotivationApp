@@ -1,9 +1,4 @@
-import {
-  ApiError,
-  httpClient,
-  STORAGE_REFRESH_TOKEN_KEY,
-  STORAGE_TOKEN_KEY,
-} from '@/services/api/http-client'
+import { ApiError, httpClient } from '@/services/api/http-client'
 import type { AuthPayload, AuthSession, AuthUser, FamilyContext, UserProfile, UserRole } from '@/features/auth/types'
 
 // cspell:ignore familyapp удалось сохранить сессию после
@@ -27,32 +22,16 @@ export interface RegisterPayload {
   family?: FamilyContext & { name?: string; emblem?: string }
 }
 
-function getAccessToken() {
-  if (!isBrowser) return null
-  return localStorage.getItem(STORAGE_TOKEN_KEY)
-}
-
-function getStoredRefreshToken() {
-  if (!isBrowser) return null
-  return localStorage.getItem(STORAGE_REFRESH_TOKEN_KEY)
-}
-
 function persistSession(payload: AuthPayload) {
   if (!isBrowser) return null
-  const accessToken = payload.accessToken ?? getAccessToken()
-  const refreshToken = payload.refreshToken ?? getStoredRefreshToken()
-  if (!accessToken || !refreshToken) return null
 
   const session: AuthSession = {
-    accessToken,
-    refreshToken,
+    accessToken: null,
+    refreshToken: null,
     user: payload.user,
     profile: payload.profile,
     family: payload.family,
   }
-
-  localStorage.setItem(STORAGE_TOKEN_KEY, accessToken)
-  localStorage.setItem(STORAGE_REFRESH_TOKEN_KEY, refreshToken)
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(payload.user))
   localStorage.setItem(`${PROFILE_KEY_PREFIX}${payload.user.id}`, JSON.stringify(payload.profile))
   if (payload.family) {
@@ -64,15 +43,17 @@ function persistSession(payload: AuthPayload) {
 
 function clearSession() {
   if (!isBrowser) return
-  const currentUserRaw = localStorage.getItem(CURRENT_USER_KEY)
-  if (currentUserRaw) {
-    const currentUser: AuthUser = JSON.parse(currentUserRaw)
-    localStorage.removeItem(`${PROFILE_KEY_PREFIX}${currentUser.id}`)
-    localStorage.removeItem(`${FAMILY_KEY_PREFIX}${currentUser.id}`)
+  try {
+    const currentUserRaw = localStorage.getItem(CURRENT_USER_KEY)
+    if (currentUserRaw) {
+      const currentUser: AuthUser = JSON.parse(currentUserRaw)
+      localStorage.removeItem(`${PROFILE_KEY_PREFIX}${currentUser.id}`)
+      localStorage.removeItem(`${FAMILY_KEY_PREFIX}${currentUser.id}`)
+    }
+  } catch (error) {
+    console.error('[auth-service] Failed to parse user for cleanup:', error)
   }
   localStorage.removeItem(CURRENT_USER_KEY)
-  localStorage.removeItem(STORAGE_TOKEN_KEY)
-  localStorage.removeItem(STORAGE_REFRESH_TOKEN_KEY)
 }
 
 export const authService = {
@@ -89,7 +70,7 @@ export const authService = {
     await httpClient.post('/api/auth/register', payload, { auth: false })
   },
 
-  async oauthSignIn(provider: 'google' | 'apple' | 'microsoft') {
+  async oauthSignIn(provider: 'google' | 'github' | 'apple' | 'microsoft') {
     const data = await httpClient.post<AuthPayload>('/api/auth/oauth', { provider }, { auth: false })
     const session = persistSession(data)
     if (!session) {
@@ -101,11 +82,7 @@ export const authService = {
   async me() {
     try {
       const data = await httpClient.get<AuthPayload>('/api/auth/me')
-      const session = persistSession({
-        ...data,
-        accessToken: data.accessToken ?? getAccessToken() ?? undefined,
-        refreshToken: data.refreshToken ?? getStoredRefreshToken() ?? undefined,
-      })
+      const session = persistSession(data)
       return session
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
@@ -114,6 +91,12 @@ export const authService = {
       }
       throw error
     }
+  },
+
+  async uploadAvatar(userId: string, file: File) {
+    const form = new FormData()
+    form.append('file', file)
+    await httpClient.post(`/api-gateway/profile/${userId}/avatar`, form)
   },
 
   async logout() {
@@ -126,27 +109,35 @@ export const authService = {
 
   getCachedSession(): AuthSession | null {
     if (!isBrowser) return null
-    const accessToken = getAccessToken()
-    const refreshToken = getStoredRefreshToken()
-    if (!accessToken || !refreshToken) return null
+    
+    try {
+      const accessToken = getAccessToken()
+      const refreshToken = getStoredRefreshToken()
+      if (!accessToken || !refreshToken) return null
 
-    const userRaw = localStorage.getItem(CURRENT_USER_KEY)
-    if (!userRaw) return null
+      const userRaw = localStorage.getItem(CURRENT_USER_KEY)
+      if (!userRaw) return null
 
-    const user: AuthUser = JSON.parse(userRaw)
-    const profileRaw = localStorage.getItem(`${PROFILE_KEY_PREFIX}${user.id}`)
-    if (!profileRaw) return null
+      const user: AuthUser = JSON.parse(userRaw)
+      const profileRaw = localStorage.getItem(`${PROFILE_KEY_PREFIX}${user.id}`)
+      if (!profileRaw) return null
 
-    const profile: UserProfile = JSON.parse(profileRaw)
-    const familyRaw = localStorage.getItem(`${FAMILY_KEY_PREFIX}${user.id}`)
-    const family = familyRaw ? (JSON.parse(familyRaw) as FamilyContext) : undefined
+      const profile: UserProfile = JSON.parse(profileRaw)
+      const familyRaw = localStorage.getItem(`${FAMILY_KEY_PREFIX}${user.id}`)
+      const family = familyRaw ? (JSON.parse(familyRaw) as FamilyContext) : undefined
 
-    return {
-      accessToken,
-      refreshToken,
-      user,
-      profile,
-      family,
+      return {
+        accessToken,
+        refreshToken,
+        user,
+        profile,
+        family,
+      }
+    } catch (error) {
+      // Если данные в localStorage повреждены, очищаем сессию
+      console.error('[auth-service] Failed to parse cached session:', error)
+      clearSession()
+      return null
     }
   },
 }
