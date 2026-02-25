@@ -17,6 +17,7 @@ services:
       dockerfile: AuthService/AuthService.Api/Dockerfile
     depends_on:
       - postgres
+      - mailhog
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-your_jwt_secret_here}
@@ -24,6 +25,11 @@ services:
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET}
       Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/auth/google/callback}
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
+      Smtp__Host: mailhog
+      Smtp__Port: 1025
+      Smtp__FromEmail: noreply@familytasks.local
+      Smtp__FromName: FamilyTasks
+      Smtp__UseSsl: "false"
     ports:
       - "8080:8080"
   user-service:
@@ -72,5 +78,12 @@ services:
       INTERNAL_API_URL: http://gateway-service:8081
     ports:
       - "3000:3000"
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 volumes:
   postgres_data:

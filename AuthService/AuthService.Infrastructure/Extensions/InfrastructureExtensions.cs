@@ -6,6 +6,7 @@ using AuthService.Domain.Entities;
 using AuthService.Common.ExternalOptions.SignIn;
 using AuthService.Infrastructure.Services.Authentication.Token;
 using AuthService.Infrastructure.Services.Clients;
+using AuthService.Infrastructure.Services.Email;
 using AuthService.Infrastructure.Services.Identity;
 using AuthService.Infrastructure.Services.OAuth;
 using AuthService.Infrastructure.Services.User;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 using JwtBearerOptions = AuthService.Application.Options.JwtBearerOptions;
+using SmtpOptions = AuthService.Application.Options.SmtpOptions;
 
 namespace AuthService.Infrastructure.Extensions;
 
@@ -39,6 +41,7 @@ public static class InfrastructureExtensions
         services.AddScoped<ITokenProvider, JwtBearerProvider>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IUserManagement, UserManagementService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }
@@ -50,6 +53,10 @@ public static class InfrastructureExtensions
             .Validate(options => !string.IsNullOrWhiteSpace(options.Secret), "JwtBearer:Secret must be provided.")
             .Validate(options => options.AccessTokenLifetime > 0,
                 "JwtBearer:AccessTokenLifetime must be greater than zero.")
+            .ValidateOnStart();
+
+        services.AddOptions<SmtpOptions>()
+            .Bind(configuration.GetSection("Smtp"))
             .ValidateOnStart();
 
         services.AddOptions<GoogleOptions>()

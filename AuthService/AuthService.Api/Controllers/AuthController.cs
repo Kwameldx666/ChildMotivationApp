@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using AuthService.Application.Features.Authentication.ConfirmEmail;
 using AuthService.Application.Features.Authentication.LoginUser;
 using AuthService.Application.Features.Authentication.RefreshToken;
+using AuthService.Application.Features.Authentication.RegisterChild;
 using AuthService.Application.Features.Authentication.RegisterUser;
+using AuthService.Application.Features.Authentication.ResendConfirmation;
 using AuthService.Application.Features.Authentication.RevokeToken;
 using AuthService.Application.Features.Authentication.SignIn.CompleteGoogle;
 using AuthService.Application.Features.Authentication.SignIn.GetGoogleAuthorizationUrl;
@@ -111,6 +114,39 @@ public class AuthController(IMediator mediator, IOptions<GoogleOptions> googleOp
 
     [HttpPost("google/complete")]
     public async Task<IActionResult> CompleteGoogleSignInAsync([FromBody] CompleteGoogleSignInCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmailAsync(
+        [FromQuery] string userId,
+        [FromQuery] string token,
+        CancellationToken cancellationToken)
+    {
+        var command = new ConfirmEmailCommand(userId, token);
+        var result = await mediator.Send(command, cancellationToken);
+        if (result.IsSuccess)
+            return Content(
+                "<html><body><h2>Почта успешно подтверждена!</h2><p>Теперь вы можете войти в свой аккаунт.</p></body></html>",
+                "text/html");
+        return result.ToActionResult();
+    }
+
+    [HttpPost("resend-confirmation")]
+    public async Task<IActionResult> ResendConfirmationAsync(
+        [FromBody] ResendConfirmationCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("register-child")]
+    public async Task<IActionResult> RegisterChildAsync(
+        [FromBody] RegisterChildCommand command,
         CancellationToken cancellationToken)
     {
         var result = await mediator.Send(command, cancellationToken);

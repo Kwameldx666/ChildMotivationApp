@@ -33,6 +33,12 @@ public class LoginUserCommandHandler(
             return Result<LoginResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("User credentials are invalid"));
 
+        // Block login for parents who have not confirmed their email
+        if (user.UserType == UserType.Parent && !user.EmailConfirmed)
+            return Result<LoginResponse>.Failure(HttpStatusCode.Forbidden,
+                DefaultErrors.BadRequest(
+                    "Необходимо подтвердить электронную почту перед входом. Проверьте вашу почту или запросите повторную отправку."));
+
         var roles = await userManager.GetRolesAsync(user);
 
         var scopeSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

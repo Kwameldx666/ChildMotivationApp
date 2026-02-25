@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Web;
+using AuthService.Application.Abstractions.Infrastructure;
 using AuthService.Common.Constants;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.Constants.User;
@@ -18,10 +20,12 @@ namespace AuthService.Application.Features.Authentication.RegisterUser;
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result>
 {
     private readonly UserManager<User> _userManager;
+    private readonly IEmailService _emailService;
 
-    public RegisterUserCommandHandler(UserManager<User> userManager)
+    public RegisterUserCommandHandler(UserManager<User> userManager, IEmailService emailService)
     {
         _userManager = userManager;
+        _emailService = emailService;
     }
 
     public async Task<Result> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -78,6 +82,38 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 DefaultErrors.BadRequest(error));
         }
 
+        if (userType == UserType.Parent)
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+            var encodedToken = HttpUtility.UrlEncode(token);
+
+            var confirmUrl =
+                $"http://localhost:8080/auth-service/auth/confirm-email?userId={newUser.Id}&token={encodedToken}";
+
+            var htmlBody = $"""
+                            <h2>Подтверждение электронной почты</h2>
+                            <p>Здравствуйте, {newUser.Name ?? newUser.Email}!</p>
+                            <p>Для подтверждения вашей почты перейдите по ссылке:</p>
+                            <p><a href="{confirmUrl}">Подтвердить почту</a></p>
+                            <p>Если вы не регистрировались на нашем сервисе, проигнорируйте это письмо.</p>
+                            """;
+
+            try
+            {
+                await _emailService.SendEmailAsync(newUser.Email!, "Подтверждение почты — FamilyTasks", htmlBody,
+                    cancellationToken);
+            }
+            catch
+            {
+                // Email sending failure should not block registration
+            }
+        }
+        else
+        {
+            // Child accounts registered directly get email confirmed automatically
+            newUser.EmailConfirmed = true;
+            await _userManager.UpdateAsync(newUser);
+        }
 
         return Result.Success(HttpStatusCode.Created);
     }
