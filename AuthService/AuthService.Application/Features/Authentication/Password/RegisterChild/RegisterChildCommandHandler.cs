@@ -4,15 +4,15 @@ using AuthService.Application.Abstractions;
 using AuthService.Application.User;
 using AuthService.Common.Constants.Errors;
 using AuthService.Common.ResultPattern;
-using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using UserEntity = AuthService.Domain.Entities.User;
 
 namespace AuthService.Application.Features.Authentication.Password.RegisterChild;
 
 public class RegisterChildCommandHandler(
-    UserManager<User> userManager,
+    UserManager<UserEntity> userManager,
     IEmailService emailService)
     : IRequestHandler<RegisterChildCommand, Result>
 {
@@ -48,7 +48,7 @@ public class RegisterChildCommandHandler(
                 DefaultErrors.Conflict($"Пользователь с почтой {childEmail} уже существует."));
 
         // 4. Create the child user
-        var child = new User
+        var child = new UserEntity
         {
             Email = childEmail,
             UserName = childEmail,
@@ -95,7 +95,7 @@ public class RegisterChildCommandHandler(
         return Result.Success(HttpStatusCode.Created);
     }
 
-    private static string GenerateChildEmail(User parent, string childName)
+    private static string GenerateChildEmail(UserEntity parent, string childName)
     {
         var sanitized = childName.Trim().ToLowerInvariant().Replace(" ", "");
         var familyCode = parent.FamilyCode?.ToLowerInvariant() ?? "family";
@@ -122,7 +122,7 @@ public class RegisterChildCommandHandler(
         return new string(password);
     }
 
-    private static string BuildChildCredentialsHtml(User parent, RegisterChildCommand request,
+    private static string BuildChildCredentialsHtml(UserEntity parent, RegisterChildCommand request,
         string childEmail, string childPassword)
     {
         return $$"""
