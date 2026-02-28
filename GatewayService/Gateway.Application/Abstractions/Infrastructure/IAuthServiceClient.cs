@@ -33,4 +33,5 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> ResendConfirmationAsync(object request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> RegisterChildAsync(Guid parentId, object request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> ResetChildPasswordAsync(Guid parentId, object request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> CompleteChildSetupAsync(Guid userId, object request, CancellationToken cancellationToken);
 }

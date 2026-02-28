@@ -14,4 +14,5 @@ public class User : IdentityUser<Guid>
     public UserType UserType { get; set; }
     public string? Name { get; set; }
     public string? LastName { get; set; }
+    public bool MustChangePassword { get; set; }
 }

@@ -9,10 +9,12 @@ public class ExternalLoginResponse(
     AuthUserDto user,
     UserProfileDto profile,
     FamilyDto? family,
+    bool mustChangePassword = false,
     string tokenType = "Bearer")
     : LoginResponse(accessToken, refreshToken, tokenType)
 {
     public AuthUserDto User { get; init; } = user;
     public UserProfileDto Profile { get; init; } = profile;
     public FamilyDto? Family { get; init; } = family;
+    public bool MustChangePassword { get; init; } = mustChangePassword;
 }

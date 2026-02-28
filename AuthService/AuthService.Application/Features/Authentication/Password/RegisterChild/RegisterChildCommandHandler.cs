@@ -54,7 +54,8 @@ public class RegisterChildCommandHandler(
             Age = request.ChildAge,
             UserType = UserType.Child,
             Name = request.ChildName.Trim(),
-            LastName = request.ChildLastName?.Trim()
+            LastName = request.ChildLastName?.Trim(),
+            MustChangePassword = true
         };
 
         var createResult = await userManager.CreateAsync(child, childPassword);

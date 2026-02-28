@@ -83,6 +83,7 @@ export interface AuthPayload {
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
+  mustChangePassword?: boolean
 }
 
 export interface AuthSession {
@@ -91,6 +92,7 @@ export interface AuthSession {
   user: AuthUser
   profile: UserProfile
   family?: FamilyContext
+  mustChangePassword?: boolean
 }
 
 export interface AuthState {

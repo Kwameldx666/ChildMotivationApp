@@ -195,11 +195,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       return
     }
 
-    if (!isValidEmail(email)) {
-      setError(t("authScreen.errors.emailInvalid"))
-      return
-    }
-
     setIsLoading(true)
     try {
       const session = await authApi.login({ email, password })
@@ -344,17 +339,19 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
               <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("auth.email")}</Label>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">
+                    {mode === "login" ? t("auth.emailOrLogin") : t("auth.email")}
+                  </Label>
                   <Input 
-                    type="email" 
+                    type={mode === "login" ? "text" : "email"}
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)} 
                     onBlur={() => setEmailTouched(true)} 
-                    placeholder="you@example.com" 
-                    aria-invalid={(emailTouched || submitAttempted) && !isValidEmail(email)}
+                    placeholder={mode === "login" ? t("auth.emailOrLoginPlaceholder") : "you@example.com"}
+                    aria-invalid={mode === "register" && (emailTouched || submitAttempted) && !isValidEmail(email)}
                     className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                   />
-                  {(emailTouched || submitAttempted) && !isValidEmail(email) && (
+                  {mode === "register" && (emailTouched || submitAttempted) && !isValidEmail(email) && (
                     <p className="text-xs text-destructive mt-1">{t("authScreen.errors.emailInvalid")}</p>
                   )}
                 </div>

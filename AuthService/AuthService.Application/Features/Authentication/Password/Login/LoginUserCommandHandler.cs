@@ -102,7 +102,8 @@ public class LoginUserCommandHandler(
             generateTokenResponse.RefreshToken,
             authUser,
             profile,
-            family);
+            family,
+            user.MustChangePassword);
 
         return Result<LoginResponse>.Success(response);
     }

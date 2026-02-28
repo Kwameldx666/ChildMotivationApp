@@ -6,12 +6,7 @@ public class RegisterChildCommandValidator : AbstractValidator<RegisterChildComm
 {
     public RegisterChildCommandValidator()
     {
-        RuleFor(x => x.ParentEmail)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .EmailAddress();
-
-        RuleFor(x => x.ParentPassword)
+        RuleFor(x => x.ParentId)
             .NotEmpty();
 
         RuleFor(x => x.ChildName)
@@ -19,11 +14,11 @@ public class RegisterChildCommandValidator : AbstractValidator<RegisterChildComm
             .MaximumLength(128);
 
         RuleFor(x => x.ChildLastName)
-            .NotEmpty()
-            .MaximumLength(128);
+            .MaximumLength(128)
+            .When(x => !string.IsNullOrWhiteSpace(x.ChildLastName));
 
         RuleFor(x => x.ChildAge)
-            .InclusiveBetween(0, 150);
+            .InclusiveBetween(3, 18);
 
         RuleFor(x => x.ChildAvatar)
             .MaximumLength(256)

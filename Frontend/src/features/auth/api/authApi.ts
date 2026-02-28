@@ -33,6 +33,7 @@ const toSession = (payload: AuthPayload): AuthSession => {
     user: payload.user,
     profile,
     family: payload.family,
+    mustChangePassword: payload.mustChangePassword ?? false,
   }
 }
 
@@ -181,5 +182,9 @@ export const authApi = {
   async resetChildPassword(childId: string) {
     const { data } = await apiClient.post<{ newPassword: string }>(`${AUTH_BASE_PATH}/reset-child-password`, { childId })
     return data
+  },
+
+  async completeChildSetup(payload: { currentPassword: string; newPassword: string }) {
+    await apiClient.post(`${AUTH_BASE_PATH}/complete-child-setup`, payload)
   },
 }

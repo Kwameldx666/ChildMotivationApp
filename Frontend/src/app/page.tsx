@@ -5,6 +5,7 @@ import SplashScreen from "@/components/splash-screen"
 import WelcomeScreen from "@/components/welcome-screen"
 import AuthChoice from "@/components/auth-choice"
 import AuthScreen from "@/components/auth-screen"
+import ChildSetupScreen from "@/components/child-setup-screen"
 import ParentDashboard from "@/components/parent-dashboard"
 import ChildDashboard from "@/components/child-dashboard"
 import { useAppState } from "@/features/app/hooks/useAppState"
@@ -78,6 +79,18 @@ export default function Home() {
 
   if (screen === "auth") {
     return <AuthScreen initialMode={authMode} onAuth={handleAuthSuccess} onBack={handleBackToWelcome} />
+  }
+
+  if (screen === "child-setup" && session) {
+    return (
+      <ChildSetupScreen
+        session={session}
+        onComplete={(updatedSession) => {
+          handleAuthSuccess(updatedSession)
+        }}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   if (screen === "parent-dashboard" && session) {

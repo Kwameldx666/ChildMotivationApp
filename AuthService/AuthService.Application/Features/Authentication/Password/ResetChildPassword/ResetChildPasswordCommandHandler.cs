@@ -63,6 +63,10 @@ public class ResetChildPasswordCommandHandler(
                 DefaultErrors.BadRequest(error));
         }
 
+        // Mark child to change password on next login
+        child.MustChangePassword = true;
+        await userManager.UpdateAsync(child);
+
         // 5. Optionally notify parent by email
         if (parent.EmailConfirmed && !string.IsNullOrWhiteSpace(parent.Email))
         {

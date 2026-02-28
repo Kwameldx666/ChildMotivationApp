@@ -62,7 +62,9 @@
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
     "passwordTooShort": "Password must be at least 6 characters",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "emailOrLogin": "Email / Login",
+    "emailOrLoginPlaceholder": "Email or login"
   },
   "tasks": {
     "title": "Tasks",
@@ -2784,6 +2786,42 @@
     "error": "Failed to add child. Please try again.",
     "addButton": "Add Child",
     "emptyHint": "Add your first child to get started with tasks and rewards"
+  },
+  "childSetup": {
+    "titlePassword": "Change Password",
+    "subtitlePassword": "Create a new password so only you can log in",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Create a new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Repeat new password",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordsMismatch": "Passwords do not match",
+    "passwordChanged": "Password changed successfully!",
+    "passwordError": "Could not change password. Check your current password.",
+    "saving": "Saving...",
+    "continue": "Continue",
+    "titlePersonalize": "Tell Us About Yourself",
+    "subtitlePersonalize": "Pick an avatar and interests — it’ll be more fun!",
+    "chooseAvatar": "Choose an Avatar",
+    "chooseInterests": "What do you like?",
+    "interests": {
+      "sports": "Sports",
+      "music": "Music",
+      "art": "Art",
+      "reading": "Reading",
+      "gaming": "Gaming",
+      "science": "Science",
+      "cooking": "Cooking",
+      "animals": "Animals",
+      "travel": "Travel",
+      "technology": "Technology",
+      "dance": "Dance",
+      "nature": "Nature"
+    },
+    "finish": "Done!",
+    "skipForNow": "Skip for now"
   },
   "gallery": {
     "title": "Evidence Gallery",

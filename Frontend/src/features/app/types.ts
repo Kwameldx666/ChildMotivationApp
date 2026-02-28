@@ -3,6 +3,7 @@ export type Screen =
   | 'welcome'
   | 'auth-choice'
   | 'auth'
+  | 'child-setup'
   | 'parent-dashboard'
   | 'child-dashboard'
 

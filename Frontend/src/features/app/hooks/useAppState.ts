@@ -28,6 +28,9 @@ export function useAppState() {
     const role = nextSession.profile?.role
     if (!role) return 'auth'
 
+    // Child must change password on first login
+    if (role === 'child' && nextSession.mustChangePassword) return 'child-setup'
+
     return role === 'parent' ? 'parent-dashboard' : 'child-dashboard'
   }, [])
 

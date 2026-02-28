@@ -65,7 +65,9 @@
     "emailRequired": "Введите email",
     "passwordRequired": "Введите пароль",
     "passwordTooShort": "Пароль должен быть не менее 6 символов",
-    "passwordsDoNotMatch": "Пароли не совпадают"
+    "passwordsDoNotMatch": "Пароли не совпадают",
+    "emailOrLogin": "Email / Логин",
+    "emailOrLoginPlaceholder": "Email или логин"
   },
   "tasks": {
     "title": "Задачи",
@@ -2788,6 +2790,42 @@
     "newPasswordTitle": "Новый пароль ребёнка:",
     "newPasswordLabel": "Новый пароль",
     "hint": "Сохраните новый пароль — он понадобится ребёнку для входа. Если ваша почта подтверждена, он также отправлен на ваш email."
+  },
+  "childSetup": {
+    "titlePassword": "Смена пароля",
+    "subtitlePassword": "Придумай новый пароль, чтобы никто кроме тебя не мог войти",
+    "currentPassword": "Текущий пароль",
+    "currentPasswordPlaceholder": "Введи текущий пароль",
+    "newPassword": "Новый пароль",
+    "newPasswordPlaceholder": "Придумай новый пароль",
+    "confirmPassword": "Повтори пароль",
+    "confirmPasswordPlaceholder": "Повтори новый пароль",
+    "passwordTooShort": "Пароль должен быть не менее 6 символов",
+    "passwordsMismatch": "Пароли не совпадают",
+    "passwordChanged": "Пароль успешно изменён!",
+    "passwordError": "Не удалось сменить пароль. Проверь текущий пароль.",
+    "saving": "Сохранение...",
+    "continue": "Продолжить",
+    "titlePersonalize": "Расскажи о себе",
+    "subtitlePersonalize": "Выбери аватар и интересы — так будет интереснее!",
+    "chooseAvatar": "Выбери аватар",
+    "chooseInterests": "Что тебе нравится?",
+    "interests": {
+      "sports": "Спорт",
+      "music": "Музыка",
+      "art": "Рисование",
+      "reading": "Чтение",
+      "gaming": "Игры",
+      "science": "Наука",
+      "cooking": "Кулинария",
+      "animals": "Животные",
+      "travel": "Путешествия",
+      "technology": "Технологии",
+      "dance": "Танцы",
+      "nature": "Природа"
+    },
+    "finish": "Готово!",
+    "skipForNow": "Пропустить"
   },
   "gallery": {
     "title": "Галерея подтверждений",

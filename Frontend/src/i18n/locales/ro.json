@@ -64,7 +64,9 @@
     "emailRequired": "Introdu email-ul",
     "passwordRequired": "Introdu parola",
     "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
-    "passwordsDoNotMatch": "Parolele nu se potrivesc"
+    "passwordsDoNotMatch": "Parolele nu se potrivesc",
+    "emailOrLogin": "Email / Login",
+    "emailOrLoginPlaceholder": "Email sau login"
   },
   "aiWidget": {
     "openChat": "Deschide asistentul AI",
@@ -2756,6 +2758,42 @@
     "newPasswordTitle": "Noua parolă a copilului:",
     "newPasswordLabel": "Parolă nouă",
     "hint": "Salvați noua parolă — copilul o va folosi pentru autentificare. Dacă emailul dvs. este confirmat, parola a fost trimisă și pe email."
+  },
+  "childSetup": {
+    "titlePassword": "Schimbare parolă",
+    "subtitlePassword": "Inventează o parolă nouă ca nimeni altcineva să nu se poată conecta",
+    "currentPassword": "Parola curentă",
+    "currentPasswordPlaceholder": "Introdu parola curentă",
+    "newPassword": "Parolă nouă",
+    "newPasswordPlaceholder": "Inventează o parolă nouă",
+    "confirmPassword": "Confirmă parola",
+    "confirmPasswordPlaceholder": "Repetă parola nouă",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere",
+    "passwordsMismatch": "Parolele nu se potrivesc",
+    "passwordChanged": "Parola a fost schimbată cu succes!",
+    "passwordError": "Nu s-a putut schimba parola. Verifică parola curentă.",
+    "saving": "Se salvează...",
+    "continue": "Continuă",
+    "titlePersonalize": "Spune-ne despre tine",
+    "subtitlePersonalize": "Alege un avatar și interesele tale — va fi mai interesant!",
+    "chooseAvatar": "Alege un avatar",
+    "chooseInterests": "Ce îți place?",
+    "interests": {
+      "sports": "Sport",
+      "music": "Muzică",
+      "art": "Desen",
+      "reading": "Citit",
+      "gaming": "Jocuri",
+      "science": "Știință",
+      "cooking": "Gătit",
+      "animals": "Animale",
+      "travel": "Călătorii",
+      "technology": "Tehnologie",
+      "dance": "Dans",
+      "nature": "Natură"
+    },
+    "finish": "Gata!",
+    "skipForNow": "Sări peste"
   },
   "gallery": {
     "title": "Galeria dovezilor",

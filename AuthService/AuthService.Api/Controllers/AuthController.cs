@@ -1,5 +1,6 @@
 using AuthService.Application.Features.Authentication.Password.ChangeEmail;
 using AuthService.Application.Features.Authentication.Password.ChangePassword;
+using AuthService.Application.Features.Authentication.Password.CompleteChildSetup;
 using AuthService.Application.Features.Authentication.Password.ConfirmEmail;
 using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
@@ -179,9 +180,21 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
+
+    [HttpPost("complete-child-setup/{userId:guid}")]
+    public async Task<IActionResult> CompleteChildSetupAsync(
+        Guid userId,
+        [FromBody] CompleteChildSetupRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CompleteChildSetupCommand(userId, request.CurrentPassword, request.NewPassword);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
 }
 
 public record ConfirmEmailRequest(string UserId, string Token);
 public record ResendConfirmationRequest(string Email);
 public record RegisterChildRequest(string ChildName, string? ChildLastName, int ChildAge, string? ChildAvatar);
 public record ResetChildPasswordRequest(Guid ChildId);
+public record CompleteChildSetupRequest(string CurrentPassword, string NewPassword);
