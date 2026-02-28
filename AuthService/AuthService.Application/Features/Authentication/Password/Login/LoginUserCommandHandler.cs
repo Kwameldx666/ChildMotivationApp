@@ -45,10 +45,12 @@ public class LoginUserCommandHandler(
             foreach (var claim in roleClaims.Where(r => r.Type == ClaimConstants.Scope)) scopeSet.Add(claim.Value);
         }
 
+        var emailOrUsername = user.Email ?? user.UserName ?? string.Empty;
+
         var tokenArgs = new UserArgs
         {
             UserId = user.Id.ToString(),
-            Email = user.Email!,
+            Email = emailOrUsername,
             Scopes = scopeSet,
             Roles = roles
         };
@@ -82,7 +84,7 @@ public class LoginUserCommandHandler(
 
         var authUser = new AuthUserDto(
             user.Id.ToString(),
-            user.Email!,
+            emailOrUsername,
             user.Name ?? string.Empty,
             user.LastName ?? string.Empty);
 
