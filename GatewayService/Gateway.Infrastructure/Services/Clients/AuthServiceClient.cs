@@ -179,4 +179,14 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             SerializerOptions,
             cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> RegisterChildAsync(Guid parentId, object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            $"{_endpoints.RegisterChild}/{parentId}",
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

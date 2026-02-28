@@ -14,40 +14,34 @@ namespace AuthService.Application.Features.Authentication.Password.RegisterChild
 public class RegisterChildCommandHandler(
     UserManager<UserEntity> userManager,
     IEmailService emailService)
-    : IRequestHandler<RegisterChildCommand, Result>
+    : IRequestHandler<RegisterChildCommand, Result<RegisterChildResponse>>
 {
-    public async Task<Result> Handle(RegisterChildCommand request, CancellationToken cancellationToken)
+    public async Task<Result<RegisterChildResponse>> Handle(RegisterChildCommand request, CancellationToken cancellationToken)
     {
-        // 1. Authenticate the parent
-        var parent = await userManager.FindByEmailAsync(request.ParentEmail);
-        if (parent is null || !await userManager.CheckPasswordAsync(parent, request.ParentPassword))
-            return Result.Failure(HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest("Неверные учётные данные родителя."));
+        // 1. Find the parent by ID (extracted from JWT in the gateway/controller)
+        var parent = await userManager.FindByIdAsync(request.ParentId.ToString());
+        if (parent is null)
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.BadRequest,
+                DefaultErrors.BadRequest("Родитель не найден."));
 
         if (parent.UserType != UserType.Parent)
-            return Result.Failure(HttpStatusCode.Forbidden,
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.Forbidden,
                 DefaultErrors.BadRequest("Только родитель может создать аккаунт ребёнка."));
 
-        // Parent must have confirmed email — child credentials are sent there
-        if (!parent.EmailConfirmed)
-            return Result.Failure(HttpStatusCode.Forbidden,
-                DefaultErrors.BadRequest(
-                    "Для создания аккаунта ребёнка необходимо сначала подтвердить вашу электронную почту, так как на неё будут отправлены логин и пароль ребёнка."));
-
         if (string.IsNullOrWhiteSpace(parent.FamilyCode))
-            return Result.Failure(HttpStatusCode.BadRequest,
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("У родителя нет семейного кода."));
 
-        // 3. Generate child credentials
+        // 2. Generate child credentials
         var childPassword = GenerateRandomPassword(10);
         var childEmail = GenerateChildEmail(parent, request.ChildName);
 
         var existingUser = await userManager.FindByEmailAsync(childEmail);
         if (existingUser is not null)
-            return Result.Failure(HttpStatusCode.Conflict,
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.Conflict,
                 DefaultErrors.Conflict($"Пользователь с почтой {childEmail} уже существует."));
 
-        // 4. Create the child user
+        // 3. Create the child user
         var child = new UserEntity
         {
             Email = childEmail,
@@ -68,7 +62,7 @@ public class RegisterChildCommandHandler(
         if (!createResult.Succeeded)
         {
             var error = string.Join("; ", createResult.Errors.Select(e => e.Description));
-            return Result.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
         }
 
         var addToRoleResult = await userManager.AddToRoleAsync(child, UserRoles.Child);
@@ -76,23 +70,32 @@ public class RegisterChildCommandHandler(
         {
             await userManager.DeleteAsync(child);
             var error = string.Join("; ", addToRoleResult.Errors.Select(e => e.Description));
-            return Result.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
+            return Result<RegisterChildResponse>.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
         }
 
-        // 5. Send child credentials to parent's confirmed email
-        var htmlBody = BuildChildCredentialsHtml(parent, request, childEmail, childPassword);
-
-        try
+        // 4. Try to send child credentials to parent's email (only if confirmed)
+        if (parent.EmailConfirmed && !string.IsNullOrWhiteSpace(parent.Email))
         {
-            await emailService.SendEmailAsync(parent.Email!,
-                "Аккаунт ребёнка создан — ChildMotivation", htmlBody, cancellationToken);
-        }
-        catch
-        {
-            // Email failure should not block child registration — parent can see credentials in response
+            var htmlBody = BuildChildCredentialsHtml(parent, request, childEmail, childPassword);
+            try
+            {
+                await emailService.SendEmailAsync(parent.Email!,
+                    "Аккаунт ребёнка создан — ChildMotivation", htmlBody, cancellationToken);
+            }
+            catch
+            {
+                // Email failure should not block child registration — parent can see credentials in response
+            }
         }
 
-        return Result.Success(HttpStatusCode.Created);
+        // 5. Always return credentials so parent can see them in the UI
+        var response = new RegisterChildResponse(
+            ChildEmail: childEmail,
+            ChildPassword: childPassword,
+            ChildName: request.ChildName.Trim(),
+            ChildLastName: request.ChildLastName.Trim());
+
+        return Result<RegisterChildResponse>.Success(response, HttpStatusCode.Created);
     }
 
     private static string GenerateChildEmail(UserEntity parent, string childName)

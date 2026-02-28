@@ -157,11 +157,13 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         return result.ToActionResult();
     }
 
-    [HttpPost("register-child")]
+    [HttpPost("register-child/{parentId:guid}")]
     public async Task<IActionResult> RegisterChildAsync(
-        [FromBody] RegisterChildCommand command,
+        Guid parentId,
+        [FromBody] RegisterChildRequest request,
         CancellationToken cancellationToken)
     {
+        var command = new RegisterChildCommand(parentId, request.ChildName, request.ChildLastName, request.ChildAge, request.ChildAvatar);
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
@@ -169,3 +171,4 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
 
 public record ConfirmEmailRequest(string UserId, string Token);
 public record ResendConfirmationRequest(string Email);
+public record RegisterChildRequest(string ChildName, string ChildLastName, int ChildAge, string? ChildAvatar);

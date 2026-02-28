@@ -211,6 +211,18 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         return await response.ToActionResultAsync();
     }
 
+    [Authorize]
+    [HttpPost("register-child")]
+    public async Task<IActionResult> RegisterChild([FromBody] object request, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var userGuid))
+            return Unauthorized("User identifier is missing in the token.");
+
+        using var response = await authClient.RegisterChildAsync(userGuid, request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();

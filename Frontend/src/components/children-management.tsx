@@ -52,19 +52,24 @@ function AddChildModal({
 }) {
   const [childName, setChildName] = useState("")
   const [childLastName, setChildLastName] = useState("")
-  const [childEmail, setChildEmail] = useState("")
-  const [childPassword, setChildPassword] = useState("")
   const [childAge, setChildAge] = useState("8")
   const [childAvatar, setChildAvatar] = useState(CHILD_AVATARS[0])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [credentials, setCredentials] = useState<{ childEmail: string; childPassword: string } | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const isValid =
     childName.trim().length > 0 &&
-    childLastName.trim().length > 0 &&
-    childEmail.trim().length > 0 &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(childEmail) &&
-    childPassword.length >= 6
+    childLastName.trim().length > 0
+
+  const handleCopy = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedField(field)
+      setTimeout(() => setCopiedField(null), 2000)
+    } catch { /* ignore */ }
+  }
 
   const handleSubmit = async () => {
     if (!isValid || isSubmitting) return
@@ -72,31 +77,33 @@ function AddChildModal({
     setIsSubmitting(true)
 
     try {
-      await authApi.register({
-        email: childEmail.trim(),
-        password: childPassword,
-        role: "child",
-        profile: {
-          name: childName.trim(),
-          lastName: childLastName.trim(),
-          avatar: childAvatar,
-          age: Number(childAge),
-        },
-        family: {
-          code: familyCode.toUpperCase(),
-        },
+      const result = await authApi.registerChild({
+        childName: childName.trim(),
+        childLastName: childLastName.trim(),
+        childAge: Number(childAge),
+        childAvatar,
       })
+      setCredentials(result)
       toast.success(t("addChild.success"))
-      onSuccess()
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
         err?.response?.data?.title ??
+        err?.response?.data?.detail ??
         err?.message ??
         t("addChild.error")
       setError(msg)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // After credentials are shown and user closes — trigger refresh
+  const handleClose = () => {
+    if (credentials) {
+      onSuccess()
+    } else {
+      onClose()
     }
   }
 
@@ -115,113 +122,128 @@ function AddChildModal({
             </div>
           </div>
 
-          {/* Name */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")}</Label>
-              <Input
-                value={childName}
-                onChange={(e) => setChildName(e.target.value)}
-                placeholder={t("addChild.firstNamePlaceholder")}
-              />
+          {credentials ? (
+            /* ─── Credentials result ─── */
+            <div className="space-y-4">
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 space-y-3">
+                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                  {t("addChild.credentialsTitle")}
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between bg-white dark:bg-background rounded px-3 py-2 border">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t("addChild.credentialsLogin")}</p>
+                      <p className="text-sm font-mono font-semibold">{credentials.childEmail}</p>
+                    </div>
+                    <button onClick={() => handleCopy(credentials.childEmail, "email")} className="text-muted-foreground hover:text-foreground">
+                      {copiedField === "email" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between bg-white dark:bg-background rounded px-3 py-2 border">
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t("addChild.credentialsPassword")}</p>
+                      <p className="text-sm font-mono font-semibold">{credentials.childPassword}</p>
+                    </div>
+                    <button onClick={() => handleCopy(credentials.childPassword, "password")} className="text-muted-foreground hover:text-foreground">
+                      {copiedField === "password" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">{t("addChild.credentialsHint")}</p>
+              </div>
+              <Button className="w-full" onClick={handleClose}>
+                {t("common.close")}
+              </Button>
             </div>
-            <div>
-              <Label className="text-sm font-medium mb-1 block">{t("addChild.lastName")}</Label>
-              <Input
-                value={childLastName}
-                onChange={(e) => setChildLastName(e.target.value)}
-                placeholder={t("addChild.lastNamePlaceholder")}
-              />
-            </div>
-          </div>
+          ) : (
+            /* ─── Form ─── */
+            <>
+              {/* Name */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")}</Label>
+                  <Input
+                    value={childName}
+                    onChange={(e) => setChildName(e.target.value)}
+                    placeholder={t("addChild.firstNamePlaceholder")}
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium mb-1 block">{t("addChild.lastName")}</Label>
+                  <Input
+                    value={childLastName}
+                    onChange={(e) => setChildLastName(e.target.value)}
+                    placeholder={t("addChild.lastNamePlaceholder")}
+                  />
+                </div>
+              </div>
 
-          {/* Credentials */}
-          <div>
-            <Label className="text-sm font-medium mb-1 block">{t("addChild.email")}</Label>
-            <Input
-              type="email"
-              value={childEmail}
-              onChange={(e) => setChildEmail(e.target.value)}
-              placeholder={t("addChild.emailPlaceholder")}
-            />
-            <p className="text-xs text-muted-foreground mt-1">{t("addChild.emailHint")}</p>
-          </div>
+              {/* Age slider */}
+              <div>
+                <Label className="text-sm font-medium mb-1 block">{t("addChild.age")}</Label>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-primary w-8 text-center">{childAge}</span>
+                  <Slider
+                    min={5}
+                    max={16}
+                    step={1}
+                    value={[Number(childAge)]}
+                    onValueChange={(vals) => setChildAge(String(vals[0]))}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <Label className="text-sm font-medium mb-1 block">{t("addChild.password")}</Label>
-            <Input
-              type="password"
-              value={childPassword}
-              onChange={(e) => setChildPassword(e.target.value)}
-              placeholder={t("addChild.passwordPlaceholder")}
-            />
-            <p className="text-xs text-muted-foreground mt-1">{t("addChild.passwordHint")}</p>
-          </div>
+              {/* Avatar picker */}
+              <div>
+                <Label className="text-sm font-medium mb-1 block">{t("addChild.avatar")}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {CHILD_AVATARS.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setChildAvatar(a)}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all ${
+                        childAvatar === a
+                          ? "bg-primary/15 ring-2 ring-primary"
+                          : "bg-muted hover:bg-muted/80"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Age slider */}
-          <div>
-            <Label className="text-sm font-medium mb-1 block">{t("addChild.age")}</Label>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-bold text-primary w-8 text-center">{childAge}</span>
-              <Slider
-                min={5}
-                max={16}
-                step={1}
-                value={[Number(childAge)]}
-                onValueChange={(vals) => setChildAge(String(vals[0]))}
-                className="flex-1"
-              />
-            </div>
-          </div>
-
-          {/* Avatar picker */}
-          <div>
-            <Label className="text-sm font-medium mb-1 block">{t("addChild.avatar")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {CHILD_AVATARS.map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setChildAvatar(a)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all ${
-                    childAvatar === a
-                      ? "bg-primary/15 ring-2 ring-primary"
-                      : "bg-muted hover:bg-muted/80"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <Button variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
-              {t("common.cancel")}
-            </Button>
-            <Button
-              className="flex-1 gap-2"
-              onClick={handleSubmit}
-              disabled={!isValid || isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {t("addChild.creating")}
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4" />
-                  {t("addChild.createButton")}
-                </>
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
               )}
-            </Button>
-          </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  className="flex-1 gap-2"
+                  onClick={handleSubmit}
+                  disabled={!isValid || isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t("addChild.creating")}
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      {t("addChild.createButton")}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

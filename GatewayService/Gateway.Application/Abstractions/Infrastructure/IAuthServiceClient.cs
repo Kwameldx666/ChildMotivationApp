@@ -31,4 +31,5 @@ public interface IAuthServiceClient
     Task<HttpResponseMessage> ChangeEmailAsync(Guid userId, object request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> ConfirmEmailAsync(object request, CancellationToken cancellationToken);
     Task<HttpResponseMessage> ResendConfirmationAsync(object request, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> RegisterChildAsync(Guid parentId, object request, CancellationToken cancellationToken);
 }

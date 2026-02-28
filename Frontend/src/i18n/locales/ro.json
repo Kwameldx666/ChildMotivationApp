@@ -2732,12 +2732,6 @@
     "firstNamePlaceholder": "Prenumele copilului",
     "lastName": "Nume",
     "lastNamePlaceholder": "Numele copilului",
-    "email": "Email",
-    "emailPlaceholder": "copil@exemplu.com",
-    "emailHint": "Folosit pentru autentificarea copilului — puteți folosi emailul dvs. cu sufix +copil",
-    "password": "Parolă",
-    "passwordPlaceholder": "Minim 6 caractere",
-    "passwordHint": "Comunicați aceste date copilului pentru autentificare",
     "age": "Vârstă",
     "avatar": "Avatar",
     "createButton": "Adăugați copil",
@@ -2745,7 +2739,11 @@
     "success": "Copilul a fost adăugat cu succes!",
     "error": "Nu s-a putut adăuga copilul. Încercați din nou.",
     "addButton": "Adăugați copil",
-    "emptyHint": "Adăugați primul copil pentru a începe cu sarcini și recompense"
+    "emptyHint": "Adăugați primul copil pentru a începe cu sarcini și recompense",
+    "credentialsTitle": "Contul copilului a fost creat! Salvați datele de autentificare:",
+    "credentialsLogin": "Login",
+    "credentialsPassword": "Parolă",
+    "credentialsHint": "Salvați aceste date — copilul le va folosi pentru autentificare. Dacă emailul dvs. este confirmat, datele au fost trimise și pe email."
   },
   "gallery": {
     "title": "Galeria dovezilor",

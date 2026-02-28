@@ -4,9 +4,14 @@ using MediatR;
 namespace AuthService.Application.Features.Authentication.Password.RegisterChild;
 
 public record RegisterChildCommand(
-    string ParentEmail,
-    string ParentPassword,
+    Guid ParentId,
     string ChildName,
     string ChildLastName,
     int ChildAge,
-    string? ChildAvatar) : IRequest<Result>;
+    string? ChildAvatar) : IRequest<Result<RegisterChildResponse>>;
+
+public record RegisterChildResponse(
+    string ChildEmail,
+    string ChildPassword,
+    string ChildName,
+    string ChildLastName);
