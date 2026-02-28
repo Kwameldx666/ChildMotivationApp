@@ -28,11 +28,11 @@ public class RegisterChildCommandHandler(
             return Result.Failure(HttpStatusCode.Forbidden,
                 DefaultErrors.BadRequest("Только родитель может создать аккаунт ребёнка."));
 
-        // 2. Parent must have confirmed email
+        // Parent must have confirmed email — child credentials are sent there
         if (!parent.EmailConfirmed)
             return Result.Failure(HttpStatusCode.Forbidden,
                 DefaultErrors.BadRequest(
-                    "Для создания аккаунта ребёнка необходимо сначала подтвердить вашу электронную почту."));
+                    "Для создания аккаунта ребёнка необходимо сначала подтвердить вашу электронную почту, так как на неё будут отправлены логин и пароль ребёнка."));
 
         if (string.IsNullOrWhiteSpace(parent.FamilyCode))
             return Result.Failure(HttpStatusCode.BadRequest,

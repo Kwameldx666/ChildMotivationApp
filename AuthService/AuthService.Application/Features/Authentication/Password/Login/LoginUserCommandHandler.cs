@@ -30,10 +30,6 @@ public class LoginUserCommandHandler(
             return Result<LoginResponse>.Failure(HttpStatusCode.BadRequest,
                 DefaultErrors.BadRequest("User credentials are invalid"));
 
-        if (!user.EmailConfirmed)
-            return Result<LoginResponse>.Failure(HttpStatusCode.Forbidden,
-                DefaultErrors.BadRequest("Email not confirmed. Please check your inbox and confirm your email address."));
-
         var roles = await userManager.GetRolesAsync(user);
 
         var scopeSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
