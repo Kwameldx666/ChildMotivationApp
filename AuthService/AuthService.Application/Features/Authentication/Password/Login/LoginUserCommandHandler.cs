@@ -23,7 +23,9 @@ public class LoginUserCommandHandler(
 {
     public async Task<Result<LoginResponse>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByEmailAsync(request.Email);
+        // Support login by email or by username
+        var user = await userManager.FindByEmailAsync(request.Email)
+                   ?? await userManager.FindByNameAsync(request.Email);
 
         var correctPassword = user != null && await userManager.CheckPasswordAsync(user, request.Password);
         if (user is null || !correctPassword)

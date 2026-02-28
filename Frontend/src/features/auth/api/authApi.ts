@@ -173,8 +173,13 @@ export const authApi = {
     await apiClient.post(`${AUTH_BASE_PATH}/resend-confirmation`, { email })
   },
 
-  async registerChild(payload: { childName: string; childLastName: string; childAge: number; childAvatar?: string | null }) {
+  async registerChild(payload: { childName: string; childLastName?: string | null; childAge: number; childAvatar?: string | null }) {
     const { data } = await apiClient.post<{ childEmail: string; childPassword: string; childName: string; childLastName: string }>(`${AUTH_BASE_PATH}/register-child`, payload)
+    return data
+  },
+
+  async resetChildPassword(childId: string) {
+    const { data } = await apiClient.post<{ newPassword: string }>(`${AUTH_BASE_PATH}/reset-child-password`, { childId })
     return data
   },
 }

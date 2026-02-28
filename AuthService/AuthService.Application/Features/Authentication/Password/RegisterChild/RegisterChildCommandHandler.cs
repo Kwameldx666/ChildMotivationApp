@@ -34,19 +34,18 @@ public class RegisterChildCommandHandler(
 
         // 2. Generate child credentials
         var childPassword = GenerateRandomPassword(10);
-        var childEmail = GenerateChildEmail(parent, request.ChildName);
+        var childLogin = GenerateChildLogin(request.ChildName);
 
-        var existingUser = await userManager.FindByEmailAsync(childEmail);
+        var existingUser = await userManager.FindByNameAsync(childLogin);
         if (existingUser is not null)
             return Result<RegisterChildResponse>.Failure(HttpStatusCode.Conflict,
-                DefaultErrors.Conflict($"Пользователь с почтой {childEmail} уже существует."));
+                DefaultErrors.Conflict($"Пользователь с логином {childLogin} уже существует."));
 
         // 3. Create the child user
         var child = new UserEntity
         {
-            Email = childEmail,
-            UserName = childEmail,
-            EmailConfirmed = true, // Child account — email confirmed automatically
+            UserName = childLogin,
+            EmailConfirmed = true, // Child account — no email needed
             FamilyCode = parent.FamilyCode,
             FamilyName = parent.FamilyName,
             FamilyEmblem = parent.FamilyEmblem,
@@ -55,7 +54,7 @@ public class RegisterChildCommandHandler(
             Age = request.ChildAge,
             UserType = UserType.Child,
             Name = request.ChildName.Trim(),
-            LastName = request.ChildLastName.Trim()
+            LastName = request.ChildLastName?.Trim()
         };
 
         var createResult = await userManager.CreateAsync(child, childPassword);
@@ -76,7 +75,7 @@ public class RegisterChildCommandHandler(
         // 4. Try to send child credentials to parent's email (only if confirmed)
         if (parent.EmailConfirmed && !string.IsNullOrWhiteSpace(parent.Email))
         {
-            var htmlBody = BuildChildCredentialsHtml(parent, request, childEmail, childPassword);
+            var htmlBody = BuildChildCredentialsHtml(parent, request, childLogin, childPassword);
             try
             {
                 await emailService.SendEmailAsync(parent.Email!,
@@ -90,19 +89,19 @@ public class RegisterChildCommandHandler(
 
         // 5. Always return credentials so parent can see them in the UI
         var response = new RegisterChildResponse(
-            ChildEmail: childEmail,
+            ChildEmail: childLogin,
             ChildPassword: childPassword,
             ChildName: request.ChildName.Trim(),
-            ChildLastName: request.ChildLastName.Trim());
+            ChildLastName: request.ChildLastName?.Trim() ?? "");
 
         return Result<RegisterChildResponse>.Success(response, HttpStatusCode.Created);
     }
 
-    private static string GenerateChildEmail(UserEntity parent, string childName)
+    private static string GenerateChildLogin(string childName)
     {
-        var sanitized = childName.Trim().ToLowerInvariant().Replace(" ", "");
-        var familyCode = parent.FamilyCode?.ToLowerInvariant() ?? "family";
-        return $"{sanitized}.{familyCode}@childmotivation.local";
+        var name = childName.Trim().ToLowerInvariant().Replace(" ", "");
+        var suffix = RandomNumberGenerator.GetInt32(10, 99).ToString();
+        return $"{name}{suffix}";
     }
 
     private static string GenerateRandomPassword(int length)
@@ -156,7 +155,7 @@ public class RegisterChildCommandHandler(
                              <p>Данные для входа:</p>
                              <div class="credentials">
                                  <ul>
-                                     <li><strong>Логин (email):</strong> {{childEmail}}</li>
+                                     <li><strong>Логин:</strong> {{childEmail}}</li></li>
                                      <li><strong>Пароль:</strong> {{childPassword}}</li>
                                  </ul>
                              </div>

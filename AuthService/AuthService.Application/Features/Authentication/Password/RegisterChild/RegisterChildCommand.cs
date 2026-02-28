@@ -6,7 +6,7 @@ namespace AuthService.Application.Features.Authentication.Password.RegisterChild
 public record RegisterChildCommand(
     Guid ParentId,
     string ChildName,
-    string ChildLastName,
+    string? ChildLastName,
     int ChildAge,
     string? ChildAvatar) : IRequest<Result<RegisterChildResponse>>;
 

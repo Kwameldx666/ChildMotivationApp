@@ -189,4 +189,14 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             SerializerOptions,
             cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> ResetChildPasswordAsync(Guid parentId, object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            $"{_endpoints.ResetChildPassword}/{parentId}",
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

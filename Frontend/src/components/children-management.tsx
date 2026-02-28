@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
-import { Check, Copy, RefreshCw, Users, ChevronRight, Plus, Loader2, UserPlus } from "lucide-react"
+import { Check, Copy, RefreshCw, Users, ChevronRight, Plus, Loader2, UserPlus, KeyRound } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
 import type { FamilyMember } from "@/services/family-service"
@@ -53,15 +53,12 @@ function AddChildModal({
   const [childName, setChildName] = useState("")
   const [childLastName, setChildLastName] = useState("")
   const [childAge, setChildAge] = useState("8")
-  const [childAvatar, setChildAvatar] = useState(CHILD_AVATARS[0])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [credentials, setCredentials] = useState<{ childEmail: string; childPassword: string } | null>(null)
   const [copiedField, setCopiedField] = useState<string | null>(null)
 
-  const isValid =
-    childName.trim().length > 0 &&
-    childLastName.trim().length > 0
+  const isValid = childName.trim().length > 0
 
   const handleCopy = async (text: string, field: string) => {
     try {
@@ -79,9 +76,8 @@ function AddChildModal({
     try {
       const result = await authApi.registerChild({
         childName: childName.trim(),
-        childLastName: childLastName.trim(),
+        childLastName: childLastName.trim() || null,
         childAge: Number(childAge),
-        childAvatar,
       })
       setCredentials(result)
       toast.success(t("addChild.success"))
@@ -159,9 +155,9 @@ function AddChildModal({
             /* ─── Form ─── */
             <>
               {/* Name */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")}</Label>
+                  <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")} *</Label>
                   <Input
                     value={childName}
                     onChange={(e) => setChildName(e.target.value)}
@@ -194,26 +190,7 @@ function AddChildModal({
                 </div>
               </div>
 
-              {/* Avatar picker */}
-              <div>
-                <Label className="text-sm font-medium mb-1 block">{t("addChild.avatar")}</Label>
-                <div className="flex flex-wrap gap-2">
-                  {CHILD_AVATARS.map((a) => (
-                    <button
-                      key={a}
-                      type="button"
-                      onClick={() => setChildAvatar(a)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all ${
-                        childAvatar === a
-                          ? "bg-primary/15 ring-2 ring-primary"
-                          : "bg-muted hover:bg-muted/80"
-                      }`}
-                    >
-                      {a}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs text-muted-foreground">{t("addChild.autoCredentialsHint")}</p>
 
               {error && (
                 <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
@@ -250,6 +227,128 @@ function AddChildModal({
   )
 }
 
+/* ─── Reset Child Password Modal ─── */
+function ResetPasswordModal({
+  child,
+  onClose,
+  t,
+}: {
+  child: FamilyMember
+  onClose: () => void
+  t: (key: string, params?: Record<string, string>) => string
+}) {
+  const [isResetting, setIsResetting] = useState(false)
+  const [newPassword, setNewPassword] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
+
+  const handleCopy = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedField(field)
+      setTimeout(() => setCopiedField(null), 2000)
+    } catch { /* ignore */ }
+  }
+
+  const handleReset = async () => {
+    if (isResetting) return
+    setError(null)
+    setIsResetting(true)
+
+    try {
+      const result = await authApi.resetChildPassword(child.id)
+      setNewPassword(result.newPassword)
+      toast.success(t("resetChildPassword.success"))
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ??
+        err?.response?.data?.title ??
+        err?.response?.data?.detail ??
+        err?.message ??
+        t("resetChildPassword.error")
+      setError(msg)
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <CardContent className="pt-6 space-y-4">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
+              <KeyRound className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">{t("resetChildPassword.title")}</h2>
+              <p className="text-xs text-muted-foreground">{formatMemberName(child)}</p>
+            </div>
+          </div>
+
+          {newPassword ? (
+            /* ─── New password result ─── */
+            <div className="space-y-4">
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3">
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                  {t("resetChildPassword.newPasswordTitle")}
+                </p>
+                <div className="flex items-center justify-between bg-white dark:bg-background rounded px-3 py-2 border">
+                  <div>
+                    <p className="text-xs text-muted-foreground">{t("resetChildPassword.newPasswordLabel")}</p>
+                    <p className="text-sm font-mono font-semibold">{newPassword}</p>
+                  </div>
+                  <button onClick={() => handleCopy(newPassword, "newpwd")} className="text-muted-foreground hover:text-foreground">
+                    {copiedField === "newpwd" ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">{t("resetChildPassword.hint")}</p>
+              </div>
+              <Button className="w-full" onClick={onClose}>
+                {t("common.close")}
+              </Button>
+            </div>
+          ) : (
+            /* ─── Confirmation ─── */
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">{t("resetChildPassword.confirm")}</p>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={onClose} disabled={isResetting}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1 gap-2"
+                  onClick={handleReset}
+                  disabled={isResetting}
+                >
+                  {isResetting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t("resetChildPassword.resetting")}
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="w-4 h-4" />
+                      {t("resetChildPassword.resetButton")}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
   const router = useRouter()
   const { t } = useTranslation()
@@ -261,6 +360,7 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
   })
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [showAddChild, setShowAddChild] = useState(false)
+  const [resetPasswordChild, setResetPasswordChild] = useState<FamilyMember | null>(null)
 
   const children = useMemo(() => {
     if (!data) return []
@@ -422,7 +522,19 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setResetPasswordChild(child)
+                    }}
+                    className="p-2 rounded-md text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors"
+                    title={t("resetChildPassword.title")}
+                  >
+                    <KeyRound className="w-4 h-4" />
+                  </button>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -450,6 +562,15 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
             setShowAddChild(false)
             refetch()
           }}
+          t={t}
+        />
+      )}
+
+      {/* Reset child password modal */}
+      {resetPasswordChild && (
+        <ResetPasswordModal
+          child={resetPasswordChild}
+          onClose={() => setResetPasswordChild(null)}
           t={t}
         />
       )}

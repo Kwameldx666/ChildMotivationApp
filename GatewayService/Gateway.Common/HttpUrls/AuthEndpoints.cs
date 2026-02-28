@@ -24,4 +24,5 @@ public class AuthEndpoints
     public string ConfirmEmail { get; set; } = "auth-service/confirm-email";
     public string ResendConfirmation { get; set; } = "auth-service/resend-confirmation";
     public string RegisterChild { get; set; } = "auth-service/register-child";
+    public string ResetChildPassword { get; set; } = "auth-service/reset-child-password";
 }

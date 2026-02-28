@@ -5,6 +5,7 @@ using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
 using AuthService.Application.Features.Authentication.Password.Register;
 using AuthService.Application.Features.Authentication.Password.RegisterChild;
+using AuthService.Application.Features.Authentication.Password.ResetChildPassword;
 using AuthService.Application.Features.Authentication.Password.ResendConfirmation;
 using AuthService.Application.Features.Authentication.Password.RevokeToken;
 using AuthService.Application.Features.Cache.PendingUser;
@@ -167,8 +168,20 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
+
+    [HttpPost("reset-child-password/{parentId:guid}")]
+    public async Task<IActionResult> ResetChildPasswordAsync(
+        Guid parentId,
+        [FromBody] ResetChildPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ResetChildPasswordCommand(parentId, request.ChildId);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
 }
 
 public record ConfirmEmailRequest(string UserId, string Token);
 public record ResendConfirmationRequest(string Email);
-public record RegisterChildRequest(string ChildName, string ChildLastName, int ChildAge, string? ChildAvatar);
+public record RegisterChildRequest(string ChildName, string? ChildLastName, int ChildAge, string? ChildAvatar);
+public record ResetChildPasswordRequest(Guid ChildId);

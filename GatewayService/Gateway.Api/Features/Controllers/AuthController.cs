@@ -223,6 +223,18 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         return await response.ToActionResultAsync();
     }
 
+    [Authorize]
+    [HttpPost("reset-child-password")]
+    public async Task<IActionResult> ResetChildPassword([FromBody] object request, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+        if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out var userGuid))
+            return Unauthorized("User identifier is missing in the token.");
+
+        using var response = await authClient.ResetChildPasswordAsync(userGuid, request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
