@@ -51,7 +51,6 @@ function AddChildModal({
   t: (key: string, params?: Record<string, string>) => string
 }) {
   const [childName, setChildName] = useState("")
-  const [childLastName, setChildLastName] = useState("")
   const [childAge, setChildAge] = useState("8")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -76,7 +75,6 @@ function AddChildModal({
     try {
       const result = await authApi.registerChild({
         childName: childName.trim(),
-        childLastName: childLastName.trim() || null,
         childAge: Number(childAge),
       })
       setCredentials(result)
@@ -155,23 +153,13 @@ function AddChildModal({
             /* ─── Form ─── */
             <>
               {/* Name */}
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")} *</Label>
-                  <Input
-                    value={childName}
-                    onChange={(e) => setChildName(e.target.value)}
-                    placeholder={t("addChild.firstNamePlaceholder")}
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium mb-1 block">{t("addChild.lastName")}</Label>
-                  <Input
-                    value={childLastName}
-                    onChange={(e) => setChildLastName(e.target.value)}
-                    placeholder={t("addChild.lastNamePlaceholder")}
-                  />
-                </div>
+              <div>
+                <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")} *</Label>
+                <Input
+                  value={childName}
+                  onChange={(e) => setChildName(e.target.value)}
+                  placeholder={t("addChild.firstNamePlaceholder")}
+                />
               </div>
 
               {/* Age slider */}
