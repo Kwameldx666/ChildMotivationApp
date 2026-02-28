@@ -4,6 +4,7 @@ using AuthService.Application.Features.Authentication.Password.ConfirmEmail;
 using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
 using AuthService.Application.Features.Authentication.Password.Register;
+using AuthService.Application.Features.Authentication.Password.RegisterChild;
 using AuthService.Application.Features.Authentication.Password.ResendConfirmation;
 using AuthService.Application.Features.Authentication.Password.RevokeToken;
 using AuthService.Application.Features.Cache.PendingUser;
@@ -152,6 +153,15 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         CancellationToken cancellationToken)
     {
         var command = new ResendConfirmationEmailCommand(request.Email);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("register-child")]
+    public async Task<IActionResult> RegisterChildAsync(
+        [FromBody] RegisterChildCommand command,
+        CancellationToken cancellationToken)
+    {
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }

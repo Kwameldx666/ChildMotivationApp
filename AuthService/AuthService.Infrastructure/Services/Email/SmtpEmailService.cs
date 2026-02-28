@@ -34,6 +34,26 @@ public class SmtpEmailService : IEmailService
 
         message.Body = bodyBuilder.ToMessageBody();
 
+        await SendMimeMessageAsync(message, toEmail, cancellationToken);
+    }
+
+    public async Task SendEmailAsync(string to, string subject, string htmlBody,
+        CancellationToken cancellationToken = default)
+    {
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress(_smtp.FromName, _smtp.FromEmail));
+        message.To.Add(MailboxAddress.Parse(to));
+        message.Subject = subject;
+
+        var bodyBuilder = new BodyBuilder { HtmlBody = htmlBody };
+        message.Body = bodyBuilder.ToMessageBody();
+
+        await SendMimeMessageAsync(message, to, cancellationToken);
+    }
+
+    private async Task SendMimeMessageAsync(MimeMessage message, string toEmail,
+        CancellationToken cancellationToken)
+    {
         try
         {
             using var client = new SmtpClient();
@@ -47,11 +67,11 @@ public class SmtpEmailService : IEmailService
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
 
-            _logger.LogInformation("Confirmation email sent to {Email}", toEmail);
+            _logger.LogInformation("Email sent to {Email}", toEmail);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send confirmation email to {Email}", toEmail);
+            _logger.LogError(ex, "Failed to send email to {Email}", toEmail);
             throw;
         }
     }
