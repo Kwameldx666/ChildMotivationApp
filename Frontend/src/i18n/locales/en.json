@@ -101,7 +101,6 @@
     "pending": "Pending",
     "inProgress": "In Progress",
     "completed": "Completed",
-    "pendingApproval": "Awaiting Approval",
     "overdue": "Overdue",
     "cancelled": "Cancelled",
     "confirmationType": "Confirmation Type",
@@ -255,7 +254,7 @@
     "chooseYourPlan": "Choose Your Plan",
     "upgradeDescription": "Upgrade your subscription to access advanced features",
     "selectPlan": "Select Plan",
-    "switchToYearlySave": "Switch to yearly to save 20%",
+    "switchToYearlySave": "Switch to yearly to save 15%",
     "plansInclude": "Plans include:",
     "plans": {
       "free": {
@@ -272,11 +271,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Daily help with chores & motivation",
-        "price": "49",
-        "priceAmount": "49 lei",
-        "yearlyPrice": "468",
-        "yearlyMonthlyPrice": "39 lei",
-        "yearlyDiscount": "-20%",
+        "price": "299",
+        "priceAmount": "299 lei",
+        "yearlyPrice": "2990",
+        "yearlyMonthlyPrice": "249 lei",
+        "yearlyDiscount": "-17%",
         "features": [
           "Unlimited children",
           "AI generates age-appropriate tasks",
@@ -289,11 +288,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Insights that help you raise kids better",
-        "price": "99",
-        "priceAmount": "99 lei",
-        "yearlyPrice": "948",
-        "yearlyMonthlyPrice": "79 lei",
-        "yearlyDiscount": "-20%",
+        "price": "599",
+        "priceAmount": "599 lei",
+        "yearlyPrice": "5990",
+        "yearlyMonthlyPrice": "499 lei",
+        "yearlyDiscount": "-17%",
         "features": [
           "Everything in Basic",
           "AI adapts tasks to child's behavior",
@@ -307,11 +306,11 @@
       "family": {
         "name": "Family",
         "tagline": "Both parents, grandparents & nanny in sync",
-        "price": "149",
-        "priceAmount": "149 lei",
-        "yearlyPrice": "1428",
-        "yearlyMonthlyPrice": "119 lei",
-        "yearlyDiscount": "-20%",
+        "price": "999",
+        "priceAmount": "999 lei",
+        "yearlyPrice": "9990",
+        "yearlyMonthlyPrice": "833 lei",
+        "yearlyDiscount": "-17%",
         "features": [
           "Everything in Premium",
           "Up to 5 caregiver accounts",
@@ -1032,8 +1031,8 @@
     }
   },
   "rewardsShop": {
-    "title": "Rewards Shop",
-    "subtitle": "Exchange your stars for awesome prizes!",
+    "title": "Reward Shop",
+    "subtitle": "Redeem your stars for awesome prizes!",
     "errors": {
       "loadTitle": "Load error",
       "loadProducts": "Could not load shop items",
@@ -1061,8 +1060,6 @@
     "actions": {
       "unavailable": "Unavailable",
       "exchange": "Redeem points",
-      "notEnough": "Not enough",
-      "needMore": "Need {amount} more",
       "edit": "Edit",
       "delete": "Delete",
       "confirming": "Confirming...",
@@ -1104,10 +1101,6 @@
       "productUnavailable": {
         "title": "Product unavailable",
         "description": "This item is out of stock."
-      },
-      "notEnoughPoints": {
-        "title": "Not enough points",
-        "description": "You need {need} points but only have {have}"
       },
       "orderCreated": {
         "title": "Order created",
@@ -1454,16 +1447,10 @@
     "edit": "Edit",
     "delete": "Delete",
     "complete": "Complete",
-    "reject": "Reject",
     "approve": "Approve",
     "completed": "Completed",
-    "waitingApproval": "Awaiting approval",
     "evidenceSubmitted": "Submitted",
-    "evidenceRequired": "Required",
-    "askAi": "Ask AI for help",
-    "askParent": "Ask parent",
-    "askParentMessage": "I have a question about this task",
-    "askParentSent": "Message sent to parent!"
+    "evidenceRequired": "Required"
   },
   "familyGoals": {
     "title": "Family Goals",
@@ -1570,9 +1557,6 @@
     "childrenCount": "{count} children",
     "privateChats": "Private Chats",
     "noChildren": "No children in the family yet",
-    "noChildrenTitle": "Chats will be available after adding children",
-    "noChildrenHint": "Add a child to start chatting in the family chat",
-    "addChildButton": "Add Child",
     "inviteChildren": "Invite children using the family code",
     "yearsOld": "{age} years old",
     "personalChat": "Personal chat"
@@ -1619,15 +1603,7 @@
     "quickSwitch": "Quick switch",
     "child": "Child"
   },
-  "analyticsAi": {
-    "title": "AI Insights",
-    "cta": "Get AI Analysis",
-    "ctaDescription": "AI will analyze your family's task data and provide personalized recommendations",
-    "generate": "Analyze with AI",
-    "refresh": "Refresh",
-    "analyzing": "Analyzing your data...",
-    "retry": "Retry"
-  },
+  "parentalControl": {
     "title": "Parental Control",
     "nightMode": "Night Mode",
     "nightModeDescription": "Restrict activity during nighttime",
@@ -2177,7 +2153,6 @@
     "status": {
       "pending": "Pending",
       "inProgress": "In Progress",
-      "pendingApproval": "Awaiting Approval",
       "completed": "Completed",
       "overdue": "Overdue"
     },
@@ -2418,7 +2393,6 @@
       "quests": "Quests",
       "shop": "Shop",
       "achievements": "Awards",
-      "chat": "AI Chat",
       "me": "Me"
     },
     "rewards": {
@@ -2617,90 +2591,6 @@
     "videoTip": "Keep the video short — 10-30 seconds is enough",
     "documentTip": "Make sure the document is readable and not blurry"
   },
-  "tour": {
-    "skip": "Skip",
-    "finish": "Got it!",
-    "parent": {
-      "welcome": {
-        "title": "Welcome to FamilyQuest!",
-        "desc": "Let us give you a quick tour of the app. You'll learn how to create tasks, manage rewards, and track your children's progress."
-      },
-      "tabs": {
-        "title": "Navigation tabs",
-        "desc": "Use these tabs to switch between sections: tasks, rewards, children, analytics, chat, and settings."
-      },
-      "tasks": {
-        "title": "Tasks",
-        "desc": "This is where you manage tasks for your children. Create tasks, set difficulty, and track completion."
-      },
-      "newTask": {
-        "title": "Create a task",
-        "desc": "Click this button to create a new task. AI can help write an engaging description for the child."
-      },
-      "rewards": {
-        "title": "Rewards shop",
-        "desc": "Create rewards that children can buy with earned points. A great motivator!"
-      },
-      "children": {
-        "title": "Children",
-        "desc": "View and manage your children's profiles. Invite new children to the family group."
-      },
-      "analytics": {
-        "title": "Analytics",
-        "desc": "Track progress with charts and stats. AI can analyze patterns and give recommendations."
-      },
-      "chat": {
-        "title": "Family chat",
-        "desc": "Communicate with your family and chat with the AI assistant for help."
-      },
-      "notifications": {
-        "title": "Notifications",
-        "desc": "Stay updated — task completions, reward requests, and family events appear here."
-      },
-      "done": {
-        "title": "You're all set!",
-        "desc": "Start by creating your first task or inviting your children. Good luck on your family adventure!"
-      }
-    },
-    "child": {
-      "welcome": {
-        "title": "Hey, adventurer!",
-        "desc": "Welcome to your quest board! Let's show you around so you can start earning points and prizes."
-      },
-      "stats": {
-        "title": "Your stats",
-        "desc": "Here you can see your points, streak, completed tasks, and XP. Keep them growing!"
-      },
-      "xp": {
-        "title": "Experience bar",
-        "desc": "Complete tasks to earn XP. When the bar fills up, you level up and unlock new ranks!"
-      },
-      "nav": {
-        "title": "Navigation",
-        "desc": "Switch between sections using these tabs — tasks, gallery, quests, shop, AI chat, achievements."
-      },
-      "tasks": {
-        "title": "Your tasks",
-        "desc": "See tasks from your parents here. Complete them to earn points and XP!"
-      },
-      "shop": {
-        "title": "Rewards shop",
-        "desc": "Spend your earned points on cool rewards. The more tasks you complete, the more you can buy!"
-      },
-      "chat": {
-        "title": "AI Chat",
-        "desc": "Need help with a task? Chat with the AI assistant — it can give tips and explain things."
-      },
-      "achievements": {
-        "title": "Achievements",
-        "desc": "Earn badges and trophies for your accomplishments. Collect them all!"
-      },
-      "done": {
-        "title": "Ready to go!",
-        "desc": "Check out your tasks tab and start completing quests. Have fun and earn awesome rewards!"
-      }
-    }
-  },
   "onboarding": {
     "tip0Title": "Welcome to FamilyQuest!",
     "tip0Description": "A fun way to build good habits as a family",
@@ -2834,7 +2724,7 @@
   },
   "paymentModal": {
     "title": "Payment",
-    "description": "Subscribe to {tierName} plan for ${price}/month",
+    "description": "Subscribe to {tierName} plan for {price}/month",
     "errorTitle": "Validation Error",
     "fillAllFields": "Please fill in all card fields",
     "paymentSuccess": "Payment Successful",
@@ -2849,7 +2739,7 @@
     "totalAmount": "Total",
     "cancel": "Cancel",
     "processing": "Processing...",
-    "pay": "Pay ${price}",
+    "pay": "Pay {price}",
     "subscribingTo": "Subscribing to",
     "billingCycle": "Billing Cycle",
     "monthly": "Monthly",
@@ -2915,32 +2805,7 @@
     "success": "Child added successfully!",
     "error": "Failed to add child. Please try again.",
     "addButton": "Add Child",
-    "emptyHint": "Add your first child to get started with tasks and rewards",
-    "credentialsTitle": "Child account created! Save the login details:",
-    "credentialsLogin": "Login",
-    "credentialsPassword": "Password",
-    "credentialsHint": "Save these details — your child will need them to log in. If your email is confirmed, they will also be sent to your email.",
-    "autoCredentialsHint": "Login and password will be generated automatically. The child can change the password after their first login."
-  },
-  "resetChildPassword": {
-    "title": "Reset Child Password",
-    "confirm": "The child's current password will be replaced with a new random password. Are you sure?",
-    "resetButton": "Reset Password",
-    "resetting": "Resetting...",
-    "success": "Password reset successfully!",
-    "error": "Failed to reset password. Please try again.",
-    "newPasswordTitle": "New child password:",
-    "newPasswordLabel": "New Password",
-    "hint": "Save the new password — your child will need it to log in. If your email is confirmed, it has also been sent to your email."
-  },
-  "childrenPage": {
-    "title": "My Children",
-    "subtitle": "Add and manage your children's profiles",
-    "emptyTitle": "No children yet",
-    "emptyDescription": "Add a child so they can complete tasks, earn rewards, and chat in the family group",
-    "addFirstChild": "Add First Child",
-    "autoCredentialsNote": "Login and password are generated automatically",
-    "yearsOld": "years old"
+    "emptyHint": "Add your first child to get started with tasks and rewards"
   },
   "childSetup": {
     "titlePassword": "Change Password",
