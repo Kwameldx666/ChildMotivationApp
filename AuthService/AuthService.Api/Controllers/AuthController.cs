@@ -2,11 +2,13 @@ using AuthService.Application.Features.Authentication.Password.ChangeEmail;
 using AuthService.Application.Features.Authentication.Password.ChangePassword;
 using AuthService.Application.Features.Authentication.Password.CompleteChildSetup;
 using AuthService.Application.Features.Authentication.Password.ConfirmEmail;
+using AuthService.Application.Features.Authentication.Password.ForgotPassword;
 using AuthService.Application.Features.Authentication.Password.Login;
 using AuthService.Application.Features.Authentication.Password.RefreshToken;
 using AuthService.Application.Features.Authentication.Password.Register;
 using AuthService.Application.Features.Authentication.Password.RegisterChild;
 using AuthService.Application.Features.Authentication.Password.ResetChildPassword;
+using AuthService.Application.Features.Authentication.Password.ResetPassword;
 using AuthService.Application.Features.Authentication.Password.ResendConfirmation;
 using AuthService.Application.Features.Authentication.Password.RevokeToken;
 using AuthService.Application.Features.Cache.PendingUser;
@@ -191,6 +193,30 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPasswordAsync(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ForgotPasswordCommand(request.Email);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPasswordAsync(
+        [FromBody] ResetPasswordRequest2 request,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(request.UserId, out var userId))
+            return BadRequest(new { error = "Invalid user ID" });
+
+        var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+        var command = new ResetPasswordCommand(userId, decodedToken, request.NewPassword);
+        var result = await mediator.Send(command, cancellationToken);
+        return result.ToActionResult();
+    }
 }
 
 public record ConfirmEmailRequest(string UserId, string Token);
@@ -198,3 +224,5 @@ public record ResendConfirmationRequest(string Email);
 public record RegisterChildRequest(string ChildName, string? ChildLastName, int ChildAge, string? ChildAvatar);
 public record ResetChildPasswordRequest(Guid ChildId);
 public record CompleteChildSetupRequest(string CurrentPassword, string NewPassword);
+public record ForgotPasswordRequest(string Email);
+public record ResetPasswordRequest2(string UserId, string Token, string NewPassword);

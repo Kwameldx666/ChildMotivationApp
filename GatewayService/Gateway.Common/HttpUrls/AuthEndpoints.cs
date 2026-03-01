@@ -26,4 +26,6 @@ public class AuthEndpoints
     public string RegisterChild { get; set; } = "auth-service/register-child";
     public string ResetChildPassword { get; set; } = "auth-service/reset-child-password";
     public string CompleteChildSetup { get; set; } = "auth-service/complete-child-setup";
+    public string ForgotPassword { get; set; } = "auth-service/forgot-password";
+    public string ResetPassword { get; set; } = "auth-service/reset-password";
 }

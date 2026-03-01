@@ -32,17 +32,6 @@ export default function Home() {
     }
   }, [bootstrap])
 
-  // Проверяем, есть ли pending приглашение в семью
-  useEffect(() => {
-    if (typeof window !== "undefined" && screen === "welcome") {
-      const pendingCode = localStorage.getItem("pendingFamilyCode")
-      if (pendingCode) {
-        // Если есть код приглашения, сразу показываем регистрацию
-        startAuthFlow("register")
-      }
-    }
-  }, [screen, startAuthFlow])
-
   const handleSplashComplete = () => {
     setScreen((current) => (current === "splash" ? "welcome" : current))
   }
@@ -98,7 +87,6 @@ export default function Home() {
       <ParentDashboard
         userId={session.user.id}
         userProfile={session.profile}
-        familyCode={session.family?.code ?? null}
         familyName={session.family?.name ?? null}
         familyEmblem={session.family?.emblem ?? null}
         onLogout={handleLogout}
@@ -111,7 +99,6 @@ export default function Home() {
       <ChildDashboard
         userId={session.user.id}
         userProfile={session.profile}
-        familyCode={session.family?.code ?? ""}
         onLogout={handleLogout}
       />
     )

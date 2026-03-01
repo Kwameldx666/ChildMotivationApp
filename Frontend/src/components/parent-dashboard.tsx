@@ -40,7 +40,6 @@ interface ParentDashboardProps {
     avatar: string
     role: "parent" | "child"
   }
-  familyCode: string | null
   familyName?: string | null
   familyEmblem?: string | null
   onLogout: () => void
@@ -49,7 +48,6 @@ interface ParentDashboardProps {
 export default function ParentDashboard({
   userId,
   userProfile,
-  familyCode,
   familyName,
   familyEmblem,
   onLogout,
@@ -59,7 +57,6 @@ export default function ParentDashboard({
   const [activeTab, setActiveTab] = useState("tasks")
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
-  const safeFamilyCode = familyCode ?? "—"
   const createProduct = useCreateProduct()
   const { toast } = useToast()
 
@@ -133,7 +130,6 @@ export default function ParentDashboard({
               <div className="text-3xl">{familyEmblem || "🏰"}</div>
               <div>
                 <h1 className="text-2xl font-bold">{familyName || t("parentDashboard.familyNameFallback")}</h1>
-                <p className="text-sm text-muted-foreground">{t("parentDashboard.familyCodeLabel")}: {safeFamilyCode}</p>
               </div>
             </div>
           </div>
@@ -155,7 +151,6 @@ export default function ParentDashboard({
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{t("parentDashboard.familyCodeLabel")}: {safeFamilyCode}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -251,13 +246,13 @@ export default function ParentDashboard({
               <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.settings.title")}</h2>
               <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.settings.subtitle")}</p>
             </div>
-            <ParentSettings familyName={familyName} familyCode={safeFamilyCode} familyCodeRaw={familyCode} />
+            <ParentSettings familyName={familyName} />
           </TabsContent>
 
           <TabsContent value="chat" className="space-y-4">
-            {safeFamilyCode && safeFamilyCode !== "—" && userId ? (
+            {userId ? (
               <ParentChatSelector
-                familyId={safeFamilyCode}
+                familyId={userId}
                 currentUserId={userId}
                 currentUserName={userProfile.name}
                 currentUserAvatar={userProfile.avatar}

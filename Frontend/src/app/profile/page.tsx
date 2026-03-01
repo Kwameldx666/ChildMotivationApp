@@ -288,13 +288,6 @@ export default function ProfilePage() {
                   </span>
                 )}
               </div>
-
-              {session.family?.code && (
-                <div className="w-full mt-2 rounded-xl bg-muted/50 px-3 py-2 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t("profilePage.code")}</p>
-                  <p className="text-sm font-mono font-semibold tracking-widest text-foreground">{session.family.code}</p>
-                </div>
-              )}
             </div>
 
             {/* ── Quick actions ── */}
@@ -397,9 +390,6 @@ export default function ProfilePage() {
           <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y divide-border/60">
             <InfoRow label={t("profilePage.email")} value={user.email} />
             <InfoRow label={t("profilePage.role")} value={roleLabel} />
-            {session.family?.code && (
-              <InfoRow label={t("profilePage.familyCode")} value={session.family.code} mono />
-            )}
           </div>
 
           {/* Security */}

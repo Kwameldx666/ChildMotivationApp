@@ -79,7 +79,6 @@ export default function ParentDashboardPage() {
         avatar,
         role: session.profile.role,
       }}
-      familyCode={session.family?.code ?? null}
       familyName={session.family?.name ?? null}
       familyEmblem={session.family?.emblem ?? null}
       onLogout={handleLogout}

@@ -247,6 +247,20 @@ public class AuthController(IAuthServiceClient authClient, IWebHostEnvironment e
         return await response.ToActionResultAsync();
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] object request, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.ForgotPasswordAsync(request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] object request, CancellationToken cancellationToken)
+    {
+        using var response = await authClient.ResetPasswordAsync(request, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     private async Task<IActionResult> ToActionResultWithAuthCookiesAsync(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();

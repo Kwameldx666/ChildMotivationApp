@@ -91,7 +91,7 @@ function GitHubIcon(props: { className?: string }) {
 
 export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: AuthScreenProps) {
   const { t } = useTranslation()
-  const [mode, setMode] = useState<"login" | "register">(initialMode)
+  const [mode, setMode] = useState<"login" | "register" | "forgot-password">(initialMode)
   const [role, setRole] = useState<UserRole>("parent")
   const [isJoiningByInvite, setIsJoiningByInvite] = useState(false) // Блокировка выбора роли
 
@@ -107,7 +107,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   const [familyName, setFamilyName] = useState("")
   const [familyEmblem, setFamilyEmblem] = useState<(typeof FAMILY_EMBLEMS)[number]>(FAMILY_EMBLEMS[0])
-  const [childFamilyCode, setChildFamilyCode] = useState("")
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -133,7 +132,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   const [nameTouched, setNameTouched] = useState(false)
   const [lastNameTouched, setLastNameTouched] = useState(false)
   const [familyNameTouched, setFamilyNameTouched] = useState(false)
-  const [childFamilyCodeTouched, setChildFamilyCodeTouched] = useState(false)
   const [ageTouched, setAgeTouched] = useState(false)
 
   useEffect(() => {
@@ -144,7 +142,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
   // Clean up any stale join mode data from old invite links
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("pendingFamilyCode")
       localStorage.removeItem("pendingJoinMode")
     }
   }, [])
@@ -201,6 +198,34 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
       onAuth(session)
     } catch (serviceError: any) {
       setError(mapApiError(serviceError, t("authScreen.errors.loginFailed")))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const submitForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setInfo(null)
+
+    if (!email || !isValidEmail(email)) {
+      setError(t("auth.forgotPasswordEmailRequired"))
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      await authApi.forgotPassword(email)
+      setInfo(t("auth.forgotPasswordSuccess"))
+    } catch (serviceError: any) {
+      // Check if it's an email-not-confirmed error
+      const errorData = serviceError?.response?.data
+      const errorCode = errorData?.code ?? errorData?.Code ?? ""
+      if (errorCode === "EmailNotConfirmed") {
+        setError(t("auth.emailNotConfirmedError"))
+      } else {
+        setError(mapApiError(serviceError, t("auth.forgotPasswordFailed")))
+      }
     } finally {
       setIsLoading(false)
     }
@@ -364,6 +389,17 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                     placeholder="••••••"
                     className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
                   />
+                  {mode === "login" && (
+                    <div className="text-right mt-1">
+                      <button
+                        type="button"
+                        onClick={() => { setError(null); setInfo(null); setMode("forgot-password") }}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {t("auth.forgotPassword")}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {mode === "register" && (
@@ -479,7 +515,6 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                           </div>
                         </div>
                         
-                        <p className="text-xs text-gray-600">{t("authScreen.familyCodeAuto")}</p>
 
                     <p className="text-xs text-muted-foreground bg-muted/50 dark:bg-muted/20 p-2.5 rounded-lg flex items-center gap-2">
                       <span>👶</span>
@@ -573,7 +608,54 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
             </>
           )} 
 
+          {mode === "forgot-password" && (
+            <>
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  {t("auth.resetPassword")}
+                </h2>
+                <p className="text-sm text-gray-600 font-medium">{t("auth.forgotPasswordDescription")}</p>
+              </div>
 
+              <form className="space-y-4" onSubmit={submitForgotPassword}>
+                <div>
+                  <Label className="text-sm font-semibold text-gray-800 mb-1.5 block">{t("auth.email")}</Label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="bg-white border-2 border-gray-300 focus:border-purple-500 text-gray-900 placeholder:text-gray-500"
+                  />
+                </div>
+
+                {error && (
+                  <div className="text-sm text-destructive bg-destructive/10 p-3 rounded whitespace-pre-line">
+                    {error}
+                  </div>
+                )}
+                {info && !error && <div className="text-sm text-emerald-600 bg-emerald-100 p-3 rounded">{info}</div>}
+
+                <Button
+                  type="submit"
+                  className="w-full bg-linear-to-r from-primary to-secondary hover:opacity-90 text-white shadow-lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? t("authScreen.submitLoading") : t("auth.sendResetLink")}
+                </Button>
+
+                <div className="text-center text-sm">
+                  <button
+                    type="button"
+                    onClick={() => { setError(null); setInfo(null); setMode("login") }}
+                    className="text-primary hover:underline"
+                  >
+                    {t("auth.backToLogin")}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
 
 
         </CardContent>

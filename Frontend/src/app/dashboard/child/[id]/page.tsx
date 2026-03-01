@@ -56,12 +56,10 @@ export default function ChildProfilePage() {
   const router = useRouter()
   const session = useAppSelector(selectAuthSession)
   const childId = params.id as string
-
-  const familyCode = session?.family?.code ?? null
   
   // Используем enabled для условной загрузки данных
   const { data: familyMembers, isLoading: membersLoading } = useFamilyMembers({ 
-    enabled: Boolean(familyCode) 
+    enabled: true 
   })
   
   // Используем специализированный хук для статистики ребёнка
@@ -134,7 +132,6 @@ export default function ChildProfilePage() {
               childId={child.id}
               name={formatMemberName(child)}
               avatarSymbol={resolveAvatar(child, childIndex)}
-              familyCode={familyCode ?? undefined}
               stats={stats}
               statsLoading={statsLoading}
             />

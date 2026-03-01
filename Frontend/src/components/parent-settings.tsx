@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
-  Bell, Moon, Sun, Copy, AlertCircle, Link2, Share2,
+  Bell, Moon, Sun, AlertCircle,
   Loader2, Bot, Sparkles, CheckCircle2, Users, Palette, Shield,
 } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -26,8 +26,6 @@ import { cn } from "@/lib/utils"
 
 interface ParentSettingsProps {
   familyName?: string | null
-  familyCode: string
-  familyCodeRaw?: string | null
 }
 
 /* ── Sub-tabs ── */
@@ -41,46 +39,11 @@ const SETTINGS_TABS = [
 
 type SettingsTab = typeof SETTINGS_TABS[number]["id"]
 
-export default function ParentSettings({ familyName, familyCode, familyCodeRaw }: ParentSettingsProps) {
+export default function ParentSettings({ familyName }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation()
   const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
   const [activeTab, setActiveTab] = useState<SettingsTab>("family")
-
-  const [copied, setCopied] = useState(false)
-  const [linkCopied, setLinkCopied] = useState(false)
-
-  const inviteLink = typeof window !== 'undefined' 
-    ? `${window.location.origin}/join/${familyCode}`
-    : `https://yourapp.com/join/${familyCode}`
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(familyCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(inviteLink)
-    setLinkCopied(true)
-    setTimeout(() => setLinkCopied(false), 2000)
-  }
-
-  const handleShareLink = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: t("parentSettings.shareTitle"),
-          text: t("parentSettings.shareText", { familyCode }),
-          url: inviteLink,
-        })
-      } catch (error) {
-        console.error('Error sharing:', error)
-      }
-    } else {
-      handleCopyLink()
-    }
-  }
 
   const handleSettingChange = (key: string, value: any) => {
     updateSettings({ [key]: value })
@@ -123,47 +86,7 @@ export default function ParentSettings({ familyName, familyCode, familyCodeRaw }
             <p className="text-sm font-semibold">{t("parentDashboard.sections.children.title")}</p>
             <p className="text-xs text-muted-foreground">{t("parentDashboard.sections.children.subtitle")}</p>
           </div>
-          <ChildrenManagement familyCode={familyCodeRaw} />
-        </div>
-
-        {/* Family info */}
-        <div className="space-y-3 rounded-xl border border-border/30 bg-card p-4">
-          <p className="text-sm font-semibold">{t("family.familyInfo")}</p>
-
-          <div>
-            <Label className="text-xs text-muted-foreground mb-1 block">{t("common.name")}</Label>
-            <div className="p-2.5 bg-muted/50 rounded-lg text-sm font-medium">{familyName || t("family.title")}</div>
-          </div>
-
-          <div>
-            <Label className="text-xs text-muted-foreground mb-1 block">{t("family.inviteCode")}</Label>
-            <div className="flex gap-2">
-              <Input value={familyCode} disabled className="font-mono font-bold text-center text-sm h-9" />
-              <Button onClick={handleCopyCode} variant="outline" size="sm" className="h-9 w-9 p-0 shrink-0">
-                <Copy className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            {copied && <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">✓ {t("family.codeCopied")}</p>}
-          </div>
-
-          <div className="border-t border-border/30 pt-3">
-            <Label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1.5">
-              <Link2 className="w-3 h-3" />
-              {t("family.inviteLink")}
-            </Label>
-            <div className="flex gap-2 mb-2">
-              <Input value={inviteLink} readOnly className="text-xs h-9" />
-              <Button onClick={handleCopyLink} variant="outline" size="sm" className="h-9 w-9 p-0 shrink-0">
-                <Copy className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-            {linkCopied && <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium mb-2">✓ {t("family.linkCopied")}</p>}
-            <Button onClick={handleShareLink} size="sm" className="w-full gap-2 h-9 text-xs font-semibold">
-              <Share2 className="w-3.5 h-3.5" />
-              {t("family.shareLink")}
-            </Button>
-            <p className="text-[10px] text-muted-foreground mt-2">{t("family.shareCodeHint")}</p>
-          </div>
+          <ChildrenManagement />
         </div>
       </div>
 

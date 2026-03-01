@@ -41,7 +41,6 @@ interface ChildProfileProps {
   name: string
   avatarSymbol: string
   avatarImageUrl?: string | null
-  familyCode?: string
   stats?: ChildProgressStats | ChildStats
   statsLoading?: boolean
 }
@@ -109,7 +108,6 @@ export default function ChildProfile({
   name,
   avatarSymbol,
   avatarImageUrl,
-  familyCode,
   stats,
   statsLoading,
 }: ChildProfileProps) {
@@ -339,14 +337,6 @@ export default function ChildProfile({
           ))}
         </div>
 
-        {/* Family code — cute card */}
-        {familyCode && (
-          <div className="flex items-center gap-3 rounded-2xl border-2 border-border/20 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10 px-5 py-3.5">
-            <span className="text-lg">👨‍👩‍👧‍👦</span>
-            <span className="text-xs text-muted-foreground font-bold">{t("childProfile.familyCode")}</span>
-            <span className="text-sm font-black font-mono bg-muted/40 px-2.5 py-1 rounded-lg">{familyCode}</span>
-          </div>
-        )}
       </div>
 
       {/* ═══ TAB: ACHIEVEMENTS — fun sticker cards ═══ */}

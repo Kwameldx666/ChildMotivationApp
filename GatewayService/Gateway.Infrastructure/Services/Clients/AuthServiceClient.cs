@@ -209,4 +209,24 @@ public class AuthServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             SerializerOptions,
             cancellationToken);
     }
+
+    public async Task<HttpResponseMessage> ForgotPasswordAsync(object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.ForgotPassword,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
+
+    public async Task<HttpResponseMessage> ResetPasswordAsync(object request, CancellationToken cancellationToken)
+    {
+        return await _client.SendHttpRequestAsync(
+            HttpMethod.Post,
+            _endpoints.ResetPassword,
+            request,
+            SerializerOptions,
+            cancellationToken);
+    }
 }

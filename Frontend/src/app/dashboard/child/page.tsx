@@ -80,7 +80,6 @@ export default function ChildDashboardPage() {
         age: session.profile.age ?? undefined,
         role: session.profile.role,
       }}
-      familyCode={session.family?.code ?? ""}
       onLogout={handleLogout}
     />
   ) : null

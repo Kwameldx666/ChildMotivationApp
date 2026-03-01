@@ -187,4 +187,12 @@ export const authApi = {
   async completeChildSetup(payload: { currentPassword: string; newPassword: string }) {
     await apiClient.post(`${AUTH_BASE_PATH}/complete-child-setup`, payload)
   },
+
+  async forgotPassword(email: string) {
+    await apiClient.post(`${AUTH_BASE_PATH}/forgot-password`, { email })
+  },
+
+  async resetPassword(userId: string, token: string, newPassword: string) {
+    await apiClient.post(`${AUTH_BASE_PATH}/reset-password`, { userId, token, newPassword })
+  },
 }

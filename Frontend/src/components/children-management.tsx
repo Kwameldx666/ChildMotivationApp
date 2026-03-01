@@ -16,9 +16,7 @@ import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { authApi } from "@/features/auth/api/authApi"
 import { toast } from "sonner"
 
-interface ChildrenManagementProps {
-  familyCode?: string | null
-}
+interface ChildrenManagementProps {}
 
 const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
 const CHILD_AVATARS = ["👦", "👧", "🧒", "🦄", "🐱", "🐶", "🦊", "🐻", "🐼", "🐸"]
@@ -40,12 +38,10 @@ const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
 
 /* ─── Add Child Modal ─── */
 function AddChildModal({
-  familyCode,
   onClose,
   onSuccess,
   t,
 }: {
-  familyCode: string
   onClose: () => void
   onSuccess: () => void
   t: (key: string, params?: Record<string, string>) => string
@@ -337,14 +333,12 @@ function ResetPasswordModal({
   )
 }
 
-export default function ChildrenManagement({ familyCode }: ChildrenManagementProps) {
+export default function ChildrenManagement({}: ChildrenManagementProps) {
   const router = useRouter()
   const { t } = useTranslation()
   const { isWithinLimit, getLimit, currentTier } = useSubscriptionGate()
-  const normalizedFamilyCode =
-    familyCode && familyCode.trim() && familyCode !== "—" ? familyCode.trim() : null
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
-    enabled: Boolean(normalizedFamilyCode),
+    enabled: true,
   })
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [showAddChild, setShowAddChild] = useState(false)
@@ -369,20 +363,6 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
     } catch (error) {
       console.error("[children-management] Failed to copy value", error)
     }
-  }
-
-  if (!normalizedFamilyCode) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center space-y-3">
-          <Users className="w-10 h-10 mx-auto text-muted-foreground" />
-          <h3 className="text-lg font-semibold">{t("family.createFamilyPrompt")}</h3>
-          <p className="text-sm text-muted-foreground">
-            {t("family.createFamilyDescription")}
-          </p>
-        </CardContent>
-      </Card>
-    )
   }
 
   if (isLoading || (isFetching && !data)) {
@@ -426,9 +406,8 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
             </Button>
           </CardContent>
         </Card>
-        {showAddChild && normalizedFamilyCode && (
+        {showAddChild && (
           <AddChildModal
-            familyCode={normalizedFamilyCode}
             onClose={() => setShowAddChild(false)}
             onSuccess={() => {
               setShowAddChild(false)
@@ -451,23 +430,6 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
           compact
         />
       )}
-
-      <Card>
-        <CardContent className="py-6 flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">
-            {t("family.shareCode")}
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-base font-semibold tracking-wide font-mono bg-secondary/40 px-3 py-2 rounded">
-              {normalizedFamilyCode}
-            </span>
-            <Button variant="outline" size="sm" className="gap-2" onClick={(e) => handleCopyId(e, normalizedFamilyCode)}>
-              {copiedId === normalizedFamilyCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              {copiedId === normalizedFamilyCode ? t("family.codeCopied") : t("family.copyCode")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid gap-4">
         {children.map((child, index) => (
@@ -542,9 +504,8 @@ export default function ChildrenManagement({ familyCode }: ChildrenManagementPro
       )}
 
       {/* Add child modal */}
-      {showAddChild && normalizedFamilyCode && (
+      {showAddChild && (
         <AddChildModal
-          familyCode={normalizedFamilyCode}
           onClose={() => setShowAddChild(false)}
           onSuccess={() => {
             setShowAddChild(false)

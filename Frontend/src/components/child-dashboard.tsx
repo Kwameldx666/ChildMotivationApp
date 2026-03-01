@@ -45,7 +45,6 @@ interface ChildDashboardProps {
     points?: number | null
     streakDays?: number | null
   }
-  familyCode: string
   onLogout: () => void
 }
 
@@ -105,7 +104,7 @@ function StatCard({ icon, label, value, gradient, delay = 0, emoji }: {
 
 /* ═══════════ Component ═══════════ */
 
-export default function ChildDashboard({ userId, userProfile, familyCode, onLogout }: ChildDashboardProps) {
+export default function ChildDashboard({ userId, userProfile, onLogout }: ChildDashboardProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
@@ -355,7 +354,6 @@ export default function ChildDashboard({ userId, userProfile, familyCode, onLogo
             name={userProfile.name}
             avatarSymbol={avatarFallback}
             avatarImageUrl={avatarImageUrl}
-            familyCode={familyCode}
             stats={stats}
             statsLoading={statsLoading}
           />
