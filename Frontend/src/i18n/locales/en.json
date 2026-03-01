@@ -1031,6 +1031,8 @@
     }
   },
   "rewardsShop": {
+    "title": "Rewards Shop",
+    "subtitle": "Exchange your stars for awesome prizes!",
     "errors": {
       "loadTitle": "Load error",
       "loadProducts": "Could not load shop items",

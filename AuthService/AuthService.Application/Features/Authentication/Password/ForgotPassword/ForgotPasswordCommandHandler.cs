@@ -25,9 +25,13 @@ public class ForgotPasswordCommandHandler(
 
         // If email is not confirmed, return a specific error so the frontend can notify the user
         if (!user.EmailConfirmed)
-            return Result.Failure("EmailNotConfirmed",
-                "Your email is not confirmed. Please confirm your email first before resetting the password.",
-                HttpStatusCode.BadRequest);
+            return Result.Failure(HttpStatusCode.BadRequest, new Error
+            {
+                ErrorType = "EmailNotConfirmed",
+                ErrorDescription = "Your email is not confirmed. Please confirm your email first before resetting the password.",
+                Impact = "User cannot reset password without confirming email.",
+                Resolution = "Please confirm your email first."
+            });
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));

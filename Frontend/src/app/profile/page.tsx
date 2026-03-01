@@ -207,13 +207,18 @@ export default function ProfilePage() {
   const isChild = profile.role === "child"
   const roleLabel = isChild ? (t("common.child") || "Child") : (t("common.parent") || "Parent")
 
-  // ─── Shared header ───
-  const Header = ({ title, onBack }: { title: string; onBack: () => void; right?: React.ReactNode }) => (
-    <header className="flex items-center gap-3 px-4 py-3 sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40">
-      <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full h-9 w-9 shrink-0">
-        <ArrowLeft className="h-4.5 w-4.5" />
-      </Button>
-      <span className="text-[15px] font-semibold flex-1">{title}</span>
+  // ─── Shared header — matches dashboard sticky headers ───
+  const Header = ({ title, onBack, subtitle }: { title: string; onBack: () => void; subtitle?: string }) => (
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
+      <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full h-9 w-9 shrink-0">
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold">{title}</span>
+          {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
+        </div>
+      </div>
     </header>
   )
 
@@ -256,26 +261,26 @@ export default function ProfilePage() {
   /* ═══════════ MAIN ═══════════ */
   if (section === "main") {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background">
         <Header title={t("profilePage.title")} onBack={goBack} />
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-        <div className="flex-1 overflow-auto">
-          <div className="max-w-md mx-auto px-4 py-6 space-y-5">
+        <div className="max-w-md mx-auto px-4 py-6 space-y-5">
 
             {/* ── Profile card ── */}
-            <div className="relative rounded-2xl bg-card border shadow-sm p-6 flex flex-col items-center gap-3 overflow-hidden">
-              {/* Subtle gradient accent */}
-              <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-primary/6 to-transparent pointer-events-none" />
+            <div className="relative rounded-2xl bg-card border shadow-sm overflow-hidden">
+              {/* Accent top bar matching dashboard style */}
+              <div className="h-1.5 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
 
-              <div className="relative z-[1]">
-                <Avatar size="lg" clickable />
-              </div>
+              <div className="p-6 flex flex-col items-center gap-3">
+                <div className="relative z-[1]">
+                  <Avatar size="lg" clickable />
+                </div>
 
-              <div className="text-center space-y-0.5 relative z-[1]">
-                <h2 className="text-lg font-semibold">{profile.name} {profile.lastName}</h2>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
-              </div>
+                <div className="text-center space-y-0.5 relative z-[1]">
+                  <h2 className="text-lg font-semibold">{profile.name} {profile.lastName}</h2>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                </div>
 
               {/* Role & family pills */}
               <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
@@ -335,12 +340,11 @@ export default function ProfilePage() {
   /* ═══════════ EDIT ═══════════ */
   if (section === "edit") {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Header title={t("profilePage.editProfile")} onBack={() => setSection("main")} />
+      <div className="min-h-screen bg-background">
+        <Header title={t("profilePage.editProfile")} onBack={() => setSection("main")} subtitle={t("profilePage.editProfileSub")} />
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-        <div className="flex-1 overflow-auto">
-          <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-md mx-auto px-4 py-6 space-y-6">
 
             {/* Avatar */}
             <div className="flex flex-col items-center gap-2">
@@ -373,18 +377,16 @@ export default function ProfilePage() {
               )}
             </Button>
           </div>
-        </div>
       </div>
     )
   }
 
   /* ═══════════ ACCOUNT ═══════════ */
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header title={t("profilePage.accountSettings")} onBack={() => { setSection("main"); setShowDeleteConfirm(false) }} />
+    <div className="min-h-screen bg-background">
+      <Header title={t("profilePage.accountSettings")} onBack={() => { setSection("main"); setShowDeleteConfirm(false) }} subtitle={t("profilePage.accountSettingsSub")} />
 
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-md mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-md mx-auto px-4 py-6 space-y-5">
 
           {/* Info */}
           <div className="rounded-2xl border bg-card shadow-sm overflow-hidden divide-y divide-border/60">

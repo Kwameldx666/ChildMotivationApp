@@ -391,6 +391,8 @@
     }
   },
   "rewardsShop": {
+    "title": "Magazin de recompense",
+    "subtitle": "Schimbă stelele tale pe premii grozave!",
     "errors": {
       "loadTitle": "Eroare la încărcare",
       "loadProducts": "Nu s-au putut încărca produsele din magazin",

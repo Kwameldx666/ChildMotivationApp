@@ -192,23 +192,24 @@ export default function ChildProfile({
   return (
     <div className="space-y-5 animate-slide-up">
 
-      {/* ═══ COMPACT PROFILE HEADER — more playful ═══ */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-500/8 via-indigo-500/5 to-violet-500/8 dark:from-blue-500/12 dark:via-indigo-500/8 dark:to-violet-500/12 border-2 border-blue-500/15 p-5">
-        <div className="absolute -top-6 -right-6 text-7xl opacity-[0.06] select-none pointer-events-none animate-hero-float">😊</div>
-        <div className="absolute bottom-2 right-16 text-2xl opacity-[0.08] select-none pointer-events-none animate-star-twinkle">⭐</div>
+      {/* ═══ COMPACT PROFILE HEADER ═══ */}
+      <div className="relative overflow-hidden rounded-2xl border bg-card shadow-sm">
+        {/* Accent top bar */}
+        <div className="h-1.5 bg-gradient-to-r from-blue-500/60 via-indigo-500 to-violet-500/60" />
 
-        <div className="flex items-center gap-4">
-          {/* Avatar — fun with glow */}
+        <div className="p-5">
+          <div className="flex items-center gap-4">
+          {/* Avatar */}
           <button onClick={() => setShowPhotoDialog(true)} className="relative shrink-0 group">
-            <div className="w-18 h-18 md:w-20 md:h-20 rounded-2xl bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/20 group-hover:border-primary/40 transition-all shadow-lg group-hover:scale-105 group-hover:shadow-xl">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-muted flex items-center justify-center overflow-hidden border-2 border-primary/15 group-hover:border-primary/30 transition-all shadow-md group-hover:scale-105">
               {localAvatarImageUrl ? (
                 <img src={localAvatarImageUrl} alt={t("childProfile.avatar")} className="h-full w-full object-cover" />
               ) : (
-                <span className="text-4xl md:text-5xl select-none">{localAvatarSymbol}</span>
+                <span className="text-3xl md:text-4xl select-none">{localAvatarSymbol}</span>
               )}
             </div>
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-              <Camera className="h-3.5 w-3.5" />
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+              <Camera className="h-3 w-3" />
             </div>
           </button>
 
@@ -229,24 +230,24 @@ export default function ChildProfile({
                 </>
               )}
             </div>
-            {/* XP bar — fun striped */}
+            {/* XP bar — clean striped */}
             {!statsLoading && (
               <div className="flex items-center gap-2.5 mt-2.5">
-                <span className="text-[10px] font-bold text-violet-500">XP</span>
-                <div className="flex-1 h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
+                <span className="text-[10px] font-bold text-muted-foreground">XP</span>
+                <div className="flex-1 h-2.5 rounded-full bg-muted/50 overflow-hidden shadow-inner">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 progress-stripes"
                     style={{ width: `${levelProgress}%` }}
                   />
                 </div>
-                <span className="text-[10px] font-bold text-muted-foreground tabular-nums shrink-0">
+                <span className="text-[10px] font-semibold text-muted-foreground tabular-nums shrink-0">
                   {metrics.xp}/{xpForLevel(metrics.level)}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Rank ladder — with fun style */}
+          {/* Rank ladder */}
           <div className="hidden sm:flex items-center gap-1.5 shrink-0">
             {rankLadder.map((r) => {
               const isActive = metrics.level >= r.threshold
@@ -257,7 +258,7 @@ export default function ChildProfile({
                   className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-xl text-base transition-all",
                     isCurrent
-                      ? "bg-primary/15 ring-2 ring-primary/30 scale-115 shadow-md"
+                      ? "bg-primary/15 ring-2 ring-primary/30 scale-110 shadow-md"
                       : isActive
                         ? "bg-muted/60"
                         : "bg-muted/20 opacity-30 grayscale",
@@ -270,9 +271,10 @@ export default function ChildProfile({
             })}
           </div>
         </div>
+        </div>
       </div>
 
-      {/* ═══ STAT PILLS — cute game cards ═══ */}
+      {/* ═══ STAT PILLS ═══ */}
       <div className="grid grid-cols-4 gap-2.5">
         {[
           { icon: <Star className="w-4 h-4" />, value: metrics.points, label: t("childProfile.stats.pointsBalance"), grad: "from-amber-400 to-yellow-500", emoji: "⭐" },
@@ -280,21 +282,20 @@ export default function ChildProfile({
           { icon: <CheckCircle2 className="w-4 h-4" />, value: metrics.tasksCompleted, label: t("childProfile.stats.tasksCompleted"), grad: "from-emerald-400 to-teal-500", emoji: "✅" },
           { icon: <Sparkles className="w-4 h-4" />, value: metrics.xp, label: t("childProfile.stats.xpEarned"), grad: "from-violet-400 to-purple-500", emoji: "⚡" },
         ].map((stat, idx) => (
-          <div key={stat.label} className="relative group rounded-2xl border-2 border-border/20 bg-card p-3 text-center child-card-hover overflow-hidden animate-card-appear" style={{ animationDelay: `${idx * 60}ms` }}>
-            <div className={cn("absolute inset-0 opacity-[0.03] bg-gradient-to-br pointer-events-none", stat.grad)} />
-            <div className={cn("mx-auto w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br text-white shadow-md mb-2", stat.grad)}>
+          <div key={stat.label} className="relative group rounded-2xl border bg-card shadow-sm p-3 text-center child-card-hover overflow-hidden animate-card-appear" style={{ animationDelay: `${idx * 60}ms` }}>
+            <div className={cn("mx-auto w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br text-white shadow-sm mb-2", stat.grad)}>
               {stat.icon}
             </div>
-            <div className="text-lg font-black tabular-nums">
+            <div className="text-lg font-bold tabular-nums">
               {statsLoading ? <Skeleton className="h-5 w-10 mx-auto" /> : stat.value}
             </div>
-            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider mt-0.5 truncate">{stat.label}</p>
+            <p className="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider mt-0.5 truncate">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      {/* ═══ SUB-TAB NAVIGATION — fun pill style ═══ */}
-      <nav className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-muted/30 border border-border/20">
+      {/* ═══ SUB-TAB NAVIGATION ═══ */}
+      <nav className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-muted/30 border border-border/30">
         {PROFILE_TABS.map((tab) => {
           const active = activeTab === tab.id
           return (
@@ -317,7 +318,7 @@ export default function ChildProfile({
 
       {/* ═══ TAB: OVERVIEW ═══ */}
       <div className={cn(activeTab === "overview" ? "block" : "hidden", "space-y-4")}>
-        {/* Detailed stats grid — game card style */}
+        {/* Detailed stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[
             { icon: <Star className="w-4 h-4 text-amber-500" />, label: t("childProfile.stats.pointsBalance"), value: metrics.points, emoji: "⭐" },
@@ -327,11 +328,11 @@ export default function ChildProfile({
             { icon: <Gift className="w-4 h-4 text-rose-400" />, label: t("childProfile.stats.purchasedRewards"), value: metrics.rewardsPurchased, emoji: "🛍️" },
             { icon: <Crown className="w-4 h-4 text-primary" />, label: t("childProfile.stats.rank"), value: rank, emoji: "👑" },
           ].map((item, idx) => (
-            <div key={item.label} className="flex items-center gap-3 rounded-2xl border-2 border-border/20 bg-card p-3.5 child-card-hover animate-card-appear" style={{ animationDelay: `${idx * 50}ms` }}>
+            <div key={item.label} className="flex items-center gap-3 rounded-2xl border bg-card shadow-sm p-3.5 child-card-hover animate-card-appear" style={{ animationDelay: `${idx * 50}ms` }}>
               <div className="text-xl shrink-0">{item.emoji}</div>
               <div className="min-w-0">
-                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">{item.label}</p>
-                {statsLoading ? <Skeleton className="h-5 w-12 mt-0.5" /> : <p className="text-sm font-black">{item.value}</p>}
+                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider truncate">{item.label}</p>
+                {statsLoading ? <Skeleton className="h-5 w-12 mt-0.5" /> : <p className="text-sm font-bold">{item.value}</p>}
               </div>
             </div>
           ))}
@@ -339,12 +340,12 @@ export default function ChildProfile({
 
       </div>
 
-      {/* ═══ TAB: ACHIEVEMENTS — fun sticker cards ═══ */}
+      {/* ═══ TAB: ACHIEVEMENTS ═══ */}
       <div className={cn(activeTab === "achievements" ? "block" : "hidden", "space-y-4")}>
         {!achievementsLoading && achievementsData && (
           <div className="flex items-center justify-between">
-            <p className="text-sm font-black flex items-center gap-2">🏆 {t("childProfile.achievements.title")}</p>
-            <Badge variant="secondary" className="text-xs font-black rounded-full px-3">{unlockedCount} / {achievementsData.length}</Badge>
+            <p className="text-sm font-bold flex items-center gap-2">🏆 {t("childProfile.achievements.title")}</p>
+            <Badge variant="secondary" className="text-xs font-semibold rounded-full px-3">{unlockedCount} / {achievementsData.length}</Badge>
           </div>
         )}
 
@@ -381,13 +382,13 @@ export default function ChildProfile({
               const isUnlocked = ach.unlocked
               const progress = ach.total > 0 ? (ach.progress / ach.total) * 100 : 0
               return (
-                <div
+                  <div
                   key={ach.id}
                   className={cn(
-                    "relative rounded-2xl p-4 text-center transition-all border-2 child-card-hover animate-card-appear overflow-hidden",
+                    "relative rounded-2xl p-4 text-center transition-all border child-card-hover animate-card-appear overflow-hidden",
                     isUnlocked
-                      ? "bg-amber-500/5 dark:bg-amber-500/10 border-amber-400/30 dark:border-amber-600/20 shadow-md"
-                      : "bg-card border-border/20",
+                      ? "bg-amber-500/5 dark:bg-amber-500/10 border-amber-400/30 dark:border-amber-600/20 shadow-sm"
+                      : "bg-card border-border",
                   )}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
@@ -409,7 +410,7 @@ export default function ChildProfile({
                   )}>
                     {isUnlocked ? <Trophy className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
                   </div>
-                  <p className="text-xs font-black mb-0.5 line-clamp-1">{ach.title}</p>
+                  <p className="text-xs font-bold mb-0.5 line-clamp-1">{ach.title}</p>
                   <p className="text-[10px] text-muted-foreground mb-2.5 line-clamp-2 leading-tight">{ach.description}</p>
                   {isUnlocked ? (
                     <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-white border-0 text-[10px] font-bold rounded-full shadow-sm">
@@ -435,16 +436,16 @@ export default function ChildProfile({
         <ChildTaskPlanner streak={metrics.streak} isLoading={statsLoading} />
       </div>
 
-      {/* ═══ TAB: APPEARANCE — fun customization ═══ */}
+      {/* ═══ TAB: APPEARANCE ═══ */}
       <div className={cn(activeTab === "appearance" ? "block" : "hidden", "space-y-4")}>
-        {/* Theme toggle — cute card */}
-        <div className="flex items-center justify-between rounded-2xl border-2 border-border/20 bg-card p-4 child-card-hover">
+        {/* Theme toggle */}
+        <div className="flex items-center justify-between rounded-2xl border bg-card shadow-sm p-4 child-card-hover">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/40 dark:to-blue-900/30 flex items-center justify-center shadow-sm">
               {theme === "dark" ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
             </div>
             <div>
-              <p className="text-sm font-black">{t("childProfile.appearance.mode")}</p>
+              <p className="text-sm font-bold">{t("childProfile.appearance.mode")}</p>
               <p className="text-xs text-muted-foreground">
                 {theme === "dark" ? "🌙 " : "☀️ "}
                 {theme === "dark" ? t("childProfile.appearance.dark") : t("childProfile.appearance.light")}
@@ -462,19 +463,19 @@ export default function ChildProfile({
           </Button>
         </div>
 
-        {/* Color theme — cute palette card */}
-        <div className="rounded-2xl border-2 border-border/20 bg-card p-4 space-y-3 child-card-hover">
+        {/* Color theme */}
+        <div className="rounded-2xl border bg-card shadow-sm p-4 space-y-3 child-card-hover">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/40 dark:to-purple-900/30 flex items-center justify-center shadow-sm text-primary">
               <Palette className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-black">{t("childProfile.appearance.colorTheme")}</p>
+              <p className="text-sm font-bold">{t("childProfile.appearance.colorTheme")}</p>
               <p className="text-xs text-muted-foreground">🎨 {t("childProfile.appearance.chooseColor")}</p>
             </div>
           </div>
           <Select value={colorTheme} onValueChange={(value: any) => setColorTheme(value)}>
-            <SelectTrigger className="w-full rounded-xl border-2 border-border/30">
+            <SelectTrigger className="w-full rounded-xl border border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -482,7 +483,7 @@ export default function ChildProfile({
                 <SelectItem key={thm.value} value={thm.value}>
                   <div className="flex items-center gap-2">
                     <div className={cn("h-5 w-5 rounded-full border-2 border-border shadow-sm", thm.color)} />
-                    <span className="text-sm font-bold">{thm.label}</span>
+                    <span className="text-sm font-medium">{thm.label}</span>
                   </div>
                 </SelectItem>
               ))}
