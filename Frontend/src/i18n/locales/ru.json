@@ -1025,6 +1025,8 @@
     }
   },
   "rewardsShop": {
+    "title": "Магазин наград",
+    "subtitle": "Обменяй свои звёзды на крутые призы!",
     "errors": {
       "loadTitle": "Ошибка загрузки",
       "loadProducts": "Не удалось загрузить товары магазина",
@@ -1439,7 +1441,6 @@
     "edit": "Редактировать",
     "delete": "Удалить",
     "complete": "Завершить",
-    "reject": "Отклонить",
     "approve": "Одобрить",
     "completed": "Завершёно",
     "evidenceSubmitted": "Отправлено",
@@ -2717,7 +2718,7 @@
   },
   "paymentModal": {
     "title": "Оплата",
-    "description": "Подписка {tierName} за ${price}/мес.",
+    "description": "Подписка {tierName} за {price}/мес.",
     "errorTitle": "Ошибка проверки",
     "fillAllFields": "Пожалуйста, заполните все данные карты",
     "paymentSuccess": "Оплата прошла успешно",
@@ -2732,7 +2733,7 @@
     "totalAmount": "Итого",
     "cancel": "Отмена",
     "processing": "Обработка...",
-    "pay": "Оплатить ${price}",
+    "pay": "Оплатить {price}",
     "subscribingTo": "Подключение",
     "billingCycle": "Период оплаты",
     "monthly": "Ежемесячно",

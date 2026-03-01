@@ -391,6 +391,8 @@
     }
   },
   "rewardsShop": {
+    "title": "Magazin de recompense",
+    "subtitle": "Schimbă stelele tale pe premii minunate!",
     "errors": {
       "loadTitle": "Eroare la încărcare",
       "loadProducts": "Nu s-au putut încărca produsele din magazin",
@@ -1417,7 +1419,6 @@
     "edit": "Editare",
     "delete": "Ștergere",
     "complete": "Finalizare",
-    "reject": "Respinge",
     "approve": "Aprobă",
     "completed": "Finalizat",
     "evidenceSubmitted": "Trimis",
@@ -2685,7 +2686,7 @@
   },
   "paymentModal": {
     "title": "Plată",
-    "description": "Abonament {tierName} la ${price}/lună",
+    "description": "Abonament {tierName} la {price}/lună",
     "errorTitle": "Eroare de validare",
     "fillAllFields": "Vă rugăm completați toate datele cardului",
     "paymentSuccess": "Plată reușită",
@@ -2700,7 +2701,7 @@
     "totalAmount": "Total",
     "cancel": "Anulează",
     "processing": "Se procesează...",
-    "pay": "Plătește ${price}",
+    "pay": "Plătește {price}",
     "subscribingTo": "Abonare la",
     "billingCycle": "Perioada de facturare",
     "monthly": "Lunar",

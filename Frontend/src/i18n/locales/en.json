@@ -1031,6 +1031,8 @@
     }
   },
   "rewardsShop": {
+    "title": "Reward Shop",
+    "subtitle": "Redeem your stars for awesome prizes!",
     "errors": {
       "loadTitle": "Load error",
       "loadProducts": "Could not load shop items",
@@ -1445,7 +1447,6 @@
     "edit": "Edit",
     "delete": "Delete",
     "complete": "Complete",
-    "reject": "Reject",
     "approve": "Approve",
     "completed": "Completed",
     "evidenceSubmitted": "Submitted",
@@ -2723,7 +2724,7 @@
   },
   "paymentModal": {
     "title": "Payment",
-    "description": "Subscribe to {tierName} plan for ${price}/month",
+    "description": "Subscribe to {tierName} plan for {price}/month",
     "errorTitle": "Validation Error",
     "fillAllFields": "Please fill in all card fields",
     "paymentSuccess": "Payment Successful",
@@ -2738,7 +2739,7 @@
     "totalAmount": "Total",
     "cancel": "Cancel",
     "processing": "Processing...",
-    "pay": "Pay ${price}",
+    "pay": "Pay {price}",
     "subscribingTo": "Subscribing to",
     "billingCycle": "Billing Cycle",
     "monthly": "Monthly",
