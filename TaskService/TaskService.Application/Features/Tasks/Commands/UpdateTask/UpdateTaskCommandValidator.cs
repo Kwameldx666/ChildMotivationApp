@@ -20,5 +20,9 @@ public class UpdateTaskCommandValidator : AbstractValidator<UpdateTaskCommand>
         RuleFor(x => x.EvidenceRequirement)
             .IsInEnum()
             .When(x => x.EvidenceRequirement.HasValue);
+
+        RuleFor(x => x.Difficulty)
+            .InclusiveBetween(1, 5).WithMessage("Сложность задачи должна быть от 1 до 5.")
+            .When(x => x.Difficulty.HasValue);
     }
 }

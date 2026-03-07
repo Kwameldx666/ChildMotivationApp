@@ -44,7 +44,7 @@ public sealed class AiProviderOptions
 
     public int ResolveMaxTokens()
     {
-        return MaxTokens is > 0 ? MaxTokens!.Value : 700;
+        return MaxTokens is > 0 ? MaxTokens!.Value : 1200;
     }
 
     public TimeSpan ResolveTimeout()

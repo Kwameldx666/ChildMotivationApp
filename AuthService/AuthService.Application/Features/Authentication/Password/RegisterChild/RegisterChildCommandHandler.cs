@@ -101,8 +101,19 @@ public class RegisterChildCommandHandler(
     private static string GenerateChildLogin(string childName)
     {
         var name = childName.Trim().ToLowerInvariant().Replace(" ", "");
-        var suffix = RandomNumberGenerator.GetInt32(10, 99).ToString();
-        return $"{name}{suffix}";
+
+        // Truncate long names to keep login manageable
+        if (name.Length > 12)
+            name = name[..12];
+
+        // Generate a 4-digit random suffix for better uniqueness and complexity
+        var suffix = RandomNumberGenerator.GetInt32(1000, 9999).ToString();
+
+        // Add a random letter prefix to avoid trivially guessable logins
+        const string letters = "abcdefghijklmnopqrstuvwxyz";
+        var randomChar = letters[RandomNumberGenerator.GetInt32(letters.Length)];
+
+        return $"{name}_{randomChar}{suffix}";
     }
 
     private static string GenerateRandomPassword(int length)

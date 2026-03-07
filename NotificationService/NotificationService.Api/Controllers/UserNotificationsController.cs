@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Services;
 using NotificationService.Domain.Models;
@@ -136,4 +137,9 @@ public class UserNotificationsController : ControllerBase
     }
 }
 
-public record MarkReadRequest(List<string> NotificationIds);
+public record MarkReadRequest(
+    [property: Required(ErrorMessage = "Список ID уведомлений обязателен")]
+    [property: MinLength(1, ErrorMessage = "Необходимо указать хотя бы одно уведомление")]
+    [property: MaxLength(100, ErrorMessage = "Нельзя пометить более 100 уведомлений за раз")]
+    List<string> NotificationIds
+);

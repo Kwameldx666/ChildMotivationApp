@@ -24,8 +24,8 @@ export function resolveAvatarUrl(avatar: string | null | undefined): string | nu
   }
 
   // Relative path from user-service static files → full gateway URL
-  if (value.startsWith('/avatars/')) {
-    const fileName = value.replace('/avatars/', '')
+  if (value.startsWith('/avatars/') || value.startsWith('avatars/')) {
+    const fileName = value.replace(/^\/?avatars\//, '')
     const base = DEFAULT_API_BASE_URL.replace(/\/$/, '')
     return `${base}/api-gateway/profile/avatars/${fileName}`
   }

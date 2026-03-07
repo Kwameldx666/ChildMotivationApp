@@ -15,8 +15,13 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .EmailAddress();
 
         RuleFor(x => x.Password)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .MinimumLength(6);
+            .MinimumLength(8).WithMessage("Пароль должен содержать минимум 8 символов.")
+            .MaximumLength(128)
+            .Matches("[A-Z]").WithMessage("Пароль должен содержать хотя бы одну заглавную букву.")
+            .Matches("[a-z]").WithMessage("Пароль должен содержать хотя бы одну строчную букву.")
+            .Matches("[0-9]").WithMessage("Пароль должен содержать хотя бы одну цифру.");
 
         RuleFor(x => x.Role)
             .Cascade(CascadeMode.Stop)

@@ -15,6 +15,7 @@ import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 import { UpgradePrompt } from "@/components/upgrade-prompt"
 import { authApi } from "@/features/auth/api/authApi"
 import { toast } from "sonner"
+import { resolveAvatarUrl, isAvatarImage } from "@/lib/avatar-utils"
 
 interface ChildrenManagementProps {}
 
@@ -22,6 +23,16 @@ const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
 const CHILD_AVATARS = ["👦", "👧", "🧒", "🦄", "🐱", "🐶", "🦊", "🐻", "🐼", "🐸"]
 
 const resolveAvatar = (member: FamilyMember, index: number) => {
+  if (isAvatarImage(member.avatar)) {
+    const url = resolveAvatarUrl(member.avatar)!
+    return (
+      <img
+        src={url}
+        alt=""
+        className="w-full h-full rounded-full object-cover"
+      />
+    )
+  }
   const value = member.avatar?.trim()
   if (value) return value
   return FALLBACK_AVATARS[index % FALLBACK_AVATARS.length]

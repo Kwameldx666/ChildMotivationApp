@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using NotificationService.Application.Services;
 using NotificationService.Domain.Models;
@@ -157,21 +158,39 @@ public class NotificationsController : ControllerBase
 }
 
 public record TaskNotificationRequest(
+    [property: Required(ErrorMessage = "ID пользователя обязателен")]
+    [property: StringLength(64)]
     string UserId,
+    [property: Required(ErrorMessage = "ID задачи обязателен")]
+    [property: StringLength(64)]
     string TaskId,
+    [property: Required(ErrorMessage = "Заголовок обязателен")]
+    [property: StringLength(256)]
     string Title,
+    [property: StringLength(2000)]
     string Description,
+    [property: StringLength(64)]
     string AssignedTo,
+    [property: StringLength(64)]
     string AssignedBy,
     DateTime? DueDate = null,
+    [property: StringLength(32)]
     string? Priority = null,
+    [property: StringLength(64)]
     string? Status = null
 );
 
 public record GeneralNotificationRequest(
+    [property: Required(ErrorMessage = "ID пользователя обязателен")]
+    [property: StringLength(64)]
     string UserId,
+    [property: Required(ErrorMessage = "Заголовок обязателен")]
+    [property: StringLength(256)]
     string Title,
+    [property: Required(ErrorMessage = "Сообщение обязательно")]
+    [property: StringLength(2000)]
     string Message,
+    [property: StringLength(32)]
     string? Type = null,
     Dictionary<string, object>? Data = null
 );

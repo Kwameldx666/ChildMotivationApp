@@ -13,4 +13,7 @@ public sealed class ExecuteAiActionRequest
 
     /// <summary>Family ID context</summary>
     public string? FamilyId { get; init; }
+
+    /// <summary>Preferred language (e.g. "ru", "en"). Defaults to Russian.</summary>
+    public string? Language { get; init; }
 }

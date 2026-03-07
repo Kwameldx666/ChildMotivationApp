@@ -5,6 +5,7 @@ namespace ShopService.Api.Contracts.Orders;
 
 public class UpdateOrderStatusRequest
 {
-    [Required]
+    [Required(ErrorMessage = "Необходимо указать статус заказа")]
+    [EnumDataType(typeof(OrderStatus), ErrorMessage = "Некорректный статус заказа")]
     public OrderStatus Status { get; init; }
 }

@@ -86,7 +86,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         if (payload is { Reply: { Length: > 0 } reply })
         {
             var followUps = payload.FollowUps?.Where(static tip => !string.IsNullOrWhiteSpace(tip)).ToArray() ??
-                            new[] { "Would you like to clarify details?", "Would you like to change parameters?" };
+                            Array.Empty<string>();
             var conversationId = string.IsNullOrWhiteSpace(request.ConversationId)
                 ? Guid.NewGuid().ToString("N")
                 : request.ConversationId;
@@ -155,34 +155,57 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private static IReadOnlyList<OpenAiMessage> BuildTaskMessages(TaskSuggestionsRequest request)
     {
         var limit = request.ResolveLimit();
+        var lang = request.Language ?? "ru-RU";
+        var isRussian = lang.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+
         var payload = new StringBuilder();
-        payload.AppendLine($"Сформируй до {limit} новых заданий для ребёнка.");
-        payload.AppendLine($"Количество предложений: {limit}.");
-        payload.AppendLine($"Возраст: {request.ChildAge?.ToString() ?? "не указан"} лет.");
-        payload.AppendLine($"Предпочтительный тон: {request.Tone ?? "дружелюбный"}.");
-        payload.AppendLine($"Язык ответа: {request.Language ?? "ru-RU"}.");
+        if (isRussian)
+        {
+            payload.AppendLine($"Сформируй до {limit} новых заданий для ребёнка.");
+            payload.AppendLine($"Количество предложений: {limit}.");
+            payload.AppendLine($"Возраст: {request.ChildAge?.ToString() ?? "не указан"} лет.");
+            payload.AppendLine($"Предпочтительный тон: {request.Tone ?? "дружелюбный"}.");
+        }
+        else
+        {
+            payload.AppendLine($"Generate up to {limit} new tasks for a child.");
+            payload.AppendLine($"Number of suggestions: {limit}.");
+            payload.AppendLine($"Age: {request.ChildAge?.ToString() ?? "not specified"} years.");
+            payload.AppendLine($"Preferred tone: {request.Tone ?? "friendly"}.");
+        }
+
+        payload.AppendLine($"Response language: {lang}.");
 
         if (!string.IsNullOrWhiteSpace(request.TaskDescription))
         {
             payload.AppendLine();
-            payload.AppendLine("Описание задачи (основной контекст для генерации):");
+            payload.AppendLine(isRussian
+                ? "Описание задачи (основной контекст для генерации):"
+                : "Task description (main context for generation):");
             payload.AppendLine(request.TaskDescription!.Trim());
             payload.AppendLine();
             if (limit == 1)
-                payload.AppendLine("Если указано описание задачи — верни ровно 1 задачу, строго основанную на нём.");
+                payload.AppendLine(isRussian
+                    ? "Если указано описание задачи — верни ровно 1 задачу, строго основанную на нём."
+                    : "If a task description is provided — return exactly 1 task, strictly based on it.");
             else
-                payload.AppendLine($"Если указано описание задачи — верни ровно {limit} задач, строго основанных на нём.");
+                payload.AppendLine(isRussian
+                    ? $"Если указано описание задачи — верни ровно {limit} задач, строго основанных на нём."
+                    : $"If a task description is provided — return exactly {limit} tasks, strictly based on it.");
         }
 
         payload.AppendLine();
         payload.AppendLine(
-            "Верни JSON вида:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}"
+            "Return JSON:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"difficulty\": number, \"tags\": [string], \"category\": string, \"impactSummary\": string}], \"strategySummary\": string, \"tips\": [string]}"
         );
+
+        var systemMsg = isRussian
+            ? "Ты семейный ассистент для родителей. Отвечай лаконично, только JSON, без маркдауна."
+            : "You are a family assistant for parents. Reply concisely, JSON only, no markdown.";
 
         return
         [
-            OpenAiMessage.System(
-                "Ты семейный ассистент для родителей. Отвечай лаконично, только JSON, без маркдауна."),
+            OpenAiMessage.System(systemMsg),
             OpenAiMessage.User(payload.ToString())
         ];
     }
@@ -190,19 +213,38 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private static IReadOnlyList<OpenAiMessage> BuildRewardMessages(RewardSuggestionsRequest request)
     {
         var limit = request.ResolveLimit();
+        var lang = request.Language ?? "ru-RU";
+        var isRussian = lang.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+
         var builder = new StringBuilder();
-        builder.AppendLine($"Предложи до {limit} наград.");
-        builder.AppendLine($"Доступные очки: {request.AvailablePoints?.ToString() ?? "~400"}.");
-        builder.AppendLine($"Интересы: {FormatList(request.Interests)}.");
-        builder.AppendLine($"Недавние награды: {FormatList(request.RecentlyPurchasedRewards)}.");
-        builder.AppendLine($"Повод: {request.Occasion ?? "обычный день"}.");
+        if (isRussian)
+        {
+            builder.AppendLine($"Предложи до {limit} наград.");
+            builder.AppendLine($"Доступные очки: {request.AvailablePoints?.ToString() ?? "~400"}.");
+            builder.AppendLine($"Интересы: {FormatList(request.Interests, isRussian)}.");
+            builder.AppendLine($"Недавние награды: {FormatList(request.RecentlyPurchasedRewards, isRussian)}.");
+            builder.AppendLine($"Повод: {request.Occasion ?? "обычный день"}.");
+        }
+        else
+        {
+            builder.AppendLine($"Suggest up to {limit} rewards.");
+            builder.AppendLine($"Available points: {request.AvailablePoints?.ToString() ?? "~400"}.");
+            builder.AppendLine($"Interests: {FormatList(request.Interests, isRussian)}.");
+            builder.AppendLine($"Recent rewards: {FormatList(request.RecentlyPurchasedRewards, isRussian)}.");
+            builder.AppendLine($"Occasion: {request.Occasion ?? "regular day"}.");
+        }
+
         builder.AppendLine();
         builder.AppendLine(
-            "Верни JSON вида:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"cost\": number, \"category\": string, \"icon\": string, \"motivationHint\": string}], \"budgetSummary\": string}");
+            "Return JSON:\n{\"suggestions\": [{\"title\": string, \"description\": string, \"cost\": number, \"category\": string, \"icon\": string, \"motivationHint\": string}], \"budgetSummary\": string}");
+
+        var systemMsg = isRussian
+            ? "Ты придумываешь поощрения для детей. Строго JSON, без поясняющего текста."
+            : "You create rewards for children. Strictly JSON, no explanatory text.";
 
         return new[]
         {
-            OpenAiMessage.System("Ты придумываешь поощрения для детей. Строго JSON, без поясняющего текста."),
+            OpenAiMessage.System(systemMsg),
             OpenAiMessage.User(builder.ToString())
         };
     }
@@ -210,36 +252,43 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     private static IReadOnlyList<OpenAiMessage> BuildChatMessages(AiChatRequest request)
     {
         const string systemPrompt = """
-                                    Ты семейный ментор-ассистент. Отвечай на русском, дружелюбно.
+                                    You are a family mentor assistant. You MUST detect the language of the user's message and ALWAYS reply in the SAME language.
+                                    If the user writes in Russian — reply in Russian. If in English — reply in English. Match any language the user uses.
+                                    Be friendly and supportive.
 
-                                    ВАЖНО: Когда пользователь просит создать задачу, награду, отправить сообщение или выполнить действие — 
-                                    ты ДОЛЖЕН включить соответствующие actions в ответ. Не просто описывай что делать, а предоставь готовые данные для выполнения.
+                                    IMPORTANT: When the user asks to create a task, reward, send a message, or perform an action —
+                                    you MUST include the corresponding actions in the response. Do not just describe what to do — provide ready-to-execute data.
 
-                                    Доступные типы действий (actions):
-                                    - CreateTask: создать одну задачу. Payload: {title, description, difficulty (1-5), category, tags[]}
-                                    - CreateTasks: создать несколько задач. Payload: {tasks: [{title, description, difficulty, category, tags[]}]}
-                                    - CreateReward: создать награду. Payload: {title, description, cost, category, icon}
-                                    - CreateRewards: создать несколько наград. Payload: {rewards: [{title, description, cost, category, icon}]}
-                                    - CompleteTask: отметить задачу выполненной. Payload: {taskId}
-                                    - Navigate: перейти на страницу. Payload: {route, queryParams}
-                                    Формат ответа (строго JSON):
+                                    Available action types:
+                                    - CreateTask: create one task. Payload: {title, description, difficulty (1-5), category, tags[]}
+                                    - CreateTasks: create multiple tasks. Payload: {tasks: [{title, description, difficulty, category, tags[]}]}
+                                    - CreateReward: create a reward. Payload: {title, description, cost, category, icon}
+                                    - CreateRewards: create multiple rewards. Payload: {rewards: [{title, description, cost, category, icon}]}
+                                    - CompleteTask: mark a task as completed. Payload: {taskId}
+                                    - Navigate: navigate to a page. Payload: {route, queryParams}
+
+                                    Keywords that indicate task creation (any language): "task", "задач", "создай", "добав", "create", "add", "make"
+                                    Keywords that indicate reward creation: "reward", "наград", "приз", "поощрен", "prize", "bonus"
+                                    Keywords that indicate task completion: "complete", "done", "выполн", "готов", "finish"
+
+                                    Response format (strictly JSON):
                                     {
-                                      "reply": "Текстовый ответ пользователю",
-                                      "followUps": ["Уточняющий вопрос 1", "Вопрос 2"],
+                                      "reply": "Text response to user (in user's language)",
+                                      "followUps": ["Follow-up suggestion 1 (in user's language)", "Suggestion 2"],
                                       "actions": [
                                         {
                                           "type": "CreateTask",
-                                          "label": "Создать задачу «Название»",
-                                          "description": "Краткое описание действия",
+                                          "label": "Action label (in user's language)",
+                                          "description": "Brief action description (in user's language)",
                                           "variant": "primary",
                                           "priority": 1,
-                                          "payload": { ... данные ... }
+                                          "payload": { ... data ... }
                                         }
                                       ]
                                     }
 
-                                    Если действия не нужны, верни пустой массив actions: [].
-                                    Отвечай ТОЛЬКО валидным JSON без markdown-блоков.
+                                    If no actions are needed, return an empty actions array: [].
+                                    Reply ONLY with valid JSON without markdown code blocks.
                                     """;
 
         var messages = new List<OpenAiMessage>
@@ -256,17 +305,20 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         }
 
         var contextLines = request.Context.Count == 0
-            ? "Контекст отсутствует."
+            ? string.Empty
             : string.Join(Environment.NewLine, request.Context.Select(pair => $"{pair.Key}: {pair.Value}"));
 
         var prompt = new StringBuilder();
-        prompt.AppendLine("Запрос пользователя:");
+        prompt.AppendLine("User request:");
         prompt.AppendLine(request.Message);
+        if (contextLines.Length > 0)
+        {
+            prompt.AppendLine();
+            prompt.AppendLine("Context:");
+            prompt.AppendLine(contextLines);
+        }
         prompt.AppendLine();
-        prompt.AppendLine("Контекст:");
-        prompt.AppendLine(contextLines);
-        prompt.AppendLine();
-        prompt.AppendLine("Ответь JSON. Если нужно действие — обязательно включи actions.");
+        prompt.AppendLine("Reply with JSON. If an action is needed — always include actions. Reply in the same language as the user's message.");
 
         messages.Add(OpenAiMessage.User(prompt.ToString()));
         return messages;
@@ -274,16 +326,34 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
 
     private static IReadOnlyList<OpenAiMessage> BuildAnalyticsMessages(AiAnalyticsRequest request)
     {
+        var lang = request.Language ?? "ru-RU";
+        var isRussian = lang.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+
         var builder = new StringBuilder();
-        builder.AppendLine(
-            $"Проанализируй семью {request.FamilyId ?? "unknown"} с окном {request.ResolveWindow()} дней.");
-        builder.AppendLine(
-            "Верни JSON формата {\"insights\": [{\"type\": string, \"title\": string, \"message\": string, \"severity\": string, \"tags\": [string]}], \"summary\": { string: string }}");
-        builder.AppendLine($"Нужно до {request.ResolveLimit()} инсайтов.");
+        if (isRussian)
+        {
+            builder.AppendLine(
+                $"Проанализируй семью {request.FamilyId ?? "unknown"} с окном {request.ResolveWindow()} дней.");
+            builder.AppendLine(
+                "Верни JSON формата {\"insights\": [{\"type\": string, \"title\": string, \"message\": string, \"severity\": string, \"tags\": [string]}], \"summary\": { string: string }}");
+            builder.AppendLine($"Нужно до {request.ResolveLimit()} инсайтов.");
+        }
+        else
+        {
+            builder.AppendLine(
+                $"Analyze family {request.FamilyId ?? "unknown"} with a window of {request.ResolveWindow()} days.");
+            builder.AppendLine(
+                "Return JSON: {\"insights\": [{\"type\": string, \"title\": string, \"message\": string, \"severity\": string, \"tags\": [string]}], \"summary\": { string: string }}");
+            builder.AppendLine($"Provide up to {request.ResolveLimit()} insights.");
+        }
+
+        var systemMsg = isRussian
+            ? "Ты аналитик привычек. Отвечай только JSON."
+            : "You are a habit analyst. Reply only with JSON.";
 
         return new[]
         {
-            OpenAiMessage.System("Ты аналитик привычек. Отвечай только JSON."),
+            OpenAiMessage.System(systemMsg),
             OpenAiMessage.User(builder.ToString())
         };
     }
@@ -315,9 +385,9 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         return raw;
     }
 
-    private static string FormatList(IReadOnlyCollection<string> values)
+    private static string FormatList(IReadOnlyCollection<string> values, bool isRussian = true)
     {
-        return values.Count == 0 ? "нет" : string.Join(", ", values);
+        return values.Count == 0 ? (isRussian ? "нет" : "none") : string.Join(", ", values);
     }
 
     private sealed record TaskSuggestionsPayload(

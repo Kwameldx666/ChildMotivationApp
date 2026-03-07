@@ -4,18 +4,21 @@ namespace ShopService.Api.Contracts.Orders;
 
 public class CreateOrderRequest
 {
-    [Required]
+    [Required(ErrorMessage = "Необходимо указать ID пользователя")]
+    [StringLength(64, ErrorMessage = "ID пользователя не может превышать 64 символа")]
     public string UserId { get; init; } = string.Empty;
 
-    [MinLength(1, ErrorMessage = "Order must contain at least one item")]
+    [Required(ErrorMessage = "Заказ должен содержать хотя бы один товар")]
+    [MinLength(1, ErrorMessage = "Заказ должен содержать хотя бы один товар")]
+    [MaxLength(50, ErrorMessage = "Заказ не может содержать более 50 позиций")]
     public List<CreateOrderItemRequest> Items { get; init; } = new();
 }
 
 public class CreateOrderItemRequest
 {
-    [Required]
+    [Required(ErrorMessage = "Необходимо указать ID товара")]
     public Guid ProductId { get; init; }
 
-    [Range(1, 1000)]
+    [Range(1, 100, ErrorMessage = "Количество должно быть от 1 до 100")]
     public int Quantity { get; init; }
 }

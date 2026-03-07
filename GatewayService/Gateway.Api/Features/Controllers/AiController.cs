@@ -117,19 +117,23 @@ public sealed class AiController(
             return Unauthorized(
                 new ExecuteAiActionResponse { Success = false, Message = "User identifier is missing." });
 
+        var ru = request.Language == null || request.Language.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+
         try
         {
             return request.Action.Type.ToUpperInvariant() switch
             {
-                "CREATETASK" => await ExecuteCreateTask(request.Action, userId, cancellationToken),
-                "CREATETASKS" => await ExecuteCreateTasks(request.Action, userId, cancellationToken),
-                "CREATEREWARD" => await ExecuteCreateReward(request.Action, userId, cancellationToken),
-                "CREATEREWARDS" => await ExecuteCreateRewards(request.Action, userId, cancellationToken),
-                "COMPLETETASK" => await ExecuteCompleteTask(request.Action, cancellationToken),
+                "CREATETASK" => await ExecuteCreateTask(request.Action, userId, ru, cancellationToken),
+                "CREATETASKS" => await ExecuteCreateTasks(request.Action, userId, ru, cancellationToken),
+                "CREATEREWARD" => await ExecuteCreateReward(request.Action, userId, ru, cancellationToken),
+                "CREATEREWARDS" => await ExecuteCreateRewards(request.Action, userId, ru, cancellationToken),
+                "COMPLETETASK" => await ExecuteCompleteTask(request.Action, ru, cancellationToken),
                 _ => Ok(new ExecuteAiActionResponse
                 {
                     Success = false,
-                    Message = $"Action type '{request.Action.Type}' is not supported for direct execution."
+                    Message = ru
+                        ? $"Тип действия «{request.Action.Type}» не поддерживается для прямого выполнения."
+                        : $"Action type '{request.Action.Type}' is not supported for direct execution."
                 })
             };
         }
@@ -138,23 +142,33 @@ public sealed class AiController(
             return Ok(new ExecuteAiActionResponse
             {
                 Success = false,
-                Message = $"Failed to execute action: {ex.Message}"
+                Message = ru
+                    ? $"Не удалось выполнить действие: {ex.Message}"
+                    : $"Failed to execute action: {ex.Message}"
             });
         }
     }
 
-    private async Task<IActionResult> ExecuteCreateTask(AiActionDto action, string userId,
+    private async Task<IActionResult> ExecuteCreateTask(AiActionDto action, string userId, bool ru,
         CancellationToken cancellationToken)
     {
         if (action.Payload is null)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Task payload is missing." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Данные задачи отсутствуют." : "Task payload is missing."
+            });
 
         var payload = action.Payload.Value;
         var title = payload.TryGetProperty("title", out var t) ? t.GetString() : null;
         var description = payload.TryGetProperty("description", out var d) ? d.GetString() : null;
 
         if (string.IsNullOrWhiteSpace(title))
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Task title is required." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Название задачи обязательно." : "Task title is required."
+            });
 
         var upstreamPayload = new
         {
@@ -171,7 +185,7 @@ public sealed class AiController(
             return Ok(new ExecuteAiActionResponse
             {
                 Success = true,
-                Message = $"Task \"{title}\" created successfully!",
+                Message = ru ? $"Задача «{title}» успешно создана!" : $"Task \"{title}\" created successfully!",
                 Data = JsonSerializer.Deserialize<object>(content)
             });
         }
@@ -179,19 +193,27 @@ public sealed class AiController(
         return Ok(new ExecuteAiActionResponse
         {
             Success = false,
-            Message = "Failed to create task. Please try again later."
+            Message = ru ? "Не удалось создать задачу. Попробуйте позже." : "Failed to create task. Please try again later."
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateTasks(AiActionDto action, string userId,
+    private async Task<IActionResult> ExecuteCreateTasks(AiActionDto action, string userId, bool ru,
         CancellationToken cancellationToken)
     {
         if (action.Payload is null)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Tasks payload is missing." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Данные задач отсутствуют." : "Tasks payload is missing."
+            });
 
         var payload = action.Payload.Value;
         if (!payload.TryGetProperty("tasks", out var tasksElement) || tasksElement.ValueKind != JsonValueKind.Array)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Tasks array is required." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Массив задач обязателен." : "Tasks array is required."
+            });
 
         var createdCount = 0;
         foreach (var taskElement in tasksElement.EnumerateArray())
@@ -218,16 +240,20 @@ public sealed class AiController(
         {
             Success = createdCount > 0,
             Message = createdCount > 0
-                ? $"Created {createdCount} tasks!"
-                : "Failed to create tasks."
+                ? (ru ? $"Создано задач: {createdCount}!" : $"Created {createdCount} tasks!")
+                : (ru ? "Не удалось создать задачи." : "Failed to create tasks.")
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateReward(AiActionDto action, string userId,
+    private async Task<IActionResult> ExecuteCreateReward(AiActionDto action, string userId, bool ru,
         CancellationToken cancellationToken)
     {
         if (action.Payload is null)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Reward payload is missing." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Данные награды отсутствуют." : "Reward payload is missing."
+            });
 
         var payload = action.Payload.Value;
         var title = payload.TryGetProperty("title", out var t) ? t.GetString() : null;
@@ -236,7 +262,11 @@ public sealed class AiController(
         var category = payload.TryGetProperty("category", out var cat) ? cat.GetString() : "general";
 
         if (string.IsNullOrWhiteSpace(title))
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Reward title is required." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Название награды обязательно." : "Reward title is required."
+            });
 
         var upstreamPayload = new
         {
@@ -254,7 +284,7 @@ public sealed class AiController(
             return Ok(new ExecuteAiActionResponse
             {
                 Success = true,
-                Message = $"Reward \"{title}\" added to shop!",
+                Message = ru ? $"Награда «{title}» добавлена в магазин!" : $"Reward \"{title}\" added to shop!",
                 Data = JsonSerializer.Deserialize<object>(content)
             });
         }
@@ -262,20 +292,28 @@ public sealed class AiController(
         return Ok(new ExecuteAiActionResponse
         {
             Success = false,
-            Message = "Failed to create reward. Please try again later."
+            Message = ru ? "Не удалось создать награду. Попробуйте позже." : "Failed to create reward. Please try again later."
         });
     }
 
-    private async Task<IActionResult> ExecuteCreateRewards(AiActionDto action, string userId,
+    private async Task<IActionResult> ExecuteCreateRewards(AiActionDto action, string userId, bool ru,
         CancellationToken cancellationToken)
     {
         if (action.Payload is null)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Rewards payload is missing." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Данные наград отсутствуют." : "Rewards payload is missing."
+            });
 
         var payload = action.Payload.Value;
         if (!payload.TryGetProperty("rewards", out var rewardsElement) ||
             rewardsElement.ValueKind != JsonValueKind.Array)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Rewards array is required." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Массив наград обязателен." : "Rewards array is required."
+            });
 
         var createdCount = 0;
         foreach (var rewardElement in rewardsElement.EnumerateArray())
@@ -305,31 +343,43 @@ public sealed class AiController(
         {
             Success = createdCount > 0,
             Message = createdCount > 0
-                ? $"Created {createdCount} rewards!"
-                : "Failed to create rewards."
+                ? (ru ? $"Создано наград: {createdCount}!" : $"Created {createdCount} rewards!")
+                : (ru ? "Не удалось создать награды." : "Failed to create rewards.")
         });
     }
 
-    private async Task<IActionResult> ExecuteCompleteTask(AiActionDto action, CancellationToken cancellationToken)
+    private async Task<IActionResult> ExecuteCompleteTask(AiActionDto action, bool ru, CancellationToken cancellationToken)
     {
         if (action.Payload is null)
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Task ID is missing." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "ID задачи отсутствует." : "Task ID is missing."
+            });
 
         var payload = action.Payload.Value;
         if (!payload.TryGetProperty("taskId", out var taskIdElement))
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Task ID is required." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "ID задачи обязателен." : "Task ID is required."
+            });
 
         var taskIdStr = taskIdElement.GetString();
         if (!Guid.TryParse(taskIdStr, out var taskId))
-            return Ok(new ExecuteAiActionResponse { Success = false, Message = "Invalid task ID format." });
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Некорректный формат ID задачи." : "Invalid task ID format."
+            });
 
         using var response = await taskClient.CompleteAsync(taskId, cancellationToken);
         return Ok(new ExecuteAiActionResponse
         {
             Success = response.IsSuccessStatusCode,
             Message = response.IsSuccessStatusCode
-                ? "Task marked as completed!"
-                : "Failed to complete task."
+                ? (ru ? "Задача отмечена как выполненная!" : "Task marked as completed!")
+                : (ru ? "Не удалось выполнить задачу." : "Failed to complete task.")
         });
     }
 }

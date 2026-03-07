@@ -1,12 +1,25 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AiService.Application.Contracts;
 
 public sealed class TaskSuggestionsRequest
 {
+    [StringLength(64)]
     public string? ChildId { get; init; }
+
+    [Range(3, 18, ErrorMessage = "Возраст ребёнка должен быть от 3 до 18")]
     public int? ChildAge { get; init; }
+
+    [StringLength(32)]
     public string? Tone { get; init; }
+
+    [StringLength(16)]
     public string? Language { get; init; }
+
+    [StringLength(1000, ErrorMessage = "Описание задачи не может превышать 1000 символов")]
     public string? TaskDescription { get; init; }
+
+    [Range(1, 10, ErrorMessage = "Количество предложений должно быть от 1 до 10")]
     public int? SuggestionCount { get; init; }
 
     public int ResolveLimit()

@@ -20,5 +20,13 @@ public class CreateTaskCommandValidator : AbstractValidator<CreateTaskCommand>
 
         RuleFor(x => x.EvidenceRequirement)
             .IsInEnum();
+
+        RuleFor(x => x.Difficulty)
+            .InclusiveBetween(1, 5).WithMessage("Сложность задачи должна быть от 1 до 5.")
+            .When(x => x.Difficulty.HasValue);
+
+        RuleFor(x => x.AssignedToUserId)
+            .MaximumLength(64)
+            .When(x => !string.IsNullOrWhiteSpace(x.AssignedToUserId));
     }
 }
