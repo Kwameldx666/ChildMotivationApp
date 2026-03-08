@@ -101,6 +101,7 @@
     "pending": "Pending",
     "inProgress": "In Progress",
     "completed": "Completed",
+    "pendingApproval": "Awaiting Approval",
     "overdue": "Overdue",
     "cancelled": "Cancelled",
     "confirmationType": "Confirmation Type",
@@ -1060,6 +1061,8 @@
     "actions": {
       "unavailable": "Unavailable",
       "exchange": "Redeem points",
+      "notEnough": "Not enough",
+      "needMore": "Need {amount} more",
       "edit": "Edit",
       "delete": "Delete",
       "confirming": "Confirming...",
@@ -1101,6 +1104,10 @@
       "productUnavailable": {
         "title": "Product unavailable",
         "description": "This item is out of stock."
+      },
+      "notEnoughPoints": {
+        "title": "Not enough points",
+        "description": "You need {need} points but only have {have}"
       },
       "orderCreated": {
         "title": "Order created",
@@ -1450,8 +1457,13 @@
     "reject": "Reject",
     "approve": "Approve",
     "completed": "Completed",
+    "waitingApproval": "Awaiting approval",
     "evidenceSubmitted": "Submitted",
-    "evidenceRequired": "Required"
+    "evidenceRequired": "Required",
+    "askAi": "Ask AI for help",
+    "askParent": "Ask parent",
+    "askParentMessage": "I have a question about this task",
+    "askParentSent": "Message sent to parent!"
   },
   "familyGoals": {
     "title": "Family Goals",
@@ -1607,7 +1619,15 @@
     "quickSwitch": "Quick switch",
     "child": "Child"
   },
-  "parentalControl": {
+  "analyticsAi": {
+    "title": "AI Insights",
+    "cta": "Get AI Analysis",
+    "ctaDescription": "AI will analyze your family's task data and provide personalized recommendations",
+    "generate": "Analyze with AI",
+    "refresh": "Refresh",
+    "analyzing": "Analyzing your data...",
+    "retry": "Retry"
+  },
     "title": "Parental Control",
     "nightMode": "Night Mode",
     "nightModeDescription": "Restrict activity during nighttime",
@@ -2157,6 +2177,7 @@
     "status": {
       "pending": "Pending",
       "inProgress": "In Progress",
+      "pendingApproval": "Awaiting Approval",
       "completed": "Completed",
       "overdue": "Overdue"
     },
@@ -2397,6 +2418,7 @@
       "quests": "Quests",
       "shop": "Shop",
       "achievements": "Awards",
+      "chat": "AI Chat",
       "me": "Me"
     },
     "rewards": {

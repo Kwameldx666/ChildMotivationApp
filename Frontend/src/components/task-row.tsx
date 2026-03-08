@@ -4,7 +4,8 @@ import type { LucideIcon } from "lucide-react"
 import {
   Edit, Eye, Upload, CheckCircle2, AlertCircle, FileCheck, BookOpen,
   Zap, Trophy, ZoomIn, Clock, CalendarDays, Camera, Video, FileText,
-  Trash2, Sparkles, ChevronRight, Shield, Star, MoreHorizontal, X, Pencil
+  Trash2, Sparkles, ChevronRight, Shield, Star, MoreHorizontal, X, Pencil,
+  Bot, MessageCircle
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { tasksService } from "@/services/tasks-service"
 import { useTranslation } from "@/i18n/provider"
 import { useEffect, useRef, useState } from "react"
+import { openAiChat } from "@/components/ai-chat-widget"
 
 // Local minimal type that matches decorated task shape produced in `TasksList`
 type DecoratedTask = TaskDto & {
@@ -44,6 +46,7 @@ interface TaskRowProps {
   onViewEvidence: (task: DecoratedTask) => void
   onEdit: (task: DecoratedTask) => void
   onDelete: (id: string) => void
+  onAskParent?: (task: DecoratedTask) => void
   confirmLoading?: boolean
   updateLoading?: boolean
   downloadLoading?: boolean
@@ -95,6 +98,17 @@ const STATUS_THEME = {
     glow: "shadow-slate-200/40 dark:shadow-slate-900/20",
     emoji: "⏳",
     headerGrad: "from-slate-300/20 to-slate-200/10 dark:from-slate-600/10 dark:to-slate-500/5",
+  },
+  pending_approval: {
+    border: "border-amber-300/60 dark:border-amber-700/40",
+    bg: "from-amber-50/80 via-white to-yellow-50/50 dark:from-amber-950/30 dark:via-background dark:to-yellow-950/15",
+    accent: "bg-gradient-to-b from-amber-400 to-amber-500",
+    dot: "bg-amber-500 animate-pulse",
+    badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+    progress: "from-amber-400 to-yellow-500",
+    glow: "shadow-amber-200/50 dark:shadow-amber-900/30",
+    emoji: "⏰",
+    headerGrad: "from-amber-400/20 to-yellow-400/10 dark:from-amber-500/10 dark:to-yellow-500/5",
   },
 } as const
 
@@ -213,12 +227,6 @@ export default function TaskRow({
 
         {/* ── Row 2: Rewards as cute chips ── */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* XP chip — game style */}
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-100/80 dark:bg-violet-900/30 px-3 py-1.5 ring-1 ring-violet-200/50 dark:ring-violet-700/30">
-            <Zap className="h-3.5 w-3.5 text-violet-500" />
-            <span className="text-xs font-black text-violet-700 dark:text-violet-300">{task.xpReward} XP</span>
-          </div>
-
           {/* Points chip — treasure style */}
           <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-100/80 dark:bg-amber-900/30 px-3 py-1.5 ring-1 ring-amber-200/50 dark:ring-amber-700/30">
             <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
@@ -241,6 +249,7 @@ export default function TaskRow({
             <span className={cn("inline-block h-1.5 w-1.5 rounded-full", theme.dot)} />
             {task.status === "in_progress" ? t("tasks.inProgress") : 
              task.status === "completed" ? t("tasks.completed") :
+             task.status === "pending_approval" ? t("tasks.pendingApproval") :
              task.status === "overdue" ? t("tasks.overdue") :
              t("tasks.pending")}
           </div>
@@ -361,6 +370,48 @@ export default function TaskRow({
               </TooltipContent>
             </Tooltip>
           )}
+
+          {/* Child: Ask AI about this task */}
+          {userType === "child" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg text-primary hover:bg-primary/10"
+                  onClick={() => {
+                    const detail = `${task.title}${task.description ? ': ' + task.description : ''}`
+                    window.dispatchEvent(new CustomEvent("ai-widget:open-with-message", { detail }))
+                    openAiChat()
+                  }}
+                >
+                  <Bot className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {t("taskRow.askAi")}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Child: Ask parent about this task */}
+          {userType === "child" && onAskParent && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-900/30"
+                  onClick={() => onAskParent(task)}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {t("taskRow.askParent")}
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
 
         {/* ─ Spacer ─ */}
@@ -403,24 +454,50 @@ export default function TaskRow({
           )}
 
           {/* ─ Primary actions ─ */}
-          {!task.completed && userType === "child" && (
-            <Button
-              size="sm"
-              className={cn(
-                "h-10 gap-2 rounded-2xl px-6 text-sm font-black text-white btn-bounce",
-                "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600",
-                "shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/35",
-                "transition-all duration-200 hover:scale-[1.03]"
-              )}
-              onClick={() => onConfirm(task.id)}
-              disabled={confirmLoading}
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              {t("taskRow.complete")} ✨
-            </Button>
+          {/* Child: show "Complete" only if NOT pending_approval and NOT completed */}
+          {!task.completed && !task.pendingApproval && userType === "child" && (
+            requiresEvidence && !evidenceReady ? (
+              <Button
+                size="sm"
+                className={cn(
+                  "h-10 gap-2 rounded-2xl px-6 text-sm font-black text-white btn-bounce",
+                  "bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600",
+                  "shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35",
+                  "transition-all duration-200 hover:scale-[1.03]"
+                )}
+                onClick={() => onUploadEvidence(task)}
+              >
+                <Upload className="h-4 w-4" />
+                {t("taskRow.submitEvidence")} 📎
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className={cn(
+                  "h-10 gap-2 rounded-2xl px-6 text-sm font-black text-white btn-bounce",
+                  "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600",
+                  "shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/35",
+                  "transition-all duration-200 hover:scale-[1.03]"
+                )}
+                onClick={() => onConfirm(task.id)}
+                disabled={confirmLoading}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {t("taskRow.complete")} ✨
+              </Button>
+            )
           )}
 
-          {!task.completed && userType === "parent" && (
+          {/* Child: show "Waiting for approval" badge when pending */}
+          {!task.completed && task.pendingApproval && userType === "child" && (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/40 dark:to-yellow-900/30 px-4 py-2 text-sm font-black text-amber-700 dark:text-amber-300 shadow-sm animate-pulse">
+              <Clock className="h-4 w-4" />
+              {t("taskRow.waitingApproval")} ⏰
+            </div>
+          )}
+
+          {/* Parent: show approve/reject only when pending_approval */}
+          {!task.completed && task.pendingApproval && userType === "parent" && (
             <>
               <Tooltip>
                 <TooltipTrigger asChild>

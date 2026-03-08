@@ -37,7 +37,7 @@ interface CreateTaskDialogProps {
 
 export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDialogProps) {
   const { toast } = useToast()
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const createTask = useCreateTask()
   const { hasFeature, isWithinLimit, getLimit } = useSubscriptionGate()
   const canUseAi = hasFeature('aiAssistant')
@@ -97,8 +97,8 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
       const resp = await aiService.getTaskSuggestions({
         childId: childInfo?.id,
         childAge: (childInfo as any)?.age ?? undefined,
-        tone: 'дружелюбный',
-        language: 'ru',
+        tone: locale === 'ru' ? 'дружелюбный' : locale === 'ro' ? 'prietenos' : 'friendly',
+        language: locale,
         taskDescription: prompt,
       })
       const first = resp?.suggestions?.[0]

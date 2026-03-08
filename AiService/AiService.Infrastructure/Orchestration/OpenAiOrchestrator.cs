@@ -192,6 +192,10 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
                 payload.AppendLine(isRussian
                     ? $"Если указано описание задачи — верни ровно {limit} задач, строго основанных на нём."
                     : $"If a task description is provided — return exactly {limit} tasks, strictly based on it.");
+            payload.AppendLine();
+            payload.AppendLine(isRussian
+                ? "ВАЖНО: Не добавляй подробности, которых нет в описании. Если пользователь написал 'убрать на кухне' — не добавляй 'разложить игрушки' или другие действия. Описание должно быть простым и соответствовать тому что написал пользователь. Задача должна быть посильной для ребёнка."
+                : "IMPORTANT: Do NOT invent details that are not in the description. If the user wrote 'clean the kitchen' — do not add 'organize toys' or other unrelated actions. Keep the description simple and true to what the user wrote. The task must be age-appropriate and manageable for a child.");
         }
 
         payload.AppendLine();
@@ -251,45 +255,35 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
     
     private static IReadOnlyList<OpenAiMessage> BuildChatMessages(AiChatRequest request)
     {
-        const string systemPrompt = """
-                                    You are a family mentor assistant. You MUST detect the language of the user's message and ALWAYS reply in the SAME language.
-                                    If the user writes in Russian — reply in Russian. If in English — reply in English. Match any language the user uses.
-                                    Be friendly and supportive.
+        // Determine the user's preferred language from context
+        var locale = request.Context.TryGetValue("locale", out var loc) ? loc : null;
+        var audience = request.Context.TryGetValue("audience", out var aud) ? aud : "parent";
+        var isChild = string.Equals(audience, "child", StringComparison.OrdinalIgnoreCase);
 
-                                    IMPORTANT: When the user asks to create a task, reward, send a message, or perform an action —
-                                    you MUST include the corresponding actions in the response. Do not just describe what to do — provide ready-to-execute data.
+        var langInstruction = !string.IsNullOrWhiteSpace(locale)
+            ? $"The user's interface language is {locale}. You MUST reply in this language. If the user writes in a different language, still prefer {locale} unless they explicitly ask you to switch."
+            : "You MUST detect the language of the user's message and ALWAYS reply in the SAME language.";
 
-                                    Available action types:
-                                    - CreateTask: create one task. Payload: {title, description, difficulty (1-5), category, tags[]}
-                                    - CreateTasks: create multiple tasks. Payload: {tasks: [{title, description, difficulty, category, tags[]}]}
-                                    - CreateReward: create a reward. Payload: {title, description, cost, category, icon}
-                                    - CreateRewards: create multiple rewards. Payload: {rewards: [{title, description, cost, category, icon}]}
-                                    - CompleteTask: mark a task as completed. Payload: {taskId}
-                                    - Navigate: navigate to a page. Payload: {route, queryParams}
+        var childRestriction = isChild
+            ? "\nIMPORTANT: The current user is a CHILD. You must NEVER include actions of type CreateTask, CreateTasks, CreateReward, CreateRewards, or CompleteTask for children. Children cannot create or manage tasks/rewards. Only help them understand tasks, give tips, motivate, and answer questions. You can suggest they ask their parent if they need something changed."
+            : "\nIMPORTANT: When the user asks to create a task, reward, send a message, or perform an action — you MUST include the corresponding actions in the response. Do not just describe what to do — provide ready-to-execute data.";
 
-                                    Keywords that indicate task creation (any language): "task", "задач", "создай", "добав", "create", "add", "make"
-                                    Keywords that indicate reward creation: "reward", "наград", "приз", "поощрен", "prize", "bonus"
-                                    Keywords that indicate task completion: "complete", "done", "выполн", "готов", "finish"
-
-                                    Response format (strictly JSON):
-                                    {
-                                      "reply": "Text response to user (in user's language)",
-                                      "followUps": ["Follow-up suggestion 1 (in user's language)", "Suggestion 2"],
-                                      "actions": [
-                                        {
-                                          "type": "CreateTask",
-                                          "label": "Action label (in user's language)",
-                                          "description": "Brief action description (in user's language)",
-                                          "variant": "primary",
-                                          "priority": 1,
-                                          "payload": { ... data ... }
-                                        }
-                                      ]
-                                    }
-
-                                    If no actions are needed, return an empty actions array: [].
-                                    Reply ONLY with valid JSON without markdown code blocks.
-                                    """;
+        var systemPrompt = "You are a family mentor assistant. " + langInstruction + "\n" +
+            "Be friendly and supportive." + childRestriction + "\n\n" +
+            "Available action types:\n" +
+            "- CreateTask: create one task. Payload: {title, description, difficulty (1-5), category, tags[]}\n" +
+            "- CreateTasks: create multiple tasks. Payload: {tasks: [{title, description, difficulty, category, tags[]}]}\n" +
+            "- CreateReward: create a reward. Payload: {title, description, cost, category, icon}\n" +
+            "- CreateRewards: create multiple rewards. Payload: {rewards: [{title, description, cost, category, icon}]}\n" +
+            "- CompleteTask: mark a task as completed. Payload: {taskId}\n" +
+            "- Navigate: navigate to a page. Payload: {route, queryParams}\n\n" +
+            "Keywords that indicate task creation (any language): \"task\", \"задач\", \"создай\", \"добав\", \"create\", \"add\", \"make\"\n" +
+            "Keywords that indicate reward creation: \"reward\", \"наград\", \"приз\", \"поощрен\", \"prize\", \"bonus\"\n" +
+            "Keywords that indicate task completion: \"complete\", \"done\", \"выполн\", \"готов\", \"finish\"\n\n" +
+            "Response format (strictly JSON):\n" +
+            "{\"reply\": \"Text response to user\", \"followUps\": [\"suggestion1\"], \"actions\": [{\"type\": \"CreateTask\", \"label\": \"label\", \"description\": \"desc\", \"variant\": \"primary\", \"priority\": 1, \"payload\": {}}]}\n\n" +
+            "If no actions are needed, return an empty actions array: [].\n" +
+            "Reply ONLY with valid JSON without markdown code blocks.";
 
         var messages = new List<OpenAiMessage>
         {

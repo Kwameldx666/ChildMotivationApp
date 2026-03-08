@@ -45,6 +45,7 @@ import {
 } from "lucide-react"
 import type { AnalyticsData } from "@/services/analytics-service"
 import { useRealAnalytics } from "@/hooks/use-real-analytics"
+import AiAnalyticsInsights from "./ai-analytics-insights"
 
 /* ── Shared SVG filters (glow / soft-shadow) injected once ── */
 function SvgFilters() {
@@ -1408,6 +1409,9 @@ export default function AnalyticsDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── AI Analytics Insights ── */}
+        <AiAnalyticsInsights analytics={analytics} windowDays={windowDays} />
 
         {/* ── Main chart card ── */}
         <Card className="border-0 shadow-lg overflow-hidden">

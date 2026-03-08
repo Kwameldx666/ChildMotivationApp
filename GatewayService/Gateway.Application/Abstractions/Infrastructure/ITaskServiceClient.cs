@@ -12,6 +12,9 @@ public interface ITaskServiceClient
     Task<HttpResponseMessage> UpdateAsync(Guid id, object request, CancellationToken cancellationToken = default);
     Task<HttpResponseMessage> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<HttpResponseMessage> CompleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<HttpResponseMessage> RequestApprovalAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<HttpResponseMessage> ApproveAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<HttpResponseMessage> RejectAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<HttpResponseMessage> GetAnalyticsAsync(string userId, int windowDays,
         CancellationToken cancellationToken = default);

@@ -64,6 +64,10 @@ using (var scope = app.Services.CreateScope())
         var db = scope.ServiceProvider.GetRequiredService<TaskService.Persistence.Context.TaskDbContext>();
         db.Database.Migrate();
 
+        // Add PendingApproval column if missing (post-migration patch)
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"PendingApproval\" boolean NOT NULL DEFAULT false");
+
         // ── Seed demo tasks for screenshots ──
         var parentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
         var hasDemo = await db.Tasks.AnyAsync(t => t.CreatedByUserId == parentId);

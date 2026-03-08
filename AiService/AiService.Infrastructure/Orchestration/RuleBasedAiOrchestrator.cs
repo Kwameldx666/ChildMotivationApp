@@ -204,7 +204,9 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
             : $"Here's what you can do: {BuildAnswerCore(request.Message, ru)}");
 
         var followUps = BuildFollowUps(request.Message, request.Context, ru);
-        var actions = BuildActionsForMessage(request.Message, ru);
+        var isChild = request.Context.TryGetValue("audience", out var aud) &&
+                      string.Equals(aud, "child", StringComparison.OrdinalIgnoreCase);
+        var actions = isChild ? Array.Empty<AiAction>() : BuildActionsForMessage(request.Message, ru);
         return Task.FromResult(new AiChatResponse(conversationId, reply.ToString().Trim(), followUps, actions,
             timeProvider.GetUtcNow()));
     }

@@ -12,12 +12,18 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
     private readonly ITaskRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly INotificationClient _notificationClient;
 
-    public CreateTaskCommandHandler(ITaskRepository repository, IUnitOfWork unitOfWork, IDateTimeProvider dateTimeProvider)
+    public CreateTaskCommandHandler(
+        ITaskRepository repository,
+        IUnitOfWork unitOfWork,
+        IDateTimeProvider dateTimeProvider,
+        INotificationClient notificationClient)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
+        _notificationClient = notificationClient;
     }
 
     public async Task<TaskDto> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
@@ -33,6 +39,18 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
 
         await _repository.AddAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Notify the assigned child about the new task
+        if (!string.IsNullOrEmpty(task.AssignedToUserId))
+        {
+            await _notificationClient.SendTaskAssignedNotificationAsync(
+                task.Id.ToString(),
+                task.Title,
+                task.Description ?? "",
+                task.AssignedToUserId,
+                task.CreatedByUserId,
+                cancellationToken);
+        }
 
         return task.ToDto();
     }

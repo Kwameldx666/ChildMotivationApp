@@ -277,10 +277,23 @@ export default function AiChatWidget() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   /* ── listen for external open requests ── */
+  const pendingMessageRef = useRef<string | null>(null)
+
   useEffect(() => {
     const handler = () => setOpen(true)
     window.addEventListener(AI_WIDGET_OPEN_EVENT, handler)
-    return () => window.removeEventListener(AI_WIDGET_OPEN_EVENT, handler)
+
+    const ctxHandler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail
+      if (detail) pendingMessageRef.current = detail
+      setOpen(true)
+    }
+    window.addEventListener("ai-widget:open-with-message", ctxHandler)
+
+    return () => {
+      window.removeEventListener(AI_WIDGET_OPEN_EVENT, handler)
+      window.removeEventListener("ai-widget:open-with-message", ctxHandler)
+    }
   }, [])
 
   /* ── build greeting & context from session ── */
@@ -337,6 +350,12 @@ export default function AiChatWidget() {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 200)
+      // If opened with a task context message, auto-send it
+      if (pendingMessageRef.current) {
+        const msg = pendingMessageRef.current
+        pendingMessageRef.current = null
+        setTimeout(() => void sendMessage(msg), 300)
+      }
     }
   }, [open])
 
@@ -467,8 +486,9 @@ export default function AiChatWidget() {
                     onExecuteAction={executeAction}
                     onDismissAction={dismissAction}
                     actionFilter={(a) => {
-                      const taskTypes = ["CreateTask", "CreateTasks"]
+                      const taskTypes = ["CreateTask", "CreateTasks", "CompleteTask"]
                       const rewardTypes = ["CreateReward", "CreateRewards"]
+                      if (role === "child" && [...taskTypes, ...rewardTypes].includes(a.type)) return false
                       if (taskTypes.includes(a.type) && !settings.aiCanCreateTasks) return false
                       if (rewardTypes.includes(a.type) && !settings.aiCanCreateRewards) return false
                       return true
@@ -492,9 +512,10 @@ export default function AiChatWidget() {
 
             {/* ─── Pending Actions (filtered by AI permissions) ─── */}
             {(() => {
-              const taskTypes = ["CreateTask", "CreateTasks"]
+              const taskTypes = ["CreateTask", "CreateTasks", "CompleteTask"]
               const rewardTypes = ["CreateReward", "CreateRewards"]
               const filtered = pendingActions.filter((a) => {
+                if (role === "child" && [...taskTypes, ...rewardTypes].includes(a.type)) return false
                 if (taskTypes.includes(a.type) && !settings.aiCanCreateTasks) return false
                 if (rewardTypes.includes(a.type) && !settings.aiCanCreateRewards) return false
                 return true

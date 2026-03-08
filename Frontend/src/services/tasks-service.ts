@@ -21,6 +21,7 @@ export interface TaskDto {
   title: string
   description?: string
   completed: boolean
+  pendingApproval: boolean
   createdAt: string
   updatedAt?: string | null
   completedAt?: string | null
@@ -60,6 +61,15 @@ export const tasksService = {
   },
   complete(taskId: string) {
     return httpClient.post<void>(`/api-gateway/tasks/${taskId}/complete`)
+  },
+  requestApproval(taskId: string) {
+    return httpClient.post<void>(`/api-gateway/tasks/${taskId}/request-approval`)
+  },
+  approve(taskId: string) {
+    return httpClient.post<void>(`/api-gateway/tasks/${taskId}/approve`)
+  },
+  reject(taskId: string) {
+    return httpClient.post<void>(`/api-gateway/tasks/${taskId}/reject`)
   },
   submitEvidence(taskId: string, file: File) {
     const formData = new FormData()

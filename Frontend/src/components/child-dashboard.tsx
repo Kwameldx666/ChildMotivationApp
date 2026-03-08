@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import {
   CheckCircle2, LogOut, User,
   Flame, Star, Trophy, Target, Crown, Sparkles,
-  Gift, Settings, Image, Zap,
+  Gift, Settings, Image, Zap, MessageCircle, Bot,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { NotificationsPopover } from "@/components/notifications-popover"
@@ -16,6 +16,7 @@ import ChildProfile from "./child-profile"
 import AchievementTree from "./achievement-tree"
 import GameHub from "./game-hub"
 import EvidenceGallery from "./evidence-gallery"
+import ChildAiChat from "./child-ai-chat"
 import { useTasks } from "@/services/tasks-queries"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
@@ -57,6 +58,7 @@ const TABS = [
   { id: "gallery",      labelKey: "childDashboard.nav.gallery",      Icon: Image,        emoji: "📸", grad: "from-pink-400 to-rose-500",     ring: "ring-pink-400/40",    glow: "shadow-pink-500/25",    dot: "bg-pink-400",    bgLight: "bg-pink-500/10",    textColor: "text-pink-600 dark:text-pink-400"    },
   { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400",  bgLight: "bg-orange-500/10",  textColor: "text-orange-600 dark:text-orange-400"  },
   { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400",  bgLight: "bg-violet-500/10",  textColor: "text-violet-600 dark:text-violet-400"  },
+  { id: "chat",         labelKey: "childDashboard.nav.chat",         Icon: Bot,          emoji: "🤖", grad: "from-cyan-400 to-blue-500",     ring: "ring-cyan-400/40",    glow: "shadow-cyan-500/25",    dot: "bg-cyan-400",    bgLight: "bg-cyan-500/10",    textColor: "text-cyan-600 dark:text-cyan-400"      },
   { id: "achievements", labelKey: "childDashboard.nav.achievements", Icon: Trophy,       emoji: "🏆", grad: "from-amber-400 to-yellow-500",  ring: "ring-amber-400/40",   glow: "shadow-amber-500/25",   dot: "bg-amber-400",   bgLight: "bg-amber-500/10",   textColor: "text-amber-600 dark:text-amber-400"   },
   { id: "profile",      labelKey: "childDashboard.nav.me",           Icon: User,         emoji: "😊", grad: "from-blue-400 to-indigo-500",   ring: "ring-blue-400/40",    glow: "shadow-blue-500/25",    dot: "bg-blue-400",    bgLight: "bg-blue-500/10",    textColor: "text-blue-600 dark:text-blue-400"    },
 ] as const
@@ -187,6 +189,12 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
             </div>
           )}
 
+          {/* Notifications bell — always visible */}
+          <NotificationsPopover />
+
+          {/* Language flags — gamified, directly visible */}
+          <LanguageSwitcher gamified />
+
           {/* Settings gear */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -196,9 +204,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5">
               <div className="flex items-center justify-center gap-1 py-1.5">
-                <LanguageSwitcher variant="ghost" size="sm" />
                 <ThemeToggle />
-                <NotificationsPopover />
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowAvatarPicker(true)} className="rounded-xl text-sm">
@@ -349,7 +355,8 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
         <div className={cn(activeTab === "tasks" ? "block" : "hidden")}><TasksList userType="child" /></div>
         <div className={cn(activeTab === "gallery" ? "block" : "hidden")}><EvidenceGallery tasks={tasks} userType="child" /></div>
         <div className={cn(activeTab === "quests" ? "block" : "hidden")}><GameHub /></div>
-        <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" /></div>
+        <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" childBalance={points} /></div>
+        <div className={cn(activeTab === "chat" ? "block" : "hidden")}><ChildAiChat /></div>
         <div className={cn(activeTab === "achievements" ? "block" : "hidden")}><AchievementTree /></div>
         <div className={cn(activeTab === "profile" ? "block" : "hidden")}>
           <ChildProfile

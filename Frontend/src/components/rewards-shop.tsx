@@ -35,6 +35,7 @@ import { useTranslation } from "@/i18n/provider"
 interface RewardsShopProps {
   userType: "parent" | "child"
   locale?: string
+  childBalance?: number
 }
 
 const resolveStatusKey = (status: any) => (typeof status === "number" ? String(status) : status)
@@ -61,7 +62,7 @@ function resolveIntlLocale(locale: string) {
   return "en-US"
 }
 
-export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProps) {
+export default function RewardsShop({ userType, locale = "ru", childBalance }: RewardsShopProps) {
   const { toast } = useToast()
   const { t } = useTranslation()
   const isParent = userType === "parent"
@@ -130,11 +131,21 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
 
   /* ---- Handlers ---- */
 
+  const balance = childBalance ?? 0
+
   const handlePurchase = async (product: ProductDto) => {
     if (product.stock <= 0) {
       toast({
         title: t("rewardsShop.toasts.productUnavailable.title"),
         description: t("rewardsShop.toasts.productUnavailable.description"),
+        variant: "destructive",
+      })
+      return
+    }
+    if (balance < product.price) {
+      toast({
+        title: t("rewardsShop.toasts.notEnoughPoints.title"),
+        description: t("rewardsShop.toasts.notEnoughPoints.description", { need: product.price, have: balance }),
         variant: "destructive",
       })
       return
@@ -249,6 +260,12 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
                 <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
                 <span className="text-sm font-black text-amber-600 dark:text-amber-400">{visibleProducts.length}</span>
               </div>
+              {userType === "child" && (
+                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-400/20">
+                  <Coins className="h-4 w-4 text-emerald-500" />
+                  <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{numberFormatter.format(balance)}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -345,24 +362,36 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
 
                   {/* Stock or Action */}
                   {userType === "child" ? (
-                    <Button
-                      size="sm"
-                      className={cn(
-                        "h-10 rounded-2xl px-5 gap-2 text-sm font-black text-white transition-all duration-200 btn-bounce",
-                        outOfStock
-                          ? "bg-muted text-muted-foreground pointer-events-none"
-                          : "bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/35 hover:scale-[1.03]",
-                      )}
-                      onClick={() => handlePurchase(product)}
-                      disabled={createOrder.isPending || outOfStock}
-                    >
-                      {createOrder.isPending ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : outOfStock ? null : (
-                        <ShoppingCart className="h-4 w-4" />
-                      )}
-                      {outOfStock ? t("rewardsShop.actions.unavailable") : t("rewardsShop.actions.exchange")} {!outOfStock && "🎉"}
-                    </Button>
+                    (() => {
+                      const cantAfford = balance < product.price
+                      return (
+                        <div className="flex flex-col items-end gap-1">
+                          <Button
+                            size="sm"
+                            className={cn(
+                              "h-10 rounded-2xl px-5 gap-2 text-sm font-black text-white transition-all duration-200 btn-bounce",
+                              outOfStock || cantAfford
+                                ? "bg-muted text-muted-foreground pointer-events-none"
+                                : "bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/35 hover:scale-[1.03]",
+                            )}
+                            onClick={() => handlePurchase(product)}
+                            disabled={createOrder.isPending || outOfStock || cantAfford}
+                          >
+                            {createOrder.isPending ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : outOfStock || cantAfford ? null : (
+                              <ShoppingCart className="h-4 w-4" />
+                            )}
+                            {outOfStock ? t("rewardsShop.actions.unavailable") : cantAfford ? t("rewardsShop.actions.notEnough") : t("rewardsShop.actions.exchange")} {!outOfStock && !cantAfford && "🎉"}
+                          </Button>
+                          {cantAfford && !outOfStock && (
+                            <span className="text-[10px] text-red-500 dark:text-red-400 font-medium">
+                              {t("rewardsShop.actions.needMore", { amount: product.price - balance })}
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })()
                   ) : (
                     <span className={cn(
                       "text-xs font-medium tabular-nums",

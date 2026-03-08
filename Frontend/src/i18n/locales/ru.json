@@ -105,6 +105,7 @@
     "inProgress": "В процессе",
     "completed": "Выполнено",
     "overdue": "Просрочено",
+    "pendingApproval": "Ожидает одобрения",
     "cancelled": "Отменено",
     "confirmationType": "Тип подтверждения",
     "photo": "Фото",
@@ -1054,6 +1055,8 @@
     "actions": {
       "unavailable": "Недоступно",
       "exchange": "Обменять баллы",
+      "notEnough": "Не хватает",
+      "needMore": "Нужно ещё {amount}",
       "edit": "Править",
       "delete": "Удалить",
       "confirming": "Подтверждение...",
@@ -1095,6 +1098,10 @@
       "productUnavailable": {
         "title": "Товар недоступен",
         "description": "Этого товара нет в наличии."
+      },
+      "notEnoughPoints": {
+        "title": "Недостаточно баллов",
+        "description": "Нужно {need} баллов, а у вас {have}"
       },
       "orderCreated": {
         "title": "Заказ создан",
@@ -1444,8 +1451,13 @@
     "reject": "Отклонить",
     "approve": "Одобрить",
     "completed": "Завершёно",
+    "waitingApproval": "Ожидает одобрения",
     "evidenceSubmitted": "Отправлено",
-    "evidenceRequired": "Требуется"
+    "evidenceRequired": "Требуется",
+    "askAi": "Спросить ИИ",
+    "askParent": "Спросить родителя",
+    "askParentMessage": "У меня вопрос по этой задаче",
+    "askParentSent": "Сообщение отправлено родителю!"
   },
   "familyGoals": {
     "title": "Цели семьи",
@@ -1600,6 +1612,15 @@
     "wholeFamily": "Вся семья",
     "quickSwitch": "Быстрое переключение",
     "child": "Ребёнок"
+  },
+  "analyticsAi": {
+    "title": "ИИ Аналитика",
+    "cta": "Получить анализ ИИ",
+    "ctaDescription": "ИИ проанализирует данные вашей семьи и даст персональные рекомендации",
+    "generate": "Анализ с ИИ",
+    "refresh": "Обновить",
+    "analyzing": "Анализируем данные...",
+    "retry": "Повторить"
   },
   "parentalControl": {
     "title": "Родительский контроль",
@@ -2152,7 +2173,8 @@
       "pending": "Ожидает",
       "inProgress": "В процессе",
       "completed": "Выполнено",
-      "overdue": "Просрочено"
+      "overdue": "Просрочено",
+      "pendingApproval": "Ожидает одобрения"
     },
     "journey": {
       "assigned": "Назначено",
@@ -2391,6 +2413,7 @@
       "quests": "Квесты",
       "shop": "Магазин",
       "achievements": "Награды",
+      "chat": "ИИ Чат",
       "me": "Я"
     },
     "rewards": {

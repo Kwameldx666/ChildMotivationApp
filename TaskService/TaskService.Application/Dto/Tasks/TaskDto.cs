@@ -7,6 +7,7 @@ public record TaskDto(
     string Title,
     string? Description,
     bool Completed,
+    bool PendingApproval,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     DateTime? CompletedAt,

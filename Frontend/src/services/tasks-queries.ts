@@ -53,6 +53,30 @@ export function useCompleteTask() {
   })
 }
 
+export function useRequestApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => tasksService.requestApproval(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
+export function useApproveTask() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => tasksService.approve(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
+export function useRejectTask() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => tasksService.reject(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
 export function useSubmitTaskEvidence() {
   const qc = useQueryClient()
   return useMutation({

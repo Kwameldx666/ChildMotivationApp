@@ -36,6 +36,7 @@ public class TaskItem
     public string Title { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public bool Completed { get; private set; }
+    public bool PendingApproval { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
@@ -132,8 +133,23 @@ public class TaskItem
     public void SetCompletion(bool completed, DateTime when)
     {
         Completed = completed;
+        PendingApproval = false;
         CompletedAt = completed ? when : null;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RequestApproval(DateTime when)
+    {
+        if (Completed)
+            throw new InvalidOperationException("Task is already completed.");
+        PendingApproval = true;
+        UpdatedAt = when;
+    }
+
+    public void RejectApproval(DateTime when)
+    {
+        PendingApproval = false;
+        UpdatedAt = when;
     }
 
     public void AttachEvidence(

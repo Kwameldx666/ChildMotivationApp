@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using TaskService.Api.Contracts.Tasks;
 using TaskService.Application.Dto.Tasks;
 using TaskService.Application.Features.Tasks.Commands.CompleteTask;
+using TaskService.Application.Features.Tasks.Commands.RequestApproval;
+using TaskService.Application.Features.Tasks.Commands.ApproveTask;
+using TaskService.Application.Features.Tasks.Commands.RejectApproval;
 using TaskService.Application.Features.Tasks.Commands.CreateTask;
 using TaskService.Application.Features.Tasks.Commands.DeleteTask;
 using TaskService.Application.Features.Tasks.Commands.SubmitTaskEvidence;
@@ -74,6 +77,27 @@ public class TasksController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
     {
         await mediator.Send(new CompleteTaskCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/request-approval")]
+    public async Task<IActionResult> RequestApproval(Guid id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new RequestApprovalCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/approve")]
+    public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ApproveTaskCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/reject")]
+    public async Task<IActionResult> Reject(Guid id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new RejectApprovalCommand(id), cancellationToken);
         return NoContent();
     }
 

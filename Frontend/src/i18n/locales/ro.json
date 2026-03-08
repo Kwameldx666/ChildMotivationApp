@@ -420,6 +420,8 @@
     "actions": {
       "unavailable": "Indisponibil",
       "exchange": "Schimbă puncte",
+      "notEnough": "Insuficient",
+      "needMore": "Mai ai nevoie de {amount}",
       "edit": "Editează",
       "delete": "Șterge",
       "confirming": "Se confirmă...",
@@ -459,6 +461,10 @@
       "productUnavailable": {
         "title": "Produs indisponibil",
         "description": "Acest produs nu este în stoc."
+      },
+      "notEnoughPoints": {
+        "title": "Puncte insuficiente",
+        "description": "Ai nevoie de {need} puncte, dar ai doar {have}"
       },
       "orderCreated": {
         "title": "Comanda a fost creată",
@@ -531,6 +537,7 @@
     "inProgress": "În lucru",
     "completed": "Finalizat",
     "overdue": "Expirat",
+    "pendingApproval": "În așteptarea aprobării",
     "cancelled": "Anulat",
     "confirmationType": "Tip confirmare",
     "photo": "Fotografie",
@@ -1423,7 +1430,12 @@
     "approve": "Aprobă",
     "completed": "Finalizat",
     "evidenceSubmitted": "Trimis",
-    "evidenceRequired": "Necesar"
+    "evidenceRequired": "Necesar",
+    "askAi": "Întreabă AI",
+    "askParent": "Întreabă părintele",
+    "askParentMessage": "Am o întrebare despre această sarcină",
+    "askParentSent": "Mesaj trimis părintelui!",
+    "waitingApproval": "În așteptarea aprobării"
   },
   "familyGoals": {
     "title": "Obiectivele familiei",
@@ -1576,7 +1588,15 @@
     "quickSwitch": "Comutare rapidă",
     "child": "Copil"
   },
-  "parentalControl": {
+  "analyticsAi": {
+    "title": "Analiz\u0103 AI",
+    "cta": "Ob\u021bine analiza AI",
+    "ctaDescription": "AI va analiza datele familiei tale \u0219i va oferi recomand\u0103ri personalizate",
+    "generate": "Analizeaz\u0103 cu AI",
+    "refresh": "Reîmprosp\u0103teaz\u0103",
+    "analyzing": "Se analizeaz\u0103 datele...",
+    "retry": "Re\u00eencearc\u0103"
+  },
     "title": "Control parental",
     "nightMode": "Mod noapte",
     "nightModeDescription": "Restricționează activitatea pe timp de noapte",
@@ -2117,7 +2137,8 @@
       "pending": "În așteptare",
       "inProgress": "În desfășurare",
       "completed": "Finalizat",
-      "overdue": "Întârziat"
+      "overdue": "Întârziat",
+      "pendingApproval": "În așteptarea aprobării"
     },
     "journey": {
       "assigned": "Atribuit",
@@ -2356,6 +2377,7 @@
       "quests": "Misiuni",
       "shop": "Magazin",
       "achievements": "Premii",
+      "chat": "Chat AI",
       "me": "Eu"
     },
     "rewards": {

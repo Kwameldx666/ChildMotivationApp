@@ -50,7 +50,11 @@ export const subscriptionService = {
    * Change subscription (upgrade/downgrade)
    */
   async changeSubscription(request: ChangeSubscriptionRequest): Promise<SubscriptionDto> {
-    return httpClient.post<SubscriptionDto>('/api-gateway/user-service/subscription/change', request)
+    const normalized = {
+      ...request,
+      tier: request.tier.charAt(0).toUpperCase() + request.tier.slice(1).toLowerCase(),
+    }
+    return httpClient.post<SubscriptionDto>('/api-gateway/user-service/subscription/change', normalized)
   },
 
   /**

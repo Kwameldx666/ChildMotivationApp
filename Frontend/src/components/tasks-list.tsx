@@ -36,6 +36,9 @@ import { cn } from "@/lib/utils"
 import {
 	useTasks,
 	useCompleteTask,
+	useRequestApproval,
+	useApproveTask,
+	useRejectTask,
 	useUpdateTask,
 	useDeleteTask,
 	useSubmitTaskEvidence,
@@ -51,12 +54,15 @@ import { useTranslation } from "@/i18n/provider"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
+import { selectAuthSession } from "@/features/auth/store/authSlice"
+import { useAppSelector } from "@/store/hooks"
+import { useSendFamilyMessage } from "@/services/family-chat-queries"
 
 interface TasksListProps {
 	userType: "parent" | "child"
 }
 
-type TaskStatus = "pending" | "in_progress" | "completed" | "overdue"
+type TaskStatus = "pending" | "in_progress" | "pending_approval" | "completed" | "overdue"
 
 type DecoratedTask = TaskDto & {
 	status: TaskStatus
@@ -100,6 +106,13 @@ const STATUS_CARD_STYLE: Record<TaskStatus, { bg: string; border: string; glow: 
 		iconBg: "bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900 dark:to-emerald-800",
 		iconText: "text-emerald-600 dark:text-emerald-300",
 	},
+	pending_approval: {
+		bg: "bg-gradient-to-br from-amber-50/90 via-white to-yellow-50/70 dark:from-amber-950/40 dark:via-card dark:to-yellow-950/30",
+		border: "border-amber-200/60 dark:border-amber-800/40",
+		glow: "hover:shadow-amber-200/40 dark:hover:shadow-amber-900/20",
+		iconBg: "bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900 dark:to-amber-800",
+		iconText: "text-amber-600 dark:text-amber-300",
+	},
 	overdue: {
 		bg: "bg-gradient-to-br from-red-50/90 via-white to-orange-50/70 dark:from-red-950/40 dark:via-card dark:to-orange-950/30",
 		border: "border-red-200/60 dark:border-red-800/40",
@@ -138,6 +151,13 @@ const STATUS_META: Record<TaskStatus, { label: string; badge: string; dot: strin
 		icon: CheckCircle2,
 		journeyIndex: 3,
 	},
+	pending_approval: {
+		label: "tasksList.status.pendingApproval",
+		badge: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-800",
+		dot: "bg-amber-500",
+		icon: Clock,
+		journeyIndex: 2,
+	},
 	overdue: {
 		label: "tasksList.status.overdue",
 		badge: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 ring-1 ring-red-200 dark:ring-red-800",
@@ -152,6 +172,7 @@ const STATUS_FILTER_COLORS: Record<TaskStatus | "all", { active: string; count: 
 	pending: { active: "bg-slate-600 text-white dark:bg-slate-500", count: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300" },
 	in_progress: { active: "bg-blue-600 text-white", count: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
 	completed: { active: "bg-emerald-600 text-white", count: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" },
+	pending_approval: { active: "bg-amber-600 text-white", count: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
 	overdue: { active: "bg-red-600 text-white", count: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
 }
 
@@ -168,6 +189,7 @@ const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
 
 function mapStatus(task: TaskDto): TaskStatus {
 	if (task.completed) return "completed"
+	if (task.pendingApproval) return "pending_approval"
 	if (!task.createdAt) return "pending"
 	const created = new Date(task.createdAt)
 	if (Number.isNaN(created.getTime())) return "pending"
@@ -217,7 +239,13 @@ export default function TasksList({ userType }: TasksListProps) {
 	const { stats: progressStats } = useChildProgressStats()
 	const currentStreak = progressStats?.streak ?? 0
 	const streakMultiplier = progressStats?.streakMultiplier ?? 1
+	const session = useAppSelector(selectAuthSession)
+	const familyId = session?.family?.id
+	const sendFamilyMessage = useSendFamilyMessage(familyId)
 	const completeTask = useCompleteTask()
+	const requestApproval = useRequestApproval()
+	const approveTask = useApproveTask()
+	const rejectTask = useRejectTask()
 	const updateTask = useUpdateTask()
 	const deleteTask = useDeleteTask()
 	const submitEvidence = useSubmitTaskEvidence()
@@ -339,19 +367,20 @@ export default function TasksList({ userType }: TasksListProps) {
 
 	const handleConfirm = useCallback(
 		(id: string) => {
-			completeTask.mutate(id)
+			if (userType === "child") {
+				requestApproval.mutate(id)
+			} else {
+				approveTask.mutate(id)
+			}
 		},
-		[completeTask],
+		[userType, requestApproval, approveTask],
 	)
 
 	const handleReject = useCallback(
 		async (task: TaskDto) => {
-			await updateTask.mutateAsync({
-				id: task.id,
-				payload: { description: `${coalesce(task.description, "")}\n[Rejected]` },
-			})
+			rejectTask.mutate(task.id)
 		},
-		[updateTask],
+		[rejectTask],
 	)
 
 	const handleEvidenceSubmit = useCallback(
@@ -592,8 +621,17 @@ export default function TasksList({ userType }: TasksListProps) {
 									onUploadEvidence={() => setPendingEvidenceTask(task)}
 									onEdit={() => openEditModal(task)}
 									onDelete={() => handleDeleteTask(task.id)}
-									confirmLoading={completeTask.isPending}
-									updateLoading={updateTask.isPending}
+									onAskParent={userType === "child" && familyId ? (t2) => {
+										sendFamilyMessage.mutate(
+											{ content: `❓ ${t("taskRow.askParentMessage")}: ${t2.title}`, mentionedTaskId: t2.id },
+											{
+												onSuccess: () => toast({ title: t("taskRow.askParentSent") }),
+												onError: () => toast({ title: t("common.error"), variant: "destructive" }),
+											}
+										)
+									} : undefined}
+									confirmLoading={requestApproval.isPending || approveTask.isPending}
+									updateLoading={updateTask.isPending || rejectTask.isPending}
 									downloadLoading={downloadEvidence.isPending}
 									deleteLoading={deleteTask.isPending}
 								/>
