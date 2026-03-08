@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+0using Microsoft.EntityFrameworkCore.Diagnostics;
 using TaskService.Domain.Entities;
 using TaskService.Domain.Enums;
 
@@ -12,6 +13,12 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
     public DbSet<MissionProgress> MissionProgress { get; set; } = null!;
     public DbSet<Achievement> Achievements { get; set; } = null!;
     public DbSet<AchievementProgress> AchievementProgress { get; set; } = null!;
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -224,6 +231,67 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
                 IsActive = true,
                 CreatedAt = seedTimestamp,
                 UpdatedAt = seedTimestamp
+            },
+            // ─── Дополнительные миссии ───
+            new
+            {
+                Id = Guid.Parse("d4e5f6a7-1111-4000-8000-000000000001"),
+                Code = "morning-routine",
+                Title = "Утренний ритуал",
+                Description = "Выполни утреннее задание до 10:00",
+                Icon = "sunrise",
+                Recurrence = MissionRecurrence.Daily,
+                TargetValue = 1,
+                RewardXp = 40,
+                SortOrder = 7,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("d4e5f6a7-1111-4000-8000-000000000002"),
+                Code = "help-family-member",
+                Title = "Семейный помощник",
+                Description = "Помоги другому члену семьи с задачей",
+                Icon = "heart-handshake",
+                Recurrence = MissionRecurrence.Daily,
+                TargetValue = 1,
+                RewardXp = 80,
+                SortOrder = 8,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("d4e5f6a7-1111-4000-8000-000000000003"),
+                Code = "earn-hundred-points-weekly",
+                Title = "Сотня за неделю",
+                Description = "Заработай 100 очков за неделю",
+                Icon = "coins",
+                Recurrence = MissionRecurrence.Weekly,
+                TargetValue = 100,
+                RewardXp = 200,
+                SortOrder = 9,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("d4e5f6a7-1111-4000-8000-000000000004"),
+                Code = "five-different-categories",
+                Title = "Разносторонний",
+                Description = "Выполни задачи из 5 разных категорий за неделю",
+                Icon = "layers",
+                Recurrence = MissionRecurrence.Weekly,
+                TargetValue = 5,
+                RewardXp = 180,
+                SortOrder = 10,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
             });
     }
 
@@ -318,6 +386,112 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
                 RewardXp = 500,
                 SortOrder = 6,
                 IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            // ─── Дополнительные достижения ───
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000001"),
+                Code = "early-bird",
+                Title = "Ранняя пташка",
+                Description = "Выполнить задание до 9:00 утра 5 раз",
+                Icon = "alarm-clock",
+                TargetValue = 5,
+                RewardXp = 120,
+                SortOrder = 7,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000002"),
+                Code = "streak-30",
+                Title = "Железная воля",
+                Description = "Серия 30 дней подряд",
+                Icon = "shield",
+                TargetValue = 30,
+                RewardXp = 800,
+                SortOrder = 8,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000003"),
+                Code = "first-purchase",
+                Title = "Первая покупка",
+                Description = "Потратить баллы в магазине наград",
+                Icon = "shopping-cart",
+                TargetValue = 1,
+                RewardXp = 50,
+                SortOrder = 9,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000004"),
+                Code = "helper-100",
+                Title = "Супер-помощник",
+                Description = "Выполнить 100 заданий",
+                Icon = "medal",
+                TargetValue = 100,
+                RewardXp = 1000,
+                SortOrder = 10,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000005"),
+                Code = "creative-mind",
+                Title = "Творческий ум",
+                Description = "Выполнить 10 заданий из категории творчество",
+                Icon = "palette",
+                TargetValue = 10,
+                RewardXp = 200,
+                SortOrder = 11,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000006"),
+                Code = "team-player",
+                Title = "Командный игрок",
+                Description = "Выполнить 5 семейных миссий",
+                Icon = "users",
+                TargetValue = 5,
+                RewardXp = 250,
+                SortOrder = 12,
+                IsHidden = false,
+                IsActive = true,
+                CreatedAt = seedTimestamp,
+                UpdatedAt = seedTimestamp
+            },
+            new
+            {
+                Id = Guid.Parse("c5d6e7f8-2222-4000-8000-000000000007"),
+                Code = "secret-legend",
+                Title = "Легенда",
+                Description = "???",
+                Icon = "gem",
+                TargetValue = 500,
+                RewardXp = 5000,
+                SortOrder = 13,
+                IsHidden = true,
                 IsActive = true,
                 CreatedAt = seedTimestamp,
                 UpdatedAt = seedTimestamp

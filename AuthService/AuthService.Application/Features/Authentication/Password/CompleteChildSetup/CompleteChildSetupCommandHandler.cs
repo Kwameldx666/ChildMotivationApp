@@ -16,17 +16,12 @@ public class CompleteChildSetupCommandHandler(UserManager<Domain.Entities.User> 
             return Result.Failure(HttpStatusCode.NotFound,
                 DefaultErrors.NotFound("User not found"));
 
-        // Verify current (temporary) password
-        var passwordValid = await userManager.CheckPasswordAsync(user, request.CurrentPassword);
-        if (!passwordValid)
-            return Result.Failure(HttpStatusCode.BadRequest,
-                DefaultErrors.BadRequest("Текущий пароль неверен."));
-
-        // Change password
-        var changeResult = await userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-        if (!changeResult.Succeeded)
+        // Reset password using token (child already authenticated, no need to re-enter old password)
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var resetResult = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
+        if (!resetResult.Succeeded)
         {
-            var error = string.Join("; ", changeResult.Errors.Select(e => e.Description));
+            var error = string.Join("; ", resetResult.Errors.Select(e => e.Description));
             return Result.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
         }
 

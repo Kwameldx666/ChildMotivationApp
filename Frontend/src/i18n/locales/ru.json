@@ -252,7 +252,7 @@
     "chooseYourPlan": "Выберите план",
     "upgradeDescription": "Улучшите подписку для доступа к расширенным функциям",
     "selectPlan": "Выбрать",
-    "switchToYearlySave": "Перейдите на год и сэкономьте 15%",
+    "switchToYearlySave": "Перейдите на год и сэкономьте 20%",
     "plansInclude": "Планы включают:",
     "plans": {
       "free": {
@@ -269,11 +269,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Ежедневная помощь с делами и мотивацией",
-        "price": "299",
-        "priceAmount": "299 лей",
-        "yearlyPrice": "2990",
-        "yearlyMonthlyPrice": "249 лей",
-        "yearlyDiscount": "-17%",
+        "price": "49",
+        "priceAmount": "49 лей",
+        "yearlyPrice": "468",
+        "yearlyMonthlyPrice": "39 лей",
+        "yearlyDiscount": "-20%",
         "features": [
           "Безлимит детей",
           "ИИ подбирает задачи по возрасту",
@@ -286,11 +286,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Аналитика, которая помогает воспитывать",
-        "price": "599",
-        "priceAmount": "599 лей",
-        "yearlyPrice": "5990",
-        "yearlyMonthlyPrice": "499 лей",
-        "yearlyDiscount": "-17%",
+        "price": "99",
+        "priceAmount": "99 лей",
+        "yearlyPrice": "948",
+        "yearlyMonthlyPrice": "79 лей",
+        "yearlyDiscount": "-20%",
         "features": [
           "Всё из Basic",
           "ИИ адаптирует задачи под поведение ребёнка",
@@ -304,11 +304,11 @@
       "family": {
         "name": "Family",
         "tagline": "Оба родителя, бабушки и няня — на связи",
-        "price": "999",
-        "priceAmount": "999 лей",
-        "yearlyPrice": "9990",
-        "yearlyMonthlyPrice": "833 лей",
-        "yearlyDiscount": "-17%",
+        "price": "149",
+        "priceAmount": "149 лей",
+        "yearlyPrice": "1428",
+        "yearlyMonthlyPrice": "119 лей",
+        "yearlyDiscount": "-20%",
         "features": [
           "Всё из Premium",
           "До 5 аккаунтов взрослых",
@@ -1552,6 +1552,9 @@
     "childrenCount": "{count} детей",
     "privateChats": "Приватные чаты",
     "noChildren": "Пока нет детей в семье",
+    "noChildrenTitle": "Чаты станут доступны после добавления детей",
+    "noChildrenHint": "Добавьте ребёнка, чтобы начать общение в семейном чате",
+    "addChildButton": "Добавить ребёнка",
     "inviteChildren": "Пригласите детей используя код семьи",
     "yearsOld": "{age} лет",
     "personalChat": "Персональный чат"
@@ -2811,6 +2814,15 @@
     "newPasswordTitle": "Новый пароль ребёнка:",
     "newPasswordLabel": "Новый пароль",
     "hint": "Сохраните новый пароль — он понадобится ребёнку для входа. Если ваша почта подтверждена, он также отправлен на ваш email."
+  },
+  "childrenPage": {
+    "title": "Мои дети",
+    "subtitle": "Добавляйте и управляйте профилями детей",
+    "emptyTitle": "Пока нет детей",
+    "emptyDescription": "Добавьте ребёнка, чтобы он мог выполнять задачи, получать награды и общаться в семейном чате",
+    "addFirstChild": "Добавить первого ребёнка",
+    "autoCredentialsNote": "Логин и пароль создадутся автоматически",
+    "yearsOld": "лет"
   },
   "childSetup": {
     "titlePassword": "Смена пароля",

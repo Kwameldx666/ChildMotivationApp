@@ -11,9 +11,9 @@ public static class SubscriptionFactory
     private static readonly Dictionary<SubscriptionTier, decimal> MonthlyPrices = new()
     {
         { SubscriptionTier.Free, 0 },
-        { SubscriptionTier.Basic, 299m },
-        { SubscriptionTier.Premium, 599m },
-        { SubscriptionTier.Family, 999m }
+        { SubscriptionTier.Basic, 49m },
+        { SubscriptionTier.Premium, 99m },
+        { SubscriptionTier.Family, 149m }
     };
 
     /// <summary>
@@ -115,7 +115,7 @@ public static class SubscriptionFactory
             {
                 Tier = tier,
                 Name = "Basic",
-                Price = 299,
+                Price = 49,
                 Features = new[]
                 {
                     "Up to 5 children",
@@ -130,7 +130,7 @@ public static class SubscriptionFactory
             {
                 Tier = tier,
                 Name = "Premium",
-                Price = 599,
+                Price = 99,
                 Features = new[]
                 {
                     "Up to 10 children",
@@ -148,7 +148,7 @@ public static class SubscriptionFactory
             {
                 Tier = tier,
                 Name = "Family",
-                Price = 999,
+                Price = 149,
                 Features = new[]
                 {
                     "Unlimited children",

@@ -48,6 +48,7 @@ import TaskEditModal, { type EditableTask } from "./task-edit-modal"
 import TaskRow from "./task-row"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/i18n/provider"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 
@@ -261,7 +262,7 @@ export default function TasksList({ userType }: TasksListProps) {
 		} catch (err) {
 			toast({
 				title: t("tasksList.toast.updateError"),
-				description: err instanceof Error ? err.message : t("tasksList.toast.tryAgain"),
+				description: mapApiError(err, t("tasksList.toast.tryAgain")),
 				variant: "destructive",
 			})
 		}
@@ -367,7 +368,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				console.error(submitError)
 				toast({
 					title: t("tasksList.toast.uploadFailed"),
-					description: submitError instanceof Error ? submitError.message : t("tasksList.toast.tryAgain"),
+					description: mapApiError(submitError, t("tasksList.toast.tryAgain")),
 					variant: "destructive",
 				})
 			}

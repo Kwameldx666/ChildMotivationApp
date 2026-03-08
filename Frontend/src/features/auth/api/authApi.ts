@@ -184,7 +184,7 @@ export const authApi = {
     return data
   },
 
-  async completeChildSetup(payload: { currentPassword: string; newPassword: string }) {
+  async completeChildSetup(payload: { newPassword: string }) {
     await apiClient.post(`${AUTH_BASE_PATH}/complete-child-setup`, payload)
   },
 

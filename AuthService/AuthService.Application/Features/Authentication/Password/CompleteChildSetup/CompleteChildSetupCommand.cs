@@ -5,5 +5,4 @@ namespace AuthService.Application.Features.Authentication.Password.CompleteChild
 
 public record CompleteChildSetupCommand(
     Guid UserId,
-    string CurrentPassword,
     string NewPassword) : IRequest<Result>;

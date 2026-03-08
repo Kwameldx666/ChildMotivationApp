@@ -14,6 +14,7 @@ import { useShopProducts } from "@/services/shop-queries"
 import { useTranslation } from "@/i18n/provider"
 import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
 import { cn } from "@/lib/utils"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 
 /* Cost presets: category → default points */
 const COST_PRESETS = [
@@ -128,6 +129,11 @@ export default function RewardCreationModal({ open, onClose, onSubmit, isSubmitt
       onClose()
     } catch (error) {
       console.error("[reward-creation-modal] Failed to submit reward", error)
+      toast({
+        title: t("common.error"),
+        description: mapApiError(error, t("rewardCreation.errors.default")),
+        variant: "destructive",
+      })
     }
   }
 

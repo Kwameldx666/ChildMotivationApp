@@ -14,6 +14,7 @@ import { aiService } from "@/services/ai-service"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
 import { useSubscriptionGate } from "@/hooks/use-subscription-gate"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 
 const QUICK_IDEAS = [
   { emoji: "🧹", text: "createTaskDialog.quickIdeas.cleanRoom" },
@@ -137,7 +138,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
     } catch (error) {
       toast({
         title: t("common.error"),
-        description: t("createTaskDialog.createError"),
+        description: mapApiError(error, t("createTaskDialog.createError")),
         variant: "destructive",
       })
     } finally {

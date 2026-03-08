@@ -108,6 +108,81 @@ using (var scope = app.Services.CreateScope())
 
             logger.LogInformation("Database migrations and seeding finished.");
 
+            // ── Seed demo family for screenshots ──
+            try
+            {
+                var userManager = services.GetRequiredService<UserManager<AuthService.Domain.Entities.User>>();
+                var demoParentId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+                var existing = await userManager.FindByIdAsync(demoParentId.ToString());
+                if (existing is null)
+                {
+                    logger.LogInformation("Seeding demo family...");
+
+                    var parent = new AuthService.Domain.Entities.User
+                    {
+                        Id = demoParentId,
+                        UserName = "demo.parent@example.com",
+                        Email = "demo.parent@example.com",
+                        EmailConfirmed = true,
+                        Name = "Алексей",
+                        LastName = "Иванов",
+                        FamilyCode = "DEMO2025",
+                        FamilyName = "Семья Ивановых",
+                        FamilyEmblem = "shield",
+                        UserType = UserType.Parent,
+                        UserStatus = "active",
+                        Avatar = "👨",
+                    };
+                    var r1 = await userManager.CreateAsync(parent, "Demo123!");
+                    if (r1.Succeeded) await userManager.AddToRoleAsync(parent, UserRoles.Parent);
+
+                    var child1 = new AuthService.Domain.Entities.User
+                    {
+                        Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                        UserName = "masha.ivanova@example.com",
+                        Email = "masha.ivanova@example.com",
+                        EmailConfirmed = true,
+                        Name = "Маша",
+                        LastName = "Иванова",
+                        FamilyCode = "DEMO2025",
+                        FamilyName = "Семья Ивановых",
+                        FamilyEmblem = "shield",
+                        UserType = UserType.Child,
+                        UserStatus = "active",
+                        Avatar = "👧",
+                        Age = 10,
+                    };
+                    var r2 = await userManager.CreateAsync(child1, "Demo123!");
+                    if (r2.Succeeded) await userManager.AddToRoleAsync(child1, UserRoles.Child);
+
+                    var child2 = new AuthService.Domain.Entities.User
+                    {
+                        Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                        UserName = "dima.ivanov@example.com",
+                        Email = "dima.ivanov@example.com",
+                        EmailConfirmed = true,
+                        Name = "Дима",
+                        LastName = "Иванов",
+                        FamilyCode = "DEMO2025",
+                        FamilyName = "Семья Ивановых",
+                        FamilyEmblem = "shield",
+                        UserType = UserType.Child,
+                        UserStatus = "active",
+                        Avatar = "👦",
+                        Age = 8,
+                    };
+                    var r3 = await userManager.CreateAsync(child2, "Demo123!");
+                    if (r3.Succeeded) await userManager.AddToRoleAsync(child2, UserRoles.Child);
+
+                    logger.LogInformation("Demo family seeded: parent={P}, child1={C1}, child2={C2}",
+                        r1.Succeeded, r2.Succeeded, r3.Succeeded);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to seed demo family");
+            }
+
             // Log presence of OAuth configuration from raw configuration keys (do not create options objects at startup).
             try
             {

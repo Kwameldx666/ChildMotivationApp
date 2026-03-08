@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react"
@@ -32,12 +33,7 @@ export default function ConfirmEmailPage() {
         setStatus("success")
       } catch (err: any) {
         setStatus("error")
-        const msg =
-          err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          err?.response?.data?.title ||
-          "Email confirmation failed. The link may have expired."
-        setErrorMessage(msg)
+        setErrorMessage(mapApiError(err, "Email confirmation failed. The link may have expired."))
       }
     }
 

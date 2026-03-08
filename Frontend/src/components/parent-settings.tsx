@@ -7,9 +7,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
   Bell, Moon, Sun, AlertCircle,
-  Loader2, Bot, Sparkles, CheckCircle2, Users, Palette, Shield,
+  Loader2, Bot, Sparkles, CheckCircle2, Palette, Shield,
+  ExternalLink,
 } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 import { useTranslation } from "@/i18n/provider"
 import {
   Dialog,
@@ -20,7 +22,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import SubscriptionManager from "./subscription-manager"
-import ChildrenManagement from "@/components/children-management"
 import { useUserSettings } from "@/hooks/use-user-settings"
 import { cn } from "@/lib/utils"
 
@@ -30,7 +31,6 @@ interface ParentSettingsProps {
 
 /* ── Sub-tabs ── */
 const SETTINGS_TABS = [
-  { id: "family",        labelKey: "parentSettings.tabs.family",        Icon: Users },
   { id: "notifications", labelKey: "parentSettings.tabs.notifications", Icon: Bell },
   { id: "ai",            labelKey: "parentSettings.tabs.ai",            Icon: Bot },
   { id: "appearance",    labelKey: "parentSettings.tabs.appearance",    Icon: Palette },
@@ -41,9 +41,10 @@ type SettingsTab = typeof SETTINGS_TABS[number]["id"]
 
 export default function ParentSettings({ familyName }: ParentSettingsProps) {
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
   const { t } = useTranslation()
   const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
-  const [activeTab, setActiveTab] = useState<SettingsTab>("family")
+  const [activeTab, setActiveTab] = useState<SettingsTab>("notifications")
 
   const handleSettingChange = (key: string, value: any) => {
     updateSettings({ [key]: value })
@@ -77,18 +78,6 @@ export default function ParentSettings({ familyName }: ParentSettingsProps) {
           )
         })}
       </nav>
-
-      {/* ═══ TAB: FAMILY ═══ */}
-      <div className={cn(activeTab === "family" ? "block" : "hidden", "space-y-4")}>
-        {/* Children management */}
-        <div className="space-y-2">
-          <div>
-            <p className="text-sm font-semibold">{t("parentDashboard.sections.children.title")}</p>
-            <p className="text-xs text-muted-foreground">{t("parentDashboard.sections.children.subtitle")}</p>
-          </div>
-          <ChildrenManagement />
-        </div>
-      </div>
 
       {/* ═══ TAB: NOTIFICATIONS ═══ */}
       <div className={cn(activeTab === "notifications" ? "block" : "hidden", "space-y-3")}>

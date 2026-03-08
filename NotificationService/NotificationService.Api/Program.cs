@@ -68,6 +68,52 @@ using (var scope = app.Services.CreateScope())
                 CREATE INDEX IF NOT EXISTS ix_notifications_created_at ON notifications (created_at);
                 """);
             app.Logger.LogInformation("Notification database initialized successfully");
+
+            // ── Seed demo notifications for screenshots ──
+            try
+            {
+                var seedSql = """
+                    INSERT INTO notifications (id, user_id, type, title, message, is_read, created_at, data)
+                    SELECT * FROM (VALUES
+                        ('a3000000-0000-0000-0000-000000000001'::uuid, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                         'task_completed', 'Задание выполнено!', 'Ты выполнила задание «Убрать комнату» и получила 100 XP! 🎉',
+                         true, NOW()-INTERVAL '3 days', '{"taskId":"d1000000-0000-0000-0000-000000000001","xp":100}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000002'::uuid, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                         'achievement_unlocked', 'Достижение разблокировано!', 'Ты получила достижение «Быстрая ракета» — 3 задания за день! 🚀',
+                         true, NOW()-INTERVAL '1 day', '{"achievementCode":"daily-rocket","xp":50}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000003'::uuid, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                         'reward_available', 'Новая награда!', 'У тебя достаточно баллов для «Настольная игра с родителем»! 🎲',
+                         false, NOW()-INTERVAL '2 hours', NULL),
+                        ('a3000000-0000-0000-0000-000000000004'::uuid, 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+                         'task_completed', 'Задание выполнено!', 'Ты выполнил задание «Выгулять собаку» и получил 100 XP! 🐕',
+                         true, NOW()-INTERVAL '1 day', '{"taskId":"d1000000-0000-0000-0000-000000000007","xp":100}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000005'::uuid, 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+                         'reward_delivered', 'Награда получена!', 'Ты получил «Сладкий бонус»! Приятного аппетита! 🍬',
+                         true, NOW()-INTERVAL '3 days', '{"orderId":"b1000000-0000-0000-0000-000000000003"}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000006'::uuid, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                         'child_completed_task', 'Маша выполнила задание!', 'Маша выполнила «Решить 10 задач по русскому языку». Проверьте результат! ✅',
+                         false, NOW()-INTERVAL '1 day', '{"taskId":"d1000000-0000-0000-0000-000000000003","childName":"Маша"}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000007'::uuid, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                         'child_completed_task', 'Дима выполнил задание!', 'Дима выполнил «Выгулять собаку». Проверьте результат! ✅',
+                         true, NOW()-INTERVAL '1 day', '{"taskId":"d1000000-0000-0000-0000-000000000007","childName":"Дима"}'::jsonb),
+                        ('a3000000-0000-0000-0000-000000000008'::uuid, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                         'order_created', 'Новый заказ в магазине', 'Маша заказала «Настольная игра с родителем» за 100 баллов 🎲',
+                         false, NOW(), '{"orderId":"b1000000-0000-0000-0000-000000000004"}'::jsonb)
+                    ) AS v(id, user_id, type, title, message, is_read, created_at, data)
+                    WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE id = 'a3000000-0000-0000-0000-000000000001'::uuid);
+                    """;
+                var conn = db.Database.GetDbConnection();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = seedSql;
+                var count = await cmd.ExecuteNonQueryAsync();
+                if (count > 0) app.Logger.LogInformation("Demo notifications seeded ({Count} rows).", count);
+            }
+            catch (Exception seedEx)
+            {
+                app.Logger.LogWarning(seedEx, "Failed to seed demo notifications");
+            }
         }
         catch (Exception ex)
         {

@@ -7,7 +7,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
-import { Check, Copy, RefreshCw, Users, ChevronRight, Plus, Loader2, UserPlus, KeyRound } from "lucide-react"
+import {
+  Check, Copy, RefreshCw, Users, ChevronRight, Plus,
+  Loader2, UserPlus, KeyRound, Baby, Sparkles,
+} from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
 import type { FamilyMember } from "@/services/family-service"
@@ -17,8 +20,6 @@ import { authApi } from "@/features/auth/api/authApi"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { toast } from "sonner"
 import { resolveAvatarUrl, isAvatarImage } from "@/lib/avatar-utils"
-
-interface ChildrenManagementProps {}
 
 const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
 const CHILD_AVATARS = ["👦", "👧", "🧒", "🦄", "🐱", "🐶", "🦊", "🐻", "🐼", "🐸"]
@@ -94,7 +95,6 @@ function AddChildModal({
     }
   }
 
-  // After credentials are shown and user closes — trigger refresh
   const handleClose = () => {
     if (credentials) {
       onSuccess()
@@ -107,7 +107,6 @@ function AddChildModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <CardContent className="pt-6 space-y-4">
-          {/* Header */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
               <UserPlus className="w-5 h-5 text-primary" />
@@ -119,7 +118,6 @@ function AddChildModal({
           </div>
 
           {credentials ? (
-            /* ─── Credentials result ─── */
             <div className="space-y-4">
               <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4 space-y-3">
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
@@ -152,9 +150,7 @@ function AddChildModal({
               </Button>
             </div>
           ) : (
-            /* ─── Form ─── */
             <>
-              {/* Name */}
               <div>
                 <Label className="text-sm font-medium mb-1 block">{t("addChild.firstName")} *</Label>
                 <Input
@@ -164,7 +160,6 @@ function AddChildModal({
                 />
               </div>
 
-              {/* Age slider */}
               <div>
                 <Label className="text-sm font-medium mb-1 block">{t("addChild.age")}</Label>
                 <div className="flex items-center gap-3">
@@ -186,7 +181,6 @@ function AddChildModal({
                 <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">{error}</div>
               )}
 
-              {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
                   {t("common.cancel")}
@@ -260,7 +254,6 @@ function ResetPasswordModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <CardContent className="pt-6 space-y-4">
-          {/* Header */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
               <KeyRound className="w-5 h-5 text-amber-600" />
@@ -272,7 +265,6 @@ function ResetPasswordModal({
           </div>
 
           {newPassword ? (
-            /* ─── New password result ─── */
             <div className="space-y-4">
               <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3">
                 <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
@@ -294,7 +286,6 @@ function ResetPasswordModal({
               </Button>
             </div>
           ) : (
-            /* ─── Confirmation ─── */
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">{t("resetChildPassword.confirm")}</p>
 
@@ -333,10 +324,11 @@ function ResetPasswordModal({
   )
 }
 
-export default function ChildrenManagement({}: ChildrenManagementProps) {
+/* ─── Main Page Content ─── */
+export default function ChildrenPageContent() {
   const router = useRouter()
   const { t } = useTranslation()
-  const { isWithinLimit, getLimit, currentTier } = useSubscriptionGate()
+  const { isWithinLimit, currentTier } = useSubscriptionGate()
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
     enabled: true,
   })
@@ -354,25 +346,23 @@ export default function ChildrenManagement({}: ChildrenManagementProps) {
   }
 
   const handleCopyId = async (e: React.MouseEvent, source?: string | null) => {
-    e.stopPropagation() // Prevent card click
+    e.stopPropagation()
     if (!source) return
     try {
       await navigator.clipboard.writeText(source)
       setCopiedId(source)
       setTimeout(() => setCopiedId(null), 2000)
     } catch (error) {
-      console.error("[children-management] Failed to copy value", error)
+      console.error("[children-page] Failed to copy value", error)
     }
   }
 
   if (isLoading || (isFetching && !data)) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center space-y-2">
-          <Users className="w-10 h-10 mx-auto text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">{t("family.loadingChildren")}</p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("family.loadingChildren")}</p>
+      </div>
     )
   }
 
@@ -393,19 +383,25 @@ export default function ChildrenManagement({}: ChildrenManagementProps) {
   if (children.length === 0) {
     return (
       <>
-        <Card>
-          <CardContent className="py-12 text-center space-y-4">
-            <UserPlus className="w-10 h-10 mx-auto text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{t("family.noChildren")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("addChild.emptyHint")}
+        <div className="flex flex-col items-center justify-center py-16 space-y-6">
+          <div className="w-24 h-24 rounded-full bg-primary/5 flex items-center justify-center">
+            <Baby className="w-12 h-12 text-primary/40" />
+          </div>
+          <div className="text-center space-y-2 max-w-md">
+            <h2 className="text-xl font-semibold">{t("childrenPage.emptyTitle")}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t("childrenPage.emptyDescription")}
             </p>
-            <Button className="gap-2" onClick={() => setShowAddChild(true)}>
-              <Plus className="w-4 h-4" />
-              {t("addChild.addButton")}
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+          <Button size="lg" className="gap-2" onClick={() => setShowAddChild(true)}>
+            <UserPlus className="w-5 h-5" />
+            {t("childrenPage.addFirstChild")}
+          </Button>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{t("childrenPage.autoCredentialsNote")}</span>
+          </div>
+        </div>
         {showAddChild && (
           <AddChildModal
             onClose={() => setShowAddChild(false)}
@@ -421,8 +417,8 @@ export default function ChildrenManagement({}: ChildrenManagementProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Children limit warning */}
+    <div className="space-y-6">
+      {/* Limit warning */}
       {!isWithinLimit('maxChildren', children.length) && (
         <UpgradePrompt
           feature={t("featureGate.featureNames.maxChildren")}
@@ -431,48 +427,44 @@ export default function ChildrenManagement({}: ChildrenManagementProps) {
         />
       )}
 
-      <div className="grid gap-4">
+      {/* Children grid */}
+      <div className="grid gap-4 sm:grid-cols-2">
         {children.map((child, index) => (
-          <Card 
-            key={child.id} 
-            className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all duration-200"
+          <Card
+            key={child.id}
+            className="cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200 group"
             onClick={() => handleChildClick(child.id)}
           >
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl">
-                    {resolveAvatar(child, index)}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-3xl shrink-0 group-hover:scale-105 transition-transform">
+                  {resolveAvatar(child, index)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold text-lg truncate">{formatMemberName(child)}</h3>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-semibold text-lg">{formatMemberName(child)}</h3>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
-                        {child.role?.toLowerCase() === "child" ? t("family.child") : child.role}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {child.age ? `${child.age} ${t("profile.days")}` : t("profile.ageNotSpecified")}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold" title={child.id}>
-                        ID: {formatShortId(child.id)}
-                      </span>
-                      <button
-                        onClick={(e) => handleCopyId(e, child.id)}
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                        title={t("profile.copyId")}
-                      >
-                        {copiedId === child.id ? (
-                          <Check className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <Copy className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
+                  <p className="text-sm text-muted-foreground">
+                    {child.age ? `${child.age} ${t("childrenPage.yearsOld")}` : t("profile.ageNotSpecified")}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold" title={child.id}>
+                      ID: {formatShortId(child.id)}
+                    </span>
+                    <button
+                      onClick={(e) => handleCopyId(e, child.id)}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      title={t("profile.copyId")}
+                    >
+                      {copiedId === child.id ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
@@ -495,10 +487,11 @@ export default function ChildrenManagement({}: ChildrenManagementProps) {
       {isWithinLimit('maxChildren', children.length) && (
         <Button
           variant="outline"
-          className="w-full gap-2 border-dashed"
+          size="lg"
+          className="w-full gap-2 border-dashed py-8 text-base"
           onClick={() => setShowAddChild(true)}
         >
-          <Plus className="w-4 h-4" />
+          <UserPlus className="w-5 h-5" />
           {t("addChild.addButton")}
         </Button>
       )}

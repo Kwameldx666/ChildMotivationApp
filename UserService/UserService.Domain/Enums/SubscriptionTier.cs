@@ -6,7 +6,7 @@ namespace UserService.Domain.Enums;
 public enum SubscriptionTier
 {
     Free = 0,           // Free tier
-    Basic = 1,          // Basic - 299 RUB/month
-    Premium = 2,        // Premium - 599 RUB/month
-    Family = 3          // Family - 899 RUB/month
+    Basic = 1,          // Basic - 49 lei/month
+    Premium = 2,        // Premium - 99 lei/month
+    Family = 3          // Family - 149 lei/month
 }

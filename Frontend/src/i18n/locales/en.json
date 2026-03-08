@@ -254,7 +254,7 @@
     "chooseYourPlan": "Choose Your Plan",
     "upgradeDescription": "Upgrade your subscription to access advanced features",
     "selectPlan": "Select Plan",
-    "switchToYearlySave": "Switch to yearly to save 15%",
+    "switchToYearlySave": "Switch to yearly to save 20%",
     "plansInclude": "Plans include:",
     "plans": {
       "free": {
@@ -271,11 +271,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Daily help with chores & motivation",
-        "price": "299",
-        "priceAmount": "299 lei",
-        "yearlyPrice": "2990",
-        "yearlyMonthlyPrice": "249 lei",
-        "yearlyDiscount": "-17%",
+        "price": "49",
+        "priceAmount": "49 lei",
+        "yearlyPrice": "468",
+        "yearlyMonthlyPrice": "39 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Unlimited children",
           "AI generates age-appropriate tasks",
@@ -288,11 +288,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Insights that help you raise kids better",
-        "price": "599",
-        "priceAmount": "599 lei",
-        "yearlyPrice": "5990",
-        "yearlyMonthlyPrice": "499 lei",
-        "yearlyDiscount": "-17%",
+        "price": "99",
+        "priceAmount": "99 lei",
+        "yearlyPrice": "948",
+        "yearlyMonthlyPrice": "79 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Everything in Basic",
           "AI adapts tasks to child's behavior",
@@ -306,11 +306,11 @@
       "family": {
         "name": "Family",
         "tagline": "Both parents, grandparents & nanny in sync",
-        "price": "999",
-        "priceAmount": "999 lei",
-        "yearlyPrice": "9990",
-        "yearlyMonthlyPrice": "833 lei",
-        "yearlyDiscount": "-17%",
+        "price": "149",
+        "priceAmount": "149 lei",
+        "yearlyPrice": "1428",
+        "yearlyMonthlyPrice": "119 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Everything in Premium",
           "Up to 5 caregiver accounts",
@@ -1558,6 +1558,9 @@
     "childrenCount": "{count} children",
     "privateChats": "Private Chats",
     "noChildren": "No children in the family yet",
+    "noChildrenTitle": "Chats will be available after adding children",
+    "noChildrenHint": "Add a child to start chatting in the family chat",
+    "addChildButton": "Add Child",
     "inviteChildren": "Invite children using the family code",
     "yearsOld": "{age} years old",
     "personalChat": "Personal chat"
@@ -2806,7 +2809,32 @@
     "success": "Child added successfully!",
     "error": "Failed to add child. Please try again.",
     "addButton": "Add Child",
-    "emptyHint": "Add your first child to get started with tasks and rewards"
+    "emptyHint": "Add your first child to get started with tasks and rewards",
+    "credentialsTitle": "Child account created! Save the login details:",
+    "credentialsLogin": "Login",
+    "credentialsPassword": "Password",
+    "credentialsHint": "Save these details — your child will need them to log in. If your email is confirmed, they will also be sent to your email.",
+    "autoCredentialsHint": "Login and password will be generated automatically. The child can change the password after their first login."
+  },
+  "resetChildPassword": {
+    "title": "Reset Child Password",
+    "confirm": "The child's current password will be replaced with a new random password. Are you sure?",
+    "resetButton": "Reset Password",
+    "resetting": "Resetting...",
+    "success": "Password reset successfully!",
+    "error": "Failed to reset password. Please try again.",
+    "newPasswordTitle": "New child password:",
+    "newPasswordLabel": "New Password",
+    "hint": "Save the new password — your child will need it to log in. If your email is confirmed, it has also been sent to your email."
+  },
+  "childrenPage": {
+    "title": "My Children",
+    "subtitle": "Add and manage your children's profiles",
+    "emptyTitle": "No children yet",
+    "emptyDescription": "Add a child so they can complete tasks, earn rewards, and chat in the family group",
+    "addFirstChild": "Add First Child",
+    "autoCredentialsNote": "Login and password are generated automatically",
+    "yearsOld": "years old"
   },
   "childSetup": {
     "titlePassword": "Change Password",

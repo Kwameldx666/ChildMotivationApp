@@ -5,11 +5,12 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, MessageCircle, Users, User } from "lucide-react"
+import { ArrowLeft, MessageCircle, Users, User, UserPlus } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "./family-chat"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
+import { useRouter } from "next/navigation"
 
 interface ParentChatSelectorProps {
   familyId: string
@@ -35,6 +36,7 @@ export default function ParentChatSelector({
   currentUserAvatar,
 }: ParentChatSelectorProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const [selectedChat, setSelectedChat] = useState<SelectedChat>({ type: "list" })
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(familyId) })
 
@@ -140,14 +142,21 @@ export default function ParentChatSelector({
         
         {children.length === 0 ? (
           <Card>
-            <div className="p-8 text-center space-y-2">
-              <User className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-              <p className="text-sm text-muted-foreground">
-                {t("parentChatSelector.noChildren")}
+            <div className="p-8 text-center space-y-3">
+              <UserPlus className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+              <p className="text-sm font-medium text-muted-foreground">
+                {t("parentChatSelector.noChildrenTitle")}
               </p>
               <p className="text-xs text-muted-foreground">
-                {t("parentChatSelector.inviteChildren")}
+                {t("parentChatSelector.noChildrenHint")}
               </p>
+              <Button
+                className="gap-2 mt-2"
+                onClick={() => router.push("/dashboard/children")}
+              >
+                <UserPlus className="w-4 h-4" />
+                {t("parentChatSelector.addChildButton")}
+              </Button>
             </div>
           </Card>
         ) : (

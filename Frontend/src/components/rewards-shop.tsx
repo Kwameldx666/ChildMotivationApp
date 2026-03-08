@@ -8,6 +8,7 @@ import {
   CheckCircle, Clock, MoreHorizontal, Pencil, Coins, Sparkles, ArrowRight, ChevronRight
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import {
   useCreateOrder,
   useDeleteProduct,
@@ -147,7 +148,7 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
     } catch (error) {
       toast({
         title: t("rewardsShop.toasts.orderFailed.title"),
-        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
+        description: mapApiError(error, t("rewardsShop.toasts.tryAgain")),
         variant: "destructive",
       })
     }
@@ -163,7 +164,7 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
     } catch (error) {
       toast({
         title: t("rewardsShop.toasts.rewardDeleteFailed.title"),
-        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
+        description: mapApiError(error, t("rewardsShop.toasts.tryAgain")),
         variant: "destructive",
       })
     } finally {
@@ -191,7 +192,7 @@ export default function RewardsShop({ userType, locale = "ru" }: RewardsShopProp
     } catch (error) {
       toast({
         title: t("rewardsShop.toasts.rewardUpdateFailed.title"),
-        description: error instanceof Error ? error.message : t("rewardsShop.toasts.tryAgain"),
+        description: mapApiError(error, t("rewardsShop.toasts.tryAgain")),
         variant: "destructive",
       })
     }

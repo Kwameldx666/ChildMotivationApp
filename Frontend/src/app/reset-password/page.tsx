@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -51,12 +52,7 @@ export default function ResetPasswordPage() {
       setStatus("success")
     } catch (err: any) {
       setStatus("error")
-      const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        err?.response?.data?.title ||
-        t("auth.resetPasswordFailed")
-      setErrorMessage(msg)
+      setErrorMessage(mapApiError(err, t("auth.resetPasswordFailed")))
     } finally {
       setIsLoading(false)
     }

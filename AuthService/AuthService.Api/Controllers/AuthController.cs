@@ -189,7 +189,7 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         [FromBody] CompleteChildSetupRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CompleteChildSetupCommand(userId, request.CurrentPassword, request.NewPassword);
+        var command = new CompleteChildSetupCommand(userId, request.NewPassword);
         var result = await mediator.Send(command, cancellationToken);
         return result.ToActionResult();
     }
@@ -223,6 +223,6 @@ public record ConfirmEmailRequest(string UserId, string Token);
 public record ResendConfirmationRequest(string Email);
 public record RegisterChildRequest(string ChildName, string? ChildLastName, int ChildAge, string? ChildAvatar);
 public record ResetChildPasswordRequest(Guid ChildId);
-public record CompleteChildSetupRequest(string CurrentPassword, string NewPassword);
+public record CompleteChildSetupRequest(string NewPassword);
 public record ForgotPasswordRequest(string Email);
 public record ResetPasswordRequest2(string UserId, string Token, string NewPassword);

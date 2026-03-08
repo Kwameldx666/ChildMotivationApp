@@ -5,13 +5,6 @@ import { ApiError } from '@/services/api/http-client'
  * Список технических ошибок, которые не нужно показывать пользователю
  */
 const TECHNICAL_ERROR_KEYWORDS = [
-  'The request contains invalid data',
-  'Correct the request data',
-  'BadRequest',
-  'relation',
-  'could not',
-  'failed to',
-  'unable to',
   'internal server error',
   'unexpected error',
   'exception',
@@ -20,6 +13,8 @@ const TECHNICAL_ERROR_KEYWORDS = [
   'in file',
   'connection timeout',
   'database',
+  'relation "',
+  'violation',
 ]
 
 /**
@@ -46,8 +41,11 @@ function extractErrorMessages(source: unknown): string[] {
     const record = source as Record<string, unknown>
     const collected: string[] = []
 
-    if ('message' in record && typeof record.message === 'string' && !isTechnicalError(record.message)) {
-      collected.push(...extractErrorMessages(record.message))
+    // Извлекаем из известных полей с сообщениями
+    for (const field of ['message', 'description', 'detail', 'details', 'errorDescription'] as const) {
+      if (field in record && typeof record[field] === 'string' && !isTechnicalError(record[field] as string)) {
+        collected.push(...extractErrorMessages(record[field]))
+      }
     }
 
     if ('errors' in record) {
@@ -55,12 +53,10 @@ function extractErrorMessages(source: unknown): string[] {
     }
 
     // Ищем пользовательские сообщения об ошибках
+    const SKIP_KEYS = new Set(['message', 'description', 'errors', 'error', 'detail', 'details', 'errordescription',
+      'statuscode', 'status', 'code', 'type', 'stack', 'trace', 'errortype', 'recoverable', 'impact', 'resolution'])
     for (const [key, value] of Object.entries(record)) {
-      if (key === 'message' || key === 'errors' || key === 'error' || key === 'detail' || key === 'details') continue
-      
-      // Пропускаем технические поля
-      if (['statusCode', 'status', 'code', 'type', 'stack', 'trace'].includes(key.toLowerCase())) continue
-      
+      if (SKIP_KEYS.has(key.toLowerCase())) continue
       collected.push(...extractErrorMessages(value))
     }
 
@@ -109,9 +105,9 @@ export function mapApiError(error: unknown, fallback: string) {
   }
 
   if (error instanceof Error) {
-    // Фильтруем технические детали из Error messages
+    // Фильтруем технические детали и дефолтные сообщения Axios
     const message = error.message
-    if (message && !isTechnicalError(message)) {
+    if (message && !isTechnicalError(message) && !/^Request failed with status code \d+$/.test(message)) {
       return message
     }
     return fallback

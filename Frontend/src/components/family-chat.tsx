@@ -13,6 +13,7 @@ import { useTasks } from "@/services/tasks-queries"
 import type { FamilyMessageDto } from "@/services/family-chat-service"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/i18n/provider"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import {
   Command,
   CommandEmpty,
@@ -87,7 +88,7 @@ export default function FamilyChat({
       console.error(error)
       toast({
         title: t("familyChat.sendError"),
-        description: t("familyChat.tryAgain"),
+        description: mapApiError(error, t("familyChat.tryAgain")),
         variant: "destructive",
       })
     }

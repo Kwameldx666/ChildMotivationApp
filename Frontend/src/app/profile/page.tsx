@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { authApi } from "@/features/auth/api/authApi"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { clearSession, selectAuthSession, setSession } from "@/features/auth/store/authSlice"
 import { useQueryClient } from "@tanstack/react-query"
 import type { UpdateProfilePayload } from "@/features/auth/types"
@@ -168,8 +169,7 @@ export default function ProfilePage() {
         setPasswordSuccess(false)
       }, 1500)
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Error"
-      setPasswordError(msg)
+      setPasswordError(mapApiError(e, t("profilePage.changePasswordError") || "Error"))
     } finally { setPasswordSaving(false) }
   }, [currentPassword, newPassword, confirmPassword, t])
 
@@ -192,8 +192,7 @@ export default function ProfilePage() {
       const refreshed = await authApi.getProfile(userId!)
       dispatch(setSession(refreshed))
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Error"
-      setEmailError(msg)
+      setEmailError(mapApiError(e, t("profilePage.changeEmailError") || "Error"))
     } finally { setEmailSaving(false) }
   }, [newEmail, emailPassword, userId, dispatch, t])
 

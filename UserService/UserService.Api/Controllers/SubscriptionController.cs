@@ -92,9 +92,9 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
         var tiers = new[]
         {
             new { Name = "Free", DisplayName = "Free", Price = 0, MaxChildren = 2, MaxTasksPerDay = 10 },
-            new { Name = "Basic", DisplayName = "Basic", Price = 299, MaxChildren = 5, MaxTasksPerDay = 30 },
-            new { Name = "Premium", DisplayName = "Premium", Price = 599, MaxChildren = 10, MaxTasksPerDay = 100 },
-            new { Name = "Family", DisplayName = "Family", Price = 999, MaxChildren = 20, MaxTasksPerDay = 1000 }
+            new { Name = "Basic", DisplayName = "Basic", Price = 49, MaxChildren = 5, MaxTasksPerDay = 30 },
+            new { Name = "Premium", DisplayName = "Premium", Price = 99, MaxChildren = 10, MaxTasksPerDay = 100 },
+            new { Name = "Family", DisplayName = "Family", Price = 149, MaxChildren = 20, MaxTasksPerDay = 1000 }
         };
 
         return Ok(tiers);

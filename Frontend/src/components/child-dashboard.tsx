@@ -22,6 +22,8 @@ import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -106,6 +108,7 @@ function StatCard({ icon, label, value, gradient, delay = 0, emoji }: {
 
 export default function ChildDashboard({ userId, userProfile, onLogout }: ChildDashboardProps) {
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
   const { data: tasks = [] } = useTasks()
@@ -450,7 +453,14 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     const { authService } = await import("@/services/auth-service")
                     await authService.uploadAvatar(uid, file)
                     window.location.reload()
-                  } catch (err) { console.error(err); alert(t("childDashboard.avatarUploadError")) }
+                  } catch (err) {
+                    console.error(err)
+                    toast({
+                      title: t("common.error"),
+                      description: mapApiError(err, t("childDashboard.avatarUploadError")),
+                      variant: "destructive",
+                    })
+                  }
                 }}
               />
             </label>

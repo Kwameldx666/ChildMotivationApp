@@ -57,9 +57,12 @@ public class SmtpEmailService : IEmailService
         try
         {
             using var client = new SmtpClient();
-            await client.ConnectAsync(_smtp.Host, _smtp.Port, _smtp.UseSsl
-                ? MailKit.Security.SecureSocketOptions.StartTls
-                : MailKit.Security.SecureSocketOptions.Auto, cancellationToken);
+            var sslOptions = _smtp.UseSsl
+                ? (_smtp.Port == 465
+                    ? MailKit.Security.SecureSocketOptions.SslOnConnect
+                    : MailKit.Security.SecureSocketOptions.StartTls)
+                : MailKit.Security.SecureSocketOptions.Auto;
+            await client.ConnectAsync(_smtp.Host, _smtp.Port, sslOptions, cancellationToken);
 
             if (!string.IsNullOrWhiteSpace(_smtp.Username))
                 await client.AuthenticateAsync(_smtp.Username, _smtp.Password, cancellationToken);

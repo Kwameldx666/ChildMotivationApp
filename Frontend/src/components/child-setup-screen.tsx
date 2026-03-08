@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Check, Eye, EyeOff, Loader2, Sparkles } from "lucide-react"
 import { authApi } from "@/features/auth/api/authApi"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { useTranslation } from "@/i18n/provider"
 import { toast } from "sonner"
 import type { AuthSession } from "@/features/auth/types"
@@ -41,10 +42,8 @@ export default function ChildSetupScreen({ session, onComplete, onLogout }: Chil
   const [step, setStep] = useState<1 | 2>(1)
 
   // Password fields
-  const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
 
   // Avatar & interests
@@ -55,7 +54,6 @@ export default function ChildSetupScreen({ session, onComplete, onLogout }: Chil
   const [error, setError] = useState<string | null>(null)
 
   const isPasswordValid =
-    currentPassword.length > 0 &&
     newPassword.length >= 6 &&
     newPassword === confirmPassword
 
@@ -72,19 +70,12 @@ export default function ChildSetupScreen({ session, onComplete, onLogout }: Chil
 
     try {
       await authApi.completeChildSetup({
-        currentPassword,
         newPassword,
       })
       toast.success(t("childSetup.passwordChanged"))
       setStep(2)
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ??
-        err?.response?.data?.title ??
-        err?.response?.data?.detail ??
-        err?.message ??
-        t("childSetup.passwordError")
-      setError(msg)
+      setError(mapApiError(err, t("childSetup.passwordError")))
     } finally {
       setIsSubmitting(false)
     }
@@ -140,28 +131,6 @@ export default function ChildSetupScreen({ session, onComplete, onLogout }: Chil
           {step === 1 ? (
             /* ─── Step 1: Change password ─── */
             <div className="space-y-4">
-              {/* Current (temporary) password */}
-              <div>
-                <Label className="text-sm font-medium mb-1 block">
-                  {t("childSetup.currentPassword")}
-                </Label>
-                <div className="relative">
-                  <Input
-                    type={showCurrent ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder={t("childSetup.currentPasswordPlaceholder")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrent(!showCurrent)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
               {/* New password */}
               <div>
                 <Label className="text-sm font-medium mb-1 block">

@@ -96,9 +96,9 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
   }) || [
     // Fallback тарифы если API недоступен
     { id: "free", name: "Free", price: 0, description: "subscription.plans.free.tagline", features: tierExtras.free.features },
-    { id: "basic", name: "Basic", price: 299, description: "subscription.plans.basic.tagline", features: tierExtras.basic.features },
-    { id: "premium", name: "Premium", price: 599, description: "subscription.plans.premium.tagline", features: tierExtras.premium.features, highlighted: true },
-    { id: "family", name: "Family", price: 999, description: "subscription.plans.family.tagline", features: tierExtras.family.features },
+    { id: "basic", name: "Basic", price: 49, description: "subscription.plans.basic.tagline", features: tierExtras.basic.features },
+    { id: "premium", name: "Premium", price: 99, description: "subscription.plans.premium.tagline", features: tierExtras.premium.features, highlighted: true },
+    { id: "family", name: "Family", price: 149, description: "subscription.plans.family.tagline", features: tierExtras.family.features },
   ]
 
   if (isLoading) {

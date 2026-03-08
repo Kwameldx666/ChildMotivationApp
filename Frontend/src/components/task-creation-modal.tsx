@@ -15,6 +15,7 @@ import type { CreateTaskPayload } from "@/services/tasks-service"
 import { CalendarDays, Check, Plus, Sparkles, Star, Wand2, Users } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
+import { mapApiError } from "@/features/auth/utils/mapApiError"
 
 interface TaskCreationModalProps {
   open: boolean
@@ -185,7 +186,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       onClose()
     } catch (error) {
       console.error("[task-creation-modal] Failed to create task", error)
-      setSubmitError(t("taskCreation.submitError"))
+      setSubmitError(mapApiError(error, t("taskCreation.submitError")))
     } finally {
       setIsSubmitting(false)
     }

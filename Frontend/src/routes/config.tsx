@@ -5,6 +5,7 @@ export enum AppRouteId {
   Auth = 'auth',
   ParentDashboard = 'parent-dashboard',
   ChildDashboard = 'child-dashboard',
+  ChildrenManagement = 'children-management',
   TaskCreate = 'task-create',
   AiAssistant = 'ai-assistant',
 }
@@ -46,6 +47,13 @@ export const routes: RouteConfig[] = [
     label: 'routes.childDashboard',
     layout: 'app',
     requiredRoles: ['child'],
+  },
+  {
+    id: AppRouteId.ChildrenManagement,
+    path: '/dashboard/children',
+    label: 'routes.childrenManagement',
+    layout: 'app',
+    requiredRoles: ['parent'],
   },
   {
     id: AppRouteId.TaskCreate,
