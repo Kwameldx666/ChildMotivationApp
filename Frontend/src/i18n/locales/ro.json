@@ -2576,6 +2576,90 @@
     "videoTip": "Păstrați video-ul scurt — 10-30 secunde sunt suficiente",
     "documentTip": "Asigurați-vă că documentul este lizibil și nu e neclar"
   },
+  "tour": {
+    "skip": "Omite",
+    "finish": "Am înțeles!",
+    "parent": {
+      "welcome": {
+        "title": "Bine ai venit în FamilyQuest!",
+        "desc": "Hai să-ți facem un tur rapid al aplicației. Vei învăța cum să creezi sarcini, să gestionezi recompense și să urmărești progresul copiilor."
+      },
+      "tabs": {
+        "title": "Filele de navigare",
+        "desc": "Folosește aceste file pentru a comuta între secțiuni: sarcini, recompense, copii, analitice, chat și setări."
+      },
+      "tasks": {
+        "title": "Sarcini",
+        "desc": "Aici gestionezi sarcinile pentru copii. Creează sarcini, setează dificultatea și urmărește finalizarea."
+      },
+      "newTask": {
+        "title": "Creează o sarcină",
+        "desc": "Apasă acest buton pentru a crea o sarcină nouă. IA poate ajuta să scrie o descriere captivantă pentru copil."
+      },
+      "rewards": {
+        "title": "Magazinul de recompense",
+        "desc": "Creează recompense pe care copiii le pot cumpăra cu punctele câștigate. Un motivator excelent!"
+      },
+      "children": {
+        "title": "Copiii",
+        "desc": "Vizualizează și gestionează profilurile copiilor. Invită copii noi în grupul familiei."
+      },
+      "analytics": {
+        "title": "Analitice",
+        "desc": "Urmărește progresul cu grafice și statistici. IA poate analiza tiparele și oferi recomandări."
+      },
+      "chat": {
+        "title": "Chat-ul familiei",
+        "desc": "Comunică cu familia ta și chat-uiește cu asistentul IA pentru ajutor."
+      },
+      "notifications": {
+        "title": "Notificări",
+        "desc": "Fii la curent — finalizarea sarcinilor, cererile de recompense și evenimentele familiei apar aici."
+      },
+      "done": {
+        "title": "Ești pregătit!",
+        "desc": "Începe prin crearea primei sarcini sau invitarea copiilor. Succes în aventura familiei!"
+      }
+    },
+    "child": {
+      "welcome": {
+        "title": "Salut, aventurierule!",
+        "desc": "Bine ai venit în lumea misiunilor! Hai să-ți arătăm totul ca să poți câștiga puncte și premii."
+      },
+      "stats": {
+        "title": "Statisticile tale",
+        "desc": "Aici vezi punctele, seria, sarcinile completate și XP-ul tău. Continuă să crești!"
+      },
+      "xp": {
+        "title": "Bara de experiență",
+        "desc": "Completează sarcini pentru a câștiga XP. Când bara se umple, avansezi de nivel și deblochezi ranguri noi!"
+      },
+      "nav": {
+        "title": "Navigare",
+        "desc": "Comută între secțiuni: sarcini, galerie, misiuni, magazin, chat IA, realizări."
+      },
+      "tasks": {
+        "title": "Sarcinile tale",
+        "desc": "Aici sunt sarcinile de la părinți. Completează-le pentru puncte și XP!"
+      },
+      "shop": {
+        "title": "Magazinul de recompense",
+        "desc": "Cheltuiește punctele pe recompense cool. Cu cât completezi mai multe sarcini, cu atât poți cumpăra mai mult!"
+      },
+      "chat": {
+        "title": "Chat IA",
+        "desc": "Ai nevoie de ajutor cu o sarcină? Întreabă asistentul IA — te poate sfătui și explica."
+      },
+      "achievements": {
+        "title": "Realizări",
+        "desc": "Câștigă insigne și trofee pentru realizările tale. Colecționează-le pe toate!"
+      },
+      "done": {
+        "title": "Gata de start!",
+        "desc": "Verifică fila de sarcini și începe să completezi misiuni. Distracție plăcută și recompense grozave!"
+      }
+    }
+  },
   "onboarding": {
     "tip0Title": "Bine ai venit în FamilyQuest!",
     "tip0Description": "Un mod distractiv de a dezvolta obiceiuri bune în familie",

@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import GuidedTour, { useFirstVisitTour, type TourStep } from "@/components/guided-tour"
 
 /* ═══════════ Types ═══════════ */
 
@@ -125,6 +126,19 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
   const rank    = getRank(level)
 
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
+  const { showTour, completeTour } = useFirstVisitTour("child-tour-seen")
+
+  const tourSteps: TourStep[] = useMemo(() => [
+    { target: null, titleKey: "tour.child.welcome.title", descriptionKey: "tour.child.welcome.desc", icon: "🌟" },
+    { target: "[data-tour='child-stats']", titleKey: "tour.child.stats.title", descriptionKey: "tour.child.stats.desc", icon: "📊", placement: "bottom" },
+    { target: "[data-tour='child-xp']", titleKey: "tour.child.xp.title", descriptionKey: "tour.child.xp.desc", icon: "⚡", placement: "bottom" },
+    { target: "[data-tour='child-nav']", titleKey: "tour.child.nav.title", descriptionKey: "tour.child.nav.desc", icon: "🗂️", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
+    { target: "[data-tour='child-tasks']", titleKey: "tour.child.tasks.title", descriptionKey: "tour.child.tasks.desc", icon: "⚡", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
+    { target: "[data-tour='child-shop']", titleKey: "tour.child.shop.title", descriptionKey: "tour.child.shop.desc", icon: "🎁", placement: "bottom", onBeforeStep: () => setActiveTab("shop") },
+    { target: "[data-tour='child-chat']", titleKey: "tour.child.chat.title", descriptionKey: "tour.child.chat.desc", icon: "🤖", placement: "bottom" },
+    { target: "[data-tour='child-achievements']", titleKey: "tour.child.achievements.title", descriptionKey: "tour.child.achievements.desc", icon: "🏆", placement: "bottom" },
+    { target: null, titleKey: "tour.child.done.title", descriptionKey: "tour.child.done.desc", icon: "🚀" },
+  ], [t])
 
   const avatarImageUrl = useMemo(() => {
     const resolved = resolveAvatarUrl(userProfile.avatar)
@@ -261,7 +275,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                 </span>
               </div>
               {/* XP Progress Bar */}
-              <div className="flex items-center gap-2.5">
+              <div data-tour="child-xp" className="flex items-center gap-2.5">
                 <span className="text-xs font-bold text-muted-foreground shrink-0">XP</span>
                 <div className="flex-1 h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
                   <div
@@ -275,7 +289,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
           </div>
 
           {/* Stat Cards Grid */}
-          <div className="grid grid-cols-4 md:grid-cols-4 gap-2 md:gap-3 md:w-auto">
+          <div data-tour="child-stats" className="grid grid-cols-4 md:grid-cols-4 gap-2 md:gap-3 md:w-auto">
             <StatCard
               icon={<Star className="h-4 w-4 md:h-5 md:w-5" />}
               label={t("childDashboard.nav.shop")}
@@ -316,12 +330,13 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
            GAME NAVIGATION — desktop horizontal bar
          ═══════════════════════════════════════════════ */}
       <div className="hidden md:block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-4">
-        <nav className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm">
+        <nav data-tour="child-nav" className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm">
           {TABS.map(tab => {
             const active = activeTab === tab.id
             return (
               <button
                 key={tab.id}
+                data-tour={`child-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-sm font-bold transition-all duration-200",
@@ -479,6 +494,8 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {showTour && <GuidedTour steps={tourSteps} storageKey="child-tour-seen" onComplete={completeTour} />}
     </div>
   )
 }

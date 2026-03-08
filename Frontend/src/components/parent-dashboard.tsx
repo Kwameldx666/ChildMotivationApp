@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FeatureGate } from "@/components/feature-gate"
+import GuidedTour, { useFirstVisitTour, type TourStep } from "@/components/guided-tour"
 
 interface ParentDashboardProps {
   userId?: string
@@ -61,6 +62,20 @@ export default function ParentDashboard({
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const createProduct = useCreateProduct()
   const { toast } = useToast()
+  const { showTour, completeTour, resetTour } = useFirstVisitTour("parent-tour-seen")
+
+  const tourSteps: TourStep[] = useMemo(() => [
+    { target: null, titleKey: "tour.parent.welcome.title", descriptionKey: "tour.parent.welcome.desc", icon: "👋" },
+    { target: "[data-tour='parent-tabs']", titleKey: "tour.parent.tabs.title", descriptionKey: "tour.parent.tabs.desc", icon: "🗂️", placement: "bottom" },
+    { target: "[data-tour='parent-tasks']", titleKey: "tour.parent.tasks.title", descriptionKey: "tour.parent.tasks.desc", icon: "📋", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
+    { target: "[data-tour='parent-new-task']", titleKey: "tour.parent.newTask.title", descriptionKey: "tour.parent.newTask.desc", icon: "➕", placement: "bottom" },
+    { target: "[data-tour='parent-rewards']", titleKey: "tour.parent.rewards.title", descriptionKey: "tour.parent.rewards.desc", icon: "🎁", placement: "bottom", onBeforeStep: () => setActiveTab("rewards") },
+    { target: "[data-tour='parent-children']", titleKey: "tour.parent.children.title", descriptionKey: "tour.parent.children.desc", icon: "👨‍👩‍👧‍👦", placement: "bottom", onBeforeStep: () => setActiveTab("children") },
+    { target: "[data-tour='parent-analytics']", titleKey: "tour.parent.analytics.title", descriptionKey: "tour.parent.analytics.desc", icon: "📊", placement: "bottom" },
+    { target: "[data-tour='parent-chat']", titleKey: "tour.parent.chat.title", descriptionKey: "tour.parent.chat.desc", icon: "💬", placement: "bottom" },
+    { target: "[data-tour='parent-notifications']", titleKey: "tour.parent.notifications.title", descriptionKey: "tour.parent.notifications.desc", icon: "🔔", placement: "bottom" },
+    { target: null, titleKey: "tour.parent.done.title", descriptionKey: "tour.parent.done.desc", icon: "🚀" },
+  ], [t])
 
   useEffect(() => {
     const cb = () => setIsTaskModalOpen(true)
@@ -138,7 +153,7 @@ export default function ParentDashboard({
           <div className="flex items-center gap-3">
             <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
-            <NotificationsPopover />
+            <span data-tour="parent-notifications"><NotificationsPopover /></span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
@@ -178,24 +193,24 @@ export default function ParentDashboard({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6 h-auto p-1 bg-muted">
-            <TabsTrigger value="tasks" className="flex items-center gap-2">
+          <TabsList data-tour="parent-tabs" className="grid w-full grid-cols-6 mb-6 h-auto p-1 bg-muted">
+            <TabsTrigger data-tour="parent-tasks" value="tasks" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.tasks")}</span>
             </TabsTrigger>
-            <TabsTrigger value="rewards" className="flex items-center gap-2">
+            <TabsTrigger data-tour="parent-rewards" value="rewards" className="flex items-center gap-2">
               <Gift className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.rewards")}</span>
             </TabsTrigger>
-            <TabsTrigger value="children" className="flex items-center gap-2">
+            <TabsTrigger data-tour="parent-children" value="children" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.children")}</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TabsTrigger data-tour="parent-analytics" value="analytics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.analytics")}</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center gap-2">
+            <TabsTrigger data-tour="parent-chat" value="chat" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
               <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.chat")}</span>
             </TabsTrigger>
@@ -212,6 +227,7 @@ export default function ParentDashboard({
                 <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.tasks.subtitle")}</p>
               </div>
               <Button
+                data-tour="parent-new-task"
                 className="gap-2"
                 onClick={() => setIsTaskModalOpen(true)}
               >
@@ -290,6 +306,8 @@ export default function ParentDashboard({
         open={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
       />
+
+      {showTour && <GuidedTour steps={tourSteps} storageKey="parent-tour-seen" onComplete={completeTour} />}
     </div>
   )
 }

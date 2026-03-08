@@ -88,8 +88,23 @@ public sealed class AiController(
             context
         };
 
-        using var response = await aiClient.SendChatAsync(upstreamPayload, cancellationToken);
-        return await response.ToActionResultAsync();
+        try
+        {
+            using var response = await aiClient.SendChatAsync(upstreamPayload, cancellationToken);
+            return await response.ToActionResultAsync();
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            var fallback = new
+            {
+                conversationId = Guid.NewGuid().ToString("N"),
+                reply = "Сервис ИИ временно недоступен. Пожалуйста, попробуйте ещё раз через несколько секунд.",
+                followUpSuggestions = Array.Empty<string>(),
+                actions = Array.Empty<object>(),
+                generatedAt = DateTimeOffset.UtcNow
+            };
+            return new JsonResult(fallback) { StatusCode = 200 };
+        }
     }
 
     [HttpGet("analytics")]

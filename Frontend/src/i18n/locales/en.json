@@ -2617,6 +2617,90 @@
     "videoTip": "Keep the video short — 10-30 seconds is enough",
     "documentTip": "Make sure the document is readable and not blurry"
   },
+  "tour": {
+    "skip": "Skip",
+    "finish": "Got it!",
+    "parent": {
+      "welcome": {
+        "title": "Welcome to FamilyQuest!",
+        "desc": "Let us give you a quick tour of the app. You'll learn how to create tasks, manage rewards, and track your children's progress."
+      },
+      "tabs": {
+        "title": "Navigation tabs",
+        "desc": "Use these tabs to switch between sections: tasks, rewards, children, analytics, chat, and settings."
+      },
+      "tasks": {
+        "title": "Tasks",
+        "desc": "This is where you manage tasks for your children. Create tasks, set difficulty, and track completion."
+      },
+      "newTask": {
+        "title": "Create a task",
+        "desc": "Click this button to create a new task. AI can help write an engaging description for the child."
+      },
+      "rewards": {
+        "title": "Rewards shop",
+        "desc": "Create rewards that children can buy with earned points. A great motivator!"
+      },
+      "children": {
+        "title": "Children",
+        "desc": "View and manage your children's profiles. Invite new children to the family group."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "desc": "Track progress with charts and stats. AI can analyze patterns and give recommendations."
+      },
+      "chat": {
+        "title": "Family chat",
+        "desc": "Communicate with your family and chat with the AI assistant for help."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "desc": "Stay updated — task completions, reward requests, and family events appear here."
+      },
+      "done": {
+        "title": "You're all set!",
+        "desc": "Start by creating your first task or inviting your children. Good luck on your family adventure!"
+      }
+    },
+    "child": {
+      "welcome": {
+        "title": "Hey, adventurer!",
+        "desc": "Welcome to your quest board! Let's show you around so you can start earning points and prizes."
+      },
+      "stats": {
+        "title": "Your stats",
+        "desc": "Here you can see your points, streak, completed tasks, and XP. Keep them growing!"
+      },
+      "xp": {
+        "title": "Experience bar",
+        "desc": "Complete tasks to earn XP. When the bar fills up, you level up and unlock new ranks!"
+      },
+      "nav": {
+        "title": "Navigation",
+        "desc": "Switch between sections using these tabs — tasks, gallery, quests, shop, AI chat, achievements."
+      },
+      "tasks": {
+        "title": "Your tasks",
+        "desc": "See tasks from your parents here. Complete them to earn points and XP!"
+      },
+      "shop": {
+        "title": "Rewards shop",
+        "desc": "Spend your earned points on cool rewards. The more tasks you complete, the more you can buy!"
+      },
+      "chat": {
+        "title": "AI Chat",
+        "desc": "Need help with a task? Chat with the AI assistant — it can give tips and explain things."
+      },
+      "achievements": {
+        "title": "Achievements",
+        "desc": "Earn badges and trophies for your accomplishments. Collect them all!"
+      },
+      "done": {
+        "title": "Ready to go!",
+        "desc": "Check out your tasks tab and start completing quests. Have fun and earn awesome rewards!"
+      }
+    }
+  },
   "onboarding": {
     "tip0Title": "Welcome to FamilyQuest!",
     "tip0Description": "A fun way to build good habits as a family",

@@ -360,6 +360,20 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
 
     private static string BuildAnswerCore(string message, bool ru)
     {
+        if (message.Contains("итог", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("резюме", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("summary", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("review", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("недел", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("week", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("достижен", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("achiev", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("прогресс", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("progress", StringComparison.OrdinalIgnoreCase))
+            return ru
+                ? "откройте вкладку «Аналитика» — там отображается прогресс за выбранный период с графиками и статистикой. Также ИИ-аналитик может подготовить подробный разбор достижений."
+                : "open the 'Analytics' tab — it shows progress for the selected period with charts and stats. The AI analyst can also prepare a detailed achievements breakdown.";
+
         if (message.Contains("мотива", StringComparison.OrdinalIgnoreCase)
             || message.Contains("motivat", StringComparison.OrdinalIgnoreCase))
             return ru
