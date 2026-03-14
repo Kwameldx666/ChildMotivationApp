@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -82,3 +83,59 @@ jobs:
           pnpm exec eslint .
           node --test ./test/**/*.test.mjs
           pnpm run build
+
+      - name: Setup Docker Buildx
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          user="${{ secrets.DOCKERHUB_USERNAME }}"
+          sha_tag="sha-${GITHUB_SHA}"
+
+          services=(
+            "auth-service:AuthService/AuthService.Api/Dockerfile"
+            "user-service:UserService/UserService.Api/Dockerfile"
+            "task-service:TaskService/TaskService.Api/Dockerfile"
+            "shop-service:ShopService/ShopService.Api/Dockerfile"
+            "notification-service:NotificationService/NotificationService.Api/Dockerfile"
+            "ai-service:AiService/AiService.Api/Dockerfile"
+            "gateway-service:GatewayService/Gateway.Api/Dockerfile"
+            "frontend:Frontend/Dockerfile"
+          )
+
+          for entry in "${services[@]}"; do
+            name="${entry%%:*}"
+            dockerfile="${entry#*:}"
+            image="docker.io/${user}/${name}"
+
+            tags=(-t "${image}:${sha_tag}")
+            if [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
+              tags+=(-t "${image}:latest")
+            fi
+
+            echo "Building ${name} using ${dockerfile}"
+            docker buildx build \
+              --file "${dockerfile}" \
+              --push \
+              "${tags[@]}" \
+              .
+
+            {
+              echo "### Published ${name}"
+              echo "- Dockerfile: ${dockerfile}"
+              echo "- Tags: ${image}:${sha_tag}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
