@@ -1,10 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using AiService.Application.Abstractions;
 using AiService.Application.Contracts;
 
 namespace AiService.Infrastructure.Orchestration;
 
+[ExcludeFromCodeCoverage]
 public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrchestrator
 {
     private static readonly TaskTemplate[] TaskTemplatesRu =

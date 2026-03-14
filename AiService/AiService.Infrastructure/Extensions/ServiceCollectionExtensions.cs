@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AiService.Application.Abstractions;
 using AiService.Infrastructure.Clients;
 using AiService.Infrastructure.Options;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiService.Infrastructure.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAiInfrastructure(this IServiceCollection services, IConfiguration configuration)

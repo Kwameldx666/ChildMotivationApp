@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AiService.Application.Contracts;
 
+[ExcludeFromCodeCoverage]
 public sealed class RewardSuggestionsRequest
 {
     [StringLength(64)]
@@ -31,6 +33,7 @@ public sealed class RewardSuggestionsRequest
     }
 }
 
+[ExcludeFromCodeCoverage]
 public sealed record RewardSuggestion(
     string Title,
     string Description,
@@ -39,6 +42,7 @@ public sealed record RewardSuggestion(
     string Icon,
     string MotivationHint);
 
+[ExcludeFromCodeCoverage]
 public sealed record RewardSuggestionsResponse(
     IReadOnlyCollection<RewardSuggestion> Suggestions,
     string BudgetSummary);

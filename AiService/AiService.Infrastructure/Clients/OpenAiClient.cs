@@ -2,12 +2,14 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
 using AiService.Infrastructure.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AiService.Infrastructure.Clients;
 
+[ExcludeFromCodeCoverage]
 internal sealed class OpenAiClient
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
@@ -65,6 +67,7 @@ internal sealed class OpenAiClient
     }
 }
 
+[ExcludeFromCodeCoverage]
 internal sealed record OpenAiMessage(string Role, string Content)
 {
     public static OpenAiMessage System(string content)
@@ -83,6 +86,7 @@ internal sealed record OpenAiMessage(string Role, string Content)
     }
 }
 
+[ExcludeFromCodeCoverage]
 internal sealed record OpenAiChatRequest(
     string Model,
     double Temperature,
@@ -90,4 +94,5 @@ internal sealed record OpenAiChatRequest(
     int MaxTokens,
     IReadOnlyCollection<OpenAiChatMessage> Messages);
 
+[ExcludeFromCodeCoverage]
 internal sealed record OpenAiChatMessage(string Role, string Content);

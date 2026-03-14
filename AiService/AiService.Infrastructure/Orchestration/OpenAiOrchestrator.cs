@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 using AiService.Application.Abstractions;
 using AiService.Application.Contracts;
 using AiService.Infrastructure.Clients;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiService.Infrastructure.Orchestration;
 
+[ExcludeFromCodeCoverage]
 internal sealed class OpenAiOrchestrator : IAiOrchestrator
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);

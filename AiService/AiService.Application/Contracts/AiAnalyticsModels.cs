@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AiService.Application.Contracts;
 
+[ExcludeFromCodeCoverage]
 public sealed class AiAnalyticsRequest
 {
     [Required(ErrorMessage = "ID пользователя обязателен")]
@@ -31,6 +33,7 @@ public sealed class AiAnalyticsRequest
     }
 }
 
+[ExcludeFromCodeCoverage]
 public sealed record AiInsightCard(
     string Type,
     string Title,
@@ -38,6 +41,7 @@ public sealed record AiInsightCard(
     string Severity,
     IReadOnlyCollection<string> Tags);
 
+[ExcludeFromCodeCoverage]
 public sealed record AiAnalyticsResponse(
     IReadOnlyCollection<AiInsightCard> Insights,
     IReadOnlyDictionary<string, string> Summary);

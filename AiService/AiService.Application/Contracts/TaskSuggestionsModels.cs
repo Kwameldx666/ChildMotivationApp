@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AiService.Application.Contracts;
 
+[ExcludeFromCodeCoverage]
 public sealed class TaskSuggestionsRequest
 {
     [StringLength(64)]
@@ -35,6 +37,7 @@ public sealed class TaskSuggestionsRequest
     }
 } 
 
+[ExcludeFromCodeCoverage]
 public sealed record TaskSuggestion(
     string Title,
     string Description,
@@ -43,6 +46,7 @@ public sealed record TaskSuggestion(
     string Category,
     string ImpactSummary);
 
+[ExcludeFromCodeCoverage]
 public sealed record TaskSuggestionsResponse(
     IReadOnlyCollection<TaskSuggestion> Suggestions,
     string StrategySummary,

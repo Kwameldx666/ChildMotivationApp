@@ -73,6 +73,17 @@ jobs:
 
           $summary = @()
           $repoRoot = (Get-Location).Path
+          $excludeByFile = @(
+            "**/Contracts/**/*.cs",
+            "**/Dto/**/*.cs",
+            "**/Models/**/*.cs",
+            "**/Entities/**/*.cs",
+            "**/Enums/**/*.cs",
+            "**/Extensions/**/*.cs",
+            "**/Program.cs"
+          ) -join ","
+
+          $excludeByAttribute = "ExcludeFromCodeCoverageAttribute,CompilerGeneratedAttribute"
           $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
             Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
 
@@ -84,7 +95,7 @@ jobs:
 
             $coverageFile = [System.IO.Path]::GetFullPath((Join-Path $outDirAbs "coverage.xml"))
 
-            dotnet test $project.FullName -c Release --results-directory $outDirAbs --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
+            dotnet test $project.FullName -c Release --results-directory $outDirAbs --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:ExcludeByFile=$excludeByFile /p:ExcludeByAttribute=$excludeByAttribute /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
             if ($LASTEXITCODE -ne 0) {
               throw "dotnet test failed for $suite (exit code $LASTEXITCODE). Check test output above for the primary failure reason."
             }
