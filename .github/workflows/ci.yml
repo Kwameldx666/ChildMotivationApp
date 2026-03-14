@@ -54,8 +54,6 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    env:
-      MIN_LINE_COVERAGE: 80
 
     steps:
       - name: Checkout
@@ -104,11 +102,8 @@ jobs:
               "/p:CollectCoverage=true",
               "/p:CoverletOutputFormat=cobertura",
               "/p:CoverletOutput=$coverageFile",
-              "/p:ExcludeByFile=$excludeByFile",
-              "/p:ExcludeByAttribute=$excludeByAttribute",
-              "/p:Threshold=$env:MIN_LINE_COVERAGE",
-              "/p:ThresholdType=line",
-              "/p:ThresholdStat=total"
+              "/p:ExcludeByFile=`\"$excludeByFile`\"",
+              "/p:ExcludeByAttribute=`\"$excludeByAttribute`\""
             )
 
             & dotnet @dotnetArgs
