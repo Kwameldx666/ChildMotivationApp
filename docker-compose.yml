@@ -294,6 +294,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-remote-write-receiver"
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -331,6 +332,20 @@ services:
       - "3001:3000"
     depends_on:
       - prometheus
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6_runner
+    profiles: ["loadtest"]
+    depends_on:
+      - prometheus
+      - gateway-service
+    environment:
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      BASE_URL: http://gateway-service:8081
+    volumes:
+      - ./load-tests:/scripts:ro
+    command: ["run", "-o", "experimental-prometheus-rw", "/scripts/health-smoke.js"]
 
 volumes:
   postgres_data:

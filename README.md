@@ -221,11 +221,30 @@ docker-compose up -d prometheus cadvisor grafana
 ### What is configured automatically
 - Prometheus datasource is provisioned at startup.
 - Dashboard `ChildMotivationApp - Containers Overview` is imported automatically.
+- Dashboard `ChildMotivationApp - k6 Performance Overview` is imported automatically.
 - Dashboard shows:
 	- CPU usage by service
 	- Memory usage by service
 	- Network throughput by service
 	- Prometheus target health (`up`)
+
+### Run k6 and stream metrics to Grafana
+```bash
+# Start app + monitoring
+docker-compose up -d --build
+
+# Run load test and send metrics to Prometheus remote write
+docker-compose --profile loadtest run --rm k6
+```
+
+After that open Grafana dashboard:
+- `ChildMotivationApp - k6 Performance Overview`
+- Metrics: response time (avg/p95), requests per second, error rate, active VUs.
+
+### If dashboard shows "No data"
+1. Open `http://localhost:9090/targets` and verify `prometheus` + `cadvisor` are `UP`.
+2. In Grafana go to `Connections -> Data sources -> Prometheus` and click `Save & test`.
+3. Make sure at least one load test run has executed: `docker-compose --profile loadtest run --rm k6`.
 
 ## 🐛 Debugging
 
