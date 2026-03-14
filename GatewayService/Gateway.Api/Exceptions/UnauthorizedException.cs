@@ -1,3 +1,3 @@
 namespace Gateway.Exceptions;
 
-public class UnauthorizedException() : ApiException("User is not authorized");
+public class UnauthorizedException(string? message = "Unauthorized") : ApiException(message);

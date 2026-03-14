@@ -1,68 +1,46 @@
 using System.Net;
-using System.Net.Http.Json;
-using FluentValidation;
+using System.Text.Json;
+using Gateway.Exceptions;
+using Gateway.Middlewares;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TaskService.Api.Middlewares;
-using TaskService.Application.Common.Exceptions;
 
 namespace IntegrationTests;
 
 public sealed class TaskExceptionHandlingMiddlewareIntegrationTests
 {
     [Fact]
-    public async Task Middleware_ShouldMapNotFoundException_To404()
+    public async Task GlobalExceptionHandler_ShouldMapUnauthorizedException_To401()
     {
-        using var host = await BuildHost(_ => throw new NotFoundException("Task", "42"));
+        using var host = await BuildHost(() => throw new UnauthorizedException("token missing"));
         var client = host.GetTestClient();
 
-        var response = await client.GetAsync("/test");
-        var body = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync("/boom");
+        var payload = await ParseJson(response);
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        Assert.Contains("Entity 'Task' (42) was not found.", body, StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal(401, payload.GetProperty("code").GetInt32());
+        Assert.Equal("token missing", payload.GetProperty("description").GetString());
     }
 
     [Fact]
-    public async Task Middleware_ShouldMapValidationException_To400WithErrors()
+    public async Task GlobalExceptionHandler_ShouldMapUnknownException_To500()
     {
-        using var host = await BuildHost(_ =>
-        {
-            var failures = new[]
-            {
-                new FluentValidation.Results.ValidationFailure("Title", "Title is required")
-            };
-            throw new ValidationException(failures);
-        });
-
+        using var host = await BuildHost(() => throw new InvalidOperationException("boom"));
         var client = host.GetTestClient();
-        var response = await client.GetAsync("/test");
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-        var payload = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
-        Assert.NotNull(payload);
-        Assert.Equal("Validation failed", payload["message"].ToString());
-    }
-
-    [Fact]
-    public async Task Middleware_ShouldMapUnknownException_To500()
-    {
-        using var host = await BuildHost(_ => throw new InvalidOperationException("boom"));
-        var client = host.GetTestClient();
-
-        var response = await client.GetAsync("/test");
-        var body = await response.Content.ReadAsStringAsync();
+        var response = await client.GetAsync("/boom");
+        var payload = await ParseJson(response);
 
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-        Assert.Contains("An unexpected error occurred.", body, StringComparison.Ordinal);
+        Assert.Equal(500, payload.GetProperty("code").GetInt32());
+        Assert.Equal("boom", payload.GetProperty("description").GetString());
     }
 
-    private static async Task<IHost> BuildHost(Func<HttpContext, Task> terminalDelegate)
+    private static async Task<IHost> BuildHost(Action throwException)
     {
         var hostBuilder = new HostBuilder()
             .ConfigureWebHost(webBuilder =>
@@ -71,15 +49,26 @@ public sealed class TaskExceptionHandlingMiddlewareIntegrationTests
                 webBuilder.ConfigureServices(services =>
                 {
                     services.AddLogging();
-                    services.AddTransient<ExceptionHandlingMiddleware>();
+                    services.AddExceptionHandler<GlobalExceptionHandler>();
                 });
                 webBuilder.Configure(app =>
                 {
-                    app.UseMiddleware<ExceptionHandlingMiddleware>();
-                    app.Run(context => terminalDelegate(context));
+                    app.UseExceptionHandler();
+                    app.Run(_ =>
+                    {
+                        throwException();
+                        return Task.CompletedTask;
+                    });
                 });
             });
 
         return await hostBuilder.StartAsync();
+    }
+
+    private static async Task<JsonElement> ParseJson(HttpResponseMessage response)
+    {
+        var content = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(content);
+        return document.RootElement.Clone();
     }
 }

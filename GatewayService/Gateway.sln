@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Domain", "Gateway.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Common", "Gateway.Common\Gateway.Common.csproj", "{6695553B-D849-4BEF-9068-E8167ED94DAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService.UnitTests", "GatewayService.UnitTests\GatewayService.UnitTests.csproj", "{F8BD71E8-B88B-43C4-8D70-56556A5A4722}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService.IntegrationTests", "GatewayService.IntegrationTests\IntegrationTests.csproj", "{0D86FD39-D011-4D8A-B1F8-5BA9C498F218}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +39,13 @@ Global
 		{6695553B-D849-4BEF-9068-E8167ED94DAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6695553B-D849-4BEF-9068-E8167ED94DAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6695553B-D849-4BEF-9068-E8167ED94DAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8BD71E8-B88B-43C4-8D70-56556A5A4722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8BD71E8-B88B-43C4-8D70-56556A5A4722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8BD71E8-B88B-43C4-8D70-56556A5A4722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8BD71E8-B88B-43C4-8D70-56556A5A4722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D86FD39-D011-4D8A-B1F8-5BA9C498F218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D86FD39-D011-4D8A-B1F8-5BA9C498F218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D86FD39-D011-4D8A-B1F8-5BA9C498F218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D86FD39-D011-4D8A-B1F8-5BA9C498F218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
