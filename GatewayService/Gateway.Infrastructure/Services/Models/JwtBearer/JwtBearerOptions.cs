@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Infrastructure.Services.Models.JwtBearer;
+
+[ExcludeFromCodeCoverage]
 
 public class JwtBearerOptions
 {
@@ -12,3 +15,4 @@ public class JwtBearerOptions
 
     [Range(1, int.MaxValue)] public int AccessTokenLifetime { get; set; } = 15;
 }
+

@@ -1,4 +1,7 @@
-﻿namespace AuthService.Application.Models.User;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Application.Models.User;
+
+[ExcludeFromCodeCoverage]
 
 public class UserArgs
 {
@@ -7,3 +10,4 @@ public class UserArgs
     public required IEnumerable<string> Roles { get; set; }
     public IEnumerable<string> Scopes { get; set; } = [];
 }
+

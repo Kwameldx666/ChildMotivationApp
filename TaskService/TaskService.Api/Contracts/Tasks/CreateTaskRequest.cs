@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace TaskService.Api.Contracts.Tasks;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateTaskRequest
 {
@@ -24,3 +27,5 @@ public class CreateTaskRequest
     [StringLength(64)]
     public string? AssignedToUserId { get; init; } // ID of the child to whom the task is assigned
 }
+
+

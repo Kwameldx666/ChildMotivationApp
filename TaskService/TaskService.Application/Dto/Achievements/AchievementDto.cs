@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace TaskService.Application.Dto.Achievements;
+
+[ExcludeFromCodeCoverage]
 
 public record AchievementDto(
     Guid Id,
@@ -9,3 +12,5 @@ public record AchievementDto(
     int Total,
     bool Unlocked,
     int RewardXp);
+
+

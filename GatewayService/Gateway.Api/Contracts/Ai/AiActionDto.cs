@@ -1,3 +1,4 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Gateway.Contracts.Ai;
@@ -5,6 +6,7 @@ namespace Gateway.Contracts.Ai;
 /// <summary>
 ///     AI action DTO from frontend
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class AiActionDto
 {
     public required string Type { get; init; }
@@ -14,3 +16,4 @@ public sealed class AiActionDto
     public int Priority { get; init; }
     public JsonElement? Payload { get; init; }
 }
+

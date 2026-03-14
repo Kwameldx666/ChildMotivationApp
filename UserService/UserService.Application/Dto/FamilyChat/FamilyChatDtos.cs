@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace UserService.Application.Dto.FamilyChat;
+
+[ExcludeFromCodeCoverage]
 
 public record FamilyMessageDto(
     Guid Id,
@@ -14,12 +17,18 @@ public record FamilyMessageDto(
     string? ReplyToMessageId
 );
 
+[ExcludeFromCodeCoverage]
+
 public record SendMessageRequest(
     string Content,
     Guid? MentionedTaskId = null,
     string? ReplyToMessageId = null
 );
 
+[ExcludeFromCodeCoverage]
+
 public record MarkAsReadRequest(
     Guid MessageId
 );
+
+

@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Ai;
+
+[ExcludeFromCodeCoverage]
 
 public sealed class AiRewardSuggestionsRequest
 {
@@ -16,3 +19,4 @@ public sealed class AiRewardSuggestionsRequest
 
     [MaxLength(10)] public IReadOnlyCollection<string> RecentlyPurchasedRewards { get; init; } = Array.Empty<string>();
 }
+

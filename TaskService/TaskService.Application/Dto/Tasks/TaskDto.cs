@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using TaskService.Domain.Enums;
 
 namespace TaskService.Application.Dto.Tasks;
+
+[ExcludeFromCodeCoverage]
 
 public record TaskDto(
     Guid Id,
@@ -17,6 +20,8 @@ public record TaskDto(
     int RewardPoints,
     TaskEvidenceDto Evidence);
 
+[ExcludeFromCodeCoverage]
+
 public record TaskEvidenceDto(
     TaskEvidenceRequirement Requirement,
     bool IsSubmitted,
@@ -25,3 +30,5 @@ public record TaskEvidenceDto(
     long? FileSize,
     DateTime? UploadedAt,
     string? UploadedByUserId);
+
+

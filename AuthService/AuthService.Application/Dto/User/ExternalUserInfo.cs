@@ -1,6 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace AuthService.Application.Dto.User;
+
+[ExcludeFromCodeCoverage]
 
 public class ExternalUserInfo
 {
@@ -16,3 +19,4 @@ public class ExternalUserInfo
     [JsonPropertyName("sub")]
     public string Sub { get; set; } = string.Empty;
 }
+

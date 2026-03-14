@@ -1,8 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace NotificationService.Domain.Models;
 
 /// <summary>
 /// Stored user notification
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class StoredNotification
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -14,3 +16,5 @@ public class StoredNotification
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Dictionary<string, object>? Data { get; set; }
 }
+
+

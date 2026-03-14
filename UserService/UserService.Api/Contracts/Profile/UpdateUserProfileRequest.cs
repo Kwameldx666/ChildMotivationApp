@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace UserService.Api.Contracts.Profile;
+
+[ExcludeFromCodeCoverage]
 
 public class UpdateUserProfileRequest
 {
@@ -7,3 +10,5 @@ public class UpdateUserProfileRequest
     public string? Avatar { get; set; }
     public int? Age { get; set; }
 }
+
+

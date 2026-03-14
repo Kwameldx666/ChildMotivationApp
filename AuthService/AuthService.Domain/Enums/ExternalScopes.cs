@@ -1,7 +1,11 @@
-﻿namespace AuthService.Domain.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Domain.Enums;
+
+[ExcludeFromCodeCoverage]
 
 public static class ExternalScopes
 {
+    [ExcludeFromCodeCoverage]
     public static class Google
     {
         public const string Email = "email";
@@ -11,6 +15,8 @@ public static class ExternalScopes
         public static readonly IReadOnlyCollection<string> All = [Email, Profile, OpenId];
     }
 
+    [ExcludeFromCodeCoverage]
+
     public static class GitHub
     {
         public const string UserEmail = "user:email";
@@ -18,6 +24,8 @@ public static class ExternalScopes
 
         public static readonly IReadOnlyCollection<string> All = [UserEmail, ReadUser];
     }
+
+    [ExcludeFromCodeCoverage]
 
     public static class Discord
     {
@@ -27,3 +35,4 @@ public static class ExternalScopes
         public static readonly IReadOnlyCollection<string> All = [Identify, Email];
     }
 }
+

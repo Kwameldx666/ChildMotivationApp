@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace TaskService.Api.Contracts.Missions;
+
+[ExcludeFromCodeCoverage]
 
 public class UpdateMissionProgressRequest
 {
@@ -11,3 +14,5 @@ public class UpdateMissionProgressRequest
     [Range(1, 1000)]
     public int ProgressDelta { get; init; } = 1;
 }
+
+

@@ -1,7 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 using ShopService.Domain.Enums;
 
 namespace ShopService.Api.Contracts.Orders;
+
+[ExcludeFromCodeCoverage]
 
 public class UpdateOrderStatusRequest
 {
@@ -9,3 +12,6 @@ public class UpdateOrderStatusRequest
     [EnumDataType(typeof(OrderStatus), ErrorMessage = "Некорректный статус заказа")]
     public OrderStatus Status { get; init; }
 }
+
+
+

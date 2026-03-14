@@ -1,4 +1,7 @@
-﻿namespace AuthService.Application.Dto.User;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Application.Dto.User;
+
+[ExcludeFromCodeCoverage]
 
 public class PendingExternalUser
 {
@@ -7,3 +10,4 @@ public class PendingExternalUser
     public string Picture { get; set; } = string.Empty;
     public string Subject { get; set; } = string.Empty;
 }
+

@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace ShopService.Api.Contracts.Orders;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateOrderRequest
 {
@@ -14,6 +17,8 @@ public class CreateOrderRequest
     public List<CreateOrderItemRequest> Items { get; init; } = new();
 }
 
+[ExcludeFromCodeCoverage]
+
 public class CreateOrderItemRequest
 {
     [Required(ErrorMessage = "Необходимо указать ID товара")]
@@ -22,3 +27,6 @@ public class CreateOrderItemRequest
     [Range(1, 100, ErrorMessage = "Количество должно быть от 1 до 100")]
     public int Quantity { get; init; }
 }
+
+
+

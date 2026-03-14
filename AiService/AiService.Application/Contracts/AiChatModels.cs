@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace AiService.Application.Contracts;
+
+[ExcludeFromCodeCoverage]
 
 public sealed class AiChatRequest
 {
@@ -16,7 +19,11 @@ public sealed class AiChatRequest
     public IReadOnlyDictionary<string, string> Context { get; init; } = new Dictionary<string, string>();
 }
 
+[ExcludeFromCodeCoverage]
+
 public sealed record AiChatTurn(string Role, string Content, DateTimeOffset Timestamp);
+
+[ExcludeFromCodeCoverage]
 
 public sealed record AiChatResponse(
     string ConversationId,
@@ -24,3 +31,5 @@ public sealed record AiChatResponse(
     IReadOnlyCollection<string> FollowUpSuggestions,
     IReadOnlyCollection<AiAction> Actions,
     DateTimeOffset GeneratedAt);
+
+

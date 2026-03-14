@@ -1,7 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace AuthService.Domain.Entities;
+
+[ExcludeFromCodeCoverage]
 
 public class User : IdentityUser<Guid>
 {
@@ -16,3 +19,4 @@ public class User : IdentityUser<Guid>
     public string? LastName { get; set; }
     public bool MustChangePassword { get; set; }
 }
+

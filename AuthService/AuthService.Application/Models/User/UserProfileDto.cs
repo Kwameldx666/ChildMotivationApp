@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace AuthService.Application.Models.User;
+
+[ExcludeFromCodeCoverage]
 
 public record UserProfileDto(
     string Name,
@@ -6,3 +9,4 @@ public record UserProfileDto(
     string Avatar,
     string Role,
     int? Age);
+

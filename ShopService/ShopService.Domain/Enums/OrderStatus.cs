@@ -1,8 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
-
-namespace ShopService.Domain.Enums;
-
-[ExcludeFromCodeCoverage]
+﻿namespace ShopService.Domain.Enums;
 public enum OrderStatus
 {
     Pending = 0,          // Awaiting payment
@@ -13,3 +9,5 @@ public enum OrderStatus
     Completed = 5,        // Completed
     Cancelled = 6         // Cancelled
 }
+
+

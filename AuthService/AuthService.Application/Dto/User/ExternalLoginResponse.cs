@@ -1,7 +1,10 @@
-﻿using AuthService.Application.Models.Auth.Login;
+﻿using System.Diagnostics.CodeAnalysis;
+using AuthService.Application.Models.Auth.Login;
 using AuthService.Application.Models.User;
 
 namespace AuthService.Application.Dto.User;
+
+[ExcludeFromCodeCoverage]
 
 public class ExternalLoginResponse(
     string accessToken,
@@ -18,3 +21,4 @@ public class ExternalLoginResponse(
     public FamilyDto? Family { get; init; } = family;
     public bool MustChangePassword { get; init; } = mustChangePassword;
 }
+

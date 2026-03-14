@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace TaskService.Application.Dto.Comments;
+
+[ExcludeFromCodeCoverage]
 
 public record TaskCommentDto(
     Guid Id,
@@ -11,3 +14,5 @@ public record TaskCommentDto(
     DateTime? UpdatedAt,
     bool IsEdited
 );
+
+

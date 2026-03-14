@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace ShopService.Api.Contracts.Products;
+
+[ExcludeFromCodeCoverage]
 
 public class UpsertProductRequest
 {
@@ -19,3 +22,6 @@ public class UpsertProductRequest
 
     public bool IsActive { get; init; } = true;
 }
+
+
+

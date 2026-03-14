@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Shop;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateOrderItemRequest
 {
@@ -8,3 +11,4 @@ public class CreateOrderItemRequest
 
     [Range(1, 1000)] public int Quantity { get; init; }
 }
+

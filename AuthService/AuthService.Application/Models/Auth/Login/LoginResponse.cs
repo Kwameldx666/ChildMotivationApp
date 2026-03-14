@@ -1,4 +1,7 @@
-﻿namespace AuthService.Application.Models.Auth.Login;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Application.Models.Auth.Login;
+
+[ExcludeFromCodeCoverage]
 
 public class LoginResponse(
     string accessToken,
@@ -9,3 +12,4 @@ public class LoginResponse(
     public string RefreshToken { get; init; } = refreshToken;
     public string TokenType { get; init; } = tokenType;
 }
+

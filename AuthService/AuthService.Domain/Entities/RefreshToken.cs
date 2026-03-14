@@ -1,4 +1,7 @@
-﻿namespace AuthService.Domain.Entities;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Domain.Entities;
+
+[ExcludeFromCodeCoverage]
 
 public class RefreshToken
 {
@@ -8,3 +11,4 @@ public class RefreshToken
     public DateTime ExpiresOnUtc { get; set; }
     public User User { get; set; } = null!;
 }
+

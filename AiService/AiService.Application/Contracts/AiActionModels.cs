@@ -1,3 +1,4 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace AiService.Application.Contracts;
@@ -39,6 +40,7 @@ public enum AiActionType
 /// <summary>
 /// Action that AI suggests to perform
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record AiAction
 {
     /// <summary>Action type</summary>
@@ -66,6 +68,7 @@ public sealed record AiAction
 /// <summary>
 /// Payload for CreateTask action
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record CreateTaskPayload
 {
     public string Title { get; init; } = string.Empty;
@@ -80,6 +83,7 @@ public sealed record CreateTaskPayload
 /// <summary>
 /// Payload for CreateTasks action (batch creation)
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record CreateTasksPayload
 {
     public IReadOnlyCollection<CreateTaskPayload> Tasks { get; init; } = Array.Empty<CreateTaskPayload>();
@@ -88,6 +92,7 @@ public sealed record CreateTasksPayload
 /// <summary>
 /// Payload for CreateRewards action (batch creation)
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record CreateRewardPayload
 {
     public string Title { get; init; } = string.Empty;
@@ -100,6 +105,7 @@ public sealed record CreateRewardPayload
 /// <summary>
 /// Payload for CreateRewards action (batch creation)
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record CreateRewardsPayload
 {
     public IReadOnlyCollection<CreateRewardPayload> Rewards { get; init; } = Array.Empty<CreateRewardPayload>();
@@ -108,6 +114,7 @@ public sealed record CreateRewardsPayload
 /// <summary>
 /// Payload for Navigate action
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record NavigatePayload
 {
     public string Route { get; init; } = string.Empty;
@@ -117,7 +124,11 @@ public sealed record NavigatePayload
 /// <summary>
 /// Payload for SendFamilyMessage action
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed record SendFamilyMessagePayload
 {
     public string Message { get; init; } = string.Empty;
 }
+
+
+

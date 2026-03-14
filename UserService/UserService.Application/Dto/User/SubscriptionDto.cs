@@ -1,8 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace UserService.Application.Dto.User;
 
 /// <summary>
 /// DTO подписки пользователя
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record SubscriptionDto(
     string Tier,
     string Status,
@@ -19,3 +21,6 @@ public record SubscriptionDto(
     bool HasFamilySharing,
     bool HasOfflineMode,
     int? DaysRemaining);
+
+
+

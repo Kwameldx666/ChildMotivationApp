@@ -1,4 +1,7 @@
-﻿namespace AuthService.Domain.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Domain.Enums;
+
+[ExcludeFromCodeCoverage]
 
 public static class UserScopes
 {
@@ -12,3 +15,4 @@ public static class UserScopes
     public static readonly string[] ChildScopes = [UserWrite, UserRead, ShopRead];
     public static readonly string[] All = [UserWrite, UserRead, UserDelete, ShopAdmin, ShopRead, UserDelete];
 }
+

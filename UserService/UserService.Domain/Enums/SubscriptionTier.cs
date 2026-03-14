@@ -1,4 +1,4 @@
-namespace UserService.Domain.Enums;
+﻿namespace UserService.Domain.Enums;
 
 /// <summary>
 /// Premium subscription type
@@ -10,3 +10,7 @@ public enum SubscriptionTier
     Premium = 2,        // Premium - 99 lei/month
     Family = 3          // Family - 149 lei/month
 }
+
+
+
+

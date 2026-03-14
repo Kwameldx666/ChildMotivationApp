@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using AuthService.Domain.Entities;
 
 namespace UserService.Domain.Entities;
+
+[ExcludeFromCodeCoverage]
 
 public class FamilyMessage
 {
@@ -16,3 +19,5 @@ public class FamilyMessage
     // Navigation properties
     public User Sender { get; set; } = default!;
 }
+
+

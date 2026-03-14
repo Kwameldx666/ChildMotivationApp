@@ -1,4 +1,4 @@
-namespace UserService.Domain.Enums;
+﻿namespace UserService.Domain.Enums;
 
 /// <summary>
 /// Subscription status
@@ -10,3 +10,7 @@ public enum SubscriptionStatus
     Cancelled = 2,      // Cancelled
     PendingPayment = 3  // Pending payment
 }
+
+
+
+

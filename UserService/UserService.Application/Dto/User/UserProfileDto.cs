@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace UserService.Application.Dto.User;
+
+[ExcludeFromCodeCoverage]
 
 public record UserProfileDto(
     string Name,
@@ -6,3 +9,5 @@ public record UserProfileDto(
     string Avatar,
     string Role,
     int? Age);
+
+

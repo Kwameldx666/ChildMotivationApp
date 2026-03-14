@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Ai;
+
+[ExcludeFromCodeCoverage]
 
 public sealed class AiAnalyticsQuery
 {
@@ -12,3 +15,4 @@ public sealed class AiAnalyticsQuery
 
     [Range(1, 6)] public int? MaxInsights { get; init; }
 }
+

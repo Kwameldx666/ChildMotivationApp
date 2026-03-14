@@ -1,4 +1,7 @@
-﻿namespace AuthService.Domain.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+namespace AuthService.Domain.Enums;
+
+[ExcludeFromCodeCoverage]
 
 public static class UserRoles
 {
@@ -7,3 +10,4 @@ public static class UserRoles
 
     public static readonly string[] All = [Parent, Child];
 }
+

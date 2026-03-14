@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
 namespace AiService.Application.Contracts;
+
+[ExcludeFromCodeCoverage]
 
 public class TaskDescriptionRequest
 {
@@ -11,3 +14,4 @@ public class TaskDescriptionRequest
     [StringLength(16)]
     public string Language { get; init; } = string.Empty;
 }
+

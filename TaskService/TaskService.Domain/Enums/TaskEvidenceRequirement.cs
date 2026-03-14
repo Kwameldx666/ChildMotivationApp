@@ -1,5 +1,4 @@
-namespace TaskService.Domain.Enums;
-
+﻿namespace TaskService.Domain.Enums;
 public enum TaskEvidenceRequirement
 {
     None = 0,
@@ -7,3 +6,7 @@ public enum TaskEvidenceRequirement
     Video = 2,
     Document = 3,
 }
+
+
+
+

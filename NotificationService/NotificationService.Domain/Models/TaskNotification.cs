@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace NotificationService.Domain.Models;
+
+[ExcludeFromCodeCoverage]
 
 public class TaskNotification
 {
@@ -12,3 +15,5 @@ public class TaskNotification
     public string Priority { get; set; } = "Medium";
     public string Status { get; set; } = "Pending";
 }
+
+

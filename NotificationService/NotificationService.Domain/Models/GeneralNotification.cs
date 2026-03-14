@@ -1,4 +1,7 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace NotificationService.Domain.Models;
+
+[ExcludeFromCodeCoverage]
 
 public class GeneralNotification
 {
@@ -9,3 +12,5 @@ public class GeneralNotification
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public Dictionary<string, object>? Data { get; set; }
 }
+
+

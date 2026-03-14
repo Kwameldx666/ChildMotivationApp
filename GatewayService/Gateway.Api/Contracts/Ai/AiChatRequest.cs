@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Ai;
+
+[ExcludeFromCodeCoverage]
 
 public sealed class AiChatRequest
 {
@@ -12,3 +15,4 @@ public sealed class AiChatRequest
 
     public IReadOnlyDictionary<string, string> Context { get; init; } = new Dictionary<string, string>();
 }
+

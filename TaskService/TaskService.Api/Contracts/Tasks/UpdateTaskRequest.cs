@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace TaskService.Api.Contracts.Tasks;
+
+[ExcludeFromCodeCoverage]
 
 public class UpdateTaskRequest
 {
@@ -18,3 +21,5 @@ public class UpdateTaskRequest
     [StringLength(16)]
     public string? ConfirmationType { get; init; }
 }
+
+

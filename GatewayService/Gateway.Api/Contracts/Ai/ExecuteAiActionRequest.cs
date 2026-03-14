@@ -1,8 +1,10 @@
+﻿using System.Diagnostics.CodeAnalysis;
 namespace Gateway.Contracts.Ai;
 
 /// <summary>
 ///     Request to execute an AI-suggested action
 /// </summary>
+[ExcludeFromCodeCoverage]
 public sealed class ExecuteAiActionRequest
 {
     /// <summary>The action to execute</summary>
@@ -17,3 +19,4 @@ public sealed class ExecuteAiActionRequest
     /// <summary>Preferred language (e.g. "ru", "en"). Defaults to Russian.</summary>
     public string? Language { get; init; }
 }
+

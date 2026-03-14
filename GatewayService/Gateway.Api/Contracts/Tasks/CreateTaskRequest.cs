@@ -1,6 +1,9 @@
+﻿using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Tasks;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateTaskRequest
 {
@@ -14,3 +17,4 @@ public class CreateTaskRequest
 
     [StringLength(16)] public string? ConfirmationType { get; init; }
 }
+

@@ -1,5 +1,4 @@
 ﻿namespace Gateway.Contracts.Shop;
-
 public enum GatewayOrderStatus
 {
     Pending = 0,
@@ -8,3 +7,6 @@ public enum GatewayOrderStatus
     Completed = 3,
     Cancelled = 4
 }
+
+
+

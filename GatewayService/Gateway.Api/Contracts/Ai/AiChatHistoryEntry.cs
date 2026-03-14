@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Contracts.Ai;
+
+[ExcludeFromCodeCoverage]
 
 public sealed class AiChatHistoryEntry
 {
@@ -10,3 +13,4 @@ public sealed class AiChatHistoryEntry
 
     public DateTimeOffset? Timestamp { get; init; }
 }
+
