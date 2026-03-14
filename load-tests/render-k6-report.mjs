@@ -4,7 +4,22 @@ const inputPath = process.argv[2] ?? "load-tests/summary.json";
 const outputPath = process.argv[3] ?? "load-tests/k6-report.html";
 
 function metricValue(metric, key) {
-  return metric?.values?.[key] ?? 0;
+  if (!metric) {
+    return 0;
+  }
+
+  // k6 summary-export can be either:
+  // 1) { metrics: { m: { values: { avg, p(95), ... } } } }
+  // 2) { metrics: { m: { avg, p(95), ... } } }
+  if (metric.values && Object.prototype.hasOwnProperty.call(metric.values, key)) {
+    return metric.values[key];
+  }
+
+  if (Object.prototype.hasOwnProperty.call(metric, key)) {
+    return metric[key];
+  }
+
+  return 0;
 }
 
 function toFixedSafe(value, digits = 2) {
@@ -27,6 +42,62 @@ const failed = metrics.http_req_failed ?? {};
 const totalChecks = Number(metricValue(checks, "passes")) + Number(metricValue(checks, "fails"));
 const passRate = totalChecks > 0 ? (Number(metricValue(checks, "passes")) / totalChecks) * 100 : 0;
 
+function getFailedRate(metric) {
+  const rate = metricValue(metric, "rate");
+  if (Number.isFinite(Number(rate)) && Number(rate) > 0) {
+    return Number(rate);
+  }
+
+  const value = metricValue(metric, "value");
+  if (Number.isFinite(Number(value))) {
+    return Number(value);
+  }
+
+  const passes = Number(metricValue(metric, "passes"));
+  const fails = Number(metricValue(metric, "fails"));
+  const total = passes + fails;
+  if (total > 0) {
+    return fails / total;
+  }
+
+  return 0;
+}
+
+const failedRate = getFailedRate(failed);
+
+function evaluateThreshold(metricName, thresholdExpr) {
+  const match = /^(avg|min|max|med|rate|value|count|p\((\d+(?:\.\d+)?)\))\s*(<=|>=|<|>)\s*(-?\d+(?:\.\d+)?)$/.exec(
+    thresholdExpr
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const lhsKey = match[1];
+  const op = match[3];
+  const rhs = Number(match[4]);
+  const metric = metrics[metricName];
+  const lhs = Number(metricValue(metric, lhsKey));
+
+  if (!Number.isFinite(lhs)) {
+    return null;
+  }
+
+  switch (op) {
+    case "<":
+      return lhs < rhs;
+    case "<=":
+      return lhs <= rhs;
+    case ">":
+      return lhs > rhs;
+    case ">=":
+      return lhs >= rhs;
+    default:
+      return null;
+  }
+}
+
 const thresholds = [];
 for (const [name, metric] of Object.entries(metrics)) {
   if (!metric?.thresholds) {
@@ -34,10 +105,16 @@ for (const [name, metric] of Object.entries(metrics)) {
   }
 
   for (const [thresholdName, thresholdResult] of Object.entries(metric.thresholds)) {
+    const derivedOk = evaluateThreshold(name, thresholdName);
+    const rawOk =
+      typeof thresholdResult === "boolean"
+        ? thresholdResult
+        : Boolean(thresholdResult?.ok);
+
     thresholds.push({
       metric: name,
       threshold: thresholdName,
-      ok: Boolean(thresholdResult?.ok)
+      ok: derivedOk ?? rawOk
     });
   }
 }
@@ -122,7 +199,7 @@ const html = `<!doctype html>
     <div class="card"><div class="label">Req/s</div><div class="value">${toFixedSafe(metricValue(reqs, "rate"), 2)}</div></div>
     <div class="card"><div class="label">Avg Duration (ms)</div><div class="value">${toFixedSafe(metricValue(duration, "avg"), 2)}</div></div>
     <div class="card"><div class="label">p95 Duration (ms)</div><div class="value">${toFixedSafe(metricValue(duration, "p(95)"), 2)}</div></div>
-    <div class="card"><div class="label">Failed Requests (%)</div><div class="value">${toFixedSafe(Number(metricValue(failed, "rate")) * 100, 2)}</div></div>
+    <div class="card"><div class="label">Failed Requests (%)</div><div class="value">${toFixedSafe(failedRate * 100, 2)}</div></div>
     <div class="card"><div class="label">Checks Pass Rate (%)</div><div class="value">${toFixedSafe(passRate, 2)}</div></div>
   </div>
 
