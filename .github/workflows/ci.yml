@@ -1,0 +1,185 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  backend-build:
+    name: Backend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore all backend projects
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj |
+            Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
+
+          foreach ($project in $projects) {
+            dotnet restore $project.FullName
+          }
+
+      - name: Build all backend projects
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj |
+            Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
+
+          foreach ($project in $projects) {
+            dotnet build $project.FullName -c Release --no-restore
+          }
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run unit tests with coverage
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
+            Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
+
+          foreach ($project in $projects) {
+            dotnet test $project.FullName -c Release --collect:"XPlat Code Coverage"
+          }
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run integration tests with coverage
+        run: >
+          dotnet test GatewayService/GatewayService.IntegrationTests/IntegrationTests.csproj
+          -c Release
+          --collect:"XPlat Code Coverage"
+
+  architecture-tests:
+    name: Repository Guard Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run repository guard tests
+        run: dotnet test RepositoryGuard.Tests/RepositoryGuard.Tests.csproj -c Release
+
+  frontend:
+    name: Frontend Lint Build and Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+  load-tests:
+    name: Load Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Start NotificationService
+        shell: bash
+        run: |
+          dotnet run --project NotificationService/NotificationService.Api/NotificationService.Api.csproj --urls http://localhost:8085 > notification.log 2>&1 &
+          echo $! > notification.pid
+
+          for i in {1..40}; do
+            if curl -sf http://localhost:8085/notification-service/health > /dev/null; then
+              echo "NotificationService is up"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Service did not start in time"
+          cat notification.log || true
+          exit 1
+
+      - name: Run k6 load test
+        run: k6 run load-tests/health-smoke.js
+
+      - name: Stop NotificationService
+        if: always()
+        shell: bash
+        run: |
+          if [ -f notification.pid ]; then
+            kill $(cat notification.pid) || true
+          fi
+
+      - name: Upload service logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-service-logs
+          path: notification.log

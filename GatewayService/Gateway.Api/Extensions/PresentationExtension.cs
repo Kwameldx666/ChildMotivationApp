@@ -5,7 +5,9 @@ using Gateway.Infrastructure.Handlers;
 using Gateway.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
+using System.IO.Compression;
 
 namespace Gateway.Extensions;
 
@@ -25,9 +27,34 @@ internal static class PresentationExtension
         services.AddEndpointsApiExplorer();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddMemoryCache();
+        services.AddGatewayResponseCompression();
         services.AddPolicies();
         services.AddCorsPolicy(configuration);
         services.AddSwaggerGenWithAuth();
+    }
+
+    private static void AddGatewayResponseCompression(this IServiceCollection services)
+    {
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat([
+                "application/json",
+                "application/problem+json"
+            ]);
+        });
+
+        services.Configure<BrotliCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
+
+        services.Configure<GzipCompressionProviderOptions>(options =>
+        {
+            options.Level = CompressionLevel.Fastest;
+        });
     }
 
     private static void AddSwaggerGenWithAuth(this IServiceCollection services)

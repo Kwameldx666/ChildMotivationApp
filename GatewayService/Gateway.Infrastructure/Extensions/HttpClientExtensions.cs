@@ -18,6 +18,6 @@ public static class HttpClientExtensions
 
         if (body is not null) request.Content = JsonContent.Create(body, options: options);
 
-        return await httpClient.SendAsync(request, cancellationToken);
+        return await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 }

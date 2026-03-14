@@ -22,7 +22,11 @@ public static class PersistenceExtensions
         if (string.IsNullOrWhiteSpace(conn))
             throw new InvalidOperationException("Database connection string for TaskService is not configured (ConnectionStrings:TaskService or DefaultConnection)");
 
-        services.AddDbContext<TaskDbContext>(options => options.UseNpgsql(conn));
+        services.AddDbContextPool<TaskDbContext>(options => options.UseNpgsql(conn, npgsql =>
+        {
+            npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+            npgsql.CommandTimeout(15);
+        }));
 
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<ITaskCommentRepository, TaskCommentRepository>();

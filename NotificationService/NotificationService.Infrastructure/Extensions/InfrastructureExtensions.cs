@@ -15,8 +15,12 @@ public static class InfrastructureExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            services.AddDbContext<NotificationDbContext>(options =>
-                options.UseNpgsql(connectionString));
+            services.AddDbContextPool<NotificationDbContext>(options =>
+                options.UseNpgsql(connectionString, npgsql =>
+                {
+                    npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+                    npgsql.CommandTimeout(15);
+                }));
 
             // Register DB-backed notification storage
             services.AddScoped<INotificationStorageService, PostgresNotificationStorageService>();

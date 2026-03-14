@@ -8,6 +8,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseResponseCompression();
+
 // Serve static files (avatars, etc.)
 app.UseStaticFiles();
 

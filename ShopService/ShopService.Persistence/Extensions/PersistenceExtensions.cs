@@ -15,7 +15,11 @@ public static class PersistenceExtensions
         if (string.IsNullOrWhiteSpace(conn))
             throw new InvalidOperationException("ConnectionStrings:ShopService (or DefaultConnection) is required for ShopService");
 
-        services.AddDbContext<ShopDbContext>(options => options.UseNpgsql(conn));
+        services.AddDbContextPool<ShopDbContext>(options => options.UseNpgsql(conn, npgsql =>
+        {
+            npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+            npgsql.CommandTimeout(15);
+        }));
         services.AddMemoryCache();
         services.AddScoped<IProductStore, EfProductStore>();
         services.AddScoped<IOrderStore, EfOrderStore>();

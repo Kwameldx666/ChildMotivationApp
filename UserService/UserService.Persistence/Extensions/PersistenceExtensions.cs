@@ -14,9 +14,13 @@ public static class PersistenceExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        services.AddDbContext<UserDbContext>(options =>
+        services.AddDbContextPool<UserDbContext>(options =>
         {
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(connectionString, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+                npgsql.CommandTimeout(15);
+            });
         });
 
         // Repositories
