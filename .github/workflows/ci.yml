@@ -54,6 +54,8 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    env:
+      MIN_LINE_COVERAGE: 80
 
     steps:
       - name: Checkout
@@ -78,12 +80,22 @@ jobs:
             $outDir = Join-Path "artifacts/unit-tests" $suite
             New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-            dotnet test $project.FullName -c Release --collect:"XPlat Code Coverage" --results-directory $outDir --logger "trx;LogFileName=results.trx"
+            $coverageFile = Join-Path $outDir "coverage.xml"
+
+            dotnet test $project.FullName -c Release --results-directory $outDir --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
 
             $trxPath = Get-ChildItem -Path $outDir -Filter *.trx -Recurse | Select-Object -First 1
             if ($null -eq $trxPath) {
               throw "TRX result not found for $suite"
             }
+
+            if (-not (Test-Path $coverageFile)) {
+              throw "Coverage file not found for $suite"
+            }
+
+            [xml]$coverage = Get-Content $coverageFile
+            $lineRate = [double]$coverage.coverage.'line-rate'
+            $lineCoveragePercent = [Math]::Round($lineRate * 100, 2)
 
             [xml]$doc = Get-Content $trxPath.FullName
             $counters = $doc.TestRun.ResultSummary.Counters
@@ -94,10 +106,18 @@ jobs:
               passed = [int]$counters.passed
               failed = [int]$counters.failed
               skipped = [int]$counters.notExecuted
+              lineCoverage = $lineCoveragePercent
             }
           }
 
           $summary | ConvertTo-Json | Out-File artifacts/unit-tests/summary.json -Encoding utf8
+
+          "### Unit Coverage (Line %)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          "| Suite | Tests | Passed | Failed | Line Coverage |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          "|---|---:|---:|---:|---:|" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          foreach ($row in $summary) {
+            "| $($row.suite) | $($row.total) | $($row.passed) | $($row.failed) | $($row.lineCoverage)% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          }
 
       - name: Upload unit test artifacts
         if: always()
