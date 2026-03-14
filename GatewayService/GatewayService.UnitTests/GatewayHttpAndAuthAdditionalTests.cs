@@ -61,7 +61,10 @@ public sealed class GatewayHttpAndAuthAdditionalTests
     public async Task SendHttpRequestAsync_ShouldNotAttachContent_WhenBodyIsNull()
     {
         var handler = new CaptureHttpMessageHandler();
-        using var client = new HttpClient(handler);
+        using var client = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("http://localhost")
+        };
 
         await client.SendHttpRequestAsync<object>(HttpMethod.Get, "/ping", null, cancellationToken: CancellationToken.None);
 
@@ -81,7 +84,8 @@ public sealed class GatewayHttpAndAuthAdditionalTests
         var body = new DummyRequest("hello", 42);
         await client.SendHttpRequestAsync(HttpMethod.Post, "/echo", body, new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
-        var json = await handler.LastRequest!.Content!.ReadAsStringAsync();
+        var json = handler.CapturedContent;
+        Assert.NotNull(json);
         Assert.Contains("hello", json, StringComparison.Ordinal);
         Assert.Contains("42", json, StringComparison.Ordinal);
         Assert.Equal(HttpMethod.Post, handler.LastRequest.Method);
@@ -92,10 +96,14 @@ public sealed class GatewayHttpAndAuthAdditionalTests
     private sealed class CaptureHttpMessageHandler : HttpMessageHandler
     {
         public HttpRequestMessage? LastRequest { get; private set; }
+        public string? CapturedContent { get; private set; }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             LastRequest = request;
+            CapturedContent = request.Content is null
+                ? null
+                : request.Content.ReadAsStringAsync(cancellationToken).GetAwaiter().GetResult();
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         }
     }
