@@ -72,22 +72,24 @@ jobs:
           New-Item -ItemType Directory -Force -Path artifacts/unit-tests | Out-Null
 
           $summary = @()
+          $repoRoot = (Get-Location).Path
           $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
             Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
 
           foreach ($project in $projects) {
             $suite = [System.IO.Path]::GetFileNameWithoutExtension($project.Name)
             $outDir = Join-Path "artifacts/unit-tests" $suite
-            New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+            $outDirAbs = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $outDir))
+            New-Item -ItemType Directory -Force -Path $outDirAbs | Out-Null
 
-            $coverageFile = Join-Path $outDir "coverage.xml"
+            $coverageFile = [System.IO.Path]::GetFullPath((Join-Path $outDirAbs "coverage.xml"))
 
-            dotnet test $project.FullName -c Release --results-directory $outDir --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
+            dotnet test $project.FullName -c Release --results-directory $outDirAbs --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
             if ($LASTEXITCODE -ne 0) {
               throw "dotnet test failed for $suite (exit code $LASTEXITCODE). Check test output above for the primary failure reason."
             }
 
-            $trxPath = Get-ChildItem -Path $outDir -Filter *.trx -Recurse | Select-Object -First 1
+            $trxPath = Get-ChildItem -Path $outDirAbs -Filter *.trx -Recurse | Select-Object -First 1
             if ($null -eq $trxPath) {
               throw "TRX result not found for $suite"
             }
