@@ -25,3 +25,14 @@ The generated report includes:
 - duration metrics (avg, p95, max)
 - checks pass/fail chart
 - threshold status
+
+## CI artifacts dashboard
+
+CI now publishes a combined visual dashboard artifact:
+- Artifact name: `ci-quality-dashboard`
+- Main file: `artifacts/ci-dashboard.html`
+
+The dashboard includes:
+- unit/integration/architecture test pass-fail diagrams
+- frontend lint and test snapshot
+- load test metrics snapshot (requests, req/s, avg/p95, checks)

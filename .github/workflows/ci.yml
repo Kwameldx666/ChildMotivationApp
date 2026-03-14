@@ -7,6 +7,10 @@ on:
       - main
       - master
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend-build:
     name: Backend Build
@@ -41,6 +45,12 @@ jobs:
             dotnet build $project.FullName -c Release --no-restore
           }
 
+      - name: Upload backend build marker
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-marker
+          path: README.md
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -57,12 +67,44 @@ jobs:
       - name: Run unit tests with coverage
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force -Path artifacts/unit-tests | Out-Null
+
+          $summary = @()
           $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
             Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
 
           foreach ($project in $projects) {
-            dotnet test $project.FullName -c Release --collect:"XPlat Code Coverage"
+            $suite = [System.IO.Path]::GetFileNameWithoutExtension($project.Name)
+            $outDir = Join-Path "artifacts/unit-tests" $suite
+            New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+            dotnet test $project.FullName -c Release --collect:"XPlat Code Coverage" --results-directory $outDir --logger "trx;LogFileName=results.trx"
+
+            $trxPath = Get-ChildItem -Path $outDir -Filter *.trx -Recurse | Select-Object -First 1
+            if ($null -eq $trxPath) {
+              throw "TRX result not found for $suite"
+            }
+
+            [xml]$doc = Get-Content $trxPath.FullName
+            $counters = $doc.TestRun.ResultSummary.Counters
+
+            $summary += [pscustomobject]@{
+              suite = $suite
+              total = [int]$counters.total
+              passed = [int]$counters.passed
+              failed = [int]$counters.failed
+              skipped = [int]$counters.notExecuted
+            }
           }
+
+          $summary | ConvertTo-Json | Out-File artifacts/unit-tests/summary.json -Encoding utf8
+
+      - name: Upload unit test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-artifacts
+          path: artifacts/unit-tests
 
   integration-tests:
     name: Integration Tests
@@ -78,10 +120,36 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Run integration tests with coverage
-        run: >
-          dotnet test GatewayService/GatewayService.IntegrationTests/IntegrationTests.csproj
-          -c Release
-          --collect:"XPlat Code Coverage"
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/integration-tests/main | Out-Null
+
+          dotnet test GatewayService/GatewayService.IntegrationTests/IntegrationTests.csproj -c Release --collect:"XPlat Code Coverage" --results-directory artifacts/integration-tests/main --logger "trx;LogFileName=results.trx"
+
+          $trxPath = Get-ChildItem -Path artifacts/integration-tests/main -Filter *.trx -Recurse | Select-Object -First 1
+          if ($null -eq $trxPath) {
+            throw "TRX result not found for integration tests"
+          }
+
+          [xml]$doc = Get-Content $trxPath.FullName
+          $counters = $doc.TestRun.ResultSummary.Counters
+
+          @(
+            [pscustomobject]@{
+              suite = "GatewayService.IntegrationTests"
+              total = [int]$counters.total
+              passed = [int]$counters.passed
+              failed = [int]$counters.failed
+              skipped = [int]$counters.notExecuted
+            }
+          ) | ConvertTo-Json | Out-File artifacts/integration-tests/summary.json -Encoding utf8
+
+      - name: Upload integration test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-tests-artifacts
+          path: artifacts/integration-tests
 
   architecture-tests:
     name: Repository Guard Tests
@@ -97,7 +165,36 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Run repository guard tests
-        run: dotnet test RepositoryGuard.Tests/RepositoryGuard.Tests.csproj -c Release
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/architecture-tests/main | Out-Null
+
+          dotnet test RepositoryGuard.Tests/RepositoryGuard.Tests.csproj -c Release --results-directory artifacts/architecture-tests/main --logger "trx;LogFileName=results.trx"
+
+          $trxPath = Get-ChildItem -Path artifacts/architecture-tests/main -Filter *.trx -Recurse | Select-Object -First 1
+          if ($null -eq $trxPath) {
+            throw "TRX result not found for architecture tests"
+          }
+
+          [xml]$doc = Get-Content $trxPath.FullName
+          $counters = $doc.TestRun.ResultSummary.Counters
+
+          @(
+            [pscustomobject]@{
+              suite = "RepositoryGuard.Tests"
+              total = [int]$counters.total
+              passed = [int]$counters.passed
+              failed = [int]$counters.failed
+              skipped = [int]$counters.notExecuted
+            }
+          ) | ConvertTo-Json | Out-File artifacts/architecture-tests/summary.json -Encoding utf8
+
+      - name: Upload architecture test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-tests-artifacts
+          path: artifacts/architecture-tests
 
   frontend:
     name: Frontend Lint Build and Tests
@@ -123,14 +220,28 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Prepare frontend artifacts folder
+        run: mkdir -p ../artifacts/frontend
+
       - name: Lint
-        run: pnpm run lint
+        run: pnpm exec eslint . -f json -o ../artifacts/frontend/eslint-report.json
 
       - name: Test
-        run: pnpm run test
+        run: node --test --test-reporter=json --test-reporter-destination ../artifacts/frontend/node-test-report.json ./test/**/*.test.mjs
 
       - name: Build
         run: pnpm run build
+
+      - name: Build frontend summary
+        run: |
+          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('../artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('../artifacts/frontend/node-test-report.json') ? 1 : 0; fs.writeFileSync('../artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
+
+      - name: Upload frontend artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifacts
+          path: artifacts/frontend
 
   load-tests:
     name: Load Tests
@@ -200,3 +311,65 @@ jobs:
           path: |
             load-tests/summary.json
             load-tests/k6-report.html
+
+  quality-dashboard:
+    name: Quality Dashboard
+    runs-on: ubuntu-latest
+    needs:
+      - backend-build
+      - unit-tests
+      - integration-tests
+      - architecture-tests
+      - frontend
+      - load-tests
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download unit test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-tests-artifacts
+          path: artifacts/unit-tests
+
+      - name: Download integration test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-tests-artifacts
+          path: artifacts/integration-tests
+
+      - name: Download architecture test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: architecture-tests-artifacts
+          path: artifacts/architecture-tests
+
+      - name: Download frontend artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-artifacts
+          path: artifacts/frontend
+
+      - name: Download load test report
+        uses: actions/download-artifact@v4
+        with:
+          name: load-test-report
+          path: artifacts/load-tests
+
+      - name: Build CI dashboard
+        run: node load-tests/render-ci-dashboard.mjs artifacts artifacts/ci-dashboard.html
+
+      - name: Upload CI dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-quality-dashboard
+          path: |
+            artifacts/ci-dashboard.html
+            artifacts/**/summary.json
