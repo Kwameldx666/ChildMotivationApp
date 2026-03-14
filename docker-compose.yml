@@ -343,6 +343,7 @@ services:
     environment:
       K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
       BASE_URL: http://gateway-service:8081
+      HEALTH_PATH: /notification-service/health
     volumes:
       - ./load-tests:/scripts:ro
     command: ["run", "-o", "experimental-prometheus-rw", "/scripts/health-smoke.js"]

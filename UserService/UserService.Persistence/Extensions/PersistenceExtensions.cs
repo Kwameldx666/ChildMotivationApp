@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Application.Interfaces;
@@ -14,13 +15,16 @@ public static class PersistenceExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        services.AddDbContextPool<UserDbContext>(options =>
+        services.AddDbContext<UserDbContext>(options =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
                 npgsql.CommandTimeout(15);
             });
+
+            // Keep model-change warning suppressed for local migration workflow.
+            options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 
         // Repositories

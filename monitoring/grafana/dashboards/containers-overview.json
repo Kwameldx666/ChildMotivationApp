@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -56,7 +56,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "prometheus-main"
           },
           "editorMode": "code",
           "expr": "sum by (container_label_com_docker_compose_service) (rate(container_cpu_usage_seconds_total{container_label_com_docker_compose_service!\"\",container_label_com_docker_compose_service!~\"cadvisor|prometheus|grafana\"}[5m]))",
@@ -71,7 +71,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -102,7 +102,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "prometheus-main"
           },
           "editorMode": "code",
           "expr": "sum by (container_label_com_docker_compose_service) (container_memory_working_set_bytes{container_label_com_docker_compose_service!\"\",container_label_com_docker_compose_service!~\"cadvisor|prometheus|grafana\"})",
@@ -117,7 +117,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -148,7 +148,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "prometheus-main"
           },
           "editorMode": "code",
           "expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_receive_bytes_total{container_label_com_docker_compose_service!\"\",container_label_com_docker_compose_service!~\"cadvisor|prometheus|grafana\"}[5m]))",
@@ -159,7 +159,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "prometheus-main"
           },
           "editorMode": "code",
           "expr": "sum by (container_label_com_docker_compose_service) (rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service!\"\",container_label_com_docker_compose_service!~\"cadvisor|prometheus|grafana\"}[5m]))",
@@ -174,7 +174,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {},
@@ -203,7 +203,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "prometheus-main"
           },
           "editorMode": "code",
           "expr": "up",
@@ -237,3 +237,5 @@
   "version": 1,
   "weekStart": ""
 }
+
+

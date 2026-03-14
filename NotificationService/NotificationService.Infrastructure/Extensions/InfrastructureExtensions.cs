@@ -15,7 +15,7 @@ public static class InfrastructureExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            services.AddDbContextPool<NotificationDbContext>(options =>
+            services.AddDbContext<NotificationDbContext>(options =>
                 options.UseNpgsql(connectionString, npgsql =>
                 {
                     npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);

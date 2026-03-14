@@ -22,7 +22,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -50,18 +50,18 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(k6_http_reqs_total[1m]))",
-          "legendFormat": "requests/s",
+          "expr": "sum by (service) (rate(k6_http_reqs_total{test_type=\"sequential_service_phases\"}[$__rate_interval]))",
+          "legendFormat": "{{service}}",
           "refId": "A"
         }
       ],
-      "title": "Request Rate (RPS)",
+      "title": "Request Rate (RPS) by Service (Phased)",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -105,7 +105,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -144,7 +144,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "prometheus-main"
       },
       "fieldConfig": {
         "defaults": {
@@ -179,6 +179,45 @@
       ],
       "title": "Stability / Active Virtual Users",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-main"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (service) (rate(k6_http_reqs_total{test_type=\"concurrent_business_operations\"}[$__rate_interval]))",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate (RPS) by Service (Concurrent Business Ops)",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",
@@ -201,3 +240,4 @@
   "uid": "childmotivation-k6",
   "version": 1
 }
+

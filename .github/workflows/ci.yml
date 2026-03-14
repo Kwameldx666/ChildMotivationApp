@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   pull_request:
@@ -6,14 +6,19 @@ on:
     branches:
       - main
       - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-cd-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  backend-build:
-    name: Backend Build
+  ci-cd:
+    name: CI and CD
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +30,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore all backend projects
+      - name: Restore and build backend projects
         shell: pwsh
         run: |
           $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj |
@@ -33,36 +38,8 @@ jobs:
 
           foreach ($project in $projects) {
             dotnet restore $project.FullName
-          }
-
-      - name: Build all backend projects
-        shell: pwsh
-        run: |
-          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj |
-            Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
-
-          foreach ($project in $projects) {
             dotnet build $project.FullName -c Release --no-restore
           }
-
-      - name: Upload backend build marker
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build-marker
-          path: README.md
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
 
       - name: Run unit tests with coverage
         shell: pwsh
@@ -90,7 +67,7 @@ jobs:
 
             & dotnet @dotnetArgs
             if ($LASTEXITCODE -ne 0) {
-              throw "dotnet test failed for $suite (exit code $LASTEXITCODE). Check test output above for the primary failure reason."
+              throw "dotnet test failed for $suite (exit code $LASTEXITCODE)."
             }
 
             $trxPath = Get-ChildItem -Path $outDirAbs -Filter *.trx -Recurse | Select-Object -First 1
@@ -111,33 +88,6 @@ jobs:
           }
 
           $summary | ConvertTo-Json | Out-File artifacts/unit-tests/summary.json -Encoding utf8
-
-          "### Unit Test Results" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          "| Suite | Tests | Passed | Failed | Skipped |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          "|---|---:|---:|---:|---:|" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          foreach ($row in $summary) {
-            "| $($row.suite) | $($row.total) | $($row.passed) | $($row.failed) | $($row.skipped) |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          }
-
-      - name: Upload unit test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-tests-artifacts
-          path: artifacts/unit-tests
-
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
 
       - name: Run integration tests with coverage
         shell: pwsh
@@ -164,26 +114,6 @@ jobs:
             }
           ) | ConvertTo-Json | Out-File artifacts/integration-tests/summary.json -Encoding utf8
 
-      - name: Upload integration test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-tests-artifacts
-          path: artifacts/integration-tests
-
-  architecture-tests:
-    name: Repository Guard Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
       - name: Run repository guard tests
         shell: pwsh
         run: |
@@ -209,24 +139,6 @@ jobs:
             }
           ) | ConvertTo-Json | Out-File artifacts/architecture-tests/summary.json -Encoding utf8
 
-      - name: Upload architecture test artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: architecture-tests-artifacts
-          path: artifacts/architecture-tests
-
-  frontend:
-    name: Frontend Lint Build and Tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: Frontend
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -237,56 +149,27 @@ jobs:
         with:
           version: 10
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
+        working-directory: Frontend
         run: pnpm install --no-frozen-lockfile
 
-      - name: Prepare frontend artifacts folder
-        run: mkdir -p ../artifacts/frontend
-
-      - name: Lint
-        run: pnpm exec eslint . -f json -o ../artifacts/frontend/eslint-report.json
-
-      - name: Test
+      - name: Run frontend lint, tests and build
+        working-directory: Frontend
         run: |
+          mkdir -p ../artifacts/frontend
+          pnpm exec eslint . -f json -o ../artifacts/frontend/eslint-report.json
           node --test ./test/**/*.test.mjs > ../artifacts/frontend/node-test-output.txt
           echo "ok" > ../artifacts/frontend/node-test-passed.txt
-
-      - name: Build
-        run: pnpm run build
+          pnpm run build
 
       - name: Build frontend summary
         run: |
-          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('../artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('../artifacts/frontend/node-test-passed.txt') ? 1 : 0; fs.writeFileSync('../artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
-
-      - name: Upload frontend artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-artifacts
-          path: artifacts/frontend
-
-  load-tests:
-    name: Load Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
+          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('artifacts/frontend/node-test-passed.txt') ? 1 : 0; fs.writeFileSync('artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
 
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Start NotificationService
+      - name: Start NotificationService for load test
         shell: bash
         run: |
           dotnet run --project NotificationService/NotificationService.Api/NotificationService.Api.csproj --urls http://localhost:8085 > notification.log 2>&1 &
@@ -318,80 +201,77 @@ jobs:
             kill $(cat notification.pid) || true
           fi
 
-      - name: Upload service logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: load-test-service-logs
-          path: notification.log
-
-      - name: Upload load test report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: load-test-report
-          path: |
-            load-tests/summary.json
-            load-tests/k6-report.html
-
-  quality-dashboard:
-    name: Quality Dashboard
-    runs-on: ubuntu-latest
-    needs:
-      - backend-build
-      - unit-tests
-      - integration-tests
-      - architecture-tests
-      - frontend
-      - load-tests
-    if: always()
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Download unit test artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: unit-tests-artifacts
-          path: artifacts/unit-tests
-
-      - name: Download integration test artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: integration-tests-artifacts
-          path: artifacts/integration-tests
-
-      - name: Download architecture test artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: architecture-tests-artifacts
-          path: artifacts/architecture-tests
-
-      - name: Download frontend artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-artifacts
-          path: artifacts/frontend
-
-      - name: Download load test report
-        uses: actions/download-artifact@v4
-        with:
-          name: load-test-report
-          path: artifacts/load-tests
-
       - name: Build CI dashboard
+        if: always()
         run: node load-tests/render-ci-dashboard.mjs artifacts artifacts/ci-dashboard.html
 
-      - name: Upload CI dashboard
+      - name: Upload quality artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ci-quality-dashboard
           path: |
             artifacts/ci-dashboard.html
             artifacts/**/summary.json
+            artifacts/frontend/eslint-report.json
+            artifacts/frontend/node-test-output.txt
+            load-tests/summary.json
+            load-tests/k6-report.html
+            notification.log
+
+      - name: Setup Docker Buildx
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          owner=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          sha_tag="sha-${GITHUB_SHA}"
+
+          services=(
+            "auth-service:AuthService/AuthService.Api/Dockerfile"
+            "user-service:UserService/UserService.Api/Dockerfile"
+            "task-service:TaskService/TaskService.Api/Dockerfile"
+            "shop-service:ShopService/ShopService.Api/Dockerfile"
+            "notification-service:NotificationService/NotificationService.Api/Dockerfile"
+            "ai-service:AiService/AiService.Api/Dockerfile"
+            "gateway-service:GatewayService/Gateway.Api/Dockerfile"
+            "frontend:Frontend/Dockerfile"
+          )
+
+          for entry in "${services[@]}"; do
+            name="${entry%%:*}"
+            dockerfile="${entry#*:}"
+            image="ghcr.io/${owner}/${name}"
+
+            tags=(-t "${image}:${sha_tag}")
+            if [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
+              tags+=(-t "${image}:latest")
+            fi
+
+            echo "Building ${name} using ${dockerfile}"
+            docker buildx build \
+              --file "${dockerfile}" \
+              --sbom=true \
+              --push \
+              "${tags[@]}" \
+              .
+
+            {
+              echo "### Published ${name}"
+              echo "- Dockerfile: ${dockerfile}"
+              echo "- Tags: ${image}:${sha_tag}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          done

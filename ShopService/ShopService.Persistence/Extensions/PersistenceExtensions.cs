@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ShopService.Infrastructure.Abstractions;
@@ -15,11 +16,17 @@ public static class PersistenceExtensions
         if (string.IsNullOrWhiteSpace(conn))
             throw new InvalidOperationException("ConnectionStrings:ShopService (or DefaultConnection) is required for ShopService");
 
-        services.AddDbContextPool<ShopDbContext>(options => options.UseNpgsql(conn, npgsql =>
+        services.AddDbContext<ShopDbContext>(options =>
         {
-            npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
-            npgsql.CommandTimeout(15);
-        }));
+            options.UseNpgsql(conn, npgsql =>
+            {
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+                npgsql.CommandTimeout(15);
+            });
+
+            // Keep model-change warning suppressed for local migration workflow.
+            options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+        });
         services.AddMemoryCache();
         services.AddScoped<IProductStore, EfProductStore>();
         services.AddScoped<IOrderStore, EfOrderStore>();

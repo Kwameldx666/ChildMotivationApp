@@ -25,7 +25,7 @@ public static class PersistenceExtensions
 
     private static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContextPool<AuthDbContext>(options =>
+        services.AddDbContext<AuthDbContext>(options =>
         {
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsql =>
             {
