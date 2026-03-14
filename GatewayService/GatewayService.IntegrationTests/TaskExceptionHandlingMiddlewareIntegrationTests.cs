@@ -3,7 +3,6 @@ using System.Text.Json;
 using Gateway.Exceptions;
 using Gateway.Middlewares;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +48,7 @@ public sealed class TaskExceptionHandlingMiddlewareIntegrationTests
                 webBuilder.ConfigureServices(services =>
                 {
                     services.AddLogging();
+                    services.AddProblemDetails();
                     services.AddExceptionHandler<GlobalExceptionHandler>();
                 });
                 webBuilder.Configure(app =>
