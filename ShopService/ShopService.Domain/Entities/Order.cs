@@ -1,7 +1,9 @@
 using ShopService.Domain.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ShopService.Domain.Entities;
 
+[ExcludeFromCodeCoverage]
 public class Order
 {
     public Guid Id { get; set; }

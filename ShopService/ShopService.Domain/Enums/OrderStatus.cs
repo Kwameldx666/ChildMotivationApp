@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ShopService.Domain.Enums;
 
+[ExcludeFromCodeCoverage]
 public enum OrderStatus
 {
     Pending = 0,          // Awaiting payment

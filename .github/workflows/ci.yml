@@ -83,6 +83,9 @@ jobs:
             $coverageFile = Join-Path $outDir "coverage.xml"
 
             dotnet test $project.FullName -c Release --results-directory $outDir --logger "trx;LogFileName=results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$coverageFile /p:Threshold=$env:MIN_LINE_COVERAGE /p:ThresholdType=line /p:ThresholdStat=total
+            if ($LASTEXITCODE -ne 0) {
+              throw "dotnet test failed for $suite (exit code $LASTEXITCODE). Check test output above for the primary failure reason."
+            }
 
             $trxPath = Get-ChildItem -Path $outDir -Filter *.trx -Recurse | Select-Object -First 1
             if ($null -eq $trxPath) {

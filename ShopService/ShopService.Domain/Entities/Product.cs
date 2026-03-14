@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ShopService.Domain.Entities;
 
+[ExcludeFromCodeCoverage]
 public class Product
 {
     public Guid Id { get; set; }

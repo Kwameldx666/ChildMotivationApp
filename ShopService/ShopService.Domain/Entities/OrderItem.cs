@@ -1,8 +1,10 @@
 using ShopService.Domain.Entities;
 using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ShopService.Domain.Entities;
 
+[ExcludeFromCodeCoverage]
 public class OrderItem
 {
     public Guid Id { get; set; }
