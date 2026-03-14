@@ -227,14 +227,16 @@ jobs:
         run: pnpm exec eslint . -f json -o ../artifacts/frontend/eslint-report.json
 
       - name: Test
-        run: node --test --test-reporter=json --test-reporter-destination ../artifacts/frontend/node-test-report.json ./test/**/*.test.mjs
+        run: |
+          node --test ./test/**/*.test.mjs > ../artifacts/frontend/node-test-output.txt
+          echo "ok" > ../artifacts/frontend/node-test-passed.txt
 
       - name: Build
         run: pnpm run build
 
       - name: Build frontend summary
         run: |
-          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('../artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('../artifacts/frontend/node-test-report.json') ? 1 : 0; fs.writeFileSync('../artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
+          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('../artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('../artifacts/frontend/node-test-passed.txt') ? 1 : 0; fs.writeFileSync('../artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
 
       - name: Upload frontend artifacts
         if: always()

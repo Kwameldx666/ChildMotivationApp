@@ -18,10 +18,22 @@ const architectureSummary = await readJson(`${inputDir}/architecture-tests/summa
 const frontendSummary = await readJson(`${inputDir}/frontend/summary.json`, null);
 const k6Summary = await readJson(`${inputDir}/load-tests/summary.json`, null);
 
+function asArray(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (value && typeof value === "object") {
+    return [value];
+  }
+
+  return [];
+}
+
 const testSuites = [
-  ...unitSummary,
-  ...integrationSummary,
-  ...architectureSummary
+  ...asArray(unitSummary),
+  ...asArray(integrationSummary),
+  ...asArray(architectureSummary)
 ].map((s) => ({
   suite: s.suite,
   total: Number(s.total ?? 0),
