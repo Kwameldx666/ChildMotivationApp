@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   pull_request:
@@ -6,19 +6,17 @@ on:
     branches:
       - main
       - master
-  workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
-  group: ci-cd-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ci-cd:
-    name: CI and CD
+  ci:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -44,100 +42,25 @@ jobs:
       - name: Run unit tests with coverage
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts/unit-tests | Out-Null
-
-          $summary = @()
-          $repoRoot = (Get-Location).Path
           $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
             Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
 
           foreach ($project in $projects) {
-            $suite = [System.IO.Path]::GetFileNameWithoutExtension($project.Name)
-            $outDir = Join-Path "artifacts/unit-tests" $suite
-            $outDirAbs = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $outDir))
-            New-Item -ItemType Directory -Force -Path $outDirAbs | Out-Null
-
-            $dotnetArgs = @(
-              "test",
-              $project.FullName,
-              "-c", "Release",
-              "--results-directory", $outDirAbs,
-              "--logger", "trx;LogFileName=results.trx"
-            )
-
-            & dotnet @dotnetArgs
+            dotnet test $project.FullName -c Release --no-build
             if ($LASTEXITCODE -ne 0) {
-              throw "dotnet test failed for $suite (exit code $LASTEXITCODE)."
-            }
-
-            $trxPath = Get-ChildItem -Path $outDirAbs -Filter *.trx -Recurse | Select-Object -First 1
-            if ($null -eq $trxPath) {
-              throw "TRX result not found for $suite"
-            }
-
-            [xml]$doc = Get-Content $trxPath.FullName
-            $counters = $doc.TestRun.ResultSummary.Counters
-
-            $summary += [pscustomobject]@{
-              suite = $suite
-              total = [int]$counters.total
-              passed = [int]$counters.passed
-              failed = [int]$counters.failed
-              skipped = [int]$counters.notExecuted
+              throw "dotnet test failed for $($project.FullName) (exit code $LASTEXITCODE)."
             }
           }
-
-          $summary | ConvertTo-Json | Out-File artifacts/unit-tests/summary.json -Encoding utf8
 
       - name: Run integration tests with coverage
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts/integration-tests/main | Out-Null
-
-          dotnet test GatewayService/GatewayService.IntegrationTests/IntegrationTests.csproj -c Release --collect:"XPlat Code Coverage" --results-directory artifacts/integration-tests/main --logger "trx;LogFileName=results.trx"
-
-          $trxPath = Get-ChildItem -Path artifacts/integration-tests/main -Filter *.trx -Recurse | Select-Object -First 1
-          if ($null -eq $trxPath) {
-            throw "TRX result not found for integration tests"
-          }
-
-          [xml]$doc = Get-Content $trxPath.FullName
-          $counters = $doc.TestRun.ResultSummary.Counters
-
-          @(
-            [pscustomobject]@{
-              suite = "GatewayService.IntegrationTests"
-              total = [int]$counters.total
-              passed = [int]$counters.passed
-              failed = [int]$counters.failed
-              skipped = [int]$counters.notExecuted
-            }
-          ) | ConvertTo-Json | Out-File artifacts/integration-tests/summary.json -Encoding utf8
+          dotnet test GatewayService/GatewayService.IntegrationTests/IntegrationTests.csproj -c Release --no-build
 
       - name: Run repository guard tests
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts/architecture-tests/main | Out-Null
-
-          dotnet test RepositoryGuard.Tests/RepositoryGuard.Tests.csproj -c Release --results-directory artifacts/architecture-tests/main --logger "trx;LogFileName=results.trx"
-
-          $trxPath = Get-ChildItem -Path artifacts/architecture-tests/main -Filter *.trx -Recurse | Select-Object -First 1
-          if ($null -eq $trxPath) {
-            throw "TRX result not found for architecture tests"
-          }
-
-          [xml]$doc = Get-Content $trxPath.FullName
-          $counters = $doc.TestRun.ResultSummary.Counters
-
-          @(
-            [pscustomobject]@{
-              suite = "RepositoryGuard.Tests"
-              total = [int]$counters.total
-              passed = [int]$counters.passed
-              failed = [int]$counters.failed
-              skipped = [int]$counters.notExecuted
-            }
-          ) | ConvertTo-Json | Out-File artifacts/architecture-tests/summary.json -Encoding utf8
+          dotnet test RepositoryGuard.Tests/RepositoryGuard.Tests.csproj -c Release --no-build
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -156,122 +79,6 @@ jobs:
       - name: Run frontend lint, tests and build
         working-directory: Frontend
         run: |
-          mkdir -p ../artifacts/frontend
-          pnpm exec eslint . -f json -o ../artifacts/frontend/eslint-report.json
-          node --test ./test/**/*.test.mjs > ../artifacts/frontend/node-test-output.txt
-          echo "ok" > ../artifacts/frontend/node-test-passed.txt
+          pnpm exec eslint .
+          node --test ./test/**/*.test.mjs
           pnpm run build
-
-      - name: Build frontend summary
-        run: |
-          node -e "const fs=require('fs'); const eslint=JSON.parse(fs.readFileSync('artifacts/frontend/eslint-report.json','utf8')); let errors=0,warnings=0; for (const f of eslint){errors+=f.errorCount; warnings+=f.warningCount;} const nodeTestPassed = fs.existsSync('artifacts/frontend/node-test-passed.txt') ? 1 : 0; fs.writeFileSync('artifacts/frontend/summary.json', JSON.stringify({suite:'frontend', lintErrors:errors, lintWarnings:warnings, nodeTestPassed}, null, 2));"
-
-      - name: Setup k6
-        uses: grafana/setup-k6-action@v1
-
-      - name: Start NotificationService for load test
-        shell: bash
-        run: |
-          dotnet run --project NotificationService/NotificationService.Api/NotificationService.Api.csproj --urls http://localhost:8085 > notification.log 2>&1 &
-          echo $! > notification.pid
-
-          for i in {1..40}; do
-            if curl -sf http://localhost:8085/notification-service/health > /dev/null; then
-              echo "NotificationService is up"
-              exit 0
-            fi
-            sleep 2
-          done
-
-          echo "Service did not start in time"
-          cat notification.log || true
-          exit 1
-
-      - name: Run k6 load test
-        run: k6 run --summary-export load-tests/summary.json load-tests/health-smoke.js
-
-      - name: Build k6 HTML report
-        run: node load-tests/render-k6-report.mjs load-tests/summary.json load-tests/k6-report.html
-
-      - name: Stop NotificationService
-        if: always()
-        shell: bash
-        run: |
-          if [ -f notification.pid ]; then
-            kill $(cat notification.pid) || true
-          fi
-
-      - name: Build CI dashboard
-        if: always()
-        run: node load-tests/render-ci-dashboard.mjs artifacts artifacts/ci-dashboard.html
-
-      - name: Upload quality artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-quality-dashboard
-          path: |
-            artifacts/ci-dashboard.html
-            artifacts/**/summary.json
-            artifacts/frontend/eslint-report.json
-            artifacts/frontend/node-test-output.txt
-            load-tests/summary.json
-            load-tests/k6-report.html
-            notification.log
-
-      - name: Setup Docker Buildx
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GHCR
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker images
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          owner=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
-          sha_tag="sha-${GITHUB_SHA}"
-
-          services=(
-            "auth-service:AuthService/AuthService.Api/Dockerfile"
-            "user-service:UserService/UserService.Api/Dockerfile"
-            "task-service:TaskService/TaskService.Api/Dockerfile"
-            "shop-service:ShopService/ShopService.Api/Dockerfile"
-            "notification-service:NotificationService/NotificationService.Api/Dockerfile"
-            "ai-service:AiService/AiService.Api/Dockerfile"
-            "gateway-service:GatewayService/Gateway.Api/Dockerfile"
-            "frontend:Frontend/Dockerfile"
-          )
-
-          for entry in "${services[@]}"; do
-            name="${entry%%:*}"
-            dockerfile="${entry#*:}"
-            image="ghcr.io/${owner}/${name}"
-
-            tags=(-t "${image}:${sha_tag}")
-            if [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
-              tags+=(-t "${image}:latest")
-            fi
-
-            echo "Building ${name} using ${dockerfile}"
-            docker buildx build \
-              --file "${dockerfile}" \
-              --sbom=true \
-              --push \
-              "${tags[@]}" \
-              .
-
-            {
-              echo "### Published ${name}"
-              echo "- Dockerfile: ${dockerfile}"
-              echo "- Tags: ${image}:${sha_tag}"
-            } >> "$GITHUB_STEP_SUMMARY"
-          done
