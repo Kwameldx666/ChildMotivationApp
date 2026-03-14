@@ -71,17 +71,6 @@ jobs:
 
           $summary = @()
           $repoRoot = (Get-Location).Path
-          $excludeByFile = @(
-            "**/Contracts/**/*.cs",
-            "**/Dto/**/*.cs",
-            "**/Models/**/*.cs",
-            "**/Entities/**/*.cs",
-            "**/Enums/**/*.cs",
-            "**/Extensions/**/*.cs",
-            "**/Program.cs"
-          ) -join ","
-
-          $excludeByAttribute = "ExcludeFromCodeCoverageAttribute,CompilerGeneratedAttribute"
           $projects = Get-ChildItem -Path . -Recurse -Filter *UnitTests.csproj |
             Where-Object { $_.FullName -notmatch "[\\/]bin[\\/]" -and $_.FullName -notmatch "[\\/]obj[\\/]" }
 
@@ -91,19 +80,12 @@ jobs:
             $outDirAbs = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $outDir))
             New-Item -ItemType Directory -Force -Path $outDirAbs | Out-Null
 
-            $coverageFile = [System.IO.Path]::GetFullPath((Join-Path $outDirAbs "coverage.xml"))
-
             $dotnetArgs = @(
               "test",
               $project.FullName,
               "-c", "Release",
               "--results-directory", $outDirAbs,
-              "--logger", "trx;LogFileName=results.trx",
-              "/p:CollectCoverage=true",
-              "/p:CoverletOutputFormat=cobertura",
-              "/p:CoverletOutput=$coverageFile",
-              "/p:ExcludeByFile=`\"$excludeByFile`\"",
-              "/p:ExcludeByAttribute=`\"$excludeByAttribute`\""
+              "--logger", "trx;LogFileName=results.trx"
             )
 
             & dotnet @dotnetArgs
@@ -116,14 +98,6 @@ jobs:
               throw "TRX result not found for $suite"
             }
 
-            if (-not (Test-Path $coverageFile)) {
-              throw "Coverage file not found for $suite"
-            }
-
-            [xml]$coverage = Get-Content $coverageFile
-            $lineRate = [double]$coverage.coverage.'line-rate'
-            $lineCoveragePercent = [Math]::Round($lineRate * 100, 2)
-
             [xml]$doc = Get-Content $trxPath.FullName
             $counters = $doc.TestRun.ResultSummary.Counters
 
@@ -133,17 +107,16 @@ jobs:
               passed = [int]$counters.passed
               failed = [int]$counters.failed
               skipped = [int]$counters.notExecuted
-              lineCoverage = $lineCoveragePercent
             }
           }
 
           $summary | ConvertTo-Json | Out-File artifacts/unit-tests/summary.json -Encoding utf8
 
-          "### Unit Coverage (Line %)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          "| Suite | Tests | Passed | Failed | Line Coverage |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          "### Unit Test Results" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          "| Suite | Tests | Passed | Failed | Skipped |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           "|---|---:|---:|---:|---:|" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           foreach ($row in $summary) {
-            "| $($row.suite) | $($row.total) | $($row.passed) | $($row.failed) | $($row.lineCoverage)% |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "| $($row.suite) | $($row.total) | $($row.passed) | $($row.failed) | $($row.skipped) |" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
 
       - name: Upload unit test artifacts
