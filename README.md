@@ -84,6 +84,8 @@ After startup, available at:
 - **API Gateway**: http://localhost:8080
 - **PostgreSQL**: localhost:5433
 - **Redis**: localhost:6379
+- **Grafana**: http://localhost:3001 (admin/admin)
+- **Prometheus**: http://localhost:9090
 
 ### Stopping
 
@@ -201,6 +203,29 @@ cd Frontend
 npm install
 npm run dev
 ```
+
+## 📈 Monitoring (Grafana)
+
+Grafana and Prometheus are included in `docker-compose.yml`.
+
+### Start monitoring stack
+```bash
+docker-compose up -d prometheus cadvisor grafana
+```
+
+### Open Grafana
+- URL: `http://localhost:3001`
+- Login: `admin`
+- Password: `admin`
+
+### What is configured automatically
+- Prometheus datasource is provisioned at startup.
+- Dashboard `ChildMotivationApp - Containers Overview` is imported automatically.
+- Dashboard shows:
+	- CPU usage by service
+	- Memory usage by service
+	- Network throughput by service
+	- Prometheus target health (`up`)
 
 ## 🐛 Debugging
 
