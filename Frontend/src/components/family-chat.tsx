@@ -45,6 +45,16 @@ interface FamilyChatProps {
   }>
 }
 
+const normalizeDisplayName = (value: string | null | undefined, fallback = 'User') => {
+  const normalized = value?.trim()
+  return normalized && normalized.length > 0 ? normalized : fallback
+}
+
+const displayInitial = (value: string | null | undefined, fallback = 'U') => {
+  const name = normalizeDisplayName(value, fallback)
+  return name.charAt(0).toUpperCase()
+}
+
 export default function FamilyChat({
   familyId,
   currentUserId,
@@ -239,11 +249,15 @@ export default function FamilyChat({
                     </p>
                     {chatParticipants.map((participant) => (
                       <div key={participant.id} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50">
+                        {(() => {
+                          const participantName = normalizeDisplayName(participant.name)
+                          return (
+                            <>
                         <div className="relative">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={participant.avatar} />
                             <AvatarFallback className="text-xs bg-gradient-to-br from-rose-400 to-pink-400 text-white">
-                              {participant.name[0]?.toUpperCase()}
+                              {displayInitial(participantName)}
                             </AvatarFallback>
                           </Avatar>
                           {participant.isOnline && (
@@ -251,11 +265,14 @@ export default function FamilyChat({
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{participant.name}</p>
+                          <p className="truncate text-sm font-medium">{participantName}</p>
                           <p className="text-[11px] text-muted-foreground">
                             {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
                           </p>
                         </div>
+                            </>
+                          )
+                        })()}
                       </div>
                     ))}
                   </div>
@@ -266,11 +283,15 @@ export default function FamilyChat({
             <div className="flex items-center gap-3 flex-wrap">
               {chatParticipants.filter(p => p.id !== currentUserId).map((participant) => (
                 <div key={participant.id} className="flex items-center gap-2">
+                  {(() => {
+                    const participantName = normalizeDisplayName(participant.name)
+                    return (
+                      <>
                   <div className="relative">
                     <Avatar className="h-9 w-9 border-2 border-rose-200 dark:border-slate-700">
                       <AvatarImage src={participant.avatar} />
                       <AvatarFallback className="text-sm bg-gradient-to-br from-rose-400 to-pink-400 text-white">
-                        {participant.name[0]?.toUpperCase()}
+                        {displayInitial(participantName)}
                       </AvatarFallback>
                     </Avatar>
                     {participant.isOnline && (
@@ -279,12 +300,15 @@ export default function FamilyChat({
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-                      {participant.name}
+                      {participantName}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
                     </span>
                   </div>
+                      </>
+                    )
+                  })()}
                 </div>
               ))}
               {chatParticipants.filter(p => p.id !== currentUserId).length === 0 && (
@@ -327,7 +351,7 @@ export default function FamilyChat({
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={msg.senderAvatar} />
                         <AvatarFallback className="text-xs bg-gradient-to-br from-rose-400 to-pink-400 text-white">
-                          {msg.senderName[0]?.toUpperCase()}
+                          {displayInitial(msg.senderName)}
                         </AvatarFallback>
                       </Avatar>
                       {senderInfo?.isOnline && (
@@ -342,7 +366,7 @@ export default function FamilyChat({
                   )}>
                     {!isOwnMessage && (
                       <span className="text-[11px] font-medium text-rose-600 dark:text-rose-400 px-2 mb-1">
-                        {msg.senderName}
+                        {normalizeDisplayName(msg.senderName)}
                       </span>
                     )}
 
