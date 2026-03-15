@@ -148,7 +148,13 @@ export default function ChildAiChat() {
     isThinking,
     followUps,
     reset,
-  } = useAiChat({ greeting, context, maxHistory: 20, t })
+  } = useAiChat({
+    greeting,
+    context,
+    maxHistory: 20,
+    t,
+    storageKey: session ? `familyquest:ai-chat:child:${session.user.id}` : undefined,
+  })
 
   const starters = useMemo(
     () => [

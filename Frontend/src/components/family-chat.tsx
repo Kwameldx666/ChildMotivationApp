@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo } from "react"
-import { Send, ArrowLeft, Hash, Circle } from "lucide-react"
+import { Send, ArrowLeft, Hash, Circle, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -35,6 +35,14 @@ interface FamilyChatProps {
   currentUserAvatar?: string
   userRole: "parent" | "child"
   onBack?: () => void
+  fullScreen?: boolean
+  chatTitle?: string
+  participants?: Array<{
+    id: string
+    name: string
+    avatar?: string | null
+    role?: string
+  }>
 }
 
 export default function FamilyChat({
@@ -43,18 +51,26 @@ export default function FamilyChat({
   currentUserName,
   currentUserAvatar,
   userRole,
-  onBack
+  onBack,
+  fullScreen = true,
+  chatTitle,
+  participants = [],
 }: FamilyChatProps) {
   const { t } = useTranslation()
   const [message, setMessage] = useState("")
   const [mentionedTaskId, setMentionedTaskId] = useState<string | null>(null)
   const [showTaskPicker, setShowTaskPicker] = useState(false)
+  const [showParticipants, setShowParticipants] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
   const { data: messages = [], isLoading, isFetching, isError } = useFamilyMessages(familyId)
   const { data: tasks = [] } = useTasks()
-  const sendMessage = useSendFamilyMessage(familyId)
+  const sendMessage = useSendFamilyMessage(familyId, {
+    senderId: currentUserId,
+    senderName: currentUserName,
+    senderAvatar: currentUserAvatar,
+  })
 
   const mentionedTask = useMemo(() => {
     if (!mentionedTaskId) return null
@@ -141,25 +157,36 @@ export default function FamilyChat({
 
   // Получаем уникальных участников чата
   const chatParticipants = useMemo(() => {
-    const participants = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean }>()
+    const participantMap = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean; role?: string }>()
     
     // Добавляем текущего пользователя
-    participants.set(currentUserId, {
+    participantMap.set(currentUserId, {
       id: currentUserId,
       name: currentUserName,
       avatar: currentUserAvatar,
       isOnline: true,
+      role: userRole,
+    })
+
+    participants.forEach(participant => {
+      participantMap.set(participant.id, {
+        id: participant.id,
+        name: participant.name,
+        avatar: participant.avatar ?? undefined,
+        isOnline: true,
+        role: participant.role,
+      })
     })
     
     // Добавляем отправителей из сообщений
     messages.forEach(msg => {
-      if (!participants.has(msg.senderId)) {
+      if (!participantMap.has(msg.senderId)) {
         // Симулируем онлайн статус - если сообщение было в последние 5 минут
         const lastMessageTime = new Date(msg.createdAt).getTime()
         const now = Date.now()
         const isOnline = (now - lastMessageTime) < 5 * 60 * 1000
         
-        participants.set(msg.senderId, {
+        participantMap.set(msg.senderId, {
           id: msg.senderId,
           name: msg.senderName,
           avatar: msg.senderAvatar,
@@ -168,8 +195,8 @@ export default function FamilyChat({
       }
     })
     
-    return Array.from(participants.values())
-  }, [messages, currentUserId, currentUserName, currentUserAvatar])
+    return Array.from(participantMap.values())
+  }, [messages, currentUserId, currentUserName, currentUserAvatar, participants, userRole])
 
   // Показываем полноэкранную загрузку только при первой загрузке
   if (isLoading && !messages.length) {
@@ -181,7 +208,10 @@ export default function FamilyChat({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-slate-950 dark:to-slate-900">
+    <div className={cn(
+      "flex flex-col bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-slate-950 dark:to-slate-900",
+      fullScreen ? "h-screen" : "h-full min-h-[520px]"
+    )}>
       {/* Header */}
       <div className="border-b border-rose-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg px-4 py-3 shadow-sm">
         <div className="flex items-center gap-3">
@@ -191,9 +221,47 @@ export default function FamilyChat({
             </Button>
           )}
           <div className="flex-1">
-            <h1 className="text-sm font-medium text-muted-foreground mb-2">
-              {t("chat.familyChat")}
-            </h1>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <h1 className="text-sm font-medium text-muted-foreground">
+                {chatTitle ?? t("chat.familyChat")}
+              </h1>
+              <Popover open={showParticipants} onOpenChange={setShowParticipants}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    {chatParticipants.length}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-72 p-2">
+                  <div className="space-y-1">
+                    <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                      {t("familyChat.participantsTitle", { count: String(chatParticipants.length) })}
+                    </p>
+                    {chatParticipants.map((participant) => (
+                      <div key={participant.id} className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/50">
+                        <div className="relative">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={participant.avatar} />
+                            <AvatarFallback className="text-xs bg-gradient-to-br from-rose-400 to-pink-400 text-white">
+                              {participant.name[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          {participant.isOnline && (
+                            <Circle className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 fill-emerald-500 text-emerald-500 stroke-white dark:stroke-slate-900" strokeWidth={2} />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{participant.name}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             {/* Список участников */}
             <div className="flex items-center gap-3 flex-wrap">
               {chatParticipants.filter(p => p.id !== currentUserId).map((participant) => (

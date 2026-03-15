@@ -1557,9 +1557,25 @@
     "childrenCount": "{count} children",
     "privateChats": "Private Chats",
     "noChildren": "No children in the family yet",
+    "noChildrenTitle": "Chats will appear after adding children",
+    "noChildrenHint": "Add a child to start personal and group conversations",
+    "addChildButton": "Add child",
     "inviteChildren": "Invite children using the family code",
     "yearsOld": "{age} years old",
-    "personalChat": "Personal chat"
+    "personalChat": "Personal chat",
+    "customGroups": "Custom Groups",
+    "createGroup": "Create group",
+    "noCustomGroups": "No custom groups yet. Create one for any child combination.",
+    "createGroupHint": "Select 2 or more children and create a separate group chat.",
+    "groupName": "Group name",
+    "groupNamePlaceholder": "For example: Younger kids",
+    "pickChildren": "Select children"
+  },
+  "childChatHub": {
+    "privateChat": "Private chat",
+    "aiChat": "AI chat",
+    "chatWithParent": "Chat with {name}",
+    "noParent": "Parent profile not found in family members yet."
   },
   "subscriptionManager": {
     "tierFree": "Free",
@@ -2474,6 +2490,7 @@
     "online": "Online",
     "offline": "Offline",
     "noParticipants": "No other participants yet",
+    "participantsTitle": "Participants ({count})",
     "attachedTask": "Attached task",
     "searchTask": "Search tasks...",
     "noTasksFound": "No tasks found",

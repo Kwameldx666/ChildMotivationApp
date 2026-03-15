@@ -324,7 +324,13 @@ export default function AiChatWidget() {
     reset,
     executeAction,
     dismissAction,
-  } = useAiChat({ greeting, context, maxHistory: 10, t })
+  } = useAiChat({
+    greeting,
+    context,
+    maxHistory: 10,
+    t,
+    storageKey: session ? `familyquest:ai-chat:widget:${session.user.id}` : undefined,
+  })
 
   /* ── quick starters ── */
   const starters = useMemo(

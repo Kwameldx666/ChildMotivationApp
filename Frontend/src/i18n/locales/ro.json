@@ -1529,9 +1529,25 @@
     "childrenCount": "{count} copii",
     "privateChats": "Chaturi private",
     "noChildren": "Încă nu sunt copii în familie",
+    "noChildrenTitle": "Chaturile apar după adăugarea copiilor",
+    "noChildrenHint": "Adăugați un copil pentru a începe conversațiile private și de grup",
+    "addChildButton": "Adaugă copil",
     "inviteChildren": "Invitați copiii folosind codul familiei",
     "yearsOld": "{age} ani",
-    "personalChat": "Chat personal"
+    "personalChat": "Chat personal",
+    "customGroups": "Grupuri personalizate",
+    "createGroup": "Creează grup",
+    "noCustomGroups": "Încă nu există grupuri personalizate. Creează unul pentru orice combinație de copii.",
+    "createGroupHint": "Selectați 2 sau mai mulți copii pentru un chat de grup separat.",
+    "groupName": "Numele grupului",
+    "groupNamePlaceholder": "De exemplu: Copiii mai mici",
+    "pickChildren": "Selectați copiii"
+  },
+  "childChatHub": {
+    "privateChat": "Chat privat",
+    "aiChat": "Chat AI",
+    "chatWithParent": "Chat cu {name}",
+    "noParent": "Profilul părintelui nu a fost găsit încă în membrii familiei."
   },
   "subscriptionManager": {
     "tierFree": "Gratuit",
@@ -2436,6 +2452,7 @@
     "online": "Online",
     "offline": "Offline",
     "noParticipants": "Niciun alt participant încă",
+    "participantsTitle": "Participanți ({count})",
     "attachedTask": "Sarcină atașată",
     "searchTask": "Caută sarcini...",
     "noTasksFound": "Nicio sarcină găsită",

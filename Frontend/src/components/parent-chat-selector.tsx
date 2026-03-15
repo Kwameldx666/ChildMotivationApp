@@ -1,14 +1,17 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, MessageCircle, Users, User, UserPlus } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { MessageCircle, Users, UserPlus, Plus } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "./family-chat"
-import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
 import { useRouter } from "next/navigation"
 
@@ -21,10 +24,17 @@ interface ParentChatSelectorProps {
 
 type ChatType = "list" | "group" | "private"
 
+interface CustomGroup {
+  id: string
+  name: string
+  memberIds: string[]
+}
+
 interface SelectedChat {
   type: ChatType
   childId?: string
   childName?: string
+  groupId?: string
 }
 
 const FALLBACK_AVATARS = ["👦", "👧", "🧒", "🦄"]
@@ -38,11 +48,75 @@ export default function ParentChatSelector({
   const { t } = useTranslation()
   const router = useRouter()
   const [selectedChat, setSelectedChat] = useState<SelectedChat>({ type: "list" })
+  const [customGroups, setCustomGroups] = useState<CustomGroup[]>([])
+  const [showGroupDialog, setShowGroupDialog] = useState(false)
+  const [newGroupName, setNewGroupName] = useState("")
+  const [newGroupMembers, setNewGroupMembers] = useState<string[]>([])
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(familyId) })
+
+  const storageKey = `familyquest:chat-groups:${familyId}`
 
   const children = useMemo(() => {
     return familyMembers.filter((member) => member.role?.toLowerCase() === "child")
   }, [familyMembers])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const raw = window.localStorage.getItem(storageKey)
+      if (!raw) {
+        setCustomGroups([])
+        return
+      }
+      const parsed = JSON.parse(raw) as CustomGroup[]
+      setCustomGroups(Array.isArray(parsed) ? parsed : [])
+    } catch {
+      setCustomGroups([])
+    }
+  }, [storageKey])
+
+  const persistGroups = (groups: CustomGroup[]) => {
+    setCustomGroups(groups)
+    if (typeof window === "undefined") return
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(groups))
+    } catch {
+      // ignore storage errors in demo mode
+    }
+  }
+
+  const resetGroupDialog = () => {
+    setNewGroupName("")
+    setNewGroupMembers([])
+    setShowGroupDialog(false)
+  }
+
+  const toggleGroupMember = (memberId: string) => {
+    setNewGroupMembers((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    )
+  }
+
+  const createGroup = () => {
+    const trimmedName = newGroupName.trim()
+    if (!trimmedName || newGroupMembers.length < 2) return
+
+    const group: CustomGroup = {
+      id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `group-${Date.now()}`,
+      name: trimmedName,
+      memberIds: newGroupMembers,
+    }
+
+    persistGroups([group, ...customGroups])
+    resetGroupDialog()
+  }
+
+  const selectedCustomGroup = useMemo(
+    () => customGroups.find((group) => group.id === selectedChat.groupId),
+    [customGroups, selectedChat.groupId]
+  )
 
   const getChildAvatar = (child: any, index: number) => {
     const value = child.avatar?.trim()
@@ -56,7 +130,7 @@ export default function ParentChatSelector({
     return FALLBACK_AVATARS[index % FALLBACK_AVATARS.length]
   }
 
-  if (selectedChat.type === "group") {
+  if (selectedChat.type === "group" && !selectedChat.groupId) {
     return (
       <FamilyChat
         familyId={familyId}
@@ -65,6 +139,35 @@ export default function ParentChatSelector({
         currentUserAvatar={currentUserAvatar}
         userRole="parent"
         onBack={() => setSelectedChat({ type: "list" })}
+        chatTitle={t("parentChatSelector.groupChatTitle")}
+        participants={familyMembers.map(member => ({
+          id: member.id,
+          name: member.name,
+          avatar: member.avatar,
+          role: member.role,
+        }))}
+      />
+    )
+  }
+
+  if (selectedChat.type === "group" && selectedCustomGroup) {
+    const scopedMembers = familyMembers.filter(member => selectedCustomGroup.memberIds.includes(member.id))
+
+    return (
+      <FamilyChat
+        familyId={`group:${familyId}:${selectedCustomGroup.id}`}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        currentUserAvatar={currentUserAvatar}
+        userRole="parent"
+        onBack={() => setSelectedChat({ type: "list" })}
+        chatTitle={selectedCustomGroup.name}
+        participants={scopedMembers.map(member => ({
+          id: member.id,
+          name: member.name,
+          avatar: member.avatar,
+          role: member.role,
+        }))}
       />
     )
   }
@@ -81,6 +184,15 @@ export default function ParentChatSelector({
         currentUserAvatar={currentUserAvatar}
         userRole="parent"
         onBack={() => setSelectedChat({ type: "list" })}
+        chatTitle={selectedChat.childName ?? t("parentChatSelector.personalChat")}
+        participants={children
+          .filter(child => child.id === selectedChat.childId)
+          .map(child => ({
+            id: child.id,
+            name: child.name,
+            avatar: child.avatar,
+            role: child.role,
+          }))}
       />
     )
   }
@@ -133,6 +245,65 @@ export default function ParentChatSelector({
           </div>
         </div>
       </Card>
+
+      {/* Кастомные группы */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-sm font-semibold text-muted-foreground">
+            {t("parentChatSelector.customGroups")}
+          </h3>
+          <Button size="sm" variant="outline" className="gap-1" onClick={() => setShowGroupDialog(true)}>
+            <Plus className="w-3.5 h-3.5" />
+            {t("parentChatSelector.createGroup")}
+          </Button>
+        </div>
+
+        {customGroups.length === 0 ? (
+          <Card>
+            <div className="p-4 text-sm text-muted-foreground">
+              {t("parentChatSelector.noCustomGroups")}
+            </div>
+          </Card>
+        ) : (
+          customGroups.map((group) => {
+            const groupMembers = children.filter(child => group.memberIds.includes(child.id))
+            return (
+              <Card
+                key={group.id}
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-violet-300 dark:hover:border-violet-700 border-2"
+                onClick={() => setSelectedChat({ type: "group", groupId: group.id })}
+              >
+                <div className="p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="font-semibold">{group.name}</h4>
+                    <p className="text-xs text-muted-foreground">
+                      {t("parentChatSelector.childrenCount", { count: groupMembers.length })}
+                    </p>
+                  </div>
+                  <div className="flex -space-x-2">
+                    {groupMembers.slice(0, 3).map((member, index) => {
+                      const avatar = getChildAvatar(member, index)
+                      const isEmoji = avatar && avatar.length <= 2
+                      return (
+                        <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
+                          {isEmoji ? (
+                            <AvatarFallback className="text-sm">{avatar}</AvatarFallback>
+                          ) : (
+                            <>
+                              <AvatarImage src={avatar} />
+                              <AvatarFallback>{member.name[0]?.toUpperCase()}</AvatarFallback>
+                            </>
+                          )}
+                        </Avatar>
+                      )
+                    })}
+                  </div>
+                </div>
+              </Card>
+            )
+          })
+        )}
+      </div>
 
       {/* Список детей для приватных чатов */}
       <div className="space-y-3">
@@ -213,6 +384,51 @@ export default function ParentChatSelector({
           })
         )}
       </div>
+
+      <Dialog open={showGroupDialog} onOpenChange={setShowGroupDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("parentChatSelector.createGroup")}</DialogTitle>
+            <DialogDescription>{t("parentChatSelector.createGroupHint")}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t("parentChatSelector.groupName")}</Label>
+              <Input
+                value={newGroupName}
+                onChange={(event) => setNewGroupName(event.target.value)}
+                placeholder={t("parentChatSelector.groupNamePlaceholder")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t("parentChatSelector.pickChildren")}</Label>
+              <div className="space-y-2 max-h-56 overflow-y-auto rounded-md border p-2">
+                {children.map((child) => (
+                  <label key={child.id} className="flex items-center gap-2 rounded-md p-2 hover:bg-muted/40 cursor-pointer">
+                    <Checkbox
+                      checked={newGroupMembers.includes(child.id)}
+                      onCheckedChange={() => toggleGroupMember(child.id)}
+                    />
+                    <span className="text-sm">{child.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={resetGroupDialog}>{t("common.cancel")}</Button>
+            <Button
+              onClick={createGroup}
+              disabled={!newGroupName.trim() || newGroupMembers.length < 2}
+            >
+              {t("parentChatSelector.createGroup")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

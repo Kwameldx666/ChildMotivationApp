@@ -59,46 +59,75 @@ const DIFFICULTY_POINTS: Record<number, number> = {
   5: 50,
 }
 
-// Temporary AI generation function (will be replaced by backend)
-const generateAiSuggestion = async (description: string, t: (key: string, params?: Record<string, string | number>) => string): Promise<{
+type ChildProfileLite = {
+  id: string
+  name: string
+  age?: number | null
+}
+
+// Lightweight local "AI" suggestion for demo mode
+const generateAiSuggestion = async (
+  description: string,
+  children: ChildProfileLite[],
+  selectedChildId: string | undefined,
+  t: (key: string, params?: Record<string, string | number>) => string
+): Promise<{
   title: string
   fullDescription: string
   difficulty: number
   reward: number
+  recommendedChildId?: string
 }> => {
   await new Promise(resolve => setTimeout(resolve, 1500))
-  
+
   const words = description.toLowerCase()
   let difficulty = 2
   let category = t("taskCreation.categories.home")
-  
-  if (words.includes("ÑƒÐ±Ð¾Ñ€Ðº") || words.includes("Ð¿Ð¾Ñ€ÑÐ´Ð¾Ðº") || words.includes("Ð¿Ñ‹Ð»ÐµÑÐ¾Ñ")) {
+
+  if (words.includes("clean") || words.includes("уборк") || words.includes("поряд")) {
     difficulty = 3
     category = t("taskCreation.templates.cleaning")
-  } else if (words.includes("Ñ‡Ð¸Ñ‚Ð°") || words.includes("ÐºÐ½Ð¸Ð³") || words.includes("ÑƒÑ€Ð¾Ðº") || words.includes("ÑƒÑ‡Ð¸")) {
+  } else if (words.includes("study") || words.includes("урок") || words.includes("homework") || words.includes("читать")) {
     difficulty = 2
     category = t("taskCreation.templates.study")
-  } else if (words.includes("Ð¿Ð¾Ð¼Ð¾") || words.includes("ÑÑ‚Ð¾Ð»") || words.includes("Ð¿Ð¾ÑÑƒÐ´")) {
+  } else if (words.includes("table") || words.includes("dishes") || words.includes("посуд") || words.includes("помо")) {
     difficulty = 1
     category = t("taskCreation.templates.care")
-  } else if (words.includes("Ð·Ð°Ñ€ÑÐ´Ðº") || words.includes("ÑÐ¿Ð¾Ñ€Ñ‚") || words.includes("Ð±ÐµÐ³")) {
+  } else if (words.includes("спорт") || words.includes("run") || words.includes("заряд")) {
     difficulty = 2
     category = t("taskCreation.templates.activity")
   }
-  
+
+  const referencedChild = children.find(child => words.includes(child.name.toLowerCase()))
+  const selectedChild = children.find(child => child.id === selectedChildId)
+  const youngestChild = [...children]
+    .filter(child => typeof child.age === 'number')
+    .sort((first, second) => (first.age ?? 0) - (second.age ?? 0))[0]
+
+  const targetChild = selectedChild ?? referencedChild ?? youngestChild ?? children[0]
+
+  if (targetChild?.age != null) {
+    if (targetChild.age <= 7) difficulty = Math.min(difficulty, 2)
+    else if (targetChild.age >= 13) difficulty = Math.max(difficulty, 3)
+  }
+
   const reward = 60 + 20 * difficulty
-  
+
   const title = description.length > 30 
     ? description.substring(0, 30).trim() + "..."
     : description.trim()
-  
-  const fullDescription = `${description}\n\nâœ¨ ${t("taskCreation.categoryLabel", { category })}`
-  
+
+  const childContext = targetChild
+    ? `${t("taskCreation.assignedTo", { name: targetChild.name })}.`
+    : ""
+  const fullDescription = `${description}\n\n✨ ${t("taskCreation.categoryLabel", { category })} ${childContext}`.trim()
+
   return {
     title: title.charAt(0).toUpperCase() + title.slice(1),
-    fullDescription: description,
+    fullDescription,
     difficulty,
     reward,
+    recommendedChildId: targetChild?.id,
   }
 }
 
@@ -165,22 +194,23 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       setIsSubmitting(true)
       setSubmitError(null)
       
-      // Ð“ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÐ¼ Ð¾Ð¿Ð¸ÑÐ°Ð½Ð¸Ðµ Ð·Ð°Ð´Ð°Ñ‡Ð¸ Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸ Ð¿ÐµÑ€ÐµÐ´ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ¾Ð¹
-      const finalSuggestion = await generateAiSuggestion(trimmedDescription, t)
+      const finalSuggestion = await generateAiSuggestion(
+        trimmedDescription,
+        children.map(child => ({ id: child.id, name: child.name, age: child.age })),
+        selectedChildId,
+        t
+      )
 
-      // Ð•ÑÐ»Ð¸ Ð´ÐµÑ‚ÐµÐ¹ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð¾Ð´Ð½Ð¾Ð³Ð¾ â€” Ð²Ñ‹Ð±Ð¾Ñ€ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÐµÐ½
-      if (children.length > 1 && !selectedChildId) {
-        setSubmitError(t("taskCreation.selectAssignee"))
-        return
-      }
+      const resolvedChildId = selectedChildId ?? finalSuggestion.recommendedChildId
+      const resolvedDifficulty = selectedDifficulty === 2 ? finalSuggestion.difficulty : selectedDifficulty
       
       await _onSubmit({
         title: finalSuggestion.title,
-        description: trimmedDescription,
+        description: finalSuggestion.fullDescription,
         confirmationType: requiresConfirmation ? "photo" : "none",
-        difficulty: selectedDifficulty,
+        difficulty: resolvedDifficulty,
         dueDate: dueDate || undefined,
-        assignedToUserId: selectedChildId || undefined,
+        assignedToUserId: resolvedChildId || undefined,
       })
       resetForm()
       onClose()

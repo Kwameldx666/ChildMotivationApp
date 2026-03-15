@@ -85,6 +85,7 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
     greeting,
     context,
     maxHistory: 14,
+    storageKey: `familyquest:ai-chat:page:${role}:${userName ?? 'anonymous'}:${familyName ?? 'none'}`,
   })
 
   const autoScroll = useCallback(() => {

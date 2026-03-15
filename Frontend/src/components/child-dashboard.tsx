@@ -16,7 +16,7 @@ import ChildProfile from "./child-profile"
 import AchievementTree from "./achievement-tree"
 import GameHub from "./game-hub"
 import EvidenceGallery from "./evidence-gallery"
-import ChildAiChat from "./child-ai-chat"
+import ChildChatHub from "./child-chat-hub"
 import { useTasks } from "@/services/tasks-queries"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
@@ -371,7 +371,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
         <div className={cn(activeTab === "gallery" ? "block" : "hidden")}><EvidenceGallery tasks={tasks} userType="child" /></div>
         <div className={cn(activeTab === "quests" ? "block" : "hidden")}><GameHub /></div>
         <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" childBalance={points} /></div>
-        <div className={cn(activeTab === "chat" ? "block" : "hidden")}><ChildAiChat /></div>
+        <div className={cn(activeTab === "chat" ? "block" : "hidden")}><ChildChatHub /></div>
         <div className={cn(activeTab === "achievements" ? "block" : "hidden")}><AchievementTree /></div>
         <div className={cn(activeTab === "profile" ? "block" : "hidden")}>
           <ChildProfile

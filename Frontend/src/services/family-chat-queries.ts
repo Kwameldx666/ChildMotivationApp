@@ -10,13 +10,24 @@ export function useFamilyMessages(familyId: string | undefined, enabled: boolean
   })
 }
 
-export function useSendFamilyMessage(familyId: string | undefined) {
+interface SendMessageMeta {
+  senderId: string
+  senderName: string
+  senderAvatar?: string
+}
+
+export function useSendFamilyMessage(familyId: string | undefined, senderMeta?: SendMessageMeta) {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: (request: SendMessageRequest) => {
       if (!familyId) throw new Error('Family ID is required')
-      return familyChatService.sendMessage(familyId, request)
+      return familyChatService.sendMessage(familyId, {
+        ...request,
+        senderId: request.senderId ?? senderMeta?.senderId,
+        senderName: request.senderName ?? senderMeta?.senderName,
+        senderAvatar: request.senderAvatar ?? senderMeta?.senderAvatar,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family-messages', familyId] })

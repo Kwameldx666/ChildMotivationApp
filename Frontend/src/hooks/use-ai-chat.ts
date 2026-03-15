@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { aiService, type AiAction, type AiChatRequestPayload, type AiChatResponsePayload } from '@/services/ai-service'
 
@@ -18,6 +18,7 @@ interface UseAiChatOptions {
   greeting?: string
   context?: Record<string, string>
   maxHistory?: number
+  storageKey?: string
   /** Translation function for error messages, fallbacks, etc. */
   t?: (key: string, params?: Record<string, string>) => string
 }
@@ -53,6 +54,36 @@ const sanitizeContext = (context?: Record<string, string>) => {
   }, {})
 }
 
+interface PersistedChatState {
+  messages: Array<Omit<ChatMessage, 'timestamp'> & { timestamp: string }>
+  conversationId: string | null
+  followUps: string[]
+  pendingActions: AiAction[]
+  lastReplyAt: string | null
+}
+
+const loadPersistedState = (storageKey?: string): PersistedChatState | null => {
+  if (!storageKey || typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(storageKey)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as PersistedChatState
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+const savePersistedState = (storageKey: string, state: PersistedChatState) => {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(state))
+  } catch {
+    // ignore persistence errors
+  }
+}
+
 const buildHistoryPayload = (messages: ChatMessage[], maxHistory: number): AiChatRequestPayload['history'] => {
   return messages
     .filter(message => message.role !== 'system')
@@ -67,34 +98,57 @@ const buildHistoryPayload = (messages: ChatMessage[], maxHistory: number): AiCha
 export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
   const greeting = options?.greeting?.trim()
   const maxHistory = options?.maxHistory ?? 12
+  const storageKey = options?.storageKey
   const preparedContext = useMemo(() => sanitizeContext(options?.context), [options?.context])
   const t = options?.t ?? ((key: string) => key)
 
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    greeting
-      ? [
-          {
-            id: 'greeting',
-            role: 'assistant',
-            content: greeting,
-            timestamp: new Date(),
-          },
-        ]
-      : [],
-  )
-  const [conversationId, setConversationId] = useState<string | null>(null)
-  const [followUps, setFollowUps] = useState<string[]>([])
-  const [pendingActions, setPendingActions] = useState<AiAction[]>([])
-  const [lastReplyAt, setLastReplyAt] = useState<Date | null>(greeting ? new Date() : null)
+  const persisted = useMemo(() => loadPersistedState(storageKey), [storageKey])
+  const initialMessages: ChatMessage[] = useMemo(() => {
+    if (persisted?.messages?.length) {
+      return persisted.messages.map((message) => ({
+        ...message,
+        timestamp: new Date(message.timestamp),
+      }))
+    }
+
+    if (!greeting) return []
+    return [{ id: 'greeting', role: 'assistant', content: greeting, timestamp: new Date() }]
+  }, [greeting, persisted?.messages])
+
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
+  const [conversationId, setConversationId] = useState<string | null>(persisted?.conversationId ?? null)
+  const [followUps, setFollowUps] = useState<string[]>(persisted?.followUps ?? [])
+  const [pendingActions, setPendingActions] = useState<AiAction[]>(persisted?.pendingActions ?? [])
+  const [lastReplyAt, setLastReplyAt] = useState<Date | null>(persisted?.lastReplyAt ? new Date(persisted.lastReplyAt) : greeting ? new Date() : null)
   const [isThinking, setIsThinking] = useState(false)
 
   const reset = useCallback(() => {
-    setMessages(greeting ? [{ id: 'greeting', role: 'assistant', content: greeting, timestamp: new Date() }] : [])
+    const resetMessages = greeting ? [{ id: 'greeting', role: 'assistant' as const, content: greeting, timestamp: new Date() }] : []
+    setMessages(resetMessages)
     setConversationId(null)
     setFollowUps([])
     setPendingActions([])
     setLastReplyAt(greeting ? new Date() : null)
-  }, [greeting])
+
+    if (storageKey && typeof window !== 'undefined') {
+      window.localStorage.removeItem(storageKey)
+    }
+  }, [greeting, storageKey])
+
+  useEffect(() => {
+    if (!storageKey) return
+
+    savePersistedState(storageKey, {
+      messages: messages.map(message => ({
+        ...message,
+        timestamp: message.timestamp.toISOString(),
+      })),
+      conversationId,
+      followUps,
+      pendingActions,
+      lastReplyAt: lastReplyAt ? lastReplyAt.toISOString() : null,
+    })
+  }, [storageKey, messages, conversationId, followUps, pendingActions, lastReplyAt])
 
   const sendMessage = useCallback(
     async (rawMessage: string) => {
@@ -143,7 +197,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
         setIsThinking(false)
       }
     },
-    [conversationId, isThinking, maxHistory, messages, preparedContext],
+    [conversationId, isThinking, maxHistory, messages, preparedContext, t],
   )
 
   const executeAction = useCallback(async (action: AiAction) => {
@@ -164,7 +218,7 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
       console.error('[ai-chat] Failed to execute action', error)
       toast.error(t('aiChat.actionError'))
     }
-  }, [preparedContext])
+  }, [preparedContext, t])
 
   const dismissAction = useCallback((action: AiAction) => {
     setPendingActions(prev => prev.filter(a => a !== action))

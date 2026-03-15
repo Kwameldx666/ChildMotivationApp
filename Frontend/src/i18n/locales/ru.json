@@ -1568,7 +1568,20 @@
     "addChildButton": "Добавить ребёнка",
     "inviteChildren": "Пригласите детей используя код семьи",
     "yearsOld": "{age} лет",
-    "personalChat": "Персональный чат"
+    "personalChat": "Персональный чат",
+    "customGroups": "Свои группы",
+    "createGroup": "Создать группу",
+    "noCustomGroups": "Пока нет пользовательских групп. Создайте группу с любым составом детей.",
+    "createGroupHint": "Выберите 2 и более детей и создайте отдельный групповой чат.",
+    "groupName": "Название группы",
+    "groupNamePlaceholder": "Например: Младшие дети",
+    "pickChildren": "Выберите детей"
+  },
+  "childChatHub": {
+    "privateChat": "Личный чат",
+    "aiChat": "Чат с ИИ",
+    "chatWithParent": "Чат с {name}",
+    "noParent": "Профиль родителя пока не найден в участниках семьи."
   },
   "subscriptionManager": {
     "tierFree": "Бесплатный",
@@ -2494,6 +2507,7 @@
     "online": "Онлайн",
     "offline": "Не в сети",
     "noParticipants": "Пока нет других участников",
+    "participantsTitle": "Участники ({count})",
     "attachedTask": "Прикреплённая задача",
     "searchTask": "Поиск задач...",
     "noTasksFound": "Задачи не найдены",
