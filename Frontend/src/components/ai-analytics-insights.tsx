@@ -14,6 +14,75 @@ interface AiAnalyticsInsightsProps {
   windowDays: number
 }
 
+const formatPercent = (value: number) => `${Math.round(value)}%`
+
+const isLowQualityAiReply = (reply: string) => {
+  const trimmed = reply.trim()
+  if (!trimmed) return true
+
+  const lines = trimmed
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean)
+
+  if (lines.length < 3) return true
+
+  const genericMarkers = [
+    "отличная идея",
+    "могу сразу",
+    "разбить задачу",
+    "понятный дедлайн",
+    "быструю награду",
+  ]
+
+  const normalized = trimmed.toLowerCase()
+  const genericHits = genericMarkers.filter(marker => normalized.includes(marker)).length
+  return genericHits >= 2
+}
+
+const buildDeterministicInsights = (analytics: AnalyticsData, windowDays: number) => {
+  const completionRate = analytics.completionRate
+  const overdue = analytics.taskStatus.overdue
+  const inProgress = analytics.taskStatus.inProgress
+  const topChild = [...analytics.childrenStats].sort((a, b) => b.totalPoints - a.totalPoints)[0]
+  const supportChild = [...analytics.childrenStats].sort((a, b) => {
+    const aTotal = a.completedTasks + a.pendingTasks
+    const bTotal = b.completedTasks + b.pendingTasks
+    const aRate = aTotal > 0 ? a.completedTasks / aTotal : 0
+    const bRate = bTotal > 0 ? b.completedTasks / bTotal : 0
+    return aRate - bRate
+  })[0]
+
+  const totalByDifficulty = analytics.difficultyDistribution.reduce((sum, item) => sum + item.value, 0)
+  const hardShare = totalByDifficulty > 0
+    ? (analytics.difficultyDistribution
+        .filter(item => item.name.toLowerCase().includes("сложно"))
+        .reduce((sum, item) => sum + item.value, 0) / totalByDifficulty) * 100
+    : 0
+
+  const pointsTrend = analytics.pointsTrend
+  const trendDelta = pointsTrend.length >= 2
+    ? pointsTrend[pointsTrend.length - 1].points - pointsTrend[0].points
+    : 0
+
+  const insights = [
+    `- За ${windowDays} дн.: выполнено ${analytics.completedTasks}/${analytics.totalTasks} задач (${formatPercent(completionRate)}). Действие: удерживать недельную цель не ниже 80%.`,
+    `- В работе ${inProgress}, просрочено ${overdue}. Действие: сегодня закрыть 1-2 просроченные задачи с низкой сложностью.`,
+    topChild
+      ? `- Лидер по очкам: ${topChild.childName} (${topChild.totalPoints}). Действие: закрепить прогресс бонусом за серию 3 дней.`
+      : `- Нет лидера по очкам. Действие: добавить прозрачную доску прогресса для всех детей.`,
+    supportChild
+      ? `- Зона поддержки: ${supportChild.childName}. Действие: уменьшить размер задач и давать быстрый фидбек после каждого выполнения.`
+      : `- Зона поддержки не определена. Действие: разделить большие задачи на короткие шаги.`,
+    `- Доля сложных задач: ${formatPercent(hardShare)}. Тренд очков за период: +${trendDelta}. Действие: держать сложные задачи в диапазоне 20-30% от общего объёма.`,
+  ]
+
+  return [
+    "AI-аналитика (авто-режим):",
+    ...insights,
+  ].join("\n")
+}
+
 export default function AiAnalyticsInsights({ analytics, windowDays }: AiAnalyticsInsightsProps) {
   const { t, locale } = useTranslation()
   const [insights, setInsights] = useState<string | null>(null)
@@ -49,20 +118,35 @@ export default function AiAnalyticsInsights({ analytics, windowDays }: AiAnalyti
       const summary = buildAnalyticsSummary()
       const localeMap: Record<string, string> = { en: "en-US", ru: "ru-RU", ro: "ro-RO" }
       const response = await aiService.sendChatMessage({
-        message: `Analyze this family task data and provide 3-5 short actionable insights with recommendations. Be concise.\n\n${summary}`,
+        message: [
+          "You are a strict family productivity analyst.",
+          "Return exactly 5 bullet points.",
+          "Each bullet must contain: metric -> risk -> concrete action for this week.",
+          "No generic motivational phrases.",
+          "Use numeric values from the data.",
+          "Language: Russian.",
+          "",
+          summary,
+        ].join("\n"),
         context: {
           locale: localeMap[locale] ?? locale,
           audience: "parent",
           mode: "analytics",
         },
       })
-      setInsights(response.reply)
+      const reply = (response.reply ?? "").trim()
+      if (isLowQualityAiReply(reply)) {
+        setInsights(buildDeterministicInsights(analytics, windowDays))
+      } else {
+        setInsights(reply)
+      }
     } catch {
-      setError(t("aiChat.error"))
+      setInsights(buildDeterministicInsights(analytics, windowDays))
+      setError(null)
     } finally {
       setLoading(false)
     }
-  }, [buildAnalyticsSummary, locale, t])
+  }, [analytics, buildAnalyticsSummary, locale, windowDays])
 
   const sections = useMemo(() => {
     if (!insights) return []
