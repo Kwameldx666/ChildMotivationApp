@@ -18,22 +18,55 @@ import type {
 const AUTH_BASE_PATH = '/api-gateway/auth'
 const PROFILE_BASE_PATH = '/api-gateway/profile'
 
+const asText = (value: unknown, fallback = ''): string => {
+  if (typeof value !== 'string') return fallback
+  const normalized = value.trim()
+  return normalized.length > 0 ? normalized : fallback
+}
+
+const normalizeRole = (...candidates: unknown[]): UserProfile['role'] => {
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue
+    const normalized = candidate.trim().toLowerCase()
+    if (normalized === 'parent') return 'parent'
+    if (normalized === 'child') return 'child'
+  }
+
+  return 'parent'
+}
+
 const toSession = (payload: AuthPayload): AuthSession => {
+  const rawPayload = payload as Partial<AuthPayload> | null | undefined
+  const rawUser = rawPayload?.user as Partial<AuthPayload['user']> | undefined
+  const rawProfile = rawPayload?.profile as Partial<AuthPayload['profile']> | undefined
+  const fallbackUserId = asText((rawPayload as { userId?: unknown } | undefined)?.userId, 'unknown')
+
+  const user = {
+    id: asText(rawUser?.id, fallbackUserId),
+    email: asText(rawUser?.email),
+    name: asText(rawUser?.name),
+    lastName: asText(rawUser?.lastName),
+  }
+
   const profile: UserProfile = {
-    name: payload.profile?.name ?? payload.user.name,
-    lastName: payload.profile?.lastName ?? payload.user.lastName,
-    avatar: payload.profile?.avatar ?? '',
-    role: payload.profile?.role ?? 'parent',
-    age: payload.profile?.age,
+    name: asText(rawProfile?.name, user.name),
+    lastName: asText(rawProfile?.lastName, user.lastName),
+    avatar: asText(rawProfile?.avatar),
+    role: normalizeRole(
+      rawProfile?.role,
+      (rawUser as { role?: unknown } | undefined)?.role,
+      (rawPayload as { role?: unknown } | undefined)?.role,
+    ),
+    age: typeof rawProfile?.age === 'number' ? rawProfile.age : undefined,
   }
 
   return {
     accessToken: null,
     refreshToken: null,
-    user: payload.user,
+    user,
     profile,
-    family: payload.family,
-    mustChangePassword: payload.mustChangePassword ?? false,
+    family: rawPayload?.family,
+    mustChangePassword: Boolean(rawPayload?.mustChangePassword),
   }
 }
 
@@ -41,20 +74,32 @@ const mergeSessionWithProfile = (
   response: UserProfileResponse,
   baseSession: AuthSession | null,
 ): AuthSession => {
+  const rawResponse = response as Partial<UserProfileResponse> | null | undefined
+  const rawUser = rawResponse?.user as Partial<UserProfileResponse['user']> | undefined
+  const rawProfile = rawResponse?.profile as Partial<UserProfileResponse['profile']> | undefined
+
+  const user = {
+    id: asText(rawUser?.id, baseSession?.user.id ?? 'unknown'),
+    email: asText(rawUser?.email, baseSession?.user.email ?? ''),
+    name: asText(rawUser?.name, baseSession?.user.name ?? ''),
+    lastName: asText(rawUser?.lastName, baseSession?.user.lastName ?? ''),
+  }
+
   const profile: UserProfile = {
-    name: response.profile?.name ?? response.user.name,
-    lastName: response.profile?.lastName ?? response.user.lastName,
-    avatar: response.profile?.avatar ?? '',
-    role: response.profile?.role ?? (baseSession?.profile.role ?? 'parent'),
-    age: response.profile?.age,
+    name: asText(rawProfile?.name, user.name),
+    lastName: asText(rawProfile?.lastName, user.lastName),
+    avatar: asText(rawProfile?.avatar, baseSession?.profile.avatar ?? ''),
+    role: normalizeRole(rawProfile?.role, baseSession?.profile.role),
+    age: typeof rawProfile?.age === 'number' ? rawProfile.age : baseSession?.profile.age,
   }
 
   return {
     accessToken: null,
     refreshToken: null,
-    user: response.user,
+    user,
     profile,
-    family: response.family,
+    family: rawResponse?.family ?? baseSession?.family,
+    mustChangePassword: baseSession?.mustChangePassword ?? false,
   }
 }
 
@@ -117,7 +162,6 @@ export const authApi = {
   async me() {
     try {
       const { data } = await apiClient.get<AuthPayload>(`${AUTH_BASE_PATH}/me`)
-      const currentSession = appStore.getState().auth.session
       const nextSession = toSession(data)
 
       const session = {
