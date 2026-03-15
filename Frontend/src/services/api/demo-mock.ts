@@ -166,6 +166,21 @@ type DemoResponse = {
 
 let serverDb: DemoDb | null = null
 
+const isValidDemoDb = (value: unknown): value is DemoDb => {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Partial<DemoDb>
+  return Array.isArray(candidate.users)
+    && Array.isArray(candidate.families)
+    && Array.isArray(candidate.tasks)
+    && Array.isArray(candidate.products)
+    && Array.isArray(candidate.orders)
+    && Array.isArray(candidate.notifications)
+    && Array.isArray(candidate.missions)
+    && Array.isArray(candidate.achievements)
+    && !!candidate.subscriptionsByUserId
+    && typeof candidate.subscriptionsByUserId === 'object'
+}
+
 const nowIso = () => new Date().toISOString()
 
 const makeId = (prefix: string) => {
@@ -874,7 +889,12 @@ const loadDb = (): DemoDb => {
       window.localStorage.setItem(DEMO_DB_STORAGE_KEY, JSON.stringify(seeded))
       return seeded
     }
-    const parsed = JSON.parse(raw) as DemoDb
+    const parsed = JSON.parse(raw) as unknown
+    if (!isValidDemoDb(parsed)) {
+      const seeded = createSeedDb()
+      window.localStorage.setItem(DEMO_DB_STORAGE_KEY, JSON.stringify(seeded))
+      return seeded
+    }
     return parsed
   } catch {
     const seeded = createSeedDb()
@@ -970,64 +990,155 @@ const normalizeMethod = (method?: string) => (method ?? 'GET').toUpperCase()
 
 const pathMatches = (pathname: string, pattern: RegExp) => pattern.exec(pathname)
 
-const makeAnalytics = (db: DemoDb) => {
+const makeAnalytics = (db: DemoDb, windowDays: number = 30) => {
+  const now = Date.now()
+  const dayMs = 86_400_000
+  const safeWindowDays = Number.isFinite(windowDays) ? Math.min(365, Math.max(7, Math.floor(windowDays))) : 30
+  const cutoff = now - safeWindowDays * dayMs
   const children = db.users.filter(user => user.role === 'child')
-  const completed = db.tasks.filter(task => task.completed).length
-  const total = db.tasks.length
-  const points = db.tasks.reduce((sum, task) => sum + (task.reward ?? 0), 0)
-  const today = new Date()
+  const palette = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#ec4899', '#3b82f6']
 
-  const weeklyActivity = Array.from({ length: 7 }, (_, idx) => {
-    const date = new Date(today)
-    date.setDate(today.getDate() - (6 - idx))
-    return {
-      day: date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
-      tasksCompleted: Math.max(0, completed - (6 - idx) % 3),
-      pointsEarned: 40 + idx * 10,
-    }
-  })
+  const scopedTasks = db.tasks.filter(task => new Date(task.createdAt).getTime() >= cutoff)
+  const tasks = scopedTasks.length > 0 ? scopedTasks : db.tasks
+
+  const toPeriodLabel = (date: Date) => date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })
+
+  const buildBuckets = (source: DemoTask[]) => {
+    const bucketSizeDays = safeWindowDays <= 14 ? 1 : 7
+    const bucketCount = Math.max(1, Math.ceil(safeWindowDays / bucketSizeDays))
+    return Array.from({ length: bucketCount }, (_, idx) => {
+      const daysAgoStart = (bucketCount - 1 - idx) * bucketSizeDays
+      const start = new Date(now - daysAgoStart * dayMs)
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(start)
+      end.setDate(end.getDate() + bucketSizeDays)
+
+      const completedInBucket = source.filter(task => {
+        if (!task.completedAt) return false
+        const ts = new Date(task.completedAt).getTime()
+        return ts >= start.getTime() && ts < end.getTime()
+      })
+
+      const createdInBucket = source.filter(task => {
+        const ts = new Date(task.createdAt).getTime()
+        return ts >= start.getTime() && ts < end.getTime()
+      })
+
+      return {
+        label: bucketSizeDays === 1
+          ? toPeriodLabel(start)
+          : `${toPeriodLabel(start)}–${toPeriodLabel(new Date(end.getTime() - 1))}`,
+        completedInBucket,
+        createdInBucket,
+      }
+    })
+  }
+
+  const buckets = buildBuckets(tasks)
+  const completed = tasks.filter(task => task.completed).length
+  const total = tasks.length
+  const points = tasks.filter(task => task.completed).reduce((sum, task) => sum + (task.reward ?? 0), 0)
+
+  const weeklyActivity = buckets.map(bucket => ({
+    day: bucket.label,
+    tasksCompleted: bucket.completedInBucket.length,
+    pointsEarned: bucket.completedInBucket.reduce((sum, task) => sum + (task.reward ?? 0), 0),
+  }))
 
   const childrenStats = children.map((child, index) => {
-    const childTasks = db.tasks.filter(task => task.assignedToUserId === child.id)
-    const childCompleted = childTasks.filter(task => task.completed).length
-    const palette = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981']
+    const childTasks = tasks.filter(task => task.assignedToUserId === child.id)
+    const childCompletedTasks = childTasks.filter(task => task.completed)
     return {
       childId: child.id,
       childName: child.name,
-      totalPoints: childTasks.reduce((sum, task) => sum + (task.reward ?? 0), 0),
-      completedTasks: childCompleted,
-      pendingTasks: Math.max(0, childTasks.length - childCompleted),
+      totalPoints: childCompletedTasks.reduce((sum, task) => sum + (task.reward ?? 0), 0),
+      completedTasks: childCompletedTasks.length,
+      pendingTasks: childTasks.length - childCompletedTasks.length,
       color: palette[index % palette.length],
     }
   })
 
-  const perChildActivity = children.map(child => ({
-    childId: child.id,
-    data: weeklyActivity,
+  const buildDifficultyDistribution = (source: DemoTask[]) => {
+    let easy = 0
+    let medium = 0
+    let hard = 0
+    for (const task of source) {
+      const difficulty = task.difficulty ?? 2
+      if (difficulty <= 2) easy += 1
+      else if (difficulty === 3) medium += 1
+      else hard += 1
+    }
+    return [
+      { name: 'Легко', value: easy, color: '#84cc16' },
+      { name: 'Средне', value: medium, color: '#eab308' },
+      { name: 'Сложно', value: hard, color: '#f97316' },
+    ]
+  }
+
+  const weeklyProgress = buckets.map((bucket, idx) => ({
+    week: safeWindowDays <= 14 ? bucket.label : `W${idx + 1}`,
+    completed: bucket.createdInBucket.filter(task => task.completed).length,
+    total: bucket.createdInBucket.length,
   }))
 
-  const perChildDifficulty = children.map(child => ({
-    childId: child.id,
-    data: [
-      { name: 'Легко', value: 3, color: '#84cc16' },
-      { name: 'Средне', value: 4, color: '#eab308' },
-      { name: 'Сложно', value: 2, color: '#f97316' },
-    ],
-  }))
+  let runningPoints = 0
+  const pointsTrend = buckets.map(bucket => {
+    runningPoints += bucket.completedInBucket.reduce((sum, task) => sum + (task.reward ?? 0), 0)
+    return {
+      date: bucket.label,
+      points: runningPoints,
+    }
+  })
 
-  const progressData = [
-    { week: 'W1', completed: 8, total: 12 },
-    { week: 'W2', completed: 10, total: 12 },
-    { week: 'W3', completed: 9, total: 12 },
-    { week: 'W4', completed: 11, total: 12 },
-  ]
+  const perChildActivity = children.map(child => {
+    const childTasks = tasks.filter(task => task.assignedToUserId === child.id)
+    const childBuckets = buildBuckets(childTasks)
+    return {
+      childId: child.id,
+      data: childBuckets.map(bucket => ({
+        day: bucket.label,
+        tasksCompleted: bucket.completedInBucket.length,
+        pointsEarned: bucket.completedInBucket.reduce((sum, task) => sum + (task.reward ?? 0), 0),
+      })),
+    }
+  })
 
-  const pointsTrend = [
-    { date: '01.03', points: 120 },
-    { date: '05.03', points: 190 },
-    { date: '10.03', points: 260 },
-    { date: '15.03', points: 340 },
-  ]
+  const perChildDifficulty = children.map(child => {
+    const childTasks = tasks.filter(task => task.assignedToUserId === child.id)
+    return {
+      childId: child.id,
+      data: buildDifficultyDistribution(childTasks),
+    }
+  })
+
+  const perChildProgress = children.map(child => {
+    const childTasks = tasks.filter(task => task.assignedToUserId === child.id)
+    const childBuckets = buildBuckets(childTasks)
+    return {
+      childId: child.id,
+      data: childBuckets.map((bucket, idx) => ({
+        week: safeWindowDays <= 14 ? bucket.label : `W${idx + 1}`,
+        completed: bucket.createdInBucket.filter(task => task.completed).length,
+        total: bucket.createdInBucket.length,
+      })),
+    }
+  })
+
+  const perChildPointsTrend = children.map(child => {
+    const childTasks = tasks.filter(task => task.assignedToUserId === child.id)
+    const childBuckets = buildBuckets(childTasks)
+    let childRunningPoints = 0
+    return {
+      childId: child.id,
+      data: childBuckets.map(bucket => {
+        childRunningPoints += bucket.completedInBucket.reduce((sum, task) => sum + (task.reward ?? 0), 0)
+        return {
+          date: bucket.label,
+          points: childRunningPoints,
+        }
+      }),
+    }
+  })
 
   return {
     totalPoints: points,
@@ -1037,22 +1148,18 @@ const makeAnalytics = (db: DemoDb) => {
     completionRate: total ? Math.round((completed / total) * 100) : 0,
     weeklyActivity,
     childrenStats,
-    difficultyDistribution: [
-      { name: 'Легко', value: 6, color: '#84cc16' },
-      { name: 'Средне', value: 7, color: '#eab308' },
-      { name: 'Сложно', value: 3, color: '#f97316' },
-    ],
-    weeklyProgress: progressData,
+    difficultyDistribution: buildDifficultyDistribution(tasks),
+    weeklyProgress,
     taskStatus: {
       completed,
-      inProgress: db.tasks.filter(task => !task.completed && !task.pendingApproval).length,
-      overdue: db.tasks.filter(task => !task.completed && !!task.dueDate && new Date(task.dueDate) < new Date()).length,
+      inProgress: tasks.filter(task => !task.completed && !task.pendingApproval).length,
+      overdue: tasks.filter(task => !task.completed && !!task.dueDate && new Date(task.dueDate).getTime() < now).length,
     },
     pointsTrend,
     perChildActivity,
     perChildDifficulty,
-    perChildProgress: children.map(child => ({ childId: child.id, data: progressData })),
-    perChildPointsTrend: children.map(child => ({ childId: child.id, data: pointsTrend })),
+    perChildProgress,
+    perChildPointsTrend,
   }
 }
 
@@ -1066,7 +1173,33 @@ const listNotificationsForCurrentUser = (db: DemoDb) => {
   return db.notifications.filter(item => item.userId === userId)
 }
 
-const buildAiReply = (message: string) => {
+const buildAiReply = (message: string, db: DemoDb, mode?: string) => {
+  const normalizedMessage = message.toLowerCase()
+  const shouldAnalyze = mode === 'analytics'
+    || normalizedMessage.includes('analy')
+    || normalizedMessage.includes('аналит')
+    || normalizedMessage.includes('прогресс')
+
+  if (shouldAnalyze) {
+    const analytics = makeAnalytics(db, 30)
+    const bestChild = [...analytics.childrenStats].sort((a, b) => b.totalPoints - a.totalPoints)[0]
+    const slowChild = [...analytics.childrenStats].sort((a, b) => a.completedTasks - b.completedTasks)[0]
+
+    return [
+      'Короткий AI-разбор по семье:',
+      `- Выполнено ${analytics.completedTasks} из ${analytics.totalTasks} задач (${analytics.completionRate}%).`,
+      `- Набрано ${analytics.totalPoints} очков за текущий период.`,
+      `- В работе: ${analytics.taskStatus.inProgress}, просрочено: ${analytics.taskStatus.overdue}.`,
+      bestChild ? `- Лучший прогресс: ${bestChild.childName} (${bestChild.totalPoints} очков).` : '- Данных по детям пока недостаточно.',
+      '',
+      'Рекомендации:',
+      '- Сначала закройте просроченные задачи с низкой сложностью (быстрые победы).',
+      '- Для ребёнка с низким темпом добавьте 2 короткие задачи на 10-15 минут.',
+      '- Введите бонус +10% очков за серию из 3 дней подряд.',
+      slowChild ? `- Отдельно поддержите ${slowChild.childName}: уменьшите сложность и дайте понятный чек-лист.` : '- Разделите большие задачи на 2-3 простых шага.',
+    ].join('\n')
+  }
+
   return `Отличная идея!\n\nПо запросу «${message}» предлагаю:\n- разбить задачу на 2-3 шага\n- добавить понятный дедлайн\n- закрепить быструю награду за выполнение\n\nЕсли хотите, могу сразу создать черновик задач.`
 }
 
@@ -1443,7 +1576,9 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
   }
 
   if (method === 'GET' && pathname === '/api-gateway/analytics/tasks') {
-    return { status: 200, data: makeAnalytics(db) }
+    const windowDaysRaw = Number(query.get('windowDays'))
+    const windowDays = Number.isFinite(windowDaysRaw) ? windowDaysRaw : 30
+    return { status: 200, data: makeAnalytics(db, windowDays) }
   }
 
   if (method === 'GET' && pathname === '/api-gateway/profile/me/family-members') {
@@ -1570,11 +1705,13 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
 
   if (method === 'POST' && pathname === '/api-gateway/ai/chat') {
     const userMessage = String(body?.message ?? '')
+    const context = body?.context && typeof body.context === 'object' ? body.context as Record<string, unknown> : undefined
+    const mode = typeof context?.mode === 'string' ? context.mode : undefined
     return {
       status: 200,
       data: {
         conversationId: makeId('ai-conv'),
-        reply: buildAiReply(userMessage),
+        reply: buildAiReply(userMessage, db, mode),
         followUpSuggestions: ['Сделай 3 задачи для младшего ребёнка', 'Предложи 5 наград до 300 очков', 'Собери план на неделю'],
         actions: [
           {
@@ -1668,14 +1805,14 @@ export const isDemoModeEnabled = () => {
   if (process.env.NEXT_PUBLIC_DEMO_MODE === 'false') return false
 
   if (typeof window === 'undefined') {
-    return process.env.NODE_ENV !== 'production'
+    return false
   }
 
   const stored = window.localStorage.getItem(DEMO_MODE_STORAGE_KEY)
   if (stored === '1' || stored === 'true') return true
   if (stored === '0' || stored === 'false') return false
 
-  return true
+  return false
 }
 
 export const resolveDemoRequest = (input: DemoRequestInput): DemoResponse | null => {
