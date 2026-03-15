@@ -3,6 +3,7 @@ using Gateway.Contracts.Tasks;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Gateway.Features.Controllers;
 
@@ -19,10 +20,14 @@ public class TasksController(
         var userId = User.GetUserId();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
-        var role = User.FindFirst("role")?.Value?.ToLowerInvariant();
+        var role = User.FindFirst(ClaimTypes.Role)?.Value?.ToLowerInvariant()
+                   ?? User.FindFirst("role")?.Value?.ToLowerInvariant();
 
-        var createdBy = role == "parent" ? userId : null;
-        var assignedTo = role == "child" ? userId : null;
+        var isParent = role == "parent" || User.IsInRole("parent");
+        var isChild = role == "child" || User.IsInRole("child");
+
+        var createdBy = isParent ? userId : null;
+        var assignedTo = isChild ? userId : null;
 
         using var response = await taskClient.GetAllAsync(createdBy, assignedTo, cancellationToken);
         return await response.ToActionResultAsync();

@@ -20,6 +20,11 @@ public class TaskRepository : ITaskRepository
         string? assignedToUserId = null, 
         CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(createdByUserId) && string.IsNullOrWhiteSpace(assignedToUserId))
+        {
+            return Array.Empty<TaskItem>();
+        }
+
         var query = _dbContext.Tasks.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(createdByUserId))
