@@ -2,6 +2,7 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { DEFAULT_API_BASE_URL } from '@/services/api/http-client'
 import { clearSession } from '@/features/auth/store/authSlice'
 import { appStore } from '@/store/appStore'
+import { createDemoAxiosAdapter, resolveDemoRequest } from '@/services/api/demo-mock'
 
 const API_BASE_URL = DEFAULT_API_BASE_URL
 const AUTH_BASE_PATH = '/api-gateway/auth'
@@ -79,6 +80,21 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+apiClient.interceptors.request.use((config) => {
+  const mock = resolveDemoRequest({
+    path: config.url ?? '',
+    method: config.method,
+    body: config.data,
+  })
+
+  if (!mock) return config
+
+  return {
+    ...config,
+    adapter: createDemoAxiosAdapter(mock),
+  }
+})
 
 export type ApiErrorResponse = {
   message?: string

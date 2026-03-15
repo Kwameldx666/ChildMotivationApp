@@ -29,6 +29,7 @@ export class ApiError<T = unknown> extends Error {
 
 import { clearSession, setSession } from '@/features/auth/store/authSlice'
 import { appStore } from '@/store/appStore'
+import { resolveDemoRequest } from '@/services/api/demo-mock'
 
 const AUTH_REFRESH_PATH = '/api-gateway/auth/refresh'
 
@@ -88,6 +89,20 @@ export class HttpClient {
       headers,
       body: preparedBody,
       credentials: rest.credentials ?? 'include',
+    }
+
+    const demoResponse = resolveDemoRequest({
+      path: requestPath,
+      method: requestInit.method,
+      body: preparedBody,
+      responseType,
+    })
+
+    if (demoResponse) {
+      if (demoResponse.status >= 400) {
+        throw new ApiError('Demo API Error', demoResponse.status, demoResponse.data)
+      }
+      return demoResponse.data as T
     }
 
     const url = this.resolveUrl(requestPath)

@@ -204,6 +204,25 @@ npm install
 npm run dev
 ```
 
+### Frontend demo mode (full mocks)
+
+Frontend now has a centralized mock API layer for demo screenshots and offline showcases.
+
+- By default, demo mode is enabled in browser (if no explicit flag is set).
+- To force enable: set `localStorage` key `familyquest:demo-mode` to `true` or `1`.
+- To disable and use real backend: set `localStorage` key `familyquest:demo-mode` to `false` or `0`.
+- Optional env override:
+	- `NEXT_PUBLIC_DEMO_MODE=true` — always use mocks
+	- `NEXT_PUBLIC_DEMO_MODE=false` — never use mocks
+
+Example in browser console:
+
+```js
+localStorage.setItem('familyquest:demo-mode', '1') // enable
+// localStorage.setItem('familyquest:demo-mode', '0') // disable
+location.reload()
+```
+
 ## 📈 Monitoring (Grafana)
 
 Grafana and Prometheus are included in `docker-compose.yml`.
