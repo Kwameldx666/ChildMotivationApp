@@ -176,20 +176,20 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
         {/* Compact header row */}
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", tier.bg)}>
-              <TierIcon className={cn("h-4.5 w-4.5", tier.color)} />
+              <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", tier.bg)}>
+              <TierIcon className={cn("h-5 w-5", tier.color)} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm truncate">{t(tier.nameKey)}</span>
+                <span className="font-semibold text-base truncate">{t(tier.nameKey)}</span>
                 {!isFree && (
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 gap-0.5 shrink-0">
+                  <Badge variant="secondary" className="text-xs px-2 py-0 h-5 gap-1 shrink-0">
                     <Check className="h-2.5 w-2.5" />
                     {t("subscription.currentlyActive")}
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-sm text-muted-foreground truncate">
                 {t(`subscription.tierDescriptions.${currentTier}`)}
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
               size="sm"
               variant={isFree ? "default" : "outline"}
               className={cn(
-                "shrink-0 h-8 text-xs gap-1.5",
+                "shrink-0 h-9 text-sm gap-1.5",
                 isFree && "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               )}
               onClick={() => setShowPricingDialog(true)}
@@ -213,7 +213,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
               {/* Stats row */}
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Price chip */}
-                <div className="inline-flex items-center gap-1.5 text-xs bg-muted/60 rounded-md px-2.5 py-1.5">
+                <div className="inline-flex items-center gap-1.5 text-sm bg-muted/60 rounded-md px-2.5 py-1.5">
                   <CreditCard className="h-3 w-3 text-muted-foreground" />
                   <span className="font-medium">
                     {subscription?.pricePerMonth ? `${subscription.pricePerMonth} ${t("subscription.currency")} ${t("subscription.perMonth")}` : "—"}
@@ -224,7 +224,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                 </div>
                 {/* Validity chip */}
                 {subscription?.endDate && (
-                  <div className="inline-flex items-center gap-1.5 text-xs bg-muted/60 rounded-md px-2.5 py-1.5">
+                  <div className="inline-flex items-center gap-1.5 text-sm bg-muted/60 rounded-md px-2.5 py-1.5">
                     <Calendar className="h-3 w-3 text-muted-foreground" />
                     <span>{t("subscriptionManager.validUntil")} {formatEndDate(subscription.endDate)}</span>
                     {subscription.daysRemaining != null && (
@@ -233,11 +233,11 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                   </div>
                 )}
                 {/* Limits chips */}
-                <div className="inline-flex items-center gap-1.5 text-xs bg-muted/60 rounded-md px-2.5 py-1.5">
+                <div className="inline-flex items-center gap-1.5 text-sm bg-muted/60 rounded-md px-2.5 py-1.5">
                   <Users className="h-3 w-3 text-muted-foreground" />
                   <span>{displayChildren}</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 text-xs bg-muted/60 rounded-md px-2.5 py-1.5">
+                <div className="inline-flex items-center gap-1.5 text-sm bg-muted/60 rounded-md px-2.5 py-1.5">
                   <Check className="h-3 w-3 text-muted-foreground" />
                   <span>{displayTasks}</span>
                 </div>
@@ -249,7 +249,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                   <span
                     key={label}
                     className={cn(
-                      "inline-flex items-center gap-1 text-[11px] rounded-full px-2 py-0.5 border",
+                      "inline-flex items-center gap-1 text-xs rounded-full px-2.5 py-1 border",
                       active
                         ? "bg-background border-border/60 text-foreground"
                         : "bg-muted/30 border-transparent text-muted-foreground/50 line-through"
@@ -264,7 +264,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
               {/* Cancel button */}
               <div className="pt-1">
                 <button
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+                  className="text-sm text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
                   onClick={handleCancelSubscription}
                   disabled={cancelSubscription.isPending}
                 >
