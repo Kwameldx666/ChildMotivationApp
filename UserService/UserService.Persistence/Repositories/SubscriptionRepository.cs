@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Persistence.Context;
@@ -16,8 +17,15 @@ public class SubscriptionRepository : ISubscriptionRepository
 
     public async Task<UserSubscription?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _context.Subscriptions
-            .FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        try
+        {
+            return await _context.Subscriptions
+                .FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        }
+        catch (PostgresException ex) when (ex.SqlState == "42P01")
+        {
+            return null;
+        }
     }
 
     public async Task<UserSubscription> CreateAsync(UserSubscription subscription, CancellationToken cancellationToken = default)
