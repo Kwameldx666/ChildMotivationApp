@@ -2863,6 +2863,7 @@
   },
   "gallery": {
     "title": "Evidence Gallery",
+    "subtitle": "All your proof of completed tasks",
     "filter": "Filter by status",
     "noEvidence": "No evidence to display",
     "completed": "Completed",

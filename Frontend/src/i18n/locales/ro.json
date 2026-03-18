@@ -2835,6 +2835,7 @@
   },
   "gallery": {
     "title": "Galeria dovezilor",
+    "subtitle": "Toate dovezile tale pentru sarcinile finalizate",
     "filter": "Filtrare după status",
     "noEvidence": "Nu sunt dovezi pentru affișare",
     "completed": "Completat",
