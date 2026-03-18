@@ -3,6 +3,7 @@ using Gateway.Application.Features.User.DTOs;
 using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Gateway.Features.Controllers;
 
@@ -18,6 +19,29 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     public async Task<IActionResult> GetCurrentSubscriptionAsync(CancellationToken cancellationToken)
     {
         using var response = await userServiceClient.GetCurrentSubscriptionAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode && IsChildUser(User))
+        {
+            return Ok(new
+            {
+                tier = "Free",
+                status = "Active",
+                startDate = DateTime.UtcNow.Date,
+                endDate = (DateTime?)null,
+                pricePerMonth = 0m,
+                autoRenew = false,
+                maxChildren = 1,
+                maxTasksPerDay = 20,
+                hasAIAssistant = true,
+                hasAdvancedAnalytics = false,
+                hasCustomRewards = false,
+                hasPrioritySupport = false,
+                hasFamilySharing = false,
+                hasOfflineMode = false,
+                daysRemaining = (int?)null
+            });
+        }
+
         return await response.ToActionResultAsync();
     }
 
@@ -64,5 +88,14 @@ public class SubscriptionController(IUserServiceClient userServiceClient) : Cont
     {
         using var response = await userServiceClient.GetSubscriptionTiersAsync(cancellationToken);
         return await response.ToActionResultAsync();
+    }
+
+    private static bool IsChildUser(ClaimsPrincipal user)
+    {
+        var role = user.FindFirst(ClaimTypes.Role)?.Value
+                   ?? user.FindFirst("role")?.Value;
+
+        return string.Equals(role, "child", StringComparison.OrdinalIgnoreCase)
+               || user.IsInRole("child");
     }
 }
