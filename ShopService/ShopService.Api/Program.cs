@@ -75,12 +75,13 @@ using (var scope = app.Services.CreateScope())
         }
 
         // ── Seed demo orders for screenshots ──
-        var child1Id = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
-        var hasDemo = await db.Orders.AnyAsync(o => o.UserId == child1Id);
-        if (!hasDemo)
+        var demoOrdersCount = await db.Orders.CountAsync(o =>
+            o.UserId == "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" ||
+            o.UserId == "cccccccc-cccc-cccc-cccc-cccccccccccc");
+        if (demoOrdersCount < 8)
         {
             var logger2 = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DemoSeed");
-            logger2.LogInformation("Seeding demo orders...");
+            logger2.LogInformation("Seeding demo orders... current count: {Count}", demoOrdersCount);
 
             await db.Database.ExecuteSqlRawAsync("""
                 INSERT INTO orders ("Id","UserId","CreatedAt","Status","TotalAmount",
@@ -100,6 +101,21 @@ using (var scope = app.Services.CreateScope())
                  NOW()-INTERVAL '3 days', 'cccccccc-cccc-cccc-cccc-cccccccccccc', NULL),
                 ('b1000000-0000-0000-0000-000000000004','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
                  NOW(), 1, 100,
+                 NULL, NULL, NULL, NULL, NULL),
+                ('b1000000-0000-0000-0000-000000000005','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                 NOW()-INTERVAL '12 days', 5, 25,
+                 NOW()-INTERVAL '11 days 22 hours', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                 NOW()-INTERVAL '11 days 21 hours', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Музыка в машине на поездку к бабушке'),
+                ('b1000000-0000-0000-0000-000000000006','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                 NOW()-INTERVAL '9 days', 5, 30,
+                 NOW()-INTERVAL '8 days 20 hours', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                 NOW()-INTERVAL '8 days 18 hours', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'Дополнительное экранное время использовано после уроков'),
+                ('b1000000-0000-0000-0000-000000000007','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                 NOW()-INTERVAL '2 days', 3, 120,
+                 NOW()-INTERVAL '2 days', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                 NULL, NULL, 'Ожидает подтверждения ребёнком'),
+                ('b1000000-0000-0000-0000-000000000008','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                 NOW()-INTERVAL '6 hours', 2, 20,
                  NULL, NULL, NULL, NULL, NULL)
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
@@ -114,7 +130,15 @@ using (var scope = app.Services.CreateScope())
                 ('c1000000-0000-0000-0000-000000000003','b1000000-0000-0000-0000-000000000003',
                  'a1b2c3d4-1111-4000-8000-000000000004','Сладкий бонус', 20, 1, 20),
                 ('c1000000-0000-0000-0000-000000000004','b1000000-0000-0000-0000-000000000004',
-                 'a1b2c3d4-2222-4000-8000-000000000001','Настольная игра с родителем', 100, 1, 100)
+                 'a1b2c3d4-2222-4000-8000-000000000001','Настольная игра с родителем', 100, 1, 100),
+                ('c1000000-0000-0000-0000-000000000005','b1000000-0000-0000-0000-000000000005',
+                 'a1b2c3d4-1111-4000-8000-000000000002','Выбор музыки в машине', 25, 1, 25),
+                ('c1000000-0000-0000-0000-000000000006','b1000000-0000-0000-0000-000000000006',
+                 'a1b2c3d4-1111-4000-8000-000000000003','Дополнительные 15 минут игры', 30, 1, 30),
+                ('c1000000-0000-0000-0000-000000000007','b1000000-0000-0000-0000-000000000007',
+                 'a1b2c3d4-2222-4000-8000-000000000002','Пикник в гостиной', 120, 1, 120),
+                ('c1000000-0000-0000-0000-000000000008','b1000000-0000-0000-0000-000000000008',
+                 'a1b2c3d4-1111-4000-8000-000000000001','Наклейка на выбор', 20, 1, 20)
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
 

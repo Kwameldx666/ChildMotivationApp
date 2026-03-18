@@ -223,6 +223,22 @@ localStorage.setItem('familyquest:demo-mode', '1') // enable
 location.reload()
 ```
 
+### Pre-seeded demo parent (real backend)
+
+When services start with migrations, a demo family is created automatically in DB for realistic screenshots and testing.
+
+- Parent login: `demo.parent@example.com`
+- Password: `Demo123!`
+- Family code: `DEMO2025`
+- Demo children:
+	- `masha.ivanova@example.com` / `Demo123!`
+	- `dima.ivanov@example.com` / `Demo123!`
+
+Seed includes:
+- Extended tasks (completed, pending, and common family tasks)
+- Family chat history with meaningful threaded conversation
+- Subscription and shop orders with different statuses
+
 ## 📈 Monitoring (Grafana)
 
 Grafana and Prometheus are included in `docker-compose.yml`.

@@ -70,11 +70,11 @@ using (var scope = app.Services.CreateScope())
 
         // ── Seed demo tasks for screenshots ──
         var parentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-        var hasDemo = await db.Tasks.AnyAsync(t => t.CreatedByUserId == parentId);
-        if (!hasDemo)
+        var demoTaskCount = await db.Tasks.CountAsync(t => t.CreatedByUserId == parentId);
+        if (demoTaskCount < 18)
         {
             var logger2 = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DemoSeed");
-            logger2.LogInformation("Seeding demo tasks...");
+            logger2.LogInformation("Seeding demo tasks... current count: {Count}", demoTaskCount);
 
             await db.Database.ExecuteSqlRawAsync("""
                 INSERT INTO tasks ("Id","Title","Description","Completed","CreatedAt","UpdatedAt","CompletedAt",
@@ -122,7 +122,42 @@ using (var scope = app.Services.CreateScope())
 
                 ('d1000000-0000-0000-0000-000000000010','Протереть пыль в гостиной','Протереть полки и подоконники',
                  false, NOW(), NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 3, 120, 10)
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 3, 120, 10),
+
+                -- Family-wide tasks (shown to children as common tasks)
+                ('d1000000-0000-0000-0000-000000000011','Подготовить семейный вечер','Выбрать игру и подготовить настольный стол',
+                 false, NOW()-INTERVAL '6 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',NULL, 0, 2, 100, 8),
+
+                ('d1000000-0000-0000-0000-000000000012','Собрать идеи для выходных','Каждый предлагает 2 идеи для прогулки',
+                 false, NOW()-INTERVAL '5 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',NULL, 0, 2, 90, 6),
+
+                -- Extra tasks for Маша
+                ('d1000000-0000-0000-0000-000000000013','Повторить английские слова','Выучить 12 слов из карточек и прочитать вслух',
+                 false, NOW()-INTERVAL '8 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 3, 130, 12),
+
+                ('d1000000-0000-0000-0000-000000000014','Собрать портфель заранее','Проверить дневник и подготовить учебники на завтра',
+                 true, NOW()-INTERVAL '12 hours', NOW()-INTERVAL '11 hours', NOW()-INTERVAL '11 hours',
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 1, 70, 3),
+
+                ('d1000000-0000-0000-0000-000000000015','Сделать фото поделки','Собрать поделку и отправить фото для подтверждения',
+                 false, NOW()-INTERVAL '4 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1, 2, 100, 8),
+
+                -- Extra tasks for Дима
+                ('d1000000-0000-0000-0000-000000000016','Потренировать чтение','Прочитать 4 страницы и пересказать',
+                 false, NOW()-INTERVAL '7 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 2, 100, 8),
+
+                ('d1000000-0000-0000-0000-000000000017','Собрать конструктор по схеме','Собрать модель и показать родителю',
+                 true, NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days',
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 3, 140, 14),
+
+                ('d1000000-0000-0000-0000-000000000018','Подготовить одежду на завтра','Аккуратно сложить форму и носки',
+                 false, NOW()-INTERVAL '3 hours', NULL, NULL,
+                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 1, 70, 3)
 
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
