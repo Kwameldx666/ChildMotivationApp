@@ -202,9 +202,10 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
 
   const executeAction = useCallback(async (action: AiAction) => {
     try {
+      const actionUserId = preparedContext?.userId?.trim() || preparedContext?.displayName?.trim() || 'unknown'
       const result = await aiService.executeAction({
         action,
-        userId: preparedContext?.displayName ?? 'unknown',
+        userId: actionUserId,
         familyId: preparedContext?.familyName,
       })
 

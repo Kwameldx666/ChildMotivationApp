@@ -4,6 +4,7 @@ using Gateway.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Gateway.Features.Controllers;
 
@@ -12,8 +13,14 @@ namespace Gateway.Features.Controllers;
 [Route("api-gateway/[controller]")]
 public class TasksController(
     ITaskServiceClient taskClient,
+    IUserServiceClient userServiceClient,
     ILogger<TasksController> logger) : ControllerBase
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
@@ -26,11 +33,127 @@ public class TasksController(
         var isParent = role == "parent" || User.IsInRole("parent");
         var isChild = role == "child" || User.IsInRole("child");
 
+        if (isChild)
+        {
+            using var assignedTasksResponse = await taskClient.GetAllAsync(null, userId, cancellationToken);
+            if (!assignedTasksResponse.IsSuccessStatusCode)
+            {
+                return await assignedTasksResponse.ToActionResultAsync();
+            }
+
+            var mergedTasksById = (await ReadTasksAsync(assignedTasksResponse, cancellationToken))
+                .ToDictionary(task => task.Id, task => task);
+
+            using var familyMembersResponse = await userServiceClient.GetCurrentFamilyMembersAsync(cancellationToken);
+            if (familyMembersResponse.IsSuccessStatusCode)
+            {
+                var parentIds = await ReadParentIdsAsync(familyMembersResponse, userId, cancellationToken);
+
+                foreach (var parentId in parentIds)
+                {
+                    using var parentTasksResponse = await taskClient.GetAllAsync(parentId, null, cancellationToken);
+                    if (!parentTasksResponse.IsSuccessStatusCode)
+                    {
+                        logger.LogWarning(
+                            "Failed to fetch tasks created by parent {ParentId} for child {ChildId}. Status: {StatusCode}",
+                            parentId,
+                            userId,
+                            (int)parentTasksResponse.StatusCode);
+                        continue;
+                    }
+
+                    var parentTasks = await ReadTasksAsync(parentTasksResponse, cancellationToken);
+                    foreach (var task in parentTasks.Where(task =>
+                                 string.IsNullOrWhiteSpace(task.AssignedToUserId) ||
+                                 task.AssignedToUserId == userId))
+                    {
+                        mergedTasksById.TryAdd(task.Id, task);
+                    }
+                }
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Failed to load family members for child {ChildId}. Status: {StatusCode}",
+                    userId,
+                    (int)familyMembersResponse.StatusCode);
+            }
+
+            var tasks = mergedTasksById.Values
+                .OrderBy(task => task.Completed)
+                .ThenByDescending(task => task.UpdatedAt ?? task.CreatedAt)
+                .ToList();
+
+            return Ok(tasks);
+        }
+
         var createdBy = isParent ? userId : null;
-        var assignedTo = isChild ? userId : null;
+        var assignedTo = (isChild && !isParent) ? userId : null;
 
         using var response = await taskClient.GetAllAsync(createdBy, assignedTo, cancellationToken);
         return await response.ToActionResultAsync();
+    }
+
+    private async Task<List<TaskListItem>> ReadTasksAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        return await JsonSerializer.DeserializeAsync<List<TaskListItem>>(stream, SerializerOptions, cancellationToken)
+               ?? [];
+    }
+
+    private static async Task<IReadOnlyList<string>> ReadParentIdsAsync(
+        HttpResponseMessage response,
+        string currentUserId,
+        CancellationToken cancellationToken)
+    {
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+
+        var root = document.RootElement;
+        var members = root.ValueKind == JsonValueKind.Array
+            ? root
+            : root.TryGetProperty("data", out var dataNode) && dataNode.ValueKind == JsonValueKind.Array
+                ? dataNode
+                : root.TryGetProperty("items", out var itemsNode) && itemsNode.ValueKind == JsonValueKind.Array
+                    ? itemsNode
+                    : default;
+
+        if (members.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var parentIds = new List<string>();
+
+        foreach (var member in members.EnumerateArray())
+        {
+            if (member.ValueKind != JsonValueKind.Object) continue;
+
+            var role = member.TryGetProperty("role", out var roleNode)
+                ? roleNode.GetString()
+                : null;
+            if (!string.Equals(role, "parent", StringComparison.OrdinalIgnoreCase)) continue;
+
+            var memberId = member.TryGetProperty("id", out var idNode)
+                ? idNode.GetString()
+                : member.TryGetProperty("userId", out var userIdNode)
+                    ? userIdNode.GetString()
+                    : null;
+
+            if (string.IsNullOrWhiteSpace(memberId) || memberId == currentUserId) continue;
+            parentIds.Add(memberId);
+        }
+
+        return parentIds;
+    }
+
+    private sealed record TaskListItem
+    {
+        public Guid Id { get; init; }
+        public bool Completed { get; init; }
+        public DateTimeOffset CreatedAt { get; init; }
+        public DateTimeOffset? UpdatedAt { get; init; }
+        public string? AssignedToUserId { get; init; }
     }
 
     [HttpGet("{id:guid}")]

@@ -126,6 +126,7 @@ export default function ChildAiChat() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const role = session?.profile.role ?? "child"
+  const userId = session?.user.id
   const userName = session?.profile.name
   const familyName = session?.family?.name ?? null
 
@@ -136,11 +137,12 @@ export default function ChildAiChat() {
   const context = useMemo(() => {
     const localeMap: Record<string, string> = { en: "en-US", ru: "ru-RU", ro: "ro-RO" }
     const base: Record<string, string> = { locale: localeMap[locale] ?? locale, audience: role }
+    if (userId) base.userId = userId
     if (userName) base.displayName = userName
     if (familyName) base.familyName = familyName
     if (settings.aiTone) base.tone = settings.aiTone
     return base
-  }, [role, userName, familyName, locale, settings.aiTone])
+  }, [role, userId, userName, familyName, locale, settings.aiTone])
 
   const {
     messages,
