@@ -98,9 +98,8 @@ export function useTasks() {
 
       const isChild = session?.profile.role === 'child'
       const hasNoTasks = !Array.isArray(tasks) || tasks.length === 0
-      const isDev = process.env.NODE_ENV !== 'production'
 
-      if (isChild && hasNoTasks && isDev && session?.user.id) {
+      if (isChild && hasNoTasks && session?.user.id) {
         return buildMockChildTasks(session.user.id)
       }
 
