@@ -14,6 +14,7 @@ import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "./family-chat"
 import { useTranslation } from "@/i18n/provider"
 import { useRouter } from "next/navigation"
+import { buildPrivateChatId } from "@/lib/private-chat-id"
 
 interface ParentChatSelectorProps {
   familyId: string
@@ -173,8 +174,7 @@ export default function ParentChatSelector({
   }
 
   if (selectedChat.type === "private" && selectedChat.childId) {
-    // Приватный чат использует уникальный chatId на основе familyId и childId
-    const privateChatId = `${familyId}_${selectedChat.childId}`
+    const privateChatId = buildPrivateChatId(familyId, selectedChat.childId)
     
     return (
       <FamilyChat

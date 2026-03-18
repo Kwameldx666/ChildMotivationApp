@@ -9,6 +9,7 @@ import { selectAuthSession } from "@/features/auth/store/authSlice"
 import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "@/components/family-chat"
 import ChildAiChat from "@/components/child-ai-chat"
+import { buildPrivateChatId } from "@/lib/private-chat-id"
 
 export default function ChildChatHub() {
   const { t } = useTranslation()
@@ -26,7 +27,9 @@ export default function ChildChatHub() {
 
   if (!session) return null
 
-  const privateChatId = primaryParent ? `${primaryParent.id}_${session.user.id}` : `${session.user.id}`
+  const privateChatId = primaryParent
+    ? buildPrivateChatId(primaryParent.id, session.user.id)
+    : session.user.id
 
   return (
     <div className="space-y-4" data-tour="child-chat">
