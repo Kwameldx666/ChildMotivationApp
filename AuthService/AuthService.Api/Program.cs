@@ -112,71 +112,107 @@ using (var scope = app.Services.CreateScope())
             try
             {
                 var userManager = services.GetRequiredService<UserManager<AuthService.Domain.Entities.User>>();
-                var demoParentId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-                var existing = await userManager.FindByIdAsync(demoParentId.ToString());
-                if (existing is null)
+                const string demoPassword = "Demo123!";
+
+                async Task EnsureDemoUserAsync(AuthService.Domain.Entities.User template, string role)
                 {
-                    logger.LogInformation("Seeding demo family...");
-
-                    var parent = new AuthService.Domain.Entities.User
+                    var user = await userManager.FindByIdAsync(template.Id.ToString());
+                    if (user is null)
                     {
-                        Id = demoParentId,
-                        UserName = "demo.parent@example.com",
-                        Email = "demo.parent@example.com",
-                        EmailConfirmed = true,
-                        Name = "Алексей",
-                        LastName = "Иванов",
-                        FamilyCode = "DEMO2025",
-                        FamilyName = "Семья Ивановых",
-                        FamilyEmblem = "shield",
-                        UserType = UserType.Parent,
-                        UserStatus = "active",
-                        Avatar = "👨",
-                    };
-                    var r1 = await userManager.CreateAsync(parent, "Demo123!");
-                    if (r1.Succeeded) await userManager.AddToRoleAsync(parent, UserRoles.Parent);
+                        var createResult = await userManager.CreateAsync(template, demoPassword);
+                        if (!createResult.Succeeded)
+                        {
+                            logger.LogWarning(
+                                "Failed creating demo user {Email}: {Errors}",
+                                template.Email,
+                                string.Join("; ", createResult.Errors.Select(e => e.Description)));
+                            return;
+                        }
 
-                    var child1 = new AuthService.Domain.Entities.User
+                        user = template;
+                    }
+
+                    var hasRole = await userManager.IsInRoleAsync(user, role);
+                    if (!hasRole)
                     {
-                        Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                        UserName = "masha.ivanova@example.com",
-                        Email = "masha.ivanova@example.com",
-                        EmailConfirmed = true,
-                        Name = "Маша",
-                        LastName = "Иванова",
-                        FamilyCode = "DEMO2025",
-                        FamilyName = "Семья Ивановых",
-                        FamilyEmblem = "shield",
-                        UserType = UserType.Child,
-                        UserStatus = "active",
-                        Avatar = "👧",
-                        Age = 10,
-                    };
-                    var r2 = await userManager.CreateAsync(child1, "Demo123!");
-                    if (r2.Succeeded) await userManager.AddToRoleAsync(child1, UserRoles.Child);
+                        var roleResult = await userManager.AddToRoleAsync(user, role);
+                        if (!roleResult.Succeeded)
+                        {
+                            logger.LogWarning(
+                                "Failed assigning role {Role} to demo user {Email}: {Errors}",
+                                role,
+                                user.Email,
+                                string.Join("; ", roleResult.Errors.Select(e => e.Description)));
+                        }
+                    }
 
-                    var child2 = new AuthService.Domain.Entities.User
+                    if (!await userManager.CheckPasswordAsync(user, demoPassword))
                     {
-                        Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                        UserName = "dima.ivanov@example.com",
-                        Email = "dima.ivanov@example.com",
-                        EmailConfirmed = true,
-                        Name = "Дима",
-                        LastName = "Иванов",
-                        FamilyCode = "DEMO2025",
-                        FamilyName = "Семья Ивановых",
-                        FamilyEmblem = "shield",
-                        UserType = UserType.Child,
-                        UserStatus = "active",
-                        Avatar = "👦",
-                        Age = 8,
-                    };
-                    var r3 = await userManager.CreateAsync(child2, "Demo123!");
-                    if (r3.Succeeded) await userManager.AddToRoleAsync(child2, UserRoles.Child);
-
-                    logger.LogInformation("Demo family seeded: parent={P}, child1={C1}, child2={C2}",
-                        r1.Succeeded, r2.Succeeded, r3.Succeeded);
+                        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                        var resetResult = await userManager.ResetPasswordAsync(user, resetToken, demoPassword);
+                        if (!resetResult.Succeeded)
+                        {
+                            logger.LogWarning(
+                                "Failed resetting demo password for {Email}: {Errors}",
+                                user.Email,
+                                string.Join("; ", resetResult.Errors.Select(e => e.Description)));
+                        }
+                    }
                 }
+
+                logger.LogInformation("Ensuring demo family users and credentials...");
+
+                await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
+                {
+                    Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    UserName = "demo.parent@example.com",
+                    Email = "demo.parent@example.com",
+                    EmailConfirmed = true,
+                    Name = "Алексей",
+                    LastName = "Иванов",
+                    FamilyCode = "DEMO2025",
+                    FamilyName = "Семья Ивановых",
+                    FamilyEmblem = "shield",
+                    UserType = UserType.Parent,
+                    UserStatus = "active",
+                    Avatar = "👨",
+                }, UserRoles.Parent);
+
+                await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
+                {
+                    Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    UserName = "masha.ivanova@example.com",
+                    Email = "masha.ivanova@example.com",
+                    EmailConfirmed = true,
+                    Name = "Маша",
+                    LastName = "Иванова",
+                    FamilyCode = "DEMO2025",
+                    FamilyName = "Семья Ивановых",
+                    FamilyEmblem = "shield",
+                    UserType = UserType.Child,
+                    UserStatus = "active",
+                    Avatar = "👧",
+                    Age = 10,
+                }, UserRoles.Child);
+
+                await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
+                {
+                    Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                    UserName = "dima.ivanov@example.com",
+                    Email = "dima.ivanov@example.com",
+                    EmailConfirmed = true,
+                    Name = "Дима",
+                    LastName = "Иванов",
+                    FamilyCode = "DEMO2025",
+                    FamilyName = "Семья Ивановых",
+                    FamilyEmblem = "shield",
+                    UserType = UserType.Child,
+                    UserStatus = "active",
+                    Avatar = "👦",
+                    Age = 8,
+                }, UserRoles.Child);
+
+                logger.LogInformation("Demo family users ensured.");
             }
             catch (Exception ex)
             {
