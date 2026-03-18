@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import GuidedTour, { useFirstVisitTour, type TourStep } from "@/components/guided-tour"
+import ErrorBoundary from "@/components/error-boundary"
 
 /* ═══════════ Types ═══════════ */
 
@@ -152,6 +153,46 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
     if (v && !avatarImageUrl) return v
     return userProfile.name?.trim()?.charAt(0)?.toUpperCase() || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
+
+  const activeTabContent = useMemo(() => {
+    switch (activeTab) {
+      case "tasks":
+        return <TasksList userType="child" />
+      case "gallery":
+        return <EvidenceGallery tasks={tasks} userType="child" />
+      case "quests":
+        return <GameHub />
+      case "shop":
+        return <RewardsShop userType="child" childBalance={points} />
+      case "chat":
+        return <ChildChatHub />
+      case "achievements":
+        return <AchievementTree />
+      case "profile":
+        return (
+          <ChildProfile
+            childId={userId}
+            name={userProfile.name}
+            avatarSymbol={avatarFallback}
+            avatarImageUrl={avatarImageUrl}
+            stats={stats}
+            statsLoading={statsLoading}
+          />
+        )
+      default:
+        return <TasksList userType="child" />
+    }
+  }, [
+    activeTab,
+    tasks,
+    points,
+    userId,
+    userProfile.name,
+    avatarFallback,
+    avatarImageUrl,
+    stats,
+    statsLoading,
+  ])
 
   return (
     <div className="min-h-screen w-full bg-background relative overflow-x-hidden">
@@ -367,22 +408,16 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
            CONTENT — full width
          ═══════════════════════════════════════════════ */}
       <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 md:pb-10 pt-1">
-        <div className={cn(activeTab === "tasks" ? "block" : "hidden")}><TasksList userType="child" /></div>
-        <div className={cn(activeTab === "gallery" ? "block" : "hidden")}><EvidenceGallery tasks={tasks} userType="child" /></div>
-        <div className={cn(activeTab === "quests" ? "block" : "hidden")}><GameHub /></div>
-        <div className={cn(activeTab === "shop" ? "block" : "hidden")}><RewardsShop userType="child" childBalance={points} /></div>
-        <div className={cn(activeTab === "chat" ? "block" : "hidden")}><ChildChatHub /></div>
-        <div className={cn(activeTab === "achievements" ? "block" : "hidden")}><AchievementTree /></div>
-        <div className={cn(activeTab === "profile" ? "block" : "hidden")}>
-          <ChildProfile
-            childId={userId}
-            name={userProfile.name}
-            avatarSymbol={avatarFallback}
-            avatarImageUrl={avatarImageUrl}
-            stats={stats}
-            statsLoading={statsLoading}
-          />
-        </div>
+        <ErrorBoundary
+          key={activeTab}
+          fallback={
+            <div className="rounded-2xl border border-dashed p-6 text-center text-muted-foreground">
+              {t("common.error")}
+            </div>
+          }
+        >
+          {activeTabContent}
+        </ErrorBoundary>
       </main>
 
       {/* ═══════════════════════════════════════════════
