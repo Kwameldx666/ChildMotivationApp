@@ -124,6 +124,7 @@ export default function TaskRow({
   onViewEvidence, 
   onEdit,
   onDelete,
+  onAskParent,
   confirmLoading,
   updateLoading,
   downloadLoading,
