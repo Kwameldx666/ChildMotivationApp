@@ -42,7 +42,7 @@ public class TasksController(
             }
 
             var mergedTasksById = (await ReadTasksAsync(assignedTasksResponse, cancellationToken))
-                .ToDictionary(task => task.Id, task => task);
+                .ToDictionary(GetTaskId, task => task);
 
             using var familyMembersResponse = await userServiceClient.GetCurrentFamilyMembersAsync(cancellationToken);
             if (familyMembersResponse.IsSuccessStatusCode)
@@ -64,10 +64,10 @@ public class TasksController(
 
                     var parentTasks = await ReadTasksAsync(parentTasksResponse, cancellationToken);
                     foreach (var task in parentTasks.Where(task =>
-                                 string.IsNullOrWhiteSpace(task.AssignedToUserId) ||
-                                 task.AssignedToUserId == userId))
+                                 string.IsNullOrWhiteSpace(GetTaskAssignedTo(task)) ||
+                                 GetTaskAssignedTo(task) == userId))
                     {
-                        mergedTasksById.TryAdd(task.Id, task);
+                        mergedTasksById.TryAdd(GetTaskId(task), task);
                     }
                 }
             }
@@ -80,8 +80,8 @@ public class TasksController(
             }
 
             var tasks = mergedTasksById.Values
-                .OrderBy(task => task.Completed)
-                .ThenByDescending(task => task.UpdatedAt ?? task.CreatedAt)
+                .OrderBy(GetTaskCompleted)
+                .ThenByDescending(task => GetTaskUpdatedAt(task) ?? GetTaskCreatedAt(task))
                 .ToList();
 
             return Ok(tasks);
@@ -94,11 +94,67 @@ public class TasksController(
         return await response.ToActionResultAsync();
     }
 
-    private async Task<List<TaskListItem>> ReadTasksAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    private async Task<List<Dictionary<string, JsonElement>>> ReadTasksAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        return await JsonSerializer.DeserializeAsync<List<TaskListItem>>(stream, SerializerOptions, cancellationToken)
+        return await JsonSerializer.DeserializeAsync<List<Dictionary<string, JsonElement>>>(stream, SerializerOptions, cancellationToken)
                ?? [];
+    }
+
+    private static string GetTaskId(Dictionary<string, JsonElement> task)
+    {
+        if (TryGetProperty(task, "id", out var idNode) && idNode.ValueKind == JsonValueKind.String)
+        {
+            var id = idNode.GetString();
+            if (!string.IsNullOrWhiteSpace(id)) return id;
+        }
+
+        return Guid.NewGuid().ToString();
+    }
+
+    private static bool GetTaskCompleted(Dictionary<string, JsonElement> task)
+    {
+        return TryGetProperty(task, "completed", out var completedNode)
+               && completedNode.ValueKind == JsonValueKind.True;
+    }
+
+    private static DateTimeOffset? GetTaskUpdatedAt(Dictionary<string, JsonElement> task)
+    {
+        return TryReadDateTimeOffset(task, "updatedAt");
+    }
+
+    private static DateTimeOffset GetTaskCreatedAt(Dictionary<string, JsonElement> task)
+    {
+        return TryReadDateTimeOffset(task, "createdAt") ?? DateTimeOffset.MinValue;
+    }
+
+    private static string? GetTaskAssignedTo(Dictionary<string, JsonElement> task)
+    {
+        if (!TryGetProperty(task, "assignedToUserId", out var assignedNode) || assignedNode.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return assignedNode.GetString();
+    }
+
+    private static DateTimeOffset? TryReadDateTimeOffset(Dictionary<string, JsonElement> task, string name)
+    {
+        if (!TryGetProperty(task, name, out var dateNode) || dateNode.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        var value = dateNode.GetString();
+        return DateTimeOffset.TryParse(value, out var parsed) ? parsed : null;
+    }
+
+    private static bool TryGetProperty(Dictionary<string, JsonElement> source, string camelCaseName, out JsonElement value)
+    {
+        if (source.TryGetValue(camelCaseName, out value)) return true;
+
+        var pascalName = char.ToUpperInvariant(camelCaseName[0]) + camelCaseName.Substring(1);
+        return source.TryGetValue(pascalName, out value);
     }
 
     private static async Task<IReadOnlyList<string>> ReadParentIdsAsync(
@@ -145,15 +201,6 @@ public class TasksController(
         }
 
         return parentIds;
-    }
-
-    private sealed record TaskListItem
-    {
-        public Guid Id { get; init; }
-        public bool Completed { get; init; }
-        public DateTimeOffset CreatedAt { get; init; }
-        public DateTimeOffset? UpdatedAt { get; init; }
-        public string? AssignedToUserId { get; init; }
     }
 
     [HttpGet("{id:guid}")]
