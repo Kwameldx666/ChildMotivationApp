@@ -128,6 +128,22 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
 
   // UX: track user interaction to avoid showing validation errors immediately
   const [submitAttempted, setSubmitAttempted] = useState(false)
+  const sanitizeAvatarForRegistration = (value: string): string => {
+    const trimmed = value.trim()
+    if (!trimmed) return "👨"
+    if (trimmed.startsWith('data:')) return "👨"
+    if (trimmed.length <= 256) return trimmed
+
+    try {
+      const parsed = new URL(trimmed)
+      parsed.search = ''
+      parsed.hash = ''
+      const normalized = parsed.toString()
+      return normalized.length <= 256 ? normalized : "👨"
+    } catch {
+      return "👨"
+    }
+  }
   const [emailTouched, setEmailTouched] = useState(false)
   const [nameTouched, setNameTouched] = useState(false)
   const [lastNameTouched, setLastNameTouched] = useState(false)
@@ -302,7 +318,7 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     const profilePayload = {
       name: name.trim(),
       lastName: lastName.trim(),
-      avatar,
+      avatar: sanitizeAvatarForRegistration(avatar),
     }
 
     setIsLoading(true)

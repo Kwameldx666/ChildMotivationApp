@@ -38,6 +38,23 @@ function mapOAuthError(e: string | null | undefined, t: (key: string) => string)
   return e
 }
 
+function sanitizeAvatarForAuth(value: string | null | undefined): string | null {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+  if (trimmed.startsWith('data:')) return null
+  if (trimmed.length <= 256) return trimmed
+
+  try {
+    const parsed = new URL(trimmed)
+    parsed.search = ''
+    parsed.hash = ''
+    const normalized = parsed.toString()
+    return normalized.length <= 256 ? normalized : null
+  } catch {
+    return null
+  }
+}
+
 export default function OAuthRedirectPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -200,6 +217,7 @@ export default function OAuthRedirectPage() {
   const handleSubmitPending = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!pendingToken || !pendingUser) return
+    const isPopup = typeof window !== 'undefined' && window.opener !== null
 
     // clear form-only errors (do not touch fatal errors)
     setFormError(null)
@@ -254,7 +272,7 @@ export default function OAuthRedirectPage() {
       name: trimmedName,
       lastName: trimmedLastName,
       email: trimmedEmail,
-      avatar: avatarPreview,
+      avatar: sanitizeAvatarForAuth(avatarPreview),
       age: parsedAge,
       familyCode: normalizedFamilyCode,
       familyName: normalizedFamilyName,
