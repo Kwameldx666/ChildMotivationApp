@@ -423,11 +423,11 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden bg-background">
+      <DialogContent className="w-[95vw] sm:w-full max-w-md max-h-[92vh] p-0 gap-0 overflow-y-auto bg-background">
         {/* Gradient top bar */}
         <div className={cn("h-1.5 bg-gradient-to-r", meta.gradient)} />
 
-        <div className="px-6 pt-5 pb-2">
+        <div className="px-4 sm:px-6 pt-5 pb-2">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {step === "success" ? (
@@ -460,7 +460,7 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
           )}
         </div>
 
-        <div className="px-6 pb-6 pt-2">
+        <div className="px-4 sm:px-6 pb-6 pt-2">
           {step === "summary" && renderSummary()}
           {step === "payment" && renderPayment()}
           {step === "processing" && renderProcessing()}
