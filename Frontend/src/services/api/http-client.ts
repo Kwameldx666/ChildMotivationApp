@@ -1,4 +1,4 @@
-const browserBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://161.35.169.189'
+const browserBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://161.35.169.189:8081'
 const serverBaseUrl = process.env.INTERNAL_API_URL ?? browserBaseUrl
 
 export const DEFAULT_API_BASE_URL = typeof window === 'undefined' ? serverBaseUrl : browserBaseUrl

@@ -265,16 +265,16 @@ services:
       context: .
       dockerfile: Frontend/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://161.35.169.189
+        NEXT_PUBLIC_API_URL: http://161.35.169.189:8081
         INTERNAL_API_URL: http://gateway-service:8081
-        NEXT_PUBLIC_SIGNALR_URL: https://161.35.169.189
+        NEXT_PUBLIC_SIGNALR_URL: http://161.35.169.189:8090
     depends_on:
       - gateway-service
       - notification-service
     environment:
-      NEXT_PUBLIC_API_URL: https://161.35.169.189
+      NEXT_PUBLIC_API_URL: http://161.35.169.189:8081
       INTERNAL_API_URL: http://gateway-service:8081
-      NEXT_PUBLIC_SIGNALR_URL: https://161.35.169.189
+      NEXT_PUBLIC_SIGNALR_URL: http://161.35.169.189:8090
     ports:
       - "4000:3000"
 
