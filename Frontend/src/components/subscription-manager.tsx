@@ -118,14 +118,16 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
   const handlePaymentSuccess = async () => {
     if (selectedTier) {
       try {
-        await changeSubscription.mutateAsync({ tier: selectedTier.id, autoRenew: true })
+        const updatedSubscription = await changeSubscription.mutateAsync({ tier: selectedTier.id, autoRenew: true })
         onUpgrade?.(selectedTier.id)
         toast({
           title: t("subscription.subscriptionChanged") + " 🎉",
           description: `${t("subscription.changePlan")} "${selectedTier.name}" ${t("common.success")}`,
         })
+        return updatedSubscription
       } catch {
         toast({ title: t("common.error"), description: t("errors.serverError"), variant: "destructive" })
+        throw new Error("Failed to change subscription")
       }
     }
   }
