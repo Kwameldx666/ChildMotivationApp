@@ -26,7 +26,7 @@ interface PaymentModalProps {
   tierId?: string
   price: number
   yearlyPrice?: number
-  onSuccess?: () => void
+  onSuccess?: () => Promise<void> | void
 }
 
 const tierMeta: Record<string, { icon: typeof Crown; gradient: string; emoji: string; color: string }> = {
@@ -56,7 +56,7 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
     if (open) {
       setStep("summary")
       setBillingCycle("monthly")
-      setAgreedToTerms(false)
+      setAgreedToTerms(true)
     }
   }, [open])
 
@@ -110,19 +110,29 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
     // TODO: Real payment provider integration (Stripe, YooKassa)
     // In production this would call the payment provider API
     // After successful payment — onSuccess() activates the subscription via our API
-    setTimeout(() => {
-      setStep("success")
-      toast({
-        title: t("paymentModal.paymentSuccess"),
-        description: t("paymentModal.subscriptionActivatedToast", { tierName }),
-      })
+    setTimeout(async () => {
+      try {
+        await onSuccess?.()
 
-      setTimeout(() => {
-        onSuccess?.()
-        handleReset()
-        onClose()
-      }, 2500)
-    }, 2200)
+        setStep("success")
+        toast({
+          title: t("paymentModal.paymentSuccess"),
+          description: t("paymentModal.subscriptionActivatedToast", { tierName }),
+        })
+
+        setTimeout(() => {
+          handleReset()
+          onClose()
+        }, 1800)
+      } catch {
+        setStep("payment")
+        toast({
+          title: t("common.error"),
+          description: t("errors.serverError"),
+          variant: "destructive",
+        })
+      }
+    }, 1200)
   }
 
   const handleReset = () => {

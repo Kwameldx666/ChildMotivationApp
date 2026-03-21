@@ -175,7 +175,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
       <Card className={cn("overflow-hidden border", tier.accent)}>
         {/* Compact header row */}
         <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", tier.bg)}>
               <TierIcon className={cn("h-5 w-5", tier.color)} />
             </div>
@@ -189,7 +189,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground truncate">
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 {t(`subscription.tierDescriptions.${currentTier}`)}
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
               size="sm"
               variant={isFree ? "default" : "outline"}
               className={cn(
-                "shrink-0 h-9 text-sm gap-1.5",
+                "h-9 text-sm gap-1.5 w-full sm:w-auto",
                 isFree && "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
               )}
               onClick={() => setShowPricingDialog(true)}

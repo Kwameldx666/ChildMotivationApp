@@ -190,14 +190,14 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
 
             {/* Header */}
             <div className="mb-3 pt-1">
-              <h3 className="text-base font-semibold text-foreground">{t(`subscription.${tier.id}`)}</h3>
-              <p className="text-sm text-muted-foreground leading-snug">{t(tier.description)}</p>
+              <h3 className="text-sm sm:text-base font-semibold text-foreground">{t(`subscription.${tier.id}`)}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-snug truncate">{t(tier.description)}</p>
             </div>
 
             {/* Price */}
             <div className="mb-3">
               <div className="flex items-baseline gap-1 flex-wrap">
-                <span className="text-xl font-bold text-foreground">
+                <span className="text-lg sm:text-xl font-bold text-foreground">
                   {billingCycle === "yearly" && tier.price > 0
                     ? t(`subscription.plans.${tier.id}.yearlyMonthlyPrice`)
                     : isFree
@@ -221,12 +221,18 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
             {/* Features */}
             <ul className="space-y-2 mb-3 flex-1">
               {tier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
+                <li key={index} className={cn("flex items-start gap-2", index > 2 && "hidden sm:flex")}>
                   <Check className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
                   <span className="text-xs sm:text-sm text-foreground leading-snug">{t(feature)}</span>
                 </li>
               ))}
             </ul>
+
+            {tier.features.length > 3 && (
+              <p className="text-[11px] text-muted-foreground sm:hidden mb-2">
+                +{tier.features.length - 3}
+              </p>
+            )}
 
             {/* Trial note */}
             {showTrial && (
