@@ -6,13 +6,15 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Application.Features.Authentication.Password.ForgotPassword;
 
 public class ForgotPasswordCommandHandler(
     UserManager<Domain.Entities.User> userManager,
     IEmailService emailService,
-    IConfiguration configuration)
+  IConfiguration configuration,
+  ILogger<ForgotPasswordCommandHandler> logger)
     : IRequestHandler<ForgotPasswordCommand, Result>
 {
     public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -43,7 +45,16 @@ public class ForgotPasswordCommandHandler(
         var userName = user.Name ?? user.Email ?? "User";
 
         var htmlBody = BuildResetPasswordHtml(userName, resetLink);
-        await emailService.SendEmailAsync(user.Email!, "Reset your password — ChildMotivation", htmlBody, cancellationToken);
+        _ = emailService.SendEmailAsync(user.Email!, "Reset your password — ChildMotivation", htmlBody, CancellationToken.None)
+          .ContinueWith(task =>
+          {
+            if (task.Exception is not null)
+            {
+              logger.LogError(task.Exception.Flatten(),
+                "Failed to send password reset email to {Email}.",
+                request.Email);
+            }
+          }, TaskContinuationOptions.OnlyOnFaulted);
 
         return Result.Success(HttpStatusCode.OK);
     }

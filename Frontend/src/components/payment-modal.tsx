@@ -423,7 +423,7 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md top-[45%] p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden bg-background">
         {/* Gradient top bar */}
         <div className={cn("h-1.5 bg-gradient-to-r", meta.gradient)} />
 

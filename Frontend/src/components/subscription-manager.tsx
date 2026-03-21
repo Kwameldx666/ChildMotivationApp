@@ -308,7 +308,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
       </Card>
 
       <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
           <DialogHeader className="px-6 pt-5 pb-3">
             <DialogTitle className="text-lg">{t("subscription.chooseYourPlan")}</DialogTitle>
             <DialogDescription className="text-xs">

@@ -88,22 +88,20 @@ public class RegisterUserCommandHandler(
 
             var userName = newUser.Name ?? newUser.Email ?? "User";
 
-            _ = Task.Run(async () =>
-            {
-                try
+            _ = emailService.SendEmailConfirmationAsync(
+                    newUser.Email!,
+                    userName,
+                    confirmationLink,
+                    CancellationToken.None)
+                .ContinueWith(task =>
                 {
-                    await emailService.SendEmailConfirmationAsync(
-                        newUser.Email!,
-                        userName,
-                        confirmationLink,
-                        CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to send confirmation email to {Email}. User was created successfully.",
-                        request.Email);
-                }
-            });
+                    if (task.Exception is not null)
+                    {
+                        logger.LogError(task.Exception.Flatten(),
+                            "Failed to send confirmation email to {Email}. User was created successfully.",
+                            request.Email);
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted);
         }
         catch (Exception ex)
         {

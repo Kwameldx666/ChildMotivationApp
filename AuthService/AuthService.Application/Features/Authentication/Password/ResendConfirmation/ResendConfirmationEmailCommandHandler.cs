@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 namespace AuthService.Application.Features.Authentication.Password.ResendConfirmation;
@@ -13,7 +14,8 @@ namespace AuthService.Application.Features.Authentication.Password.ResendConfirm
 public class ResendConfirmationEmailCommandHandler(
     UserManager<Domain.Entities.User> userManager,
     IEmailService emailService,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    ILogger<ResendConfirmationEmailCommandHandler> logger)
     : IRequestHandler<ResendConfirmationEmailCommand, Result>
 {
     public async Task<Result> Handle(ResendConfirmationEmailCommand request, CancellationToken cancellationToken)
@@ -36,7 +38,16 @@ public class ResendConfirmationEmailCommandHandler(
 
         var userName = user.Name ?? user.Email ?? "User";
 
-        await emailService.SendEmailConfirmationAsync(user.Email!, userName, confirmationLink, cancellationToken);
+        _ = emailService.SendEmailConfirmationAsync(user.Email!, userName, confirmationLink, CancellationToken.None)
+            .ContinueWith(task =>
+            {
+                if (task.Exception is not null)
+                {
+                    logger.LogError(task.Exception.Flatten(),
+                        "Failed to resend confirmation email to {Email}.",
+                        request.Email);
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
 
         return Result.Success(HttpStatusCode.OK);
     }

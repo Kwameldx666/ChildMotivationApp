@@ -110,7 +110,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Billing cycle toggle */}
       <div className="flex justify-center">
         <div className="inline-flex items-center rounded-full border bg-muted/50 p-1 gap-1">
@@ -144,7 +144,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 pt-2">
       {pricingTiers.map((tier) => {
         const isCurrentTier = currentTier.toLowerCase() === tier.id
         const isFree = tier.price === 0
@@ -156,13 +156,13 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
           <div
             key={tier.id}
             className={cn(
-              "relative rounded-xl p-4.5 transition-all duration-200 flex flex-col",
-              "bg-card/50 backdrop-blur border",
+              "relative rounded-xl p-5 transition-all duration-200 flex flex-col",
+              "bg-card border shadow-sm",
               tier.highlighted 
                 ? "border-purple-500/50 bg-purple-500/5" 
                 : "border-border/50 hover:border-border",
               isCurrentTier && "ring-2 ring-green-500/50",
-              isLowerTier && "opacity-50"
+              isLowerTier && "opacity-70"
             )}
           >
             {/* Badges */}
@@ -223,7 +223,7 @@ export default function PremiumPricing({ currentTier = "free", onSelectTier }: P
               {tier.features.map((feature, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <Check className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
-                  <span className="text-sm text-foreground/85 leading-snug">{t(feature)}</span>
+                  <span className="text-sm text-foreground leading-snug">{t(feature)}</span>
                 </li>
               ))}
             </ul>
