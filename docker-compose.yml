@@ -40,7 +40,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Authentication__UseDistributedStateStore: true
+      Authentication__UseDistributedStateStore: "true"
       Redis__Configuration: redis:6379
       ConnectionStrings__Redis: redis:6379
       ConnectionStrings__DefaultConnection: ${AUTH_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
