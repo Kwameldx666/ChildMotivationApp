@@ -30,7 +30,7 @@ export function useNotifications(userId: string | undefined): UseNotificationsRe
   useEffect(() => {
     if (!userId) return;
 
-    const signalRUrl = process.env.NEXT_PUBLIC_SIGNALR_URL || "http://localhost:8090";
+    const signalRUrl = process.env.NEXT_PUBLIC_SIGNALR_URL || "https://161.35.169.189";
     const hubUrl = `${signalRUrl}/hubs/notifications?userId=${userId}`;
 
     const newConnection = new signalR.HubConnectionBuilder()

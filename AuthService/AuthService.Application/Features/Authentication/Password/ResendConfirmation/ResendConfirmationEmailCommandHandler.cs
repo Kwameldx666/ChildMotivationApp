@@ -30,7 +30,7 @@ public class ResendConfirmationEmailCommandHandler(
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-        var frontendBaseUrl = configuration["EmailConfirmation:FrontendBaseUrl"] ?? "http://localhost:3000";
+        var frontendBaseUrl = configuration["EmailConfirmation:FrontendBaseUrl"] ?? "https://161.35.169.189";
         var confirmPath = configuration["EmailConfirmation:ConfirmEmailPath"] ?? "/confirm-email";
         var confirmationLink = $"{frontendBaseUrl}{confirmPath}?userId={user.Id}&token={encodedToken}";
 

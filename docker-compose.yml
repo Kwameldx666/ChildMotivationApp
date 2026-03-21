@@ -47,16 +47,16 @@ services:
       JwtBearer__Secret: ${AUTH_JWT_SECRET:-this_dev_secret_is_at_least_32_bytes_long}
       Authentication__Google__ClientId: ${AUTH_GOOGLE_CLIENT_ID:-dev}
       Authentication__Google__ClientSecret: ${AUTH_GOOGLE_CLIENT_SECRET:-dev}
-      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-http://localhost:8080/auth-service/google/callback}
-      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Authentication__Google__RedirectUri: ${AUTH_GOOGLE_REDIRECT_URI:-https://161.35.169.189/auth-service/google/callback}
+      Authentication__Google__PostSignInRedirectUri: ${AUTH_GOOGLE_POST_SIGNIN_REDIRECT_URI:-https://161.35.169.189/auth}
       Authentication__GitHub__ClientId: ${AUTH_GITHUB_CLIENT_ID:-dev}
       Authentication__GitHub__ClientSecret: ${AUTH_GITHUB_CLIENT_SECRET:-dev}
-      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-http://localhost:8080/auth-service/github/callback}
-      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Authentication__GitHub__RedirectUri: ${AUTH_GITHUB_REDIRECT_URI:-https://161.35.169.189/auth-service/github/callback}
+      Authentication__GitHub__PostSignInRedirectUri: ${AUTH_GITHUB_POST_SIGNIN_REDIRECT_URI:-https://161.35.169.189/auth}
       Authentication__Discord__ClientId: ${AUTH_DISCORD_CLIENT_ID:-dev}
       Authentication__Discord__ClientSecret: ${AUTH_DISCORD_CLIENT_SECRET:-dev}
-      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI:-http://localhost:8080/auth-service/discord/callback}
-      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-http://localhost:4000/auth}
+      Authentication__Discord__RedirectUri: ${AUTH_DISCORD_REDIRECT_URI:-https://161.35.169.189/auth-service/discord/callback}
+      Authentication__Discord__PostSignInRedirectUri: ${AUTH_DISCORD_POST_SIGNIN_REDIRECT_URI:-https://161.35.169.189/auth}
       Smtp__Host: ${SMTP_HOST:-smtp.mail.ru}
       Smtp__Port: ${SMTP_PORT:-465}
       Smtp__Username: ${SMTP_USERNAME:-wonderfulll_by@bk.ru}
@@ -64,7 +64,7 @@ services:
       Smtp__FromEmail: ${SMTP_FROM_EMAIL:-wonderfulll_by@bk.ru}
       Smtp__FromName: ${SMTP_FROM_NAME:-ChildMotivation}
       Smtp__UseSsl: ${SMTP_USE_SSL:-true}
-      EmailConfirmation__FrontendBaseUrl: ${EMAIL_CONFIRMATION_FRONTEND_URL:-http://localhost:3000}
+      EmailConfirmation__FrontendBaseUrl: ${EMAIL_CONFIRMATION_FRONTEND_URL:-https://161.35.169.189}
       EmailConfirmation__ConfirmEmailPath: /confirm-email
     ports:
       - "8080:8080"
@@ -206,8 +206,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: ${NOTIFICATION_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-      Cors__AllowedOrigins__0: http://localhost:4000
-      Cors__AllowedOrigins__1: http://localhost:3000
+      Cors__AllowedOrigins__0: https://161.35.169.189
+      Cors__AllowedOrigins__1: https://161.35.169.189
       Cors__AllowedOrigins__2: http://frontend:3000
     ports:
       - "8090:8080"
@@ -265,16 +265,16 @@ services:
       context: .
       dockerfile: Frontend/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8081
+        NEXT_PUBLIC_API_URL: https://161.35.169.189
         INTERNAL_API_URL: http://gateway-service:8081
-        NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
+        NEXT_PUBLIC_SIGNALR_URL: https://161.35.169.189
     depends_on:
       - gateway-service
       - notification-service
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8081
+      NEXT_PUBLIC_API_URL: https://161.35.169.189
       INTERNAL_API_URL: http://gateway-service:8081
-      NEXT_PUBLIC_SIGNALR_URL: http://localhost:8090
+      NEXT_PUBLIC_SIGNALR_URL: https://161.35.169.189
     ports:
       - "4000:3000"
 

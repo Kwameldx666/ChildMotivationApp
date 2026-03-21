@@ -90,7 +90,7 @@ public static class InfrastructureExtensions
         where TOptions : ServiceOptions
     {
         var options = configuration.GetSection(configKey).Get<TOptions>();
-        var baseUrl = options?.BaseUrl ?? "http://localhost";
+        var baseUrl = options?.BaseUrl ?? "https://161.35.169.189";
         var timeoutSeconds = options?.TimeoutSeconds ?? 30;
 
         services.AddHttpClient(clientName, client =>

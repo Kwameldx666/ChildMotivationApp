@@ -27,12 +27,7 @@ public static class PresentationExtensions
             options.AddPolicy(CorsPolicyName, builder =>
             {
                 builder.WithOrigins(
-                    "http://localhost:3000",
-                    "https://localhost:3000",
-                    "http://localhost:4000",
-                    "https://localhost:4000",
-                    "http://localhost:8081",
-                    "https://localhost:8081"
+                    "https://161.35.169.189"
                 )
                 .AllowAnyHeader()
                 .AllowAnyMethod()

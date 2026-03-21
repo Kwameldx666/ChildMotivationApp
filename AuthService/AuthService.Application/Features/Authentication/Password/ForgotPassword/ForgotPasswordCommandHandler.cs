@@ -36,7 +36,7 @@ public class ForgotPasswordCommandHandler(
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-        var frontendBaseUrl = configuration["EmailConfirmation:FrontendBaseUrl"] ?? "http://localhost:3000";
+        var frontendBaseUrl = configuration["EmailConfirmation:FrontendBaseUrl"] ?? "https://161.35.169.189";
         var resetPath = configuration["EmailConfirmation:ResetPasswordPath"] ?? "/reset-password";
         var resetLink = $"{frontendBaseUrl}{resetPath}?userId={user.Id}&token={encodedToken}";
 

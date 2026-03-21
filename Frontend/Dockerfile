@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:8081
+ARG NEXT_PUBLIC_API_URL=https://161.35.169.189
 ARG INTERNAL_API_URL=http://gateway-service:8080
 
 FROM node:20-alpine AS base

@@ -45,7 +45,7 @@ export function AppProviders({ children }: AppProvidersProps) {
           <I18nProvider>
             <ThemeProvider
               attribute="class"
-              defaultTheme="system"
+              defaultTheme="light"
               enableSystem
               disableTransitionOnChange
             >
