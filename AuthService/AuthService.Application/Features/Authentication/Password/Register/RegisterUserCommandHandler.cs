@@ -76,7 +76,7 @@ public class RegisterUserCommandHandler(
                 DefaultErrors.BadRequest(error));
         }
 
-        // Generate email confirmation token and send confirmation email
+        // Generate email confirmation token and enqueue confirmation email (non-blocking)
         try
         {
             var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
@@ -87,12 +87,27 @@ public class RegisterUserCommandHandler(
             var confirmationLink = $"{frontendBaseUrl}{confirmPath}?userId={newUser.Id}&token={encodedToken}";
 
             var userName = newUser.Name ?? newUser.Email ?? "User";
-            await emailService.SendEmailConfirmationAsync(newUser.Email!, userName, confirmationLink,
-                cancellationToken);
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await emailService.SendEmailConfirmationAsync(
+                        newUser.Email!,
+                        userName,
+                        confirmationLink,
+                        CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to send confirmation email to {Email}. User was created successfully.",
+                        request.Email);
+                }
+            });
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send confirmation email to {Email}. User was created successfully.",
+            logger.LogError(ex, "Failed to prepare confirmation email for {Email}. User was created successfully.",
                 request.Email);
             // Don't fail registration if email sending fails — user can resend later
         }
