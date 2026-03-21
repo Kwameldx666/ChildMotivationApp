@@ -44,4 +44,7 @@ app.UseAuthorization();
 app.UseExceptionHandler(_ => { });
 app.MapControllers();
 
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/gateway-service/health", () => Results.Ok(new { status = "ok" }));
+
 app.Run();
