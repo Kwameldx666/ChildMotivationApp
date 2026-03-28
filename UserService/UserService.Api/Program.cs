@@ -55,6 +55,30 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
     await dbContext.Database.MigrateAsync();
+    await dbContext.Database.ExecuteSqlRawAsync("""
+        CREATE TABLE IF NOT EXISTS subscriptions (
+            id uuid PRIMARY KEY,
+            user_id uuid NOT NULL,
+            tier character varying(50) NOT NULL,
+            status character varying(50) NOT NULL,
+            start_date timestamp with time zone NOT NULL,
+            end_date timestamp with time zone NULL,
+            cancelled_at timestamp with time zone NULL,
+            auto_renew boolean NOT NULL DEFAULT true,
+            price_per_month numeric(10,2) NOT NULL,
+            max_children integer NOT NULL DEFAULT 2,
+            max_tasks_per_day integer NOT NULL DEFAULT 10,
+            has_ai_assistant boolean NOT NULL DEFAULT false,
+            has_advanced_analytics boolean NOT NULL DEFAULT false,
+            has_custom_rewards boolean NOT NULL DEFAULT false,
+            has_priority_support boolean NOT NULL DEFAULT false,
+            has_family_sharing boolean NOT NULL DEFAULT false,
+            has_offline_mode boolean NOT NULL DEFAULT false,
+            created_at timestamp with time zone NOT NULL DEFAULT NOW(),
+            updated_at timestamp with time zone NOT NULL DEFAULT NOW()
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS ix_subscriptions_user_id ON subscriptions(user_id);
+        """);
 
     // ── Seed demo subscription + family messages for screenshots ──
     try
