@@ -5,16 +5,33 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Lock, Clock, ShoppingBag } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 interface ParentalControlPageProps {
   onBack: () => void
 }
 
 export default function ParentalControlPage({ onBack }: ParentalControlPageProps) {
-  const [nightMode, setNightMode] = useState({ enabled: true, start: "21:00", end: "08:00" })
-  const [timeLimit, setTimeLimit] = useState({ enabled: false, minutes: 120 })
-  const [spendingLimit, setSpendingLimit] = useState({ enabled: false, pointsPerDay: 100 })
+  const { settings, updateSettings } = useUserSettings()
+  const [nightMode, setNightMode] = useState({ enabled: settings.notificationsEnabled, start: settings.nightModeStart, end: settings.nightModeEnd })
+  const [timeLimit, setTimeLimit] = useState({ enabled: settings.timeLimitEnabled, minutes: settings.timeLimitMinutes })
+  const [spendingLimit, setSpendingLimit] = useState({ enabled: settings.spendingLimitEnabled, pointsPerDay: settings.spendingLimitPointsPerDay })
+  const [saved, setSaved] = useState(false)
   const { t } = useTranslation()
+
+  const handleSave = () => {
+    updateSettings({
+      notificationsEnabled: nightMode.enabled,
+      nightModeStart: nightMode.start,
+      nightModeEnd: nightMode.end,
+      timeLimitEnabled: timeLimit.enabled,
+      timeLimitMinutes: Math.max(0, timeLimit.minutes || 0),
+      spendingLimitEnabled: spendingLimit.enabled,
+      spendingLimitPointsPerDay: Math.max(0, spendingLimit.pointsPerDay || 0),
+    })
+    setSaved(true)
+    window.setTimeout(() => setSaved(false), 1500)
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,7 +142,9 @@ export default function ParentalControlPage({ onBack }: ParentalControlPageProps
           </CardContent>
         </Card>
 
-        <Button className="w-full bg-gradient-to-r from-primary to-secondary">{t("parentalControl.saveSettings")}</Button>
+        <Button className="w-full bg-gradient-to-r from-primary to-secondary" onClick={handleSave}>
+          {saved ? t("common.saved") : t("parentalControl.saveSettings")}
+        </Button>
       </main>
     </div>
   )

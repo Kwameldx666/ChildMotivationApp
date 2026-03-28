@@ -7,6 +7,10 @@ export interface UserSettings {
   soundEnabled: boolean
   nightModeStart: string
   nightModeEnd: string
+  timeLimitEnabled: boolean
+  timeLimitMinutes: number
+  spendingLimitEnabled: boolean
+  spendingLimitPointsPerDay: number
   // AI chatbot control
   aiChatEnabled: boolean
   aiCanCreateTasks: boolean
@@ -19,6 +23,10 @@ const defaultSettings: UserSettings = {
   soundEnabled: true,
   nightModeStart: "22:00",
   nightModeEnd: "08:00",
+  timeLimitEnabled: false,
+  timeLimitMinutes: 120,
+  spendingLimitEnabled: false,
+  spendingLimitPointsPerDay: 100,
   aiChatEnabled: true,
   aiCanCreateTasks: true,
   aiCanCreateRewards: true,
