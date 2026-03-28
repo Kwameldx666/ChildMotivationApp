@@ -234,11 +234,32 @@ export default function ChildProfile({
             {!statsLoading && (
               <div className="flex items-center gap-2.5 mt-2.5">
                 <span className="text-[10px] font-bold text-muted-foreground">XP</span>
-                <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
+                <div className="relative flex-1 h-3 rounded-full bg-gradient-to-r from-muted/90 via-muted to-muted/90 overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 progress-stripes"
-                    style={{ width: `${levelProgress}%` }}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 opacity-50"
+                    style={{
+                      backgroundImage:
+                        'repeating-linear-gradient(90deg, transparent 0 14px, hsl(var(--border) / 0.35) 14px 15px)',
+                    }}
                   />
+                  <div
+                    className="relative h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 via-amber-400 to-rose-500 transition-all duration-700 shadow-[0_0_14px_hsl(var(--primary)/0.28)]"
+                    style={{ width: `${levelProgress}%` }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 opacity-40"
+                      style={{
+                        backgroundImage:
+                          'linear-gradient(180deg, hsl(var(--background) / 0.35) 0%, transparent 55%, hsl(var(--foreground) / 0.14) 100%)',
+                      }}
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute right-0 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border border-background/70 bg-background/80 shadow-sm"
+                    />
+                  </div>
                 </div>
                 <span className="text-[10px] font-semibold text-muted-foreground tabular-nums shrink-0">
                   {metrics.xp}/{xpForLevel(metrics.level)}
@@ -419,7 +440,7 @@ export default function ChildProfile({
                   ) : (
                     <div className="space-y-1.5">
                       <div className="h-2 rounded-full bg-muted/40 overflow-hidden shadow-inner">
-                        <div className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary/80 transition-all duration-700" style={{ width: `${progress}%` }} />
+                        <div className="h-full rounded-full bg-gradient-to-r from-sky-500/70 via-emerald-500/80 to-amber-400/80 transition-all duration-700" style={{ width: `${progress}%` }} />
                       </div>
                       <p className="text-[9px] text-muted-foreground font-bold">{ach.progress} / {ach.total}</p>
                     </div>
