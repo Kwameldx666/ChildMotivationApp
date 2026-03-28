@@ -45,12 +45,17 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Change subscription (upgrade/downgrade)
     /// </summary>
-    [Authorize(Roles = "Parent")]
+    [Authorize]
     [HttpPost("change")]
     public async Task<IActionResult> ChangeSubscriptionAsync(
         [FromBody] ChangeSubscriptionRequest request, 
         CancellationToken cancellationToken)
     {
+        if (!IsParentUser())
+        {
+            return Forbid();
+        }
+
         if (!TryResolveUserId(out var userId, out var errorResult))
         {
             return errorResult ?? Unauthorized("User identifier is missing.");
@@ -70,10 +75,15 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Cancel subscription (downgrade to Free)
     /// </summary>
-    [Authorize(Roles = "Parent")]
+    [Authorize]
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelSubscriptionAsync(CancellationToken cancellationToken)
     {
+        if (!IsParentUser())
+        {
+            return Forbid();
+        }
+
         if (!TryResolveUserId(out var userId, out var errorResult))
         {
             return errorResult ?? Unauthorized("User identifier is missing.");
@@ -121,5 +131,19 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
         }
 
         return true;
+    }
+
+    private bool IsParentUser()
+    {
+        var roleClaims = User.FindAll(ClaimTypes.Role)
+            .Concat(User.FindAll("role"))
+            .Select(claim => claim.Value);
+
+        if (roleClaims.Any(role => string.Equals(role, "Parent", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        return User.IsInRole("Parent") || User.IsInRole("parent");
     }
 }
