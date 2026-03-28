@@ -260,10 +260,19 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                     : t("rewardsShop.subtitle") || "Обменяй свои звёзды на крутые призы!"}
                 </p>
               </div>
-              <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20">
-                <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
-                <span className="text-sm font-black text-amber-600 dark:text-amber-400">{visibleProducts.length}</span>
-              </div>
+              {isParent ? (
+                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-violet-500/10 border border-violet-400/20">
+                  <Package className="h-4 w-4 text-violet-500" />
+                  <span className="text-sm font-black text-violet-600 dark:text-violet-400">
+                    {visibleProducts.length} {t("rewardsShop.rewardCount", { count: visibleProducts.length })}
+                  </span>
+                </div>
+              ) : (
+                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20">
+                  <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                  <span className="text-sm font-black text-amber-600 dark:text-amber-400">{visibleProducts.length}</span>
+                </div>
+              )}
               {userType === "child" && (
                 <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-400/20">
                   <Coins className="h-4 w-4 text-emerald-500" />
