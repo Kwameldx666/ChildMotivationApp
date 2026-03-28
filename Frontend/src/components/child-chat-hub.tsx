@@ -10,11 +10,13 @@ import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "@/components/family-chat"
 import ChildAiChat from "@/components/child-ai-chat"
 import { buildPrivateChatId } from "@/lib/private-chat-id"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 export default function ChildChatHub() {
   const { t } = useTranslation()
   const session = useAppSelector(selectAuthSession)
   const [mode, setMode] = useState<"messages" | "ai">("messages")
+  const { settings } = useUserSettings()
 
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(session) })
 
@@ -48,6 +50,7 @@ export default function ChildChatHub() {
           variant={mode === "ai" ? "default" : "ghost"}
           className="gap-1.5"
           onClick={() => setMode("ai")}
+          disabled={!settings.aiChatEnabled}
         >
           <Sparkles className="h-4 w-4" />
           {t("childChatHub.aiChat")}
@@ -86,8 +89,12 @@ export default function ChildChatHub() {
             {t("childChatHub.noParent")}
           </div>
         )
-      ) : (
+      ) : settings.aiChatEnabled ? (
         <ChildAiChat />
+      ) : (
+        <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+          {t("aiControl.enableChatDesc")}
+        </div>
       )}
     </div>
   )

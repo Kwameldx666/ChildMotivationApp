@@ -25,6 +25,38 @@ const defaultSettings: UserSettings = {
   aiTone: 'friendly',
 }
 
+function parseTimeToMinutes(value: string): number | null {
+  const [hoursRaw, minutesRaw] = value.split(':')
+  const hours = Number(hoursRaw)
+  const minutes = Number(minutesRaw)
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null
+
+  return hours * 60 + minutes
+}
+
+export function isWithinNightModeWindow(settings: Pick<UserSettings, 'nightModeStart' | 'nightModeEnd'>, now: Date = new Date()): boolean {
+  const start = parseTimeToMinutes(settings.nightModeStart)
+  const end = parseTimeToMinutes(settings.nightModeEnd)
+
+  if (start === null || end === null) return false
+
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+
+  if (start === end) return false
+  if (start < end) {
+    return currentMinutes >= start && currentMinutes < end
+  }
+
+  return currentMinutes >= start || currentMinutes < end
+}
+
+export function canReceiveLiveNotifications(settings: UserSettings, now: Date = new Date()): boolean {
+  if (!settings.notificationsEnabled) return false
+  return !isWithinNightModeWindow(settings, now)
+}
+
 /**
  * User settings service
  * Currently uses localStorage, can be replaced with API in the future

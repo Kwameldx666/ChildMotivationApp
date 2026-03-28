@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notificationsService, type NotificationDto } from './notifications-service'
+import { useUserSettings } from '@/hooks/use-user-settings'
 
 export const NOTIFICATIONS_QUERY_KEY = ['notifications'] as const
 export const NOTIFICATIONS_UNREAD_KEY = ['notifications', 'unread'] as const
@@ -9,9 +10,12 @@ export const NOTIFICATIONS_COUNT_KEY = ['notifications', 'count'] as const
  * Хук для получения всех уведомлений
  */
 export function useNotifications() {
+  const { settings } = useUserSettings()
+
   return useQuery({
     queryKey: NOTIFICATIONS_QUERY_KEY,
     queryFn: () => notificationsService.list(),
+    enabled: settings.notificationsEnabled,
     staleTime: 30_000, // 30 секунд
     refetchInterval: 60_000, // Обновляем каждую минуту
   })
@@ -21,9 +25,12 @@ export function useNotifications() {
  * Хук для получения непрочитанных уведомлений
  */
 export function useUnreadNotifications() {
+  const { settings } = useUserSettings()
+
   return useQuery({
     queryKey: NOTIFICATIONS_UNREAD_KEY,
     queryFn: () => notificationsService.getUnread(),
+    enabled: settings.notificationsEnabled,
     staleTime: 30_000,
     refetchInterval: 30_000, // Обновляем каждые 30 секунд
   })
@@ -33,9 +40,12 @@ export function useUnreadNotifications() {
  * Хук для получения количества непрочитанных уведомлений
  */
 export function useUnreadNotificationsCount() {
+  const { settings } = useUserSettings()
+
   return useQuery({
     queryKey: NOTIFICATIONS_COUNT_KEY,
     queryFn: () => notificationsService.getUnreadCount(),
+    enabled: settings.notificationsEnabled,
     staleTime: 15_000,
     refetchInterval: 15_000, // Обновляем каждые 15 секунд
     select: (data) => data.count,

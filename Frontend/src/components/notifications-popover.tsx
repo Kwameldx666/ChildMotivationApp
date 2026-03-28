@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Bell,
   Check,
@@ -30,6 +30,8 @@ import {
   useMarkNotificationsRead,
   useMarkAllNotificationsRead,
 } from "@/services/notifications-queries"
+import { useUserSettings } from "@/hooks/use-user-settings"
+import { canReceiveLiveNotifications } from "@/services/user-settings-service"
 import type { NotificationType, NotificationDto } from "@/services/notifications-service"
 import { useTranslation } from "@/i18n/provider"
 
@@ -122,6 +124,8 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
 export function NotificationsPopover() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const { settings } = useUserSettings()
+  const lastUnreadCountRef = useRef(0)
   
   // Запросы к API
   const { data: notifications, isLoading, isError } = useNotifications()
@@ -130,18 +134,39 @@ export function NotificationsPopover() {
   const markAllRead = useMarkAllNotificationsRead()
 
   // Use real API data only
-  const displayNotifications = notifications ?? []
+  const displayNotifications = settings.notificationsEnabled ? (notifications ?? []) : []
 
   const displayUnreadCount = useMemo(() => {
+    if (!settings.notificationsEnabled) return 0
     if (typeof unreadCount === "number") return unreadCount
     return displayNotifications.filter(n => !n.isRead).length
-  }, [unreadCount, displayNotifications])
+  }, [unreadCount, displayNotifications, settings.notificationsEnabled])
+
+  useEffect(() => {
+    const previous = lastUnreadCountRef.current
+    const increased = displayUnreadCount > previous
+    lastUnreadCountRef.current = displayUnreadCount
+
+    if (!increased) return
+    if (!settings.notificationsEnabled || !settings.soundEnabled) return
+    if (!canReceiveLiveNotifications(settings)) return
+
+    try {
+      const audio = new Audio("data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YTAAAAAAAP///wAA//8AAP//AAD//wAA//8AAP///wAA")
+      audio.volume = 0.25
+      void audio.play().catch(() => undefined)
+    } catch {
+      // ignore browser autoplay restrictions or audio initialization errors
+    }
+  }, [displayUnreadCount, settings])
 
   const handleMarkRead = (id: string) => {
+    if (!settings.notificationsEnabled) return
     markRead.mutate([id])
   }
 
   const handleMarkAllRead = () => {
+    if (!settings.notificationsEnabled) return
     markAllRead.mutate()
   }
 

@@ -19,6 +19,7 @@ import {
   useDeleteNotification,
 } from "@/services/notifications-queries"
 import type { NotificationType, NotificationDto } from "@/services/notifications-service"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
   task_created: Target,
@@ -77,6 +78,7 @@ export default function NotificationsPage() {
   const { t, locale } = useTranslation()
   const [filter, setFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const { settings } = useUserSettings()
 
   // Real API queries
   const { data: notifications, isLoading } = useNotifications()
@@ -85,8 +87,10 @@ export default function NotificationsPage() {
   const markAllRead = useMarkAllNotificationsRead()
   const deleteNotification = useDeleteNotification()
 
-  const allNotifications = notifications ?? []
-  const unreadCount = typeof unreadCountData === "number" ? unreadCountData : allNotifications.filter(n => !n.isRead).length
+  const allNotifications = settings.notificationsEnabled ? (notifications ?? []) : []
+  const unreadCount = settings.notificationsEnabled
+    ? (typeof unreadCountData === "number" ? unreadCountData : allNotifications.filter(n => !n.isRead).length)
+    : 0
 
   const filteredNotifications = useMemo(() => {
     let result = allNotifications
@@ -112,14 +116,17 @@ export default function NotificationsPage() {
   }, [allNotifications, filter, searchQuery])
 
   const handleMarkAllRead = () => {
+    if (!settings.notificationsEnabled) return
     markAllRead.mutate()
   }
 
   const handleDeleteNotification = (id: string) => {
+    if (!settings.notificationsEnabled) return
     deleteNotification.mutate(id)
   }
 
   const handleMarkAsRead = (id: string) => {
+    if (!settings.notificationsEnabled) return
     markRead.mutate([id])
   }
 

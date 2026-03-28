@@ -199,6 +199,13 @@ export default function ChildAiChat() {
   const hasRealMessages = messages.length > 1
 
   if (!session) return null
+  if (!settings.aiChatEnabled) {
+    return (
+      <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+        {t("aiControl.enableChatDesc")}
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-320px)] min-h-[420px] max-h-[720px] rounded-2xl border border-border/30 bg-background/60 backdrop-blur-sm overflow-hidden shadow-sm">
