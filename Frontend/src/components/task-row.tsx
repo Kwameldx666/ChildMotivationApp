@@ -94,7 +94,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-slate-300 to-slate-400",
     dot: "bg-slate-400",
     badge: "bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-300",
-    progress: "from-slate-500 to-slate-600 dark:from-slate-300 dark:to-slate-400",
+    progress: "from-sky-500 to-violet-600 dark:from-sky-400 dark:to-violet-500",
     glow: "shadow-slate-200/40 dark:shadow-slate-900/20",
     emoji: "⏳",
     headerGrad: "from-slate-300/20 to-slate-200/10 dark:from-slate-600/10 dark:to-slate-500/5",
