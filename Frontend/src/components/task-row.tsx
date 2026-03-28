@@ -61,7 +61,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-emerald-400 to-emerald-500",
     dot: "bg-emerald-500",
     badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-    progress: "from-emerald-400 to-teal-500",
+    progress: "from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-500",
     glow: "shadow-emerald-200/50 dark:shadow-emerald-900/30",
     emoji: "✅",
     headerGrad: "from-emerald-400/20 to-teal-400/10 dark:from-emerald-500/10 dark:to-teal-500/5",
@@ -72,7 +72,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-blue-400 to-blue-500",
     dot: "bg-blue-500",
     badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    progress: "from-blue-400 to-indigo-500",
+    progress: "from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500",
     glow: "shadow-blue-200/50 dark:shadow-blue-900/30",
     emoji: "🔨",
     headerGrad: "from-blue-400/20 to-indigo-400/10 dark:from-blue-500/10 dark:to-indigo-500/5",
@@ -83,7 +83,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-red-400 to-red-500",
     dot: "bg-red-500 animate-pulse",
     badge: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-    progress: "from-red-400 to-orange-500",
+    progress: "from-red-500 to-orange-600 dark:from-red-400 dark:to-orange-500",
     glow: "shadow-red-200/50 dark:shadow-red-900/30",
     emoji: "⚠️",
     headerGrad: "from-red-400/20 to-orange-400/10 dark:from-red-500/10 dark:to-orange-500/5",
@@ -94,7 +94,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-slate-300 to-slate-400",
     dot: "bg-slate-400",
     badge: "bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-300",
-    progress: "from-slate-300 to-slate-400",
+    progress: "from-slate-500 to-slate-600 dark:from-slate-300 dark:to-slate-400",
     glow: "shadow-slate-200/40 dark:shadow-slate-900/20",
     emoji: "⏳",
     headerGrad: "from-slate-300/20 to-slate-200/10 dark:from-slate-600/10 dark:to-slate-500/5",
@@ -105,7 +105,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-amber-400 to-amber-500",
     dot: "bg-amber-500 animate-pulse",
     badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-    progress: "from-amber-400 to-yellow-500",
+    progress: "from-amber-500 to-yellow-600 dark:from-amber-400 dark:to-yellow-500",
     glow: "shadow-amber-200/50 dark:shadow-amber-900/30",
     emoji: "⏰",
     headerGrad: "from-amber-400/20 to-yellow-400/10 dark:from-amber-500/10 dark:to-yellow-500/5",
@@ -283,7 +283,10 @@ export default function TaskRow({
                 "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm",
                 theme.progress
               )}
-              style={{ width: `${progress}%` }}
+              style={{
+                width: progress > 0 ? `${progress}%` : "0%",
+                minWidth: progress > 0 ? "0.5rem" : undefined,
+              }}
             />
             {progress >= 100 && (
               <div className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] animate-success-pop">🎉</div>
