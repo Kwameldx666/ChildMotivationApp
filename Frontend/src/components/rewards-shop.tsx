@@ -64,7 +64,7 @@ function resolveIntlLocale(locale: string) {
 
 export default function RewardsShop({ userType, locale = "ru", childBalance }: RewardsShopProps) {
   const { toast } = useToast()
-  const { t } = useTranslation()
+  const { t, locale: activeLocale } = useTranslation()
   const isParent = userType === "parent"
 
   const productsQuery = useShopProducts()
@@ -132,6 +132,15 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
   /* ---- Handlers ---- */
 
   const balance = childBalance ?? 0
+  const parentManageLabel = useMemo(() => {
+    const key = "rewardsShop.catalog.parentManageCount"
+    const translated = t(key)
+    if (translated !== key) return translated
+
+    if (activeLocale === "en") return "Reward management"
+    if (activeLocale === "ro") return "Gestionare recompense"
+    return "Управление наградами"
+  }, [activeLocale, t])
 
   const handlePurchase = async (product: ProductDto) => {
     if (product.stock <= 0) {
@@ -264,7 +273,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                 <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-violet-500/10 border border-violet-400/20">
                   <Package className="h-4 w-4 text-violet-500" />
                   <span className="text-sm font-black text-violet-600 dark:text-violet-400">
-                    {t("rewardsShop.catalog.parentManageCount", { count: visibleProducts.length }) || `Управление наградами: ${visibleProducts.length}`}
+                    {parentManageLabel}: {visibleProducts.length}
                   </span>
                 </div>
               ) : (
