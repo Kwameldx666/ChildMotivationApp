@@ -254,7 +254,11 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-black">{t("rewardsShop.title") || "Магазин наград"}</h2>
-                <p className="text-sm text-muted-foreground">{t("rewardsShop.subtitle") || "Обменяй свои звёзды на крутые призы!"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {isParent
+                    ? t("rewardsShop.catalog.parentSubtitle") || "Редактируйте награды и управляйте запасами"
+                    : t("rewardsShop.subtitle") || "Обменяй свои звёзды на крутые призы!"}
+                </p>
               </div>
               <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20">
                 <Star className="h-4 w-4 text-amber-500 fill-amber-400" />

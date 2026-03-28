@@ -45,7 +45,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Change subscription (upgrade/downgrade)
     /// </summary>
-    [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
+    [Authorize(Roles = "Parent")]
     [HttpPost("change")]
     public async Task<IActionResult> ChangeSubscriptionAsync(
         [FromBody] ChangeSubscriptionRequest request, 
@@ -70,7 +70,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Cancel subscription (downgrade to Free)
     /// </summary>
-    [Authorize(Policy = AuthorizationConstants.UserWritePolicy)]
+    [Authorize(Roles = "Parent")]
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelSubscriptionAsync(CancellationToken cancellationToken)
     {
