@@ -277,11 +277,10 @@ export default function TaskRow({
             <span className="text-xs font-black tabular-nums text-foreground">{progress}%</span>
           </div>
           {/* Fun gradient progress bar with stripes */}
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-blue-200/80 dark:bg-blue-950/40 ring-1 ring-blue-300/70 dark:ring-blue-800/70 shadow-inner">
+          <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/95 dark:bg-slate-900/45 ring-1 ring-blue-200/80 dark:ring-blue-800/70 shadow-inner">
             <div
               className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/70 dark:ring-black/25",
-                theme.progress
+                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-800 to-blue-900 dark:from-blue-500 dark:to-blue-700 transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/80 dark:ring-black/25"
               )}
               style={{
                 width: progress > 0 ? `${progress}%` : "0%",
