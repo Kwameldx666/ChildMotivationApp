@@ -195,15 +195,17 @@ export default function AnalyticsDashboard() {
   const GlassTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null
     return (
-      <div className="rounded-2xl border border-white/20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] p-4 text-sm min-w-[180px]">
-        <p className="font-bold text-foreground mb-2 pb-2 border-b border-gray-200/60 dark:border-gray-700/60 text-xs uppercase tracking-wider">{label}</p>
-        {payload.map((entry: any, i: number) => (
-          <div key={i} className="flex items-center gap-2.5 py-1">
-            <span className="w-3 h-3 rounded-md shrink-0 shadow-sm" style={{ backgroundColor: entry.color || entry.fill, boxShadow: `0 0 8px ${entry.color || entry.fill}40` }} />
-            <span className="text-muted-foreground text-xs">{entry.name}</span>
-            <span className="font-bold ml-auto text-foreground">{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</span>
-          </div>
-        ))}
+      <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-4 text-sm min-w-[200px] transition-all">
+        <p className="font-extrabold text-slate-800 dark:text-slate-100 mb-2 pb-2 border-b border-slate-200/80 dark:border-slate-700/80 text-[11px] uppercase tracking-widest">{label}</p>
+        <div className="space-y-2.5 mt-2">
+          {payload.map((entry: any, i: number) => (
+            <div key={i} className="flex items-center gap-3">
+              <span className="w-3.5 h-3.5 rounded-full shrink-0 border-2 border-background/50 shadow-sm" style={{ backgroundColor: entry.color || entry.fill, boxShadow: `0 0 10px ${entry.color || entry.fill}80` }} />
+              <span className="text-slate-600 dark:text-slate-300 text-[13px] font-medium">{entry.name}</span>
+              <span className="font-black ml-auto text-slate-900 dark:text-slate-50 tabular-nums">{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -279,40 +281,45 @@ export default function AnalyticsDashboard() {
           <>
             {chartTimeControl}
             <ResponsiveContainer width="100%" height={380}>
-              <ComposedChart data={actData} barGap={4}>
+              <ComposedChart data={actData} barGap={6} margin={{ top: 20, right: 10, left: 10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="activity-area-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a855f7" stopOpacity={0.35} />
-                    <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                    <stop offset="70%" stopColor="#8b5cf6" stopOpacity={0.05} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="activity-points-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
-                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.7} />
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#d97706" stopOpacity={0.7} />
                   </linearGradient>
-                  <filter id="trend-line-glow">
-                    <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#06b6d4" floodOpacity="0.5" />
+                  <filter id="trend-line-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#0ea5e9" floodOpacity="0.4" />
+                  </filter>
+                  <filter id="area-shadow" x="-10%" y="-10%" width="120%" height="120%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#8b5cf6" floodOpacity="0.2" />
                   </filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(139,92,246,0.04)' }} />
-                <Legend wrapperStyle={{ paddingTop: 16 }} formatter={(v: string) => <span className="text-xs font-medium ml-1">{v}</span>} />
+                <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} dy={12} tickMargin={8} />
+                <YAxis yAxisId="left" tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dx={-10} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: '#f59e0b', fontWeight: 600 }} axisLine={false} tickLine={false} dx={10} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(139,92,246,0.06)' }} />
+                <Legend wrapperStyle={{ paddingTop: 24, paddingBottom: 10 }} formatter={(v: string) => <span className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 ml-1.5">{v}</span>} />
 
                 {/* Tasks area */}
-                <Area yAxisId="left" type="monotone" dataKey="tasksCompleted" stroke="#a855f7" strokeWidth={2.5}
-                  fill="url(#activity-area-gradient)" name={t('analytics.chartLabels.tasks')} animationDuration={1000}
-                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={5} fill="#fff" stroke="#a855f7" strokeWidth={2} /><circle cx={cx} cy={cy} r={2} fill="#a855f7" /></g>}
+                <Area yAxisId="left" type="monotone" dataKey="tasksCompleted" stroke="#8b5cf6" strokeWidth={3.5}
+                  fill="url(#activity-area-gradient)" name={t('analytics.chartLabels.tasks')} animationDuration={1200}
+                  style={{ filter: 'url(#area-shadow)' }}
+                  activeDot={{ r: 7, fill: "#8b5cf6", stroke: "#fff", strokeWidth: 3, shadow: "0 0 10px rgba(139,92,246,0.6)" }}
+                  dot={false}
                 />
                 {/* Points bars overlaid */}
-                <Bar yAxisId="right" dataKey="pointsEarned" fill="url(#activity-points-gradient)" radius={[6, 6, 2, 2]}
-                  barSize={windowDays <= 14 ? 16 : 10} name={t('analytics.chartLabels.points')} animationDuration={1000} opacity={0.85}
+                <Bar yAxisId="right" dataKey="pointsEarned" fill="url(#activity-points-gradient)" radius={[6, 6, 6, 6]}
+                  barSize={windowDays <= 14 ? 14 : 8} name={t('analytics.chartLabels.points')} animationDuration={1200}
                 />
                 {/* Trend line */}
-                <Line yAxisId="left" type="monotone" dataKey="trend" stroke="#06b6d4" strokeWidth={2.5} strokeDasharray="6 3"
-                  dot={false} name={t('analytics.chartLabels.trend')} style={{ filter: 'url(#trend-line-glow)' }} animationDuration={1400}
+                <Line yAxisId="left" type="natural" dataKey="trend" stroke="#0ea5e9" strokeWidth={3} strokeDasharray="6 4"
+                  dot={false} name={t('analytics.chartLabels.trend')} style={{ filter: 'url(#trend-line-glow)' }} animationDuration={1600}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -408,11 +415,11 @@ export default function AnalyticsDashboard() {
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} width={100} />
-                  <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={1000} name={t('analytics.chartLabels.tasks')}>
+                  <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} width={110} />
+                  <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(148,163,184,0.08)', radius: 8 }} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} animationDuration={1200} name={t('analytics.chartLabels.tasks')}>
                     {radarData.map((d, i) => <Cell key={i} fill={`url(#diff-bar-${i})`} />)}
                   </Bar>
                 </BarChart>
@@ -440,11 +447,11 @@ export default function AnalyticsDashboard() {
               {chartTimeControl}
               <ResponsiveContainer width="100%" height={380}>
                 <BarChart data={filteredDifficulty} layout="vertical" barSize={24}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} width={100} />
-                  <Tooltip content={<GlassTooltip />} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} name={t('analytics.chartLabels.tasks')}>
+                  <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#64748b', fontWeight: 700 }} axisLine={false} tickLine={false} width={110} />
+                  <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(148,163,184,0.08)', radius: 8 }} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} name={t('analytics.chartLabels.tasks')} animationDuration={1200}>
                     {filteredDifficulty.map((d, i) => <Cell key={i} fill={d.color} />)}
                   </Bar>
                 </BarChart>
@@ -457,16 +464,16 @@ export default function AnalyticsDashboard() {
           <>
             {chartTimeControl}
             <ResponsiveContainer width="100%" height={Math.max(280, childDiffData.length * 70)}>
-              <BarChart data={childDiffData} layout="vertical" barSize={20}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#334155', fontWeight: 600 }} axisLine={false} tickLine={false} width={80} />
-                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                <Legend wrapperStyle={{ paddingTop: 12 }} formatter={(v: string) => <span className="text-xs font-medium ml-1">{v}</span>} />
+              <BarChart data={childDiffData} layout="vertical" barSize={24}>
+                <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 13, fill: '#475569', fontWeight: 700 }} axisLine={false} tickLine={false} width={100} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(148,163,184,0.08)', radius: 8 }} />
+                <Legend wrapperStyle={{ paddingTop: 16 }} formatter={(v: string) => <span className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 ml-1">{v}</span>} />
                 {diffNames.map((dn, i) => (
                   <Bar key={dn} dataKey={dn} stackId="diff" fill={diffColors[dn] ?? CHILD_COLORS[i % CHILD_COLORS.length]}
-                    radius={i === diffNames.length - 1 ? [0, 8, 8, 0] : [0, 0, 0, 0]}
-                    animationDuration={1000} name={dn}
+                    radius={i === diffNames.length - 1 ? [0, 8, 8, 0] : i === 0 ? [8, 0, 0, 8] : [0, 0, 0, 0]}
+                    animationDuration={1200} name={dn}
                   />
                 ))}
               </BarChart>
@@ -489,40 +496,41 @@ export default function AnalyticsDashboard() {
         return (
           <>
             {chartTimeControl}
-            <div className="flex items-center gap-4 mb-3 px-1">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow">
-                  <TrendingUp className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-4 mb-3 px-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-[0_4px_14px_rgba(16,185,129,0.3)]">
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-2xl font-black text-emerald-600">{avgRate}%</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('analytics.chartLabels.avgRate')}</p>
+                  <p className="text-3xl font-black text-emerald-600 dark:text-emerald-500 drop-shadow-sm">{avgRate}%</p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-widest font-bold">{t('analytics.chartLabels.avgRate')}</p>
                 </div>
               </div>
-              <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{t('analytics.chartLabels.completionPercent')}</span>
-                <span className="flex items-center gap-1"><span className="w-6 h-0 border-t-2 border-dashed border-amber-400" />{t('analytics.chartLabels.goal')} 80%</span>
+              <div className="h-10 w-px bg-slate-200 dark:bg-slate-700/60" />
+              <div className="flex items-center gap-5 text-[13px] font-medium text-slate-600 dark:text-slate-300">
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />{t('analytics.chartLabels.completionPercent')}</span>
+                <span className="flex items-center gap-2"><span className="w-6 h-0 border-t-2 border-dashed border-amber-400" />{t('analytics.chartLabels.goal')} 80%</span>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={340}>
-              <AreaChart data={momentumData}>
+              <AreaChart data={momentumData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="completion-area" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
-                    <stop offset="50%" stopColor="#10b981" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    <stop offset="60%" stopColor="#10b981" stopOpacity={0.05} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
-                  <filter id="completion-glow"><feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#10b981" floodOpacity="0.4" /></filter>
+                  <filter id="completion-glow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#10b981" floodOpacity="0.4" /></filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.1)" vertical={false} />
-                <XAxis dataKey="week" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} unit="%" />
-                <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '6 4' }} />
-                <ReferenceLine y={80} yAxisId={0} stroke="#f59e0b" strokeDasharray="8 4" strokeWidth={2} label={{ value: '80%', position: 'right', fill: '#f59e0b', fontSize: 11, fontWeight: 700 }} />
-                <Area type="monotone" dataKey="rate" stroke="#10b981" strokeWidth={3}
-                  fill="url(#completion-area)" name={t('analytics.chartLabels.completionPercent')} animationDuration={1200}
-                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={6} fill="#10b981" opacity={0.15} /><circle cx={cx} cy={cy} r={4} fill="#fff" stroke="#10b981" strokeWidth={2} /></g>}
+                <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" vertical={false} />
+                <XAxis dataKey="week" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} dy={12} tickMargin={8} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} unit="%" dx={-5} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(16,185,129,0.06)' }} />
+                <ReferenceLine y={80} yAxisId={0} stroke="#f59e0b" strokeDasharray="6 4" strokeWidth={2} label={{ value: '🎯 80%', position: 'insideTopLeft', fill: '#f59e0b', fontSize: 13, fontWeight: 800, offset: 10 }} />
+                <Area type="natural" dataKey="rate" stroke="#10b981" strokeWidth={4}
+                  fill="url(#completion-area)" name={t('analytics.chartLabels.completionPercent')} animationDuration={1400}
+                  activeDot={{ r: 7, fill: "#10b981", stroke: "#fff", strokeWidth: 3, shadow: "0 0 10px rgba(16,185,129,0.6)" }}
+                  dot={false}
                   style={{ filter: 'url(#completion-glow)' }}
                 />
               </AreaChart>
@@ -545,19 +553,19 @@ export default function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <defs>
-                  <linearGradient id="donut-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#6ee7b7" /><stop offset="100%" stopColor="#059669" /></linearGradient>
-                  <linearGradient id="donut-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fcd34d" /><stop offset="100%" stopColor="#d97706" /></linearGradient>
-                  <linearGradient id="donut-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fda4af" /><stop offset="100%" stopColor="#dc2626" /></linearGradient>
-                  <filter id="donut-shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="6" floodOpacity="0.15" /></filter>
+                  <linearGradient id="donut-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#34d399" /><stop offset="100%" stopColor="#059669" /></linearGradient>
+                  <linearGradient id="donut-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#d97706" /></linearGradient>
+                  <linearGradient id="donut-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#f87171" /><stop offset="100%" stopColor="#dc2626" /></linearGradient>
+                  <filter id="donut-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" floodOpacity="0.3" /></filter>
                 </defs>
-                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={128} outerRadius={132} fill="none" stroke="rgba(148,163,184,0.15)" strokeWidth={1} dataKey="value" isAnimationActive={false}>
-                  <Cell fill="rgba(148,163,184,0.08)" />
+                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={130} outerRadius={132} fill="none" stroke="currentColor" className="text-slate-200/50 dark:text-slate-700/50" strokeWidth={1} dataKey="value" isAnimationActive={false}>
+                  <Cell fill="currentColor" className="text-slate-200/20 dark:text-slate-700/20" />
                 </Pie>
-                <Pie data={statusData} cx="50%" cy="50%" innerRadius={80} outerRadius={122} paddingAngle={5} dataKey="value" cornerRadius={12} animationDuration={1200} animationEasing="ease-out" style={{ filter: 'url(#donut-shadow)' }}>
+                <Pie data={statusData} cx="50%" cy="50%" innerRadius={85} outerRadius={120} paddingAngle={6} dataKey="value" cornerRadius={12} animationDuration={1200} animationEasing="ease-out" style={{ filter: 'url(#donut-shadow)' }}>
                   {statusData.map((entry, i) => <Cell key={`cell-${i}`} fill={`url(#${entry.gradient})`} stroke="none" />)}
                 </Pie>
-                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={72} outerRadius={75} fill="none" dataKey="value" isAnimationActive={false}>
-                  <Cell fill="rgba(148,163,184,0.06)" />
+                <Pie data={[{ value: 1 }]} cx="50%" cy="50%" innerRadius={75} outerRadius={77} fill="none" dataKey="value" isAnimationActive={false}>
+                  <Cell fill="currentColor" className="text-slate-200/50 dark:text-slate-700/50" />
                 </Pie>
                 <Tooltip content={<GlassTooltip />} />
               </PieChart>
@@ -638,25 +646,27 @@ export default function AnalyticsDashboard() {
               <AreaChart data={filteredPointsTrend}>
                 <defs>
                   <linearGradient id="growth-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c084fc" stopOpacity={0.5} />
-                    <stop offset="30%" stopColor="#a855f7" stopOpacity={0.25} />
-                    <stop offset="70%" stopColor="#8b5cf6" stopOpacity={0.08} />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.01} />
+                    <stop offset="0%" stopColor="#a855f7" stopOpacity={0.4} />
+                    <stop offset="60%" stopColor="#a855f7" stopOpacity={0.05} />
+                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="growth-stroke" x1="0" y1="0" x2="1" y2="0">
                     <stop offset="0%" stopColor="#c084fc" />
                     <stop offset="50%" stopColor="#a855f7" />
                     <stop offset="100%" stopColor="#7c3aed" />
                   </linearGradient>
-                  <filter id="area-glow"><feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#8b5cf6" floodOpacity="0.3" /></filter>
+                  <filter id="area-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#8b5cf6" floodOpacity="0.4" />
+                  </filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dy={8} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<GlassTooltip />} cursor={{ stroke: '#a855f7', strokeWidth: 1, strokeDasharray: '6 4' }} />
-                <Area type="monotone" dataKey="points" stroke="url(#growth-stroke)" strokeWidth={3.5}
+                <CartesianGrid strokeDasharray="3 4" stroke="currentColor" className="text-slate-200 dark:text-slate-800" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} dy={12} tickMargin={8} />
+                <YAxis tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} axisLine={false} tickLine={false} dx={-5} />
+                <Tooltip content={<GlassTooltip />} cursor={{ fill: 'rgba(168,85,247,0.06)' }} />
+                <Area type="natural" dataKey="points" stroke="url(#growth-stroke)" strokeWidth={4}
                   fill="url(#growth-fill)" name={t('analytics.chartLabels.points')} animationDuration={1400}
-                  dot={({ cx, cy }: any) => <g key={`${cx}-${cy}`}><circle cx={cx} cy={cy} r={8} fill="#a855f7" opacity={0.12} /><circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="#8b5cf6" strokeWidth={2.5} /><circle cx={cx} cy={cy} r={2} fill="#8b5cf6" /></g>}
+                  activeDot={{ r: 7, fill: "#a855f7", stroke: "#fff", strokeWidth: 3, shadow: "0 0 10px rgba(168,85,247,0.6)" }}
+                  dot={false}
                   style={{ filter: 'url(#area-glow)' }}
                 />
               </AreaChart>
