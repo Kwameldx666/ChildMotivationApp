@@ -8,7 +8,8 @@ namespace TaskService.Application.Features.Tasks.Commands.RejectApproval;
 public class RejectApprovalCommandHandler(
     ITaskRepository repository,
     IUnitOfWork unitOfWork,
-    IDateTimeProvider dateTimeProvider) : IRequestHandler<RejectApprovalCommand>
+    IDateTimeProvider dateTimeProvider,
+    INotificationClient notificationClient) : IRequestHandler<RejectApprovalCommand>
 {
     public async Task<Unit> Handle(RejectApprovalCommand request, CancellationToken cancellationToken)
     {
@@ -19,6 +20,22 @@ public class RejectApprovalCommandHandler(
         task.RejectApproval(dateTimeProvider.UtcNow);
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var recipients = new[] { task.CreatedByUserId, task.AssignedToUserId }
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (recipients.Length > 0)
+        {
+            await notificationClient.SendTaskUpdatedNotificationAsync(
+                task.Id.ToString(),
+                task.Title,
+                task.Description ?? string.Empty,
+                recipients!,
+                "ApprovalRejected",
+                cancellationToken);
+        }
 
         return Unit.Value;
     }

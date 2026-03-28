@@ -111,7 +111,9 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
 
     public Task<HttpResponseMessage> GetSubscriptionAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var basePath = _endpoints.Subscription;
+        var basePath = string.IsNullOrWhiteSpace(_endpoints.Subscription)
+            ? "user-service/subscription/{userId}"
+            : _endpoints.Subscription;
         var requestUri = basePath.Contains("{userId}")
             ? basePath.Replace("{userId}", userId.ToString())
             : $"{basePath.TrimEnd('/')}/{userId}";
@@ -126,7 +128,9 @@ public class UserServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
     public Task<HttpResponseMessage> ChangeSubscriptionAsync(ChangeSubscriptionRequest request,
         CancellationToken cancellationToken)
     {
-        var requestUri = _endpoints.SubscriptionChange;
+        var requestUri = string.IsNullOrWhiteSpace(_endpoints.SubscriptionChange)
+            ? "user-service/subscription/change"
+            : _endpoints.SubscriptionChange;
         return _client.SendHttpRequestAsync(
             HttpMethod.Post,
             requestUri,

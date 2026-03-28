@@ -91,6 +91,46 @@ public class NotificationClient : INotificationClient
         }
     }
 
+    public async Task SendTaskUpdatedNotificationAsync(
+        string taskId,
+        string title,
+        string description,
+        string[] userIds,
+        string status,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var userId in userIds.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            try
+            {
+                var payload = new
+                {
+                    userId,
+                    taskId,
+                    title,
+                    description,
+                    status,
+                    assignedTo = "",
+                    assignedBy = ""
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _httpClient.PostAsync("/api/notifications/task/updated", content, cancellationToken);
+                response.EnsureSuccessStatusCode();
+
+                _logger.LogInformation("Sent task updated notification to user {UserId} for task {TaskId} with status {Status}", userId, taskId, status);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send task updated notification to user {UserId} for task {TaskId}", userId, taskId);
+            }
+        }
+    }
+
     public async Task SendNewCommentNotificationAsync(
         string taskId,
         string taskTitle,
@@ -129,6 +169,41 @@ public class NotificationClient : INotificationClient
             {
                 _logger.LogError(ex, "Failed to send comment notification to user {UserId} for task {TaskId}", userId, taskId);
             }
+        }
+    }
+
+    public async Task SendGeneralNotificationAsync(
+        string userId,
+        string title,
+        string message,
+        string type,
+        Dictionary<string, object>? data = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var payload = new
+            {
+                userId,
+                title,
+                message,
+                type,
+                data
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(payload),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.PostAsync("/api/notifications/general", content, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            _logger.LogInformation("Sent general notification of type {Type} to user {UserId}", type, userId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send general notification of type {Type} to user {UserId}", type, userId);
         }
     }
 }

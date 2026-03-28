@@ -40,7 +40,10 @@
     "confirmDelete": "Yes, Delete",
     "done": "Done",
     "child": "Child",
-    "parent": "Parent"
+    "parent": "Parent",
+    "name": "Имя",
+    "price": "Цена",
+    "daysRemaining": "Осталось {days} дней"
   },
   "auth": {
     "signIn": "Sign In",
@@ -131,7 +134,8 @@
       "3": "Medium",
       "4": "Hard",
       "5": "Very Hard"
-    }
+    },
+    "pendingApproval": "Ожидает одобрения"
   },
   "rewards": {
     "title": "Rewards",
@@ -668,13 +672,13 @@
     "greeting": {
       "childPersona": "Your family mentor is here",
       "parentPersona": "Ready to build a family strategy",
-      "familySuffix": "of the \u00ab{familyName}\u00bb family",
+      "familySuffix": "of the «{familyName}» family",
       "helpMessage": "I'll help with tasks, rewards, and communication",
-      "cta": "Describe your request \u2014 and I'll handle the rest."
+      "cta": "Describe your request — and I'll handle the rest."
     },
     "header": {
       "title": "Family Intelligence Assistant",
-      "description": "Ask to create task sets, weekly summaries, or prepare messages \u2014 the assistant will fulfill your request considering family context."
+      "description": "Ask to create task sets, weekly summaries, or prepare messages — the assistant will fulfill your request considering family context."
     },
     "status": {
       "thinking": "AI is forming a response",
@@ -691,15 +695,15 @@
       "you": "You",
       "ai": "AI",
       "system": "System",
-      "preparing": "Preparing response\u2026"
+      "preparing": "Preparing response…"
     },
     "actions": {
       "available": "Available actions",
-      "executing": "Executing\u2026"
+      "executing": "Executing…"
     },
     "input": {
-      "placeholder": "Tell the assistant what to do. For example: \u201cPrepare a letter to parents with weekly results and Monday's task list.\u201d",
-      "shiftEnterHint": "Shift+Enter \u2014 new line",
+      "placeholder": "Tell the assistant what to do. For example: “Prepare a letter to parents with weekly results and Monday's task list.”",
+      "shiftEnterHint": "Shift+Enter — new line",
       "randomIdea": "Random idea",
       "send": "Send"
     },
@@ -1066,7 +1070,9 @@
       "confirmDelivery": "Confirm reward delivery",
       "confirmReceipt": "Confirm receipt",
       "saving": "Saving...",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "notEnough": "Не хватает",
+      "needMore": "Нужно ещё {amount}"
     },
     "createdAt": "Created {date}",
     "catalog": {
@@ -1130,7 +1136,11 @@
       "deliveryConfirmed": "You marked the reward as delivered",
       "deliveryFailed": "Could not confirm reward delivery",
       "receiptConfirmed": "You confirmed receipt of the reward",
-      "receiptFailed": "Could not confirm reward receipt"
+      "receiptFailed": "Could not confirm reward receipt",
+      "notEnoughPoints": {
+        "title": "Недостаточно баллов",
+        "description": "Нужно {need} баллов, а у вас {have}"
+      }
     },
     "confirmDelete": "Delete reward \"{name}\"?",
     "edit": {
@@ -1450,7 +1460,12 @@
     "approve": "Approve",
     "completed": "Completed",
     "evidenceSubmitted": "Submitted",
-    "evidenceRequired": "Required"
+    "evidenceRequired": "Required",
+    "waitingApproval": "Ожидает одобрения",
+    "askAi": "Спросить ИИ",
+    "askParent": "Спросить родителя",
+    "askParentMessage": "У меня вопрос по этой задаче",
+    "askParentSent": "Сообщение отправлено родителю!"
   },
   "familyGoals": {
     "title": "Family Goals",
@@ -1672,8 +1687,8 @@
     "namePlaceholder": "Enter your name",
     "ageOptional": "Age (optional)",
     "agePlaceholder": "How old are you?",
-    "parentRole": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 Parent",
-    "childRole": "\ud83e\uddd2 Child",
+    "parentRole": "👨‍👩‍👧‍👦 Parent",
+    "childRole": "🧒 Child",
     "continue": "Continue"
   },
   "childMotivational": {
@@ -2170,7 +2185,8 @@
       "pending": "Pending",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "overdue": "Overdue"
+      "overdue": "Overdue",
+      "pendingApproval": "Ожидает одобрения"
     },
     "journey": {
       "assigned": "Assigned",
@@ -2823,7 +2839,12 @@
     "success": "Child added successfully!",
     "error": "Failed to add child. Please try again.",
     "addButton": "Add Child",
-    "emptyHint": "Add your first child to get started with tasks and rewards"
+    "emptyHint": "Add your first child to get started with tasks and rewards",
+    "credentialsTitle": "Аккаунт ребёнка создан! Сохраните данные для входа:",
+    "credentialsLogin": "Логин",
+    "credentialsPassword": "Пароль",
+    "credentialsHint": "Сохраните эти данные — они понадобятся ребёнку для входа. Если ваша почта подтверждена, они также отправлены на ваш email.",
+    "autoCredentialsHint": "Логин и пароль будут созданы автоматически. Ребёнок сможет сменить пароль после первого входа."
   },
   "childSetup": {
     "titlePassword": "Change Password",
@@ -2870,5 +2891,118 @@
     "pending": "Pending",
     "inProgress": "In Progress",
     "overdue": "Overdue"
+  },
+  "analyticsAi": {
+    "title": "ИИ Аналитика",
+    "cta": "Получить анализ ИИ",
+    "ctaDescription": "ИИ проанализирует данные вашей семьи и даст персональные рекомендации",
+    "generate": "Анализ с ИИ",
+    "refresh": "Обновить",
+    "analyzing": "Анализируем данные...",
+    "retry": "Повторить"
+  },
+  "tour": {
+    "skip": "Пропустить",
+    "finish": "Понятно!",
+    "parent": {
+      "welcome": {
+        "title": "Добро пожаловать в FamilyQuest!",
+        "desc": "Давайте проведём быструю экскурсию по приложению. Вы узнаете, как создавать задания, управлять наградами и отслеживать прогресс детей."
+      },
+      "tabs": {
+        "title": "Навигация",
+        "desc": "Используйте эти вкладки для переключения между разделами: задания, награды, дети, аналитика, чат и настройки."
+      },
+      "tasks": {
+        "title": "Задания",
+        "desc": "Здесь вы управляете заданиями для детей. Создавайте задачи, устанавливайте сложность и отслеживайте выполнение."
+      },
+      "newTask": {
+        "title": "Создать задание",
+        "desc": "Нажмите эту кнопку, чтобы создать новое задание. ИИ поможет написать увлекательное описание для ребёнка."
+      },
+      "rewards": {
+        "title": "Магазин наград",
+        "desc": "Создавайте награды, которые дети могут купить за заработанные баллы. Отличная мотивация!"
+      },
+      "children": {
+        "title": "Дети",
+        "desc": "Просматривайте профили детей и управляйте ими. Приглашайте новых детей в семейную группу."
+      },
+      "analytics": {
+        "title": "Аналитика",
+        "desc": "Отслеживайте прогресс с графиками и статистикой. ИИ может анализировать паттерны и давать рекомендации."
+      },
+      "chat": {
+        "title": "Семейный чат",
+        "desc": "Общайтесь с семьёй и используйте ИИ-ассистента для помощи."
+      },
+      "notifications": {
+        "title": "Уведомления",
+        "desc": "Будьте в курсе — выполнение задач, запросы наград и семейные события появляются здесь."
+      },
+      "done": {
+        "title": "Всё готово!",
+        "desc": "Начните с создания первого задания или приглашения детей. Удачи в семейном приключении!"
+      }
+    },
+    "child": {
+      "welcome": {
+        "title": "Привет, искатель приключений!",
+        "desc": "Добро пожаловать в мир квестов! Давай покажем тебе всё, чтобы ты мог зарабатывать баллы и призы."
+      },
+      "stats": {
+        "title": "Твоя статистика",
+        "desc": "Здесь видны твои баллы, серия, выполненные задачи и XP. Продолжай расти!"
+      },
+      "xp": {
+        "title": "Шкала опыта",
+        "desc": "Выполняй задания, чтобы получать XP. Когда шкала заполнится, повысишь уровень и откроешь новый ранг!"
+      },
+      "nav": {
+        "title": "Навигация",
+        "desc": "Переключайся между разделами: задания, галерея, квесты, магазин, ИИ-чат, достижения."
+      },
+      "tasks": {
+        "title": "Твои задания",
+        "desc": "Здесь задания от родителей. Выполняй их, чтобы зарабатывать баллы и XP!"
+      },
+      "shop": {
+        "title": "Магазин наград",
+        "desc": "Трать заработанные баллы на крутые награды. Чем больше заданий, тем больше можно купить!"
+      },
+      "chat": {
+        "title": "ИИ-чат",
+        "desc": "Нужна помощь с заданием? Спроси ИИ-ассистента — он подскажет и объяснит."
+      },
+      "achievements": {
+        "title": "Достижения",
+        "desc": "Получай значки и трофеи за свои достижения. Собери их все!"
+      },
+      "done": {
+        "title": "Готов к старту!",
+        "desc": "Загляни во вкладку заданий и начинай выполнять квесты. Удачи и крутых наград!"
+      }
+    }
+  },
+  "resetChildPassword": {
+    "title": "Сброс пароля ребёнка",
+    "confirm": "Текущий пароль ребёнка будет заменён на новый случайный пароль. Вы уверены?",
+    "resetButton": "Сбросить пароль",
+    "resetting": "Сброс...",
+    "success": "Пароль успешно сброшен!",
+    "error": "Не удалось сбросить пароль. Попробуйте ещё раз.",
+    "newPasswordTitle": "Новый пароль ребёнка:",
+    "newPasswordLabel": "Новый пароль",
+    "hint": "Сохраните новый пароль — он понадобится ребёнку для входа. Если ваша почта подтверждена, он также отправлен на ваш email."
+  },
+  "childrenPage": {
+    "title": "Мои дети",
+    "subtitle": "Добавляйте и управляйте профилями детей",
+    "emptyTitle": "Пока нет детей",
+    "emptyDescription": "Добавьте ребёнка, чтобы он мог выполнять задачи, получать награды и общаться в семейном чате",
+    "addFirstChild": "Добавить первого ребёнка",
+    "autoCredentialsNote": "Логин и пароль создадутся автоматически",
+    "yearsOld": "лет"
   }
 }

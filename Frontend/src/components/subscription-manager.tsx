@@ -125,9 +125,9 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
           description: `${t("subscription.changePlan")} "${selectedTier.name}" ${t("common.success")}`,
         })
         return updatedSubscription
-      } catch {
+      } catch (error) {
         toast({ title: t("common.error"), description: t("errors.serverError"), variant: "destructive" })
-        throw new Error("Failed to change subscription")
+        throw error instanceof Error ? error : new Error("Failed to change subscription")
       }
     }
   }

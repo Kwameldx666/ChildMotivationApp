@@ -42,7 +42,8 @@
     "parent": "Părinte",
     "name": "Nume",
     "price": "Preț",
-    "daysRemaining": "{days} zile rămase"
+    "daysRemaining": "{days} zile rămase",
+    "done": "Done"
   },
   "auth": {
     "signIn": "Conectare",
@@ -426,13 +427,16 @@
       "confirmDelivery": "Confirmă livrarea recompensei",
       "confirmReceipt": "Confirmă primirea",
       "saving": "Se salvează...",
-      "saveChanges": "Salvează modificările"
+      "saveChanges": "Salvează modificările",
+      "notEnough": "Не хватает",
+      "needMore": "Нужно ещё {amount}"
     },
     "createdAt": "Creat {date}",
     "catalog": {
       "title": "Catalog de recompense",
       "parentSubtitle": "Editează recompensele și gestionează stocul",
-      "childSubtitle": "Alege și schimbă puncte pentru cadouri dorite"
+      "childSubtitle": "Alege și schimbă puncte pentru cadouri dorite",
+      "addReward": "Add Reward"
     },
     "orders": {
       "title": "Schimburile mele",
@@ -481,7 +485,18 @@
       "deliveryConfirmed": "Ai marcat recompensa ca livrată",
       "deliveryFailed": "Nu s-a putut confirma livrarea recompensei",
       "receiptConfirmed": "Ai confirmat primirea recompensei",
-      "receiptFailed": "Nu s-a putut confirma primirea recompensei"
+      "receiptFailed": "Nu s-a putut confirma primirea recompensei",
+      "rewardCreated": {
+        "title": "Reward created",
+        "description": "Reward \"{name}\" added to catalog"
+      },
+      "rewardCreateFailed": {
+        "title": "Failed to create reward"
+      },
+      "notEnoughPoints": {
+        "title": "Недостаточно баллов",
+        "description": "Нужно {need} баллов, а у вас {have}"
+      }
     },
     "confirmDelete": "Ștergi recompensa \"{name}\"?",
     "edit": {
@@ -512,7 +527,8 @@
         "description": "Obiective pe termen lung",
         "range": "300+ puncte"
       }
-    }
+    },
+    "orderTotal": "Total"
   },
   "tasks": {
     "title": "Sarcini",
@@ -560,7 +576,8 @@
       "3": "Mediu",
       "4": "Greu",
       "5": "Foarte greu"
-    }
+    },
+    "pendingApproval": "Ожидает одобрения"
   },
   "rewards": {
     "title": "Recompense",
@@ -612,7 +629,12 @@
     "shareCodeHint": "Partajează acest cod cu copilul tău. După conectare, profilul va apărea aici automat.",
     "familyInfo": "Informații familie",
     "familyInfoDescription": "Datele familiei și invitarea copiilor",
-    "shareCode": "Partajează codul acestei familii cu copilul tău:"
+    "shareCode": "Partajează codul acestei familii cu copilul tău:",
+    "inviteCodeLabel": "Invitation code for children",
+    "shareLinkLabel": "Share link",
+    "shareInviteLink": "Share link",
+    "inviteLinkHint": "Send this link to your child - they will automatically join the family when you open it",
+    "copied": "Copied!"
   },
   "profile": {
     "title": "Profil",
@@ -753,7 +775,8 @@
       "trialExpired": "Perioada de probă a expirat"
     },
     "downgradeBlocked": "Aveți deja un plan superior",
-    "cannotDowngrade": "Trecerea la un plan inferior nu este disponibilă. Contactați suportul."
+    "cannotDowngrade": "Trecerea la un plan inferior nu este disponibilă. Contactați suportul.",
+    "currency": "lei"
   },
   "featureGate": {
     "lockedTitle": "Funcție blocată",
@@ -915,6 +938,14 @@
       "5": "5. Stare sarcini",
       "6": "6. Creștere puncte",
       "7": "7. Calea eroului"
+    },
+    "exportDialog": {
+      "title": "Export Settings",
+      "selectChild": "Select Child",
+      "selectCharts": "Select Charts",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "generate": "Generate PDF"
     }
   },
   "notifications": {
@@ -1083,13 +1114,13 @@
     "greeting": {
       "childPersona": "Mentorul tău familial este aici",
       "parentPersona": "Gata să construim o strategie familială",
-      "familySuffix": "familiei \u00ab{familyName}\u00bb",
+      "familySuffix": "familiei «{familyName}»",
       "helpMessage": "te voi ajuta cu sarcini, recompense și comunicare",
-      "cta": "Formulează cererea \u2014 și eu mă ocup de restul."
+      "cta": "Formulează cererea — și eu mă ocup de restul."
     },
     "header": {
       "title": "Asistentul inteligent al familiei",
-      "description": "Cere să creeze seturi de sarcini, rezumate săptămânale sau să pregătească mesaje \u2014 asistentul va îndeplini cererea ținând cont de contextul familial."
+      "description": "Cere să creeze seturi de sarcini, rezumate săptămânale sau să pregătească mesaje — asistentul va îndeplini cererea ținând cont de contextul familial."
     },
     "status": {
       "thinking": "AI formulează răspunsul",
@@ -1106,15 +1137,15 @@
       "you": "Tu",
       "ai": "AI",
       "system": "Sistem",
-      "preparing": "Pregătesc răspunsul\u2026"
+      "preparing": "Pregătesc răspunsul…"
     },
     "actions": {
       "available": "Acțiuni disponibile",
-      "executing": "Execut\u2026"
+      "executing": "Execut…"
     },
     "input": {
-      "placeholder": "Spune-i asistentului ce să facă. De exemplu: \u201cPregătește o scrisoare pentru părinți cu rezultatele săptămânii și lista de sarcini de luni.\u201d",
-      "shiftEnterHint": "Shift+Enter \u2014 rând nou",
+      "placeholder": "Spune-i asistentului ce să facă. De exemplu: “Pregătește o scrisoare pentru părinți cu rezultatele săptămânii și lista de sarcini de luni.”",
+      "shiftEnterHint": "Shift+Enter — rând nou",
       "randomIdea": "Idee aleatorie",
       "send": "Trimite"
     },
@@ -1197,7 +1228,14 @@
       "default": "Nu s-a putut genera recompensa. Încercați din nou.",
       "timeout": "AI procesează prea mult timp. Încercați să simplificați indiciul sau încercați mai târziu.",
       "serverOverloaded": "Serverul AI este supraîncărcat. Încercați peste câteva secunde."
-    }
+    },
+    "childInterests": "Child's interests & hobbies",
+    "childInterestsHint": "Add the child's interests — AI will tailor the reward just for them",
+    "interestPlaceholder": "Soccer, Lego, Drawing...",
+    "quickInterests": "Soccer, Drawing, Lego, Minecraft, Dancing, Reading, Music, Swimming",
+    "aiHintPlaceholderChild": "For example: Something related to their favorite cartoon, or a reward for good grades...",
+    "aiAnalyzingChild": "AI is picking the perfect reward for {name} based on their interests...",
+    "adjustCost": "Adjust"
   },
   "rewardCatalog": {
     "title": "Catalogul recompenselor",
@@ -1422,7 +1460,12 @@
     "approve": "Aprobă",
     "completed": "Finalizat",
     "evidenceSubmitted": "Trimis",
-    "evidenceRequired": "Necesar"
+    "evidenceRequired": "Necesar",
+    "waitingApproval": "Ожидает одобрения",
+    "askAi": "Спросить ИИ",
+    "askParent": "Спросить родителя",
+    "askParentMessage": "У меня вопрос по этой задаче",
+    "askParentSent": "Сообщение отправлено родителю!"
   },
   "familyGoals": {
     "title": "Obiectivele familiei",
@@ -1644,8 +1687,8 @@
     "namePlaceholder": "Introdu numele tău",
     "ageOptional": "Vârstă (opțional)",
     "agePlaceholder": "Câți ani ai?",
-    "parentRole": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67\u200d\ud83d\udc66 Părinte",
-    "childRole": "\ud83e\uddd2 Copil",
+    "parentRole": "👨‍👩‍👧‍👦 Părinte",
+    "childRole": "🧒 Copil",
     "continue": "Continuă"
   },
   "childMotivational": {
@@ -2066,7 +2109,17 @@
       "doExercise": "Fă exerciții",
       "makeBed": "Fă patul",
       "foldClothes": "Împătură hainele"
-    }
+    },
+    "aiPlaceholder": "Just describe the task — AI will handle the rest...",
+    "difficultyLabel": "Difficulty",
+    "pts": "pts",
+    "extraOptions": "More options",
+    "manual": "Manual",
+    "createWithAi": "Create with AI",
+    "generateWithAi": "Generate with AI",
+    "aiFilledToast": "AI filled in the task fields",
+    "aiError": "Generation failed. Please try again.",
+    "orChooseIdea": "Or choose an idea:"
   },
   "taskCreation": {
     "title": "Sarcină nouă",
@@ -2132,7 +2185,8 @@
       "pending": "În așteptare",
       "inProgress": "În desfășurare",
       "completed": "Finalizat",
-      "overdue": "Întârziat"
+      "overdue": "Întârziat",
+      "pendingApproval": "Ожидает одобрения"
     },
     "journey": {
       "assigned": "Atribuit",
@@ -2784,7 +2838,13 @@
     "credentialsLogin": "Login",
     "credentialsPassword": "Parolă",
     "credentialsHint": "Salvați aceste date — copilul le va folosi pentru autentificare. Dacă emailul dvs. este confirmat, datele au fost trimise și pe email.",
-    "autoCredentialsHint": "Loginul și parola vor fi create automat. Copilul poate schimba parola după prima autentificare."
+    "autoCredentialsHint": "Loginul și parola vor fi create automat. Copilul poate schimba parola după prima autentificare.",
+    "email": "Email",
+    "emailPlaceholder": "child@example.com",
+    "emailHint": "Used for child login – can be parent's email with +child suffix",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "passwordHint": "Share these credentials with your child for login"
   },
   "resetChildPassword": {
     "title": "Resetare parolă copil",
@@ -2842,5 +2902,107 @@
     "pending": "În așteptare",
     "inProgress": "În progres",
     "overdue": "Expirat"
+  },
+  "analyticsAi": {
+    "title": "ИИ Аналитика",
+    "cta": "Получить анализ ИИ",
+    "ctaDescription": "ИИ проанализирует данные вашей семьи и даст персональные рекомендации",
+    "generate": "Анализ с ИИ",
+    "refresh": "Обновить",
+    "analyzing": "Анализируем данные...",
+    "retry": "Повторить"
+  },
+  "tour": {
+    "skip": "Пропустить",
+    "finish": "Понятно!",
+    "parent": {
+      "welcome": {
+        "title": "Добро пожаловать в FamilyQuest!",
+        "desc": "Давайте проведём быструю экскурсию по приложению. Вы узнаете, как создавать задания, управлять наградами и отслеживать прогресс детей."
+      },
+      "tabs": {
+        "title": "Навигация",
+        "desc": "Используйте эти вкладки для переключения между разделами: задания, награды, дети, аналитика, чат и настройки."
+      },
+      "tasks": {
+        "title": "Задания",
+        "desc": "Здесь вы управляете заданиями для детей. Создавайте задачи, устанавливайте сложность и отслеживайте выполнение."
+      },
+      "newTask": {
+        "title": "Создать задание",
+        "desc": "Нажмите эту кнопку, чтобы создать новое задание. ИИ поможет написать увлекательное описание для ребёнка."
+      },
+      "rewards": {
+        "title": "Магазин наград",
+        "desc": "Создавайте награды, которые дети могут купить за заработанные баллы. Отличная мотивация!"
+      },
+      "children": {
+        "title": "Дети",
+        "desc": "Просматривайте профили детей и управляйте ими. Приглашайте новых детей в семейную группу."
+      },
+      "analytics": {
+        "title": "Аналитика",
+        "desc": "Отслеживайте прогресс с графиками и статистикой. ИИ может анализировать паттерны и давать рекомендации."
+      },
+      "chat": {
+        "title": "Семейный чат",
+        "desc": "Общайтесь с семьёй и используйте ИИ-ассистента для помощи."
+      },
+      "notifications": {
+        "title": "Уведомления",
+        "desc": "Будьте в курсе — выполнение задач, запросы наград и семейные события появляются здесь."
+      },
+      "done": {
+        "title": "Всё готово!",
+        "desc": "Начните с создания первого задания или приглашения детей. Удачи в семейном приключении!"
+      }
+    },
+    "child": {
+      "welcome": {
+        "title": "Привет, искатель приключений!",
+        "desc": "Добро пожаловать в мир квестов! Давай покажем тебе всё, чтобы ты мог зарабатывать баллы и призы."
+      },
+      "stats": {
+        "title": "Твоя статистика",
+        "desc": "Здесь видны твои баллы, серия, выполненные задачи и XP. Продолжай расти!"
+      },
+      "xp": {
+        "title": "Шкала опыта",
+        "desc": "Выполняй задания, чтобы получать XP. Когда шкала заполнится, повысишь уровень и откроешь новый ранг!"
+      },
+      "nav": {
+        "title": "Навигация",
+        "desc": "Переключайся между разделами: задания, галерея, квесты, магазин, ИИ-чат, достижения."
+      },
+      "tasks": {
+        "title": "Твои задания",
+        "desc": "Здесь задания от родителей. Выполняй их, чтобы зарабатывать баллы и XP!"
+      },
+      "shop": {
+        "title": "Магазин наград",
+        "desc": "Трать заработанные баллы на крутые награды. Чем больше заданий, тем больше можно купить!"
+      },
+      "chat": {
+        "title": "ИИ-чат",
+        "desc": "Нужна помощь с заданием? Спроси ИИ-ассистента — он подскажет и объяснит."
+      },
+      "achievements": {
+        "title": "Достижения",
+        "desc": "Получай значки и трофеи за свои достижения. Собери их все!"
+      },
+      "done": {
+        "title": "Готов к старту!",
+        "desc": "Загляни во вкладку заданий и начинай выполнять квесты. Удачи и крутых наград!"
+      }
+    }
+  },
+  "childrenPage": {
+    "title": "Мои дети",
+    "subtitle": "Добавляйте и управляйте профилями детей",
+    "emptyTitle": "Пока нет детей",
+    "emptyDescription": "Добавьте ребёнка, чтобы он мог выполнять задачи, получать награды и общаться в семейном чате",
+    "addFirstChild": "Добавить первого ребёнка",
+    "autoCredentialsNote": "Логин и пароль создадутся автоматически",
+    "yearsOld": "лет"
   }
 }

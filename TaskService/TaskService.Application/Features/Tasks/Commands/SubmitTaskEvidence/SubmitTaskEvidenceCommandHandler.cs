@@ -21,17 +21,20 @@ public class SubmitTaskEvidenceCommandHandler : IRequestHandler<SubmitTaskEviden
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITaskEvidenceStorage _storage;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly INotificationClient _notificationClient;
 
     public SubmitTaskEvidenceCommandHandler(
         ITaskRepository repository,
         IUnitOfWork unitOfWork,
         ITaskEvidenceStorage storage,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        INotificationClient notificationClient)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _storage = storage;
         _dateTimeProvider = dateTimeProvider;
+        _notificationClient = notificationClient;
     }
 
     public async Task<TaskDto> Handle(SubmitTaskEvidenceCommand request, CancellationToken cancellationToken)
@@ -67,6 +70,28 @@ public class SubmitTaskEvidenceCommandHandler : IRequestHandler<SubmitTaskEviden
 
         await _repository.UpdateAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var recipients = new[] { task.CreatedByUserId, task.AssignedToUserId }
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(userId => !string.Equals(userId, request.UploadedByUserId, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        foreach (var recipient in recipients)
+        {
+            await _notificationClient.SendGeneralNotificationAsync(
+                recipient!,
+                "Evidence Submitted",
+                $"Evidence for task \"{task.Title}\" has been submitted.",
+                "task_evidence_submitted",
+                new Dictionary<string, object>
+                {
+                    ["taskId"] = task.Id.ToString(),
+                    ["uploadedBy"] = request.UploadedByUserId,
+                    ["fileName"] = request.FileName
+                },
+                cancellationToken);
+        }
 
         return task.ToDto();
     }

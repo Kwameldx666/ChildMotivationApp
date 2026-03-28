@@ -91,12 +91,13 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
 
   const isCardValid = cardNumber.replace(/\s/g, "").length === 16 &&
     cardExpiry.length === 5 && cardCvv.length === 3 && cardName.length > 2
+  const shouldSkipCardValidation = process.env.NODE_ENV !== "production"
 
   const handleProceedToPayment = () => setStep("payment")
 
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isCardValid) {
+    if (!isCardValid && !shouldSkipCardValidation) {
       toast({
         title: t("paymentModal.errorTitle"),
         description: t("paymentModal.fillAllFields"),
@@ -124,11 +125,11 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
           handleReset()
           onClose()
         }, 1800)
-      } catch {
+      } catch (error) {
         setStep("payment")
         toast({
           title: t("common.error"),
-          description: t("errors.serverError"),
+          description: error instanceof Error && error.message ? error.message : t("errors.serverError"),
           variant: "destructive",
         })
       }
@@ -345,7 +346,7 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
         </Button>
         <Button
           type="submit"
-          disabled={!isCardValid || !agreedToTerms}
+          disabled={(!isCardValid && !shouldSkipCardValidation) || !agreedToTerms}
           className={cn("flex-1 bg-gradient-to-r text-white hover:opacity-90", meta.gradient)}
         >
           {t("paymentModal.pay", { price: (billingCycle === "yearly" && yearlyPrice ? yearlyPrice : displayPrice).toFixed(0) + " lei" })}

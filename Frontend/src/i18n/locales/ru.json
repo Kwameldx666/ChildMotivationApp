@@ -187,7 +187,12 @@
     "shareCodeHint": "Поделитесь этим кодом со своим ребёнком. После подключения его профиль появится здесь автоматически.",
     "familyInfo": "Информация о семье",
     "familyInfoDescription": "Данные вашей семьи и приглашение детей",
-    "shareCode": "Передайте этот код семьи своему ребёнку:"
+    "shareCode": "Передайте этот код семьи своему ребёнку:",
+    "inviteCodeLabel": "Invitation code for children",
+    "shareLinkLabel": "Share link",
+    "shareInviteLink": "Share link",
+    "inviteLinkHint": "Send this link to your child - they will automatically join the family when you open it",
+    "copied": "Copied!"
   },
   "profile": {
     "title": "Профиль",
@@ -548,7 +553,11 @@
     "allTasksDeleted": "Все задачи",
     "allRewardsDeleted": "Все награды",
     "allStatisticsDeleted": "Вся статистика",
-    "childProfilesDeleted": "Профили детей"
+    "childProfilesDeleted": "Профили детей",
+    "themeLabel": "Theme",
+    "themeDescription": "Choose your preferred visual style",
+    "lightTheme": "Light theme enabled",
+    "darkTheme": "Dark theme"
   },
   "activity": {
     "title": "Лента активности семьи",
@@ -693,7 +702,7 @@
       "executing": "Выполняю…"
     },
     "input": {
-      "placeholder": "Расскажи, что должен сделать ассистент. Например: \u201cПодготовь письмо родителям с итогами недели и списком задач на понедельник.\u201d",
+      "placeholder": "Расскажи, что должен сделать ассистент. Например: “Подготовь письмо родителям с итогами недели и списком задач на понедельник.”",
       "shiftEnterHint": "Shift+Enter — перенос строки",
       "randomIdea": "Случайная идея",
       "send": "Отправить"
@@ -2922,7 +2931,13 @@
     "credentialsLogin": "Логин",
     "credentialsPassword": "Пароль",
     "credentialsHint": "Сохраните эти данные — они понадобятся ребёнку для входа. Если ваша почта подтверждена, они также отправлены на ваш email.",
-    "autoCredentialsHint": "Логин и пароль будут созданы автоматически. Ребёнок сможет сменить пароль после первого входа."
+    "autoCredentialsHint": "Логин и пароль будут созданы автоматически. Ребёнок сможет сменить пароль после первого входа.",
+    "email": "Email",
+    "emailPlaceholder": "child@example.com",
+    "emailHint": "Used for child login – can be parent's email with +child suffix",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "passwordHint": "Share these credentials with your child for login"
   },
   "resetChildPassword": {
     "title": "Сброс пароля ребёнка",

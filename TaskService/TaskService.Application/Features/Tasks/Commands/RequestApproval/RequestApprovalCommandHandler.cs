@@ -30,11 +30,12 @@ public class RequestApprovalCommandHandler(
         // Notify the parent that child requests approval
         if (!string.IsNullOrEmpty(task.CreatedByUserId))
         {
-            await notificationClient.SendTaskCompletedNotificationAsync(
+            await notificationClient.SendTaskUpdatedNotificationAsync(
                 task.Id.ToString(),
                 task.Title,
                 task.Description ?? "",
                 [task.CreatedByUserId],
+                "PendingApproval",
                 cancellationToken);
         }
 
