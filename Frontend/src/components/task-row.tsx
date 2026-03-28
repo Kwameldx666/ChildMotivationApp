@@ -94,7 +94,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-slate-300 to-slate-400",
     dot: "bg-slate-400",
     badge: "bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-300",
-    progress: "from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600",
+    progress: "from-blue-700 to-indigo-800 dark:from-blue-400 dark:to-indigo-500",
     glow: "shadow-slate-200/40 dark:shadow-slate-900/20",
     emoji: "⏳",
     headerGrad: "from-slate-300/20 to-slate-200/10 dark:from-slate-600/10 dark:to-slate-500/5",
@@ -280,7 +280,7 @@ export default function TaskRow({
           <div className="relative h-3 w-full overflow-hidden rounded-full bg-blue-200/80 dark:bg-blue-950/40 ring-1 ring-blue-300/70 dark:ring-blue-800/70 shadow-inner">
             <div
               className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm",
+                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/70 dark:ring-black/25",
                 theme.progress
               )}
               style={{
