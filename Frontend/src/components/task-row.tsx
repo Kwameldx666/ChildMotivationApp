@@ -280,7 +280,7 @@ export default function TaskRow({
           <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/95 dark:bg-slate-900/45 ring-1 ring-blue-200/80 dark:ring-blue-800/70 shadow-inner">
             <div
               className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-800 to-blue-900 dark:from-blue-500 dark:to-blue-700 transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/80 dark:ring-black/25"
+                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-500 dark:to-teal-600 transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/80 dark:ring-black/25"
               )}
               style={{
                 width: progress > 0 ? `${progress}%` : "0%",
