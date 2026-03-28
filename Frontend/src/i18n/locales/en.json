@@ -1078,6 +1078,7 @@
     "catalog": {
       "title": "Rewards catalog",
       "parentSubtitle": "Edit rewards and manage stock",
+      "parentManageCount": "Reward management: {count}",
       "childSubtitle": "Choose and exchange points for desired gifts",
       "addReward": "Add Reward"
     },

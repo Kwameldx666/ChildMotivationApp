@@ -264,7 +264,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                 <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-violet-500/10 border border-violet-400/20">
                   <Package className="h-4 w-4 text-violet-500" />
                   <span className="text-sm font-black text-violet-600 dark:text-violet-400">
-                    {visibleProducts.length} {t("rewardsShop.rewardCount", { count: visibleProducts.length })}
+                    {t("rewardsShop.catalog.parentManageCount", { count: visibleProducts.length }) || `Управление наградами: ${visibleProducts.length}`}
                   </span>
                 </div>
               ) : (

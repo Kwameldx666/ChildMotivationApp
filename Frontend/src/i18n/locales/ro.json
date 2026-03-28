@@ -435,6 +435,7 @@
     "catalog": {
       "title": "Catalog de recompense",
       "parentSubtitle": "Editează recompensele și gestionează stocul",
+      "parentManageCount": "Gestionare recompense: {count}",
       "childSubtitle": "Alege și schimbă puncte pentru cadouri dorite",
       "addReward": "Add Reward"
     },
