@@ -113,7 +113,7 @@ export default function StickerCollection() {
                 {t("stickerCollection.outOf", { unlocked: progress.unlocked, total: progress.total })}
               </span>
             </div>
-            <div className="h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
               <div
                 className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 progress-stripes", theme.grad)}
                 style={{ width: `${progress.percent}%` }}

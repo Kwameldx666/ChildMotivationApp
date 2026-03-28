@@ -122,7 +122,7 @@ export default function DailyMissions() {
                   +{mission.rewardXp} XP
                 </span>
               </div>
-              <div className="h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
+              <div className="h-2.5 rounded-full bg-muted overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-700 ease-out",

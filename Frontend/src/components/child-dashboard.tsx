@@ -318,7 +318,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
               {/* XP Progress Bar */}
               <div data-tour="child-xp" className="flex items-center gap-2.5">
                 <span className="text-xs font-bold text-muted-foreground shrink-0">XP</span>
-                <div className="flex-1 h-2.5 rounded-full bg-muted/40 overflow-hidden shadow-inner">
+                <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 animate-xp-fill shadow-sm progress-stripes"
                     style={{ width: `${xpPct}%` }}

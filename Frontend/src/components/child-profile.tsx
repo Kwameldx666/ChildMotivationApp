@@ -234,7 +234,7 @@ export default function ChildProfile({
             {!statsLoading && (
               <div className="flex items-center gap-2.5 mt-2.5">
                 <span className="text-[10px] font-bold text-muted-foreground">XP</span>
-                <div className="flex-1 h-2.5 rounded-full bg-muted/50 overflow-hidden shadow-inner">
+                <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden shadow-inner ring-1 ring-inset ring-border/70">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 transition-all duration-700 progress-stripes"
                     style={{ width: `${levelProgress}%` }}
