@@ -276,19 +276,49 @@ export default function TaskRow({
             </span>
             <span className="text-xs font-black tabular-nums text-foreground">{progress}%</span>
           </div>
-          {/* Fun gradient progress bar with stripes */}
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/95 dark:bg-slate-900/45 ring-1 ring-blue-200/80 dark:ring-blue-800/70 shadow-inner">
+          {/* Fun gradient progress bar with better contrast and dimensions */}
+          <div className="relative h-3.5 w-full overflow-hidden rounded-full bg-slate-200/90 dark:bg-slate-800/90 ring-1 ring-inset ring-slate-300/80 dark:ring-slate-700/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
+            {/* Background ticks */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-30 text-slate-500 dark:text-slate-400"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(90deg, transparent 0 14px, currentColor 14px 15px)',
+              }}
+            />
+            
+            {/* Fill track */}
             <div
               className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-500 dark:to-teal-600 transition-all duration-700 ease-out progress-stripes shadow-sm ring-1 ring-white/80 dark:ring-black/25"
+                "relative h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_12px_rgba(56,189,248,0.4)] dark:shadow-[0_0_12px_rgba(14,165,233,0.3)]",
+                progress > 0 ? "bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 dark:from-sky-500 dark:via-blue-600 dark:to-indigo-500" : "bg-transparent"
               )}
               style={{
                 width: progress > 0 ? `${progress}%` : "0%",
-                minWidth: progress > 0 ? "0.5rem" : undefined,
               }}
-            />
+            >
+              {/* Glossy highlight */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-40 rounded-full"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 55%, rgba(0,0,0,0.15) 100%)',
+                }}
+              />
+              {/* Progress head marker */}
+              {progress > 0 && progress < 100 && (
+                <div
+                  aria-hidden="true"
+                  className="absolute right-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full border border-white/90 bg-white shadow-sm ring-1 ring-black/5"
+                />
+              )}
+            </div>
+            
+            {/* 100% Sparkle icon */}
             {progress >= 100 && (
-              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] animate-success-pop">🎉</div>
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] animate-success-pop drop-shadow-sm">🎉</div>
             )}
           </div>
         </div>
