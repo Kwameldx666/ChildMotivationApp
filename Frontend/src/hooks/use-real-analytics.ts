@@ -198,7 +198,12 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
 
     // Children from family members (role=child) or from task assignees
     const familyMembers = familyQuery.data ?? []
-    const childMembers = familyMembers.filter(m => m.role === 'child')
+    const normalizeRole = (role?: string | null) => role?.trim().toLowerCase() ?? ''
+    const childMembersByRole = familyMembers.filter(m => normalizeRole(m.role) === 'child')
+    const parentMembers = familyMembers.filter(m => normalizeRole(m.role) === 'parent')
+    const childMembers = childMembersByRole.length > 0
+      ? childMembersByRole
+      : familyMembers.filter(m => !parentMembers.some(parent => parent.id === m.id))
 
     // Unique child IDs from tasks
     const childIdsFromTasks = [...new Set(

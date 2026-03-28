@@ -130,6 +130,55 @@ export function generateMockAnalytics(windowDays: number = 30): AnalyticsData {
     ? (totalCompleted / totalTasks) * 100
     : 0
 
+  // ── Per-child breakdowns ──
+  const perChildActivity = childrenStats.map((child) => ({
+    childId: child.childId,
+    data: weeklyActivity.map((bucket) => {
+      const tasksCompleted = Math.max(0, Math.round(bucket.tasksCompleted * (0.45 + Math.random() * 0.35)))
+      const pointsEarned = Math.max(0, Math.round(bucket.pointsEarned * (0.4 + Math.random() * 0.4)))
+      return {
+        day: bucket.day,
+        tasksCompleted,
+        pointsEarned,
+      }
+    }),
+  }))
+
+  const perChildDifficulty = childrenStats.map((child) => ({
+    childId: child.childId,
+    data: difficultyDistribution.map((difficulty) => ({
+      ...difficulty,
+      value: Math.max(0, Math.round(difficulty.value * (0.35 + Math.random() * 0.6))),
+    })),
+  }))
+
+  const perChildProgress = childrenStats.map((child) => ({
+    childId: child.childId,
+    data: weeklyProgress.map((item) => {
+      const total = Math.max(1, Math.round(item.total * (0.4 + Math.random() * 0.5)))
+      const completed = Math.min(total, Math.max(0, Math.round(item.completed * (0.35 + Math.random() * 0.6))))
+      return {
+        week: item.week,
+        completed,
+        total,
+      }
+    }),
+  }))
+
+  const perChildPointsTrend = childrenStats.map((child) => {
+    let cumulative = rand(0, 40)
+    return {
+      childId: child.childId,
+      data: pointsTrend.map((point) => {
+        cumulative += rand(5, 35)
+        return {
+          date: point.date,
+          points: cumulative,
+        }
+      }),
+    }
+  })
+
   return {
     totalPoints,
     completedTasks: totalCompleted,
@@ -142,5 +191,9 @@ export function generateMockAnalytics(windowDays: number = 30): AnalyticsData {
     weeklyProgress,
     taskStatus,
     pointsTrend,
+    perChildActivity,
+    perChildDifficulty,
+    perChildProgress,
+    perChildPointsTrend,
   }
 }
