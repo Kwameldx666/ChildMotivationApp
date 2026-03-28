@@ -7,13 +7,15 @@ using AuthService.Common.ResultPattern;
 using AuthService.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using UserEntity = AuthService.Domain.Entities.User;
 
 namespace AuthService.Application.Features.Authentication.Password.RegisterChild;
 
 public class RegisterChildCommandHandler(
     UserManager<UserEntity> userManager,
-    IEmailService emailService)
+    IEmailService emailService,
+    ILogger<RegisterChildCommandHandler> logger)
     : IRequestHandler<RegisterChildCommand, Result<RegisterChildResponse>>
 {
     public async Task<Result<RegisterChildResponse>> Handle(RegisterChildCommand request, CancellationToken cancellationToken)
@@ -68,9 +70,11 @@ public class RegisterChildCommandHandler(
         var addToRoleResult = await userManager.AddToRoleAsync(child, UserRoles.Child);
         if (!addToRoleResult.Succeeded)
         {
-            await userManager.DeleteAsync(child);
             var error = string.Join("; ", addToRoleResult.Errors.Select(e => e.Description));
-            return Result<RegisterChildResponse>.Failure(HttpStatusCode.BadRequest, DefaultErrors.BadRequest(error));
+            logger.LogWarning(
+                "Child account {ChildId} was created, but role assignment failed: {Errors}",
+                child.Id,
+                error);
         }
 
         // 4. Try to send child credentials to parent's email (only if confirmed)

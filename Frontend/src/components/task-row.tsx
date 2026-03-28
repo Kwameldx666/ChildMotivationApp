@@ -271,16 +271,16 @@ export default function TaskRow({
         {/* ── Row 3: Progress — fun striped bar ── */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               {t("taskRow.progress")}
             </span>
             <span className="text-xs font-black tabular-nums text-foreground">{progress}%</span>
           </div>
           {/* Fun gradient progress bar with stripes */}
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-200/60 dark:bg-slate-700/40 shadow-inner">
+          <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-300/80 dark:bg-slate-700/70 ring-1 ring-slate-400/50 dark:ring-slate-600/60 shadow-inner">
             <div
               className={cn(
-                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes",
+                "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm",
                 theme.progress
               )}
               style={{ width: `${progress}%` }}

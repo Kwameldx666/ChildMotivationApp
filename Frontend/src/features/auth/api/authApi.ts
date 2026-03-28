@@ -35,6 +35,28 @@ const normalizeRole = (...candidates: unknown[]): UserProfile['role'] => {
   return 'parent'
 }
 
+const readStringField = (source: Record<string, unknown>, ...keys: string[]): string => {
+  for (const key of keys) {
+    const value = source[key]
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value
+    }
+  }
+
+  return ''
+}
+
+const normalizeRegisterChildResponse = (payload: unknown) => {
+  const source = (payload && typeof payload === 'object' ? payload : {}) as Record<string, unknown>
+
+  return {
+    childEmail: readStringField(source, 'childEmail', 'ChildEmail', 'login', 'Login', 'email', 'Email'),
+    childPassword: readStringField(source, 'childPassword', 'ChildPassword', 'password', 'Password'),
+    childName: readStringField(source, 'childName', 'ChildName'),
+    childLastName: readStringField(source, 'childLastName', 'ChildLastName'),
+  }
+}
+
 const toSession = (payload: AuthPayload): AuthSession => {
   const rawPayload = payload as Partial<AuthPayload> | null | undefined
   const rawUser = rawPayload?.user as Partial<AuthPayload['user']> | undefined
@@ -220,7 +242,7 @@ export const authApi = {
 
   async registerChild(payload: { childName: string; childLastName?: string | null; childAge: number; childAvatar?: string | null }) {
     const { data } = await apiClient.post<{ childEmail: string; childPassword: string; childName: string; childLastName: string }>(`${AUTH_BASE_PATH}/register-child`, payload)
-    return data
+    return normalizeRegisterChildResponse(data)
   },
 
   async resetChildPassword(childId: string) {
