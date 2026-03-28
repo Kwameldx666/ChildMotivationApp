@@ -94,7 +94,7 @@ const STATUS_THEME = {
     accent: "bg-gradient-to-b from-slate-300 to-slate-400",
     dot: "bg-slate-400",
     badge: "bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-300",
-    progress: "from-sky-500 to-violet-600 dark:from-sky-400 dark:to-violet-500",
+    progress: "from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600",
     glow: "shadow-slate-200/40 dark:shadow-slate-900/20",
     emoji: "⏳",
     headerGrad: "from-slate-300/20 to-slate-200/10 dark:from-slate-600/10 dark:to-slate-500/5",
@@ -277,7 +277,7 @@ export default function TaskRow({
             <span className="text-xs font-black tabular-nums text-foreground">{progress}%</span>
           </div>
           {/* Fun gradient progress bar with stripes */}
-          <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-300/80 dark:bg-slate-700/70 ring-1 ring-slate-400/50 dark:ring-slate-600/60 shadow-inner">
+          <div className="relative h-3 w-full overflow-hidden rounded-full bg-blue-200/80 dark:bg-blue-950/40 ring-1 ring-blue-300/70 dark:ring-blue-800/70 shadow-inner">
             <div
               className={cn(
                 "absolute inset-y-0 left-0 rounded-full bg-gradient-to-r transition-all duration-700 ease-out progress-stripes shadow-sm",
