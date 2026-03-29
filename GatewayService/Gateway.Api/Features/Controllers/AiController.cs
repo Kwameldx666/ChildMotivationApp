@@ -4,6 +4,7 @@ using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Authorization;
 using Gateway.Contracts.Ai;
 using Gateway.Extensions;
+using Gateway.Infrastructure.Services.Clients;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,8 @@ namespace Gateway.Features.Controllers;
 public sealed class AiController(
     IAiServiceClient aiClient,
     ITaskServiceClient taskClient,
-    IShopServiceClient shopClient) : ControllerBase
+    IShopServiceClient shopClient,
+    IFamilyChatClient chatClient) : ControllerBase
 {
     [HttpPost("task-suggestions")]
     public async Task<IActionResult> GetTaskSuggestions([FromBody] AiTaskSuggestionsRequest? payload,
@@ -143,6 +145,7 @@ public sealed class AiController(
                 "CREATEREWARD" => await ExecuteCreateReward(request.Action, userId, ru, cancellationToken),
                 "CREATEREWARDS" => await ExecuteCreateRewards(request.Action, userId, ru, cancellationToken),
                 "COMPLETETASK" => await ExecuteCompleteTask(request.Action, ru, cancellationToken),
+                "SENDFAMILYMESSAGE" => await ExecuteSendFamilyMessage(request, userId, ru, cancellationToken),
                 _ => Ok(new ExecuteAiActionResponse
                 {
                     Success = false,
@@ -395,6 +398,54 @@ public sealed class AiController(
             Message = response.IsSuccessStatusCode
                 ? (ru ? "Задача отмечена как выполненная!" : "Task marked as completed!")
                 : (ru ? "Не удалось выполнить задачу." : "Failed to complete task.")
+        });
+    }
+
+    private async Task<IActionResult> ExecuteSendFamilyMessage(ExecuteAiActionRequest request, string userId, bool ru, CancellationToken cancellationToken)
+    {
+        if (request.Action.Payload is null)
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Текст сообщения отсутствует." : "Message payload is missing."
+            });
+
+        if (string.IsNullOrWhiteSpace(request.FamilyId))
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "ID семьи отсутствует." : "Family ID is required."
+            });
+
+        var payload = request.Action.Payload.Value;
+        if (!payload.TryGetProperty("message", out var messageElement))
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Текст сообщения обязателен." : "Message text is required."
+            });
+
+        var messageText = messageElement.GetString();
+        if (string.IsNullOrWhiteSpace(messageText))
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Текст сообщения не может быть пустым." : "Message text cannot be empty."
+            });
+
+        var upstreamPayload = new
+        {
+            content = messageText,
+            mentionedTaskId = (string?)null
+        };
+
+        using var response = await chatClient.SendMessageAsync(request.FamilyId, upstreamPayload, cancellationToken);
+        return Ok(new ExecuteAiActionResponse
+        {
+            Success = response.IsSuccessStatusCode,
+            Message = response.IsSuccessStatusCode
+                ? (ru ? "Сообщение отправлено родителю!" : "Message sent to parent!")
+                : (ru ? "Не удалось отправить сообщение." : "Failed to send message.")
         });
     }
 }

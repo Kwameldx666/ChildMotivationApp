@@ -263,11 +263,11 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         var isChild = string.Equals(audience, "child", StringComparison.OrdinalIgnoreCase);
 
         var langInstruction = !string.IsNullOrWhiteSpace(locale)
-            ? $"The user's interface language is {locale}. You MUST reply in this language. If the user writes in a different language, still prefer {locale} unless they explicitly ask you to switch."
+            ? $"The user's interface language is {locale}. However, you MUST detect the language of the user's message and ALWAYS reply in THAT SAME language, regardless of the interface locale."
             : "You MUST detect the language of the user's message and ALWAYS reply in the SAME language.";
 
         var childRestriction = isChild
-            ? "\nIMPORTANT: The current user is a CHILD. You must NEVER include actions of type CreateTask, CreateTasks, CreateReward, CreateRewards, or CompleteTask for children. Children cannot create or manage tasks/rewards. Only help them understand tasks, give tips, motivate, and answer questions. You can suggest they ask their parent if they need something changed."
+            ? "\nIMPORTANT: The current user is a CHILD. You must NEVER include actions of type CreateTask, CreateTasks, CreateReward, CreateRewards, or CompleteTask for children. Children cannot create or manage tasks/rewards. Only help them understand tasks, give tips, motivate, and answer questions. If they have questions about a task or need something changed, you can use the SendFamilyMessage action to help them ask their parent."
             : "\nIMPORTANT: When the user asks to create a task, reward, send a message, or perform an action — you MUST include the corresponding actions in the response. Do not just describe what to do — provide ready-to-execute data.";
 
         var systemPrompt = "You are a family mentor assistant. " + langInstruction + "\n" +
@@ -278,7 +278,8 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
             "- CreateReward: create a reward. Payload: {title, description, cost, category, icon}\n" +
             "- CreateRewards: create multiple rewards. Payload: {rewards: [{title, description, cost, category, icon}]}\n" +
             "- CompleteTask: mark a task as completed. Payload: {taskId}\n" +
-            "- Navigate: navigate to a page. Payload: {route, queryParams}\n\n" +
+            "- Navigate: navigate to a page. Payload: {route, queryParams}\n" +
+            "- SendFamilyMessage: send a message to the family chat on behalf of the user to ask parent. Payload: {message}\n\n" +
             "Keywords that indicate task creation (any language): \"task\", \"задач\", \"создай\", \"добав\", \"create\", \"add\", \"make\"\n" +
             "Keywords that indicate reward creation: \"reward\", \"наград\", \"приз\", \"поощрен\", \"prize\", \"bonus\"\n" +
             "Keywords that indicate task completion: \"complete\", \"done\", \"выполн\", \"готов\", \"finish\"\n\n" +
