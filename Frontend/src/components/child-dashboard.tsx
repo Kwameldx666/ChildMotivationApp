@@ -13,7 +13,6 @@ import { NotificationsPopover } from "@/components/notifications-popover"
 import TasksList from "./tasks-list"
 import RewardsShop from "./rewards-shop"
 import ChildProfile from "./child-profile"
-import AchievementTree from "./achievement-tree"
 import GameHub from "./game-hub"
 import EvidenceGallery from "./evidence-gallery"
 import ChildChatHub from "./child-chat-hub"
@@ -61,8 +60,7 @@ const TABS = [
   { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400",  bgLight: "bg-orange-500/10",  textColor: "text-orange-600 dark:text-orange-400"  },
   { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400",  bgLight: "bg-violet-500/10",  textColor: "text-violet-600 dark:text-violet-400"  },
   { id: "chat",         labelKey: "childDashboard.nav.chat",         Icon: Bot,          emoji: "🤖", grad: "from-cyan-400 to-blue-500",     ring: "ring-cyan-400/40",    glow: "shadow-cyan-500/25",    dot: "bg-cyan-400",    bgLight: "bg-cyan-500/10",    textColor: "text-cyan-600 dark:text-cyan-400"      },
-  { id: "achievements", labelKey: "childDashboard.nav.achievements", Icon: Trophy,       emoji: "🏆", grad: "from-amber-400 to-yellow-500",  ring: "ring-amber-400/40",   glow: "shadow-amber-500/25",   dot: "bg-amber-400",   bgLight: "bg-amber-500/10",   textColor: "text-amber-600 dark:text-amber-400"   },
-  { id: "profile",      labelKey: "childDashboard.nav.me",           Icon: User,         emoji: "😊", grad: "from-blue-400 to-indigo-500",   ring: "ring-blue-400/40",    glow: "shadow-blue-500/25",    dot: "bg-blue-400",    bgLight: "bg-blue-500/10",    textColor: "text-blue-600 dark:text-blue-400"    },
+
 ] as const
 
 /* ═══════════ Helpers ═══════════ */
@@ -137,7 +135,6 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
     { target: "[data-tour='child-tasks']", titleKey: "tour.child.tasks.title", descriptionKey: "tour.child.tasks.desc", icon: "⚡", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
     { target: "[data-tour='child-shop']", titleKey: "tour.child.shop.title", descriptionKey: "tour.child.shop.desc", icon: "🎁", placement: "bottom", onBeforeStep: () => setActiveTab("shop") },
     { target: "[data-tour='child-chat']", titleKey: "tour.child.chat.title", descriptionKey: "tour.child.chat.desc", icon: "🤖", placement: "bottom" },
-    { target: "[data-tour='child-achievements']", titleKey: "tour.child.achievements.title", descriptionKey: "tour.child.achievements.desc", icon: "🏆", placement: "bottom" },
     { target: null, titleKey: "tour.child.done.title", descriptionKey: "tour.child.done.desc", icon: "🚀" },
   ], [t])
 
@@ -166,8 +163,6 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
         return <RewardsShop userType="child" childBalance={points} />
       case "chat":
         return <ChildChatHub />
-      case "achievements":
-        return <AchievementTree />
       case "profile":
         return (
           <ChildProfile
