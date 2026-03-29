@@ -269,122 +269,117 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
       </header>
 
 
-      {/* ═══════════════════════════════════════════════
-           HERO SECTION — avatar, stats, XP
-         ═══════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-8 bg-card/60 backdrop-blur-xl border border-border/50 rounded-[2.5rem] p-6 shadow-xl shadow-primary/5 relative overflow-hidden">
-            {/* Soft background glow */}
-            <div className="absolute top-0 right-0 -m-20 w-64 h-64 bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -m-20 w-64 h-64 bg-sky-500/10 rounded-full blur-[80px] pointer-events-none" />
+      {/* ===============================================
+             HERO SECTION � avatar, stats, XP
+           =============================================== */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 pt-4 pb-2">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-card/80 via-card/50 to-background/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl p-6 sm:p-10">
+          
+          {/* Decorative blur orbs */}
+          <div className="absolute top-0 right-0 -m-32 w-96 h-96 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -m-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05)_0%,transparent_100%)] pointer-events-none" />
 
-            {/* Avatar + Name + Rank + XP Bar */}
-            <div className="flex items-center gap-5 md:gap-6 flex-1 min-w-0 relative z-10">
-            {/* Avatar */}
-            <button
-              onClick={() => setShowAvatarPicker(true)}
-              className="relative shrink-0 group"
-              aria-label={t("child.navigation.changeAvatar")}
-            >
-                <Avatar className="h-20 w-20 md:h-24 md:w-24 ring-4 ring-primary/20 shadow-2xl group-hover:scale-105 transition-all duration-300 group-hover:ring-primary/40">
-                  {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" />}
-                  <AvatarFallback className="text-4xl md:text-5xl bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 dark:from-violet-900/60 dark:via-pink-900/40 dark:to-amber-900/30 font-bold">
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
+            
+            {/* LEFT: AVATAR & STREAK BADGE */}
+            <div className="relative flex shrink-0 justify-center items-center">
+              {/* Avatar trigger */}
+              <button
+                onClick={() => setShowAvatarPicker(true)}
+                className="relative group peer"
+                aria-label={t("child.navigation.changeAvatar")}
+              >
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 blur-xl group-hover:blur-2xl transition-all duration-500 opacity-60" />
+                <Avatar className="relative h-28 w-28 md:h-36 md:w-36 ring-8 ring-background/80 dark:ring-background/40 shadow-2xl group-hover:scale-105 transition-all duration-500">
+                  {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" className="object-cover" />}
+                  <AvatarFallback className="text-5xl md:text-6xl bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 dark:from-violet-900/60 dark:via-pink-900/40 dark:to-amber-900/30 font-bold">
                     {avatarFallback}
                   </AvatarFallback>
                 </Avatar>
-                {/* Sparkle decoration */}
-                <div className="absolute -top-2 -left-2 text-lg md:text-xl animate-star-twinkle opacity-80">✨</div>
-                <div className="absolute -bottom-1.5 -right-1.5 z-10">
+                <div className="absolute -top-3 -right-3 text-3xl md:text-4xl animate-star-twinkle opacity-90 drop-shadow-lg">?</div>
+                
+                {/* Level Circle */}
+                <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
                   <div className={cn(
-                    "w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs md:text-sm font-black text-white ring-4 ring-background shadow-lg group-hover:rotate-12 transition-transform duration-300",
-                    "bg-gradient-to-br", rank.grad,
+                    "h-7 px-4 md:h-9 md:px-5 rounded-full flex items-center justify-center text-xs md:text-sm font-black text-white ring-4 ring-background shadow-xl group-hover:scale-110 transition-transform duration-300",
+                    "bg-gradient-to-r", rank.grad,
                   )}>
-                    {level}
+                    LVL {level}
                   </div>
                 </div>
               </button>
 
-              {/* Name + Rank + XP */}
-              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-2">
-                  <span className="text-xl md:text-2xl font-black truncate text-foreground">{userProfile.name}</span>
-                  <div className={cn(
-                    "inline-flex w-max items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/50 border shadow-sm backdrop-blur-md",
-                    "border-border/50"
-                  )}>
-                    <span className="text-sm md:text-base">{rank.emoji}</span>
-                    <span className={cn("text-xs md:text-sm font-bold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
-                      {t(`childProfile.rank.${rank.key}`)}
-                    </span>
+              {/* BEAUTIFUL STREAK BADGE FLOATING */}
+              {streak > 0 && (
+                <div className="absolute -right-6 top-0 md:-right-8 md:top-2 animate-bounce-slow z-20" style={{ pointerEvents: "none" }}>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-orange-500/40 blur-lg rounded-full" />
+                    <div className="relative flex items-center gap-1 md:gap-1.5 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-full border-2 border-white/40 shadow-2xl overflow-hidden backdrop-blur-md">
+                      <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.3)_0%,transparent_100%)]" />
+                      <Flame className={cn("h-4 w-4 md:h-5 md:w-5 drop-shadow-lg", streak >= 3 && "animate-streak-flame")} />
+                      <span className="text-sm md:text-lg font-black drop-shadow-md tabular-nums tracking-tight">{streak}</span>
+                    </div>
                   </div>
                 </div>
-                {/* XP Progress Bar */}
-                <div data-tour="child-xp" className="flex items-center gap-2.5 w-full max-w-md">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 shadow-sm border border-primary/20">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-tighter">XP</span>
-                  </div>
-                  <div className="relative flex-1 h-4 rounded-full bg-muted/60 overflow-hidden shadow-inner ring-1 ring-inset ring-border/50">
+              )}
+            </div>
+
+            {/* RIGHT: INFO & PROGRESS */}
+            <div className="flex-1 w-full text-center md:text-left flex flex-col justify-center items-center md:items-start">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent mb-3 tracking-tight">
+                {userProfile.name}
+              </h1>
+              
+              {/* RANK TAG AND TASKS DONE */}
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-8">
+                <div className={cn(
+                  "inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-background/60 shadow-sm backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10"
+                )}>
+                  <span className="text-lg md:text-xl drop-shadow-sm">{rank.emoji}</span>
+                  <span className={cn("text-sm md:text-base font-extrabold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
+                    {t(`childProfile.rank.${rank.key}`)}
+                  </span>
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/10 shadow-sm backdrop-blur-md ring-1 ring-emerald-500/20">
+                  <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500 drop-shadow-sm" />
+                  <span className="text-sm md:text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {done} {t("childDashboard.nav.tasks")}
+                  </span>
+                </div>
+              </div>
+
+              {/* PROGRESS BAR ONLY (NO TEXT) */}
+              <div data-tour="child-xp" className="w-full max-w-xl group">
+                <div className="relative flex-1 h-6 md:h-8 rounded-2xl bg-muted/80 overflow-hidden shadow-inner ring-1 ring-inset ring-border/60">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 opacity-[0.15]"
+                    style={{
+                      backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--foreground)) 10px, hsl(var(--foreground)) 20px)",
+                    }}
+                  />
+                  <div
+                    className="relative h-full rounded-2xl bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-400 transition-all duration-1000 animate-xp-fill shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+                    style={{ width: `${xpPct}%` }}
+                  >
                     <div
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 opacity-30"
+                      className="absolute inset-0 opacity-40 mix-blend-overlay"
                       style={{
-                        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--border) / 0.5) 10px, hsl(var(--border) / 0.5) 20px)',
+                        backgroundImage: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)",
                       }}
                     />
                     <div
-                      className="relative h-full rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-400 transition-all duration-1000 animate-xp-fill shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-                      style={{ width: `${xpPct}%` }}
-                    >
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0 opacity-50"
-                        style={{
-                          backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
-                        }}
-                      />
-                      <div
-                        aria-hidden="true"
-                        className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-white/80 bg-white/40 shadow-sm animate-pulse"
-                      />
-                    </div>
+                      aria-hidden="true"
+                      className="absolute right-0 top-1/2 h-full w-4 md:w-6 -translate-y-1/2 bg-gradient-to-l from-white/70 to-transparent"
+                    />
                   </div>
-                  <span className="text-sm font-black text-muted-foreground tabular-nums shrink-0">{xpIn}<span className="text-muted-foreground/50">/100</span></span>                </div>
+                </div>
               </div>
-            </div>
 
-            {/* Stat Cards Grid */}
-            <div data-tour="child-stats" className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 lg:w-auto relative z-10 mt-4 lg:mt-0 w-full lg:w-auto">
-              <StatCard
-                icon={<Star className="h-5 w-5 md:h-6 md:w-6" />}              label={t("childDashboard.nav.shop")}
-              value={statsLoading ? "·" : points.toLocaleString()}
-              gradient="from-amber-400 to-yellow-500"
-              emoji="⭐"
-              delay={0}
-            />
-            <StatCard
-              icon={<Flame className="h-4 w-4 md:h-5 md:w-5" />}
-              label="Streak"
-              value={streak}
-              gradient="from-orange-400 to-red-500"
-              emoji="🔥"
-              delay={50}
-            />
-            <StatCard
-              icon={<CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />}
-              label={t("childDashboard.nav.tasks")}
-              value={done}
-              gradient="from-emerald-400 to-teal-500"
-              emoji="✅"
-              delay={100}
-            />
-            <StatCard
-              icon={<Zap className="h-4 w-4 md:h-5 md:w-5" />}
-              label="XP"
-              value={xp}
-              gradient="from-violet-400 to-purple-500"
-              emoji="⚡"
-              delay={150}
-            />
+            </div>
           </div>
         </div>
       </div>
