@@ -92,6 +92,12 @@ public class RegisterChildCommandHandler(
             {
                 logger.LogWarning(ex, "Failed to send child credentials email to {Email}", parent.Email);
                 // Email failure should not block child registration — parent can see credentials in response
+            }
+        }
+
+        // 5. Always return credentials so parent can see them in the UI
+        var response = new RegisterChildResponse(
+            ChildEmail: childLogin,
             ChildPassword: childPassword,
             ChildName: request.ChildName.Trim(),
             ChildLastName: request.ChildLastName?.Trim() ?? "");
