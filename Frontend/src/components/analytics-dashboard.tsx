@@ -1144,8 +1144,9 @@ export default function AnalyticsDashboard() {
 
         titleContainer.style.display = "block"
         titleContainer.style.position = "fixed"
-        titleContainer.style.left = "-9999px"
         titleContainer.style.top = "0"
+        titleContainer.style.left = "0"
+        titleContainer.style.zIndex = "-9999"
         titleContainer.style.width = "900px"
 
         // Force relayout
@@ -1182,8 +1183,9 @@ export default function AnalyticsDashboard() {
       if (container) {
         container.style.display = "block"
         container.style.position = "fixed"
-        container.style.left = "-9999px"
         container.style.top = "0"
+        container.style.left = "0"
+        container.style.zIndex = "-9999"
         container.style.width = "900px"
         container.style.backgroundColor = "#ffffff"
 
