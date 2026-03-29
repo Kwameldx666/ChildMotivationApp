@@ -621,9 +621,9 @@ export default function TasksList({ userType }: TasksListProps) {
 									onUploadEvidence={() => setPendingEvidenceTask(task)}
 									onEdit={() => openEditModal(task)}
 									onDelete={() => handleDeleteTask(task.id)}
-									onAskParent={userType === "child" && familyId ? (t2) => {
+									onAskParent={userType === "child" && familyId ? (t2, customMessage) => {
 										sendFamilyMessage.mutate(
-											{ content: `❓ ${t("taskRow.askParentMessage")}: ${t2.title}`, mentionedTaskId: t2.id },
+											{ content: customMessage, mentionedTaskId: t2.id },
 											{
 												onSuccess: () => toast({ title: t("taskRow.askParentSent") }),
 												onError: () => toast({ title: t("common.error"), variant: "destructive" }),

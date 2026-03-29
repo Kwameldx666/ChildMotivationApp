@@ -23,6 +23,9 @@ import { tasksService } from "@/services/tasks-service"
 import { useTranslation } from "@/i18n/provider"
 import { useEffect, useRef, useState } from "react"
 import { openAiChat } from "@/components/ai-chat-widget"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Textarea } from "@/components/ui/textarea"
+import { Send } from "lucide-react"
 
 // Local minimal type that matches decorated task shape produced in `TasksList`
 type DecoratedTask = TaskDto & {
@@ -46,7 +49,7 @@ interface TaskRowProps {
   onViewEvidence: (task: DecoratedTask) => void
   onEdit: (task: DecoratedTask) => void
   onDelete: (id: string) => void
-  onAskParent?: (task: DecoratedTask) => void
+  onAskParent?: (task: DecoratedTask, customMessage: string) => void
   confirmLoading?: boolean
   updateLoading?: boolean
   downloadLoading?: boolean
@@ -131,6 +134,15 @@ export default function TaskRow({
   deleteLoading
 }: TaskRowProps) {
   const { t } = useTranslation()
+  const [isAskParentOpen, setIsAskParentOpen] = useState(false)
+  const [askParentMessage, setAskParentMessage] = useState("")
+
+  const handleAskParent = () => {
+    if (!onAskParent || !askParentMessage.trim()) return
+    onAskParent(task, askParentMessage.trim())
+    setAskParentMessage("")
+    setIsAskParentOpen(false)
+  }
 
   const EVIDENCE_META: Record<TaskEvidenceRequirement, { label: string; icon: any; color: string }> = {
     none: { label: t("taskRow.evidenceNone"), icon: FileCheck, color: "text-emerald-600" },
@@ -429,21 +441,46 @@ export default function TaskRow({
 
           {/* Child: Ask parent about this task */}
           {userType === "child" && onAskParent && (
-            <Tooltip>
-              <TooltipTrigger asChild>
+            <Popover open={isAskParentOpen} onOpenChange={setIsAskParentOpen}>
+              <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-100/60 dark:hover:bg-blue-900/30"
-                  onClick={() => onAskParent(task)}
+                  title={t("taskRow.askParent")}
                 >
                   <MessageCircle className="h-4 w-4" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {t("taskRow.askParent")}
-              </TooltipContent>
-            </Tooltip>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-3" sideOffset={8}>
+                <div className="flex flex-col gap-2">
+                  <div className="font-medium text-sm text-slate-800 dark:text-slate-200">
+                    {t("taskRow.askParentMessage")}: <span className="font-semibold text-rose-600">{task.title}</span>
+                  </div>
+                  <Textarea
+                    placeholder={t("chat.placeholder")}
+                    className="min-h-[80px] text-sm resize-none"
+                    value={askParentMessage}
+                    onChange={(e) => setAskParentMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAskParent();
+                      }
+                    }}
+                  />
+                  <div className="flex justify-end gap-2 mt-1">
+                    <Button variant="ghost" size="sm" onClick={() => setIsAskParentOpen(false)}>
+                      {t("common.cancel")}
+                    </Button>
+                    <Button size="sm" className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white" disabled={!askParentMessage.trim()} onClick={handleAskParent}>
+                      <Send className="w-3.5 h-3.5 mr-1" />
+                      {t("common.send")}
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
         </div>
 
