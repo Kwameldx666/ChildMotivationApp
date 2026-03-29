@@ -4,10 +4,10 @@ import { FormEvent, useState, useEffect, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useCreateTask, useTasks } from "@/services/tasks-queries"
 import { cn } from "@/lib/utils"
+import type { TaskEvidenceRequirement } from "@/services/tasks-service"
 import { useToast } from "@/hooks/use-toast"
 import { Check, Loader2, Sparkles, Camera, CameraOff, Star, Calendar, ChevronDown, ChevronUp } from "lucide-react"
 import { aiService } from "@/services/ai-service"
@@ -56,7 +56,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
-  const [requiresConfirmation, setRequiresConfirmation] = useState(true)
+  const [confirmationType, setConfirmationType] = useState<TaskEvidenceRequirement>("photo")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAiGenerating, setIsAiGenerating] = useState(false)
   const [difficulty, setDifficulty] = useState(2)
@@ -126,7 +126,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
       await createTask.mutateAsync({
         title: title.trim().substring(0, 50),
         description: description.trim() || title.trim(),
-        confirmationType: requiresConfirmation ? "photo" : "none",
+        confirmationType,
         difficulty,
         dueDate: dueDate || undefined,
         assignedToUserId: selectedChild || undefined,
@@ -325,16 +325,19 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {requiresConfirmation
-                      ? <Camera className="h-4 w-4 text-primary" />
-                      : <CameraOff className="h-4 w-4 text-muted-foreground" />
-                    }
-                    <span className="text-sm">{t("createTaskDialog.photoConfirmation")}</span>
+                    <Camera className="h-4 w-4 text-primary" />
+                    <span className="text-sm">{t("taskCreation.confirmation")}</span>
                   </div>
-                  <Switch
-                    checked={requiresConfirmation}
-                    onCheckedChange={setRequiresConfirmation}
-                  />
+                  <select
+                    value={confirmationType}
+                    onChange={(e) => setConfirmationType(e.target.value as TaskEvidenceRequirement)}
+                    className="border border-input rounded-md px-2 py-1 text-sm bg-background"
+                  >
+                    <option value="none">{t("taskCreation.noConfirmation")}</option>
+                    <option value="photo">{t("taskCreation.confirmationPhoto")}</option>
+                    <option value="video">{t("taskCreation.videoLabel") || "Видео"}</option>
+                    <option value="document">{t("taskCreation.documentLabel") || "Документ"}</option>
+                  </select>
                 </div>
               </div>
             )}

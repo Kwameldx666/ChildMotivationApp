@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
-import type { CreateTaskPayload } from "@/services/tasks-service"
+import type { CreateTaskPayload, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { CalendarDays, Check, Plus, Sparkles, Star, Wand2, Users } from "lucide-react"
 import { useFamilyMembers } from "@/services/family-queries"
 import { useTranslation } from "@/i18n/provider"
@@ -135,7 +135,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const { t } = useTranslation()
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
-  const [requiresConfirmation, setRequiresConfirmation] = useState(true)
+  const [confirmationType, setConfirmationType] = useState<TaskEvidenceRequirement>("photo")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   
@@ -158,7 +158,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
   const resetForm = useCallback(() => {
     setDescription("")
     setDueDate("")
-    setRequiresConfirmation(true)
+    setConfirmationType("photo")
     setSubmitError(null)
     setIsSubmitting(false)
   }, [])
@@ -207,7 +207,7 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
       await _onSubmit({
         title: finalSuggestion.title,
         description: finalSuggestion.fullDescription,
-        confirmationType: requiresConfirmation ? "photo" : "none",
+        confirmationType,
         difficulty: resolvedDifficulty,
         dueDate: dueDate || undefined,
         assignedToUserId: resolvedChildId || undefined,
@@ -271,18 +271,19 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                   </div>
                 </div>
 
-                {/* ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ */}
+                {/* Подтверждение */}
                 <div className="space-y-2 rounded-xl border border-border/60 bg-background/70 px-4 py-3">
                   <Label className="text-xs text-muted-foreground">{t("taskCreation.confirmation")}</Label>
-                  <div className="flex items-center justify-between gap-3 pt-1">
-                    <span className="text-sm text-foreground">
-                      {requiresConfirmation ? t("taskCreation.confirmationPhoto") : t("taskCreation.noConfirmation")}
-                    </span>
-                    <Switch
-                      checked={requiresConfirmation}
-                      onCheckedChange={setRequiresConfirmation}
-                    />
-                  </div>
+                  <select
+                    value={confirmationType}
+                    onChange={(e) => setConfirmationType(e.target.value as TaskEvidenceRequirement)}
+                    className="w-full border border-input rounded-md px-3 py-2 text-sm mt-1 bg-background"
+                  >
+                    <option value="none">{t("taskCreation.noConfirmation")}</option>
+                    <option value="photo">{t("taskCreation.confirmationPhoto")}</option>
+                    <option value="video">{t("taskCreation.videoLabel") || "Видео"}</option>
+                    <option value="document">{t("taskCreation.documentLabel") || "Документ"}</option>
+                  </select>
                 </div>
 
                 {/* ÐÐ°Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ñ€ÐµÐ±Ñ‘Ð½ÐºÑƒ */}

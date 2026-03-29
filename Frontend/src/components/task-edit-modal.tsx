@@ -123,19 +123,18 @@ export default function TaskEditModal({ open, onOpenChange, task, onSave }: Task
 
             <div>
               <label className="text-sm font-medium">{t("taskEdit.confirmationLabel")}</label>
-              <div className="mt-2 flex items-center gap-3">
-                <input
-                  id="requiresConfirmation"
-                  type="checkbox"
-                  checked={formData.confirmationType === "photo"}
-                  onChange={(e) =>
-                    setFormData({ ...formData, confirmationType: e.target.checked ? "photo" : "none" })
-                  }
-                />
-                <label htmlFor="requiresConfirmation" className="text-sm">
-                  {formData.confirmationType === "photo" ? t("taskEdit.photoVideo") : t("taskEdit.noConfirmation")}
-                </label>
-              </div>
+              <select
+                className="w-full mt-2 border border-input rounded-md px-3 py-2 text-sm bg-background"
+                value={formData.confirmationType || "none"}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmationType: e.target.value as "none"|"photo"|"video"|"document" })
+                }
+              >
+                <option value="none">{t("taskEdit.noConfirmation")}</option>
+                <option value="photo">{t("taskEdit.photoVideo")}</option>
+                <option value="video">{t("taskCreation.videoLabel") || "Видео"}</option>
+                <option value="document">{t("taskCreation.documentLabel") || "Документ"}</option>
+              </select>
             </div>
           </div>
         </div>
