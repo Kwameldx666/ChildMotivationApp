@@ -270,7 +270,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
 
 
       {/* ===============================================
-             HERO SECTION � avatar, stats, XP
+             HERO SECTION avatar, stats, XP
            =============================================== */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 pt-4 pb-2">
         <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-card/80 via-card/50 to-background/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl p-6 sm:p-10">
@@ -327,7 +327,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                 </div>
               </div>
               
-              {/* BEAUTIFUL STATS GRID: DAY STREAK & TOTAL XP */}
+              {/* BEAUTIFUL STATS GRID: DAY STREAK & ВСЕГО XP */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 w-full max-w-xl">
                 {/* DAY STREAK */}
                 <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
@@ -336,7 +336,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     <Flame className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md", streak >= 3 && "animate-streak-flame")} />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">{t("childDashboard.nav.streak", "���� ������")}</p>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">ДНЕЙ ПОДРЯД</p>
                     <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{streak}</p>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">��������� ����</p>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">ВСЕГО XP</p>
                     <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{xp}</p>
                   </div>
                 </div>
@@ -358,7 +358,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
               <div data-tour="child-xp" className="w-full max-w-xl group">
                 <div className="flex justify-between items-end mb-2 px-1">
                   <span className="text-[10px] sm:text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
-                    {t("childProfile.xpTitle", "�������� ������")}
+                    ПРОГРЕСС УРОВНЯ
                   </span>
                   <span className="text-sm font-black text-foreground">
                     {xpIn} <span className="text-muted-foreground/60">/ 100 XP</span>
