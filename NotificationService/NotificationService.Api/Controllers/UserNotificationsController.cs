@@ -137,9 +137,10 @@ public class UserNotificationsController : ControllerBase
     }
 }
 
-public record MarkReadRequest(
-    [property: Required(ErrorMessage = "Список ID уведомлений обязателен")]
-    [property: MinLength(1, ErrorMessage = "Необходимо указать хотя бы одно уведомление")]
-    [property: MaxLength(100, ErrorMessage = "Нельзя пометить более 100 уведомлений за раз")]
-    List<string> NotificationIds
-);
+public class MarkReadRequest
+{
+    [Required(ErrorMessage = "Список ID уведомлений обязателен")]
+    [MinLength(1, ErrorMessage = "Необходимо указать хотя бы одно уведомление")]
+    [MaxLength(100, ErrorMessage = "Нельзя пометить более 100 уведомлений за раз")]
+    public List<string> NotificationIds { get; set; } = new();
+}
