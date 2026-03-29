@@ -83,18 +83,15 @@ public class RegisterChildCommandHandler(
             var htmlBody = BuildChildCredentialsHtml(parent, request, childLogin, childPassword);
             try
             {
+                // Use a short timeout so email delivery failure doesn't block child registration
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
                 await emailService.SendEmailAsync(parent.Email!,
-                    "Аккаунт ребёнка создан — ChildMotivation", htmlBody, cancellationToken);
+                    "Аккаунт ребёнка создан — ChildMotivation", htmlBody, cts.Token);                                                         
             }
-            catch
+            catch (Exception ex)
             {
+                logger.LogWarning(ex, "Failed to send child credentials email to {Email}", parent.Email);
                 // Email failure should not block child registration — parent can see credentials in response
-            }
-        }
-
-        // 5. Always return credentials so parent can see them in the UI
-        var response = new RegisterChildResponse(
-            ChildEmail: childLogin,
             ChildPassword: childPassword,
             ChildName: request.ChildName.Trim(),
             ChildLastName: request.ChildLastName?.Trim() ?? "");

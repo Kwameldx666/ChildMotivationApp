@@ -74,7 +74,7 @@ public class ResetChildPasswordCommandHandler(
             try
             {
                 await emailService.SendEmailAsync(parent.Email!,
-                    "Пароль ребёнка сброшен — ChildMotivation", htmlBody, cancellationToken);
+                    "Пароль ребёнка сброшен — ChildMotivation", htmlBody, new CancellationTokenSource(TimeSpan.FromSeconds(3)).Token);
             }
             catch
             {
