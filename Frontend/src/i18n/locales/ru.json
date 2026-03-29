@@ -1172,7 +1172,9 @@
         "description": "Долгосрочные цели",
         "range": "300+ очков"
       }
-    }
+    },
+    "availablePrizesText": "наград",
+    "currencyStars": "звёзд"
   },
   "rewardCreation": {
     "title": "Создать новую награду",

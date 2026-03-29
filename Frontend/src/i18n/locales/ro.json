@@ -529,7 +529,9 @@
         "range": "300+ puncte"
       }
     },
-    "orderTotal": "Total"
+    "orderTotal": "Total",
+    "availablePrizesText": "recompense",
+    "currencyStars": "stele"
   },
   "tasks": {
     "title": "Sarcini",

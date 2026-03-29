@@ -1172,7 +1172,9 @@
         "description": "Long-term goals",
         "range": "300+ points"
       }
-    }
+    },
+    "availablePrizesText": "rewards",
+    "currencyStars": "stars"
   },
   "rewardCreation": {
     "title": "Create new reward",

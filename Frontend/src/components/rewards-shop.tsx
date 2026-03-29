@@ -283,7 +283,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                 >
                   <Gift className="h-4 w-4 text-purple-500" />
                   <span className="text-sm font-black text-purple-600 dark:text-purple-400">
-                    {visibleProducts.length} {t("rewardsShop.availablePrizesText") || "наград"}
+                    {visibleProducts.length} {t("rewardsShop.availablePrizesText")}
                   </span>
                 </div>
               )}
@@ -294,7 +294,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                 >
                   <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
                   <span className="text-sm font-black text-amber-600 dark:text-amber-400">
-                    {numberFormatter.format(balance)} {t("rewardsShop.currencyStars") || "звёзд"}
+                    {numberFormatter.format(balance)} {t("rewardsShop.currencyStars")}
                   </span>
                 </div>
               )}
