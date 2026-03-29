@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useMemo, useState } from "react"
 import { resolveAvatarUrl } from "@/lib/avatar-utils"
@@ -201,70 +201,87 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
         <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-sky-500/[0.04] dark:bg-sky-500/[0.02] blur-[100px] animate-pulse" style={{ animationDuration: "16s", animationDelay: "3s" }} />
       </div>
 
-      {/* ═══════════════════════════════════════════════
-           TOP HEADER BAR — full-width
-         ═══════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border/20">
-        {/* Gradient accent stripe */}
-        <div className={cn("h-1 w-full bg-gradient-to-r", rank.grad)} />
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-14 gap-3">
-          {/* Greeting + Level badge */}
-          <div className="flex items-center gap-2.5 truncate flex-1 min-w-0">
-            <div className={cn(
-              "shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-white shadow-sm",
-              "bg-gradient-to-br", rank.grad,
-            )}>
-              {level}
+      {/* ===============================================
+           MODERN TOP NAVBAR
+         =============================================== */}
+      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-2xl border-b border-border/10 shadow-sm">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          
+          {/* Logo / Title Area */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-lg shadow-primary/20">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <p className="text-sm md:text-base font-bold truncate">
-              {t(getGreetingKey())}, <span className="text-foreground">{userProfile.name}</span>
+            <p className="text-lg font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent hidden sm:block">
+              {t(getGreetingKey())}, {userProfile.name}
             </p>
           </div>
 
-          {/* Points coin */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/20">
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow-sm">
-              <Star className="h-3 w-3 text-white" />
-            </div>
-            <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
-              {statsLoading ? "·" : points.toLocaleString()}
-            </span>
-          </div>
-
-          {/* Streak */}
-          {streak > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-400/20">
-              <Flame className={cn("h-4 w-4 text-orange-500", streak >= 3 && "animate-streak-flame")} />
-              <span className="text-sm font-black text-orange-600 dark:text-orange-400">{streak}</span>
-            </div>
-          )}
-
-          {/* Notifications bell — always visible */}
-          <NotificationsPopover />
-
-          {/* Language flags — gamified, directly visible */}
-          <LanguageSwitcher gamified />
-
-          {/* Settings gear */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="h-9 w-9 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5">
-              <div className="flex items-center justify-center gap-1 py-1.5">
-                <ThemeToggle />
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Points (Coins) - The only stat needed here, clearly styled */}
+            <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-gradient-to-br from-amber-400/10 to-yellow-500/10 border border-amber-400/20 shadow-sm">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow-sm">
+                <Star className="h-3.5 w-3.5 text-white" />
               </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowAvatarPicker(true)} className="rounded-xl text-sm">
-                <User className="mr-2 h-4 w-4" /> {t("child.navigation.changeAvatar")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onLogout} className="rounded-xl text-sm text-destructive focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" /> {t("child.navigation.logout")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                {statsLoading ? "�" : points.toLocaleString()}
+              </span>
+            </div>
+
+            {/* Notifications */}
+            <div className="bg-muted/50 hover:bg-muted rounded-2xl transition-colors">
+              <NotificationsPopover />
+            </div>
+
+            {/* Context Menu / Settings */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="h-10 w-10 rounded-2xl bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors border border-border/50 group">
+                  <User className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 rounded-[1.5rem] p-2 border-border/40 shadow-xl" sideOffset={8}>
+                <div className="px-3 py-2.5 mb-1 bg-muted/30 rounded-xl">
+                  <p className="text-sm font-bold truncate">{userProfile.name}</p>
+                  <p className="text-xs text-muted-foreground">{t("childDashboard.nav.shop", "�������")}: {points} ?</p>
+                </div>
+                
+                <DropdownMenuSeparator className="bg-border/40" />
+                
+                {/* Language Switcher */}
+                <div className="px-2 py-1.5">
+                  <LanguageSwitcher gamified />
+                </div>
+                
+                {/* Theme Toggle */}
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-sm font-medium">{t("settings.theme", "����")}</span>
+                  <ThemeToggle />
+                </div>
+                
+                <DropdownMenuSeparator className="bg-border/40" />
+
+                <DropdownMenuItem 
+                  onClick={() => setShowAvatarPicker(true)} 
+                  className="rounded-xl px-3 py-2.5 cursor-pointer text-sm font-medium transition-colors focus:bg-primary/10 focus:text-primary"
+                >
+                  <Image className="mr-2 h-4 w-4" /> 
+                  �������� ������
+                </DropdownMenuItem>
+
+                <DropdownMenuItem 
+                  onClick={onLogout} 
+                  className="rounded-xl px-3 py-2.5 cursor-pointer text-sm font-medium text-destructive focus:bg-destructive/10 focus:text-destructive mt-1 transition-colors"
+                >
+                  <LogOut className="mr-2 h-4 w-4" /> 
+                  {t("child.navigation.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+          </div>
         </div>
       </header>
 
