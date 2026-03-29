@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import {
   Bell,
   Check,
@@ -142,36 +142,81 @@ export function NotificationsPopover() {
     return displayNotifications.filter(n => !n.isRead).length
   }, [unreadCount, displayNotifications, settings.notificationsEnabled])
 
+  // Request native notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {})
+    }
+  }, [])
+
   useEffect(() => {
     const previous = lastUnreadCountRef.current
     const increased = displayUnreadCount > previous
     lastUnreadCountRef.current = displayUnreadCount
 
     if (!increased) return
-    if (!settings.notificationsEnabled || !settings.soundEnabled) return
+    if (!settings.notificationsEnabled) return
     if (!canReceiveLiveNotifications(settings)) return
 
-    try {
-      const audio = new Audio("data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YTAAAAAAAP///wAA//8AAP//AAD//wAA//8AAP///wAA")
-      audio.volume = 0.25
-      void audio.play().catch(() => undefined)
-    } catch {
-      // ignore browser autoplay restrictions or audio initialization errors
+    if (settings.soundEnabled) {
+      try {
+        const audio = new Audio("data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0YTAAAAAAAP///wAA//8AAP//AAD//wAA//8AAP///wAA")
+        audio.volume = 0.25
+        void audio.play().catch(() => undefined)
+      } catch {
+        // ignore browser autoplay restrictions
+      }
     }
-  }, [displayUnreadCount, settings])
+
+    // Trigger native push notification
+    if ("Notification" in window && Notification.permission === "granted") {
+      const newNotifs = displayNotifications.filter(n => !n.isRead)
+      if (newNotifs.length > 0) {
+        const latestNotif = newNotifs[0]
+        try {
+          new Notification(latestNotif.title, {
+            body: latestNotif.message,
+            icon: "/icon.png"
+          })
+        } catch (e) {
+          console.error("Failed to show native notification", e)
+        }
+      }
+    }
+  }, [displayUnreadCount, displayNotifications, settings])
 
   const handleMarkRead = (id: string) => {
     if (!settings.notificationsEnabled) return
     markRead.mutate([id])
   }
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = useCallback(() => {
     if (!settings.notificationsEnabled) return
     markAllRead.mutate()
-  }
+  }, [settings.notificationsEnabled, markAllRead])
 
-  const unreadNotifications = displayNotifications.filter(n => !n.isRead)
-  const readNotifications = displayNotifications.filter(n => n.isRead)
+  // Mark all as read when opening popover
+  useEffect(() => {
+    if (open && displayUnreadCount > 0) {
+      handleMarkAllRead()
+    }
+  }, [open, displayUnreadCount, handleMarkAllRead])
+
+  // To prevent the UI from "jumping" instantly when opening the popover
+  // we can freeze the visually unread notifications while the popover is open.
+  const [frozenUnreadIds, setFrozenUnreadIds] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (open) {
+      // capture currently unread
+      setFrozenUnreadIds(new Set(displayNotifications.filter(n => !n.isRead).map(n => n.id)))
+    } else {
+      setFrozenUnreadIds(new Set())
+    }
+  }, [open]) // intentional: only run when open state changes
+
+  const unreadNotifications = displayNotifications.filter(n => open ? frozenUnreadIds.has(n.id) : !n.isRead)
+  const readNotifications = displayNotifications.filter(n => open ? !frozenUnreadIds.has(n.id) : n.isRead)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
