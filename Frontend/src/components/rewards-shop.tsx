@@ -277,15 +277,25 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                   </span>
                 </div>
               ) : (
-                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20">
-                  <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
-                  <span className="text-sm font-black text-amber-600 dark:text-amber-400">{visibleProducts.length}</span>
+                <div 
+                  className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-purple-500/10 border border-purple-400/20"
+                  title={t("rewardsShop.availablePrizesTITLE") || "Доступно наград"}
+                >
+                  <Gift className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm font-black text-purple-600 dark:text-purple-400">
+                    {visibleProducts.length} {t("rewardsShop.availablePrizesText") || "наград"}
+                  </span>
                 </div>
               )}
               {userType === "child" && (
-                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-400/20">
-                  <Coins className="h-4 w-4 text-emerald-500" />
-                  <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">{numberFormatter.format(balance)}</span>
+                <div 
+                  className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 border border-amber-400/20"
+                  title={t("rewardsShop.yourBalanceTITLE") || "Твой баланс звёзд"}
+                >
+                  <Star className="h-4 w-4 text-amber-500 fill-amber-400" />
+                  <span className="text-sm font-black text-amber-600 dark:text-amber-400">
+                    {numberFormatter.format(balance)} {t("rewardsShop.currencyStars") || "звёзд"}
+                  </span>
                 </div>
               )}
             </div>
