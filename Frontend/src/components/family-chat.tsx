@@ -219,32 +219,37 @@ export default function FamilyChat({
 
   return (
     <div className={cn(
-      "flex flex-col bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-slate-950 dark:to-slate-900",
-      fullScreen ? "h-screen" : "h-full min-h-[520px]"
+      "flex flex-col relative overflow-hidden bg-slate-50 dark:bg-slate-950",
+      fullScreen ? "h-screen" : "h-full min-h-[520px] rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm"
     )}>
+      {/* Dynamic Background Pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-rose-400/10 dark:bg-rose-500/5 rounded-full blur-3xl pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/10 dark:bg-purple-500/5 rounded-full blur-3xl pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
+
       {/* Header */}
-      <div className="border-b border-rose-100 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-3">
+      <div className="relative z-10 border-b border-white/20 dark:border-slate-800/40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl px-4 py-3 shadow-[0_4px_24px_-12px_rgba(0,0,0,0.1)] transition-all">
+        <div className="flex items-center gap-4">
           {onBack && (
-            <Button variant="ghost" size="icon" onClick={onBack} className="h-9 w-9">
-              <ArrowLeft className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={onBack} className="h-9 w-9 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors">
+              <ArrowLeft className="h-4.5 w-4.5" />
             </Button>
           )}
-          <div className="flex-1">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <h1 className="text-sm font-medium text-muted-foreground">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <h1 className="text-[15px] font-bold tracking-tight text-slate-800 dark:text-slate-100 truncate">
                 {chatTitle ?? t("chat.familyChat")}
               </h1>
               <Popover open={showParticipants} onOpenChange={setShowParticipants}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                  <Button variant="ghost" size="sm" className="h-7 px-2.5 gap-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 text-slate-600 dark:text-slate-300 transition-colors">
                     <Users className="h-3.5 w-3.5" />
-                    {chatParticipants.length}
+                    <span className="text-xs font-semibold">{chatParticipants.length}</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-72 p-2">
-                  <div className="space-y-1">
-                    <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                <PopoverContent align="end" className="w-72 p-2.5 rounded-2xl shadow-xl border-slate-200/50 dark:border-slate-800/50 backdrop-blur-lg bg-white/95 dark:bg-slate-900/95">
+                  <div className="space-y-1.5">
+                    <p className="px-2 py-1 text-[11px] uppercase tracking-wider font-bold text-slate-400">
                       {t("familyChat.participantsTitle", { count: String(chatParticipants.length) })}
                     </p>
                     {chatParticipants.map((participant) => (
@@ -280,39 +285,39 @@ export default function FamilyChat({
               </Popover>
             </div>
             {/* Список участников */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
               {chatParticipants.filter(p => p.id !== currentUserId).map((participant) => (
-                <div key={participant.id} className="flex items-center gap-2">
+                <div key={participant.id} className="flex items-center gap-2 bg-slate-100/50 dark:bg-slate-800/40 rounded-full pr-3 pl-1 py-1 border border-slate-200/50 dark:border-slate-700/50">
                   {(() => {
                     const participantName = normalizeDisplayName(participant.name)
                     return (
                       <>
-                  <div className="relative">
-                    <Avatar className="h-9 w-9 border-2 border-rose-200 dark:border-slate-700">
-                      <AvatarImage src={participant.avatar} />
-                      <AvatarFallback className="text-sm bg-gradient-to-br from-rose-400 to-pink-400 text-white">
-                        {displayInitial(participantName)}
-                      </AvatarFallback>
-                    </Avatar>
-                    {participant.isOnline && (
-                      <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-emerald-500 text-emerald-500 stroke-white dark:stroke-slate-900" strokeWidth={2} />
-                    )}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-                      {participantName}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
-                    </span>
-                  </div>
+                        <div className="relative shrink-0">
+                          <Avatar className="h-6 w-6 border border-white dark:border-slate-800 shadow-sm">
+                            <AvatarImage src={participant.avatar} />
+                            <AvatarFallback className="text-[10px] bg-gradient-to-br from-rose-400 to-pink-500 text-white font-medium">
+                              {displayInitial(participantName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          {participant.isOnline && (
+                            <Circle className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 fill-emerald-500 text-emerald-500 stroke-white dark:stroke-slate-900" strokeWidth={2} />
+                          )}
+                        </div>
+                        <div className="flex flex-col justify-center">
+                          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">
+                            {participantName}
+                          </span>
+                          <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 leading-none mt-0.5">
+                            {participant.isOnline ? t("familyChat.online") : t("familyChat.offline")}
+                          </span>
+                        </div>
                       </>
                     )
                   })()}
                 </div>
               ))}
               {chatParticipants.filter(p => p.id !== currentUserId).length === 0 && (
-                <span className="text-sm text-muted-foreground">{t("familyChat.noParticipants")}</span>
+                <span className="text-xs text-muted-foreground/70 italic px-2">{t("familyChat.noParticipants")}</span>
               )}
             </div>
           </div>
@@ -320,7 +325,7 @@ export default function FamilyChat({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50/50 dark:bg-slate-950/30">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 relative z-10">
         {groupedMessages.map((group, groupIdx) => (
           <div key={groupIdx} className="space-y-4">
             {/* Date Separator */}
@@ -371,35 +376,36 @@ export default function FamilyChat({
                     )}
 
                     <div className={cn(
-                      "px-4 py-2.5 shadow-sm relative transition-all duration-200",
+                      "px-4 py-3 shadow-md relative transition-all duration-300 group-hover:shadow-lg",
                       isOwnMessage
-                        ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white rounded-2xl rounded-br-sm shadow-rose-500/20"
-                        : "bg-white dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 rounded-2xl rounded-bl-sm"
+                        ? "bg-gradient-to-br from-rose-500 to-pink-500 text-white rounded-3xl rounded-br-sm shadow-rose-500/20"
+                        : "bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-3xl rounded-bl-sm"
                     )}>
                       {mentionedTaskInMsg && (
                         <div className={cn(
-                          "mb-2 rounded-xl border p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:scale-[1.02]",
+                          "mb-2.5 rounded-2xl border p-3 text-xs shadow-sm cursor-pointer transition-all hover:scale-[1.02]",
                           isOwnMessage
                             ? "border-white/20 bg-white/10 hover:bg-white/20"
-                            : "border-rose-100 dark:border-slate-700/50 bg-rose-50/50 dark:bg-slate-800/50 hover:border-rose-200 dark:hover:border-slate-600"
+                            : "border-rose-100/50 dark:border-slate-700/50 bg-rose-50/30 dark:bg-slate-800/50 hover:border-rose-200 dark:hover:border-slate-600"
                         )}>
                           <div className="flex items-center gap-1.5 opacity-90 mb-1">
-                            <Hash className="h-3 w-3" />
-                            <span className="font-semibold text-[10px] uppercase tracking-wider">{t("familyChat.attachedTask")}</span>
+                            <Hash className="h-3.5 w-3.5" />
+                            <span className="font-bold text-[10px] uppercase tracking-widest">{t("familyChat.attachedTask")}</span>
                           </div>
-                          <span className="font-medium line-clamp-2 leading-relaxed">{mentionedTaskInMsg.title}</span>
+                          <span className="font-semibold text-sm line-clamp-2 leading-snug">{mentionedTaskInMsg.title}</span>
                         </div>
                       )}
 
-                      <p className="text-[14px] whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
+                      <div className="flex items-end gap-3 flex-wrap justify-between">
+                        <p className="text-[15px] whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
+                        <span className={cn(
+                          "text-[10px] font-medium shrink-0 ml-auto translate-y-1 block -mb-1",
+                          isOwnMessage ? "text-rose-100/80" : "text-slate-400 dark:text-slate-500"
+                        )}>
+                          {formatTime(msg.createdAt)}
+                        </span>
+                      </div>
                     </div>
-                    
-                    <span className={cn(
-                      "text-[10px] mt-1.5 font-medium opacity-0 group-hover:opacity-100 transition-opacity",
-                      isOwnMessage ? "text-rose-400 dark:text-rose-500/80" : "text-slate-400 dark:text-slate-500"
-                    )}>
-                      {formatTime(msg.createdAt)}
-                    </span>
                   </div>
 
                   {isOwnMessage && (
@@ -414,106 +420,106 @@ export default function FamilyChat({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-slate-100 dark:border-slate-800/50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-3 sm:p-4">
-        {mentionedTask && (
-          <div className="mb-3 px-4 py-3 bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 border border-rose-100/50 dark:border-rose-800/30 rounded-2xl shadow-sm relative overflow-hidden group">
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-rose-400 to-pink-500" />
-            <div className="flex items-start justify-between gap-3 pl-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-1">
-                  <Hash className="h-3 w-3" />
-                  <span>{t("familyChat.attachedTask")}</span>
+      <div className="relative z-10 p-3 sm:px-6 sm:pb-6 pt-2">
+        <div className="mx-auto max-w-4xl">
+          {mentionedTask && (
+            <div className="mb-3 px-4 py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 rounded-2xl shadow-sm relative overflow-hidden group">
+              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-rose-400 to-pink-500" />
+              <div className="flex items-start justify-between gap-3 pl-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1.5">
+                    <Hash className="h-3.5 w-3.5" />
+                    <span>{t("familyChat.attachedTask")}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{mentionedTask.title}</p>
                 </div>
-                <p className="text-sm font-medium text-rose-900 dark:text-rose-200 truncate">{mentionedTask.title}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full bg-slate-100/50 dark:bg-slate-800/50 hover:bg-rose-100 hover:text-rose-700 dark:hover:bg-rose-900/50 transition-colors"
+                  onClick={() => setMentionedTaskId(null)}
+                >
+                  <Hash className="h-4.5 w-4.5 rotate-45" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-full bg-white/50 dark:bg-slate-800/50 hover:bg-rose-200 hover:text-rose-700 dark:hover:bg-rose-900 transition-colors opacity-70 hover:opacity-100"
-                onClick={() => setMentionedTaskId(null)}
-              >
-                <Hash className="h-4 w-4 rotate-45" />
-              </Button>
             </div>
+          )}
+
+          <div className="relative flex items-end gap-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[32px] p-2 border border-slate-200/60 dark:border-slate-700/60 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:border-rose-300/60 dark:focus-within:border-rose-700/50 focus-within:shadow-[0_8px_30px_-12px_rgba(244,63,94,0.2)]">
+            <Popover open={showTaskPicker} onOpenChange={setShowTaskPicker}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "flex-shrink-0 h-10 w-10 ml-1 rounded-full transition-all duration-300",
+                    mentionedTask 
+                      ? "text-rose-600 bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/50 dark:text-rose-400 shadow-sm"
+                      : "text-slate-400 hover:text-rose-500 hover:bg-rose-50/80 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-rose-400"
+                  )}
+                >
+                  <Hash className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0 rounded-2xl shadow-2xl border-slate-200/60 dark:border-slate-800/60 backdrop-blur-xl bg-white/95 dark:bg-slate-900/95 overflow-hidden" align="start" sideOffset={16}>
+                <Command>
+                  <CommandInput placeholder={t("familyChat.searchTask")} className="border-none focus:ring-0 text-[15px] h-12" />
+                  <CommandList className="max-h-[280px] p-2">
+                    <CommandEmpty className="py-6 text-center text-sm text-slate-500">{t("familyChat.noTasksFound")}</CommandEmpty>
+                    <CommandGroup heading={t("familyChat.availableTasks")} className="px-1 text-xs font-semibold text-slate-400">
+                      {tasks.filter(tk => !tk.completed).map((task) => (
+                        <CommandItem
+                          key={task.id}
+                          className="rounded-xl px-3 py-2.5 cursor-pointer mb-1 transition-all hover:bg-rose-50 dark:hover:bg-slate-800/80"
+                          onSelect={() => {
+                            setMentionedTaskId(task.id)
+                            setShowTaskPicker(false)
+                          }}
+                        >
+                          <div className="flex flex-col gap-1 min-w-0">
+                            <span className="font-semibold text-[14px] text-slate-800 dark:text-slate-200 truncate">{task.title}</span>
+                            {task.description && (
+                              <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                {task.description}
+                              </span>
+                            )}
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={t("chat.placeholder")}
+              className="flex-1 min-h-[44px] max-h-32 resize-none border-0 bg-transparent py-3 px-2 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-slate-400 leading-relaxed font-medium text-slate-800 dark:text-slate-100 placeholder:font-normal"
+              rows={1}
+            />
+
+            <Button
+              onClick={handleSend}
+              disabled={!message.trim() || sendMessage.isPending}
+              size="icon"
+              className={cn(
+                "flex-shrink-0 h-10 w-10 mr-1 rounded-full transition-all duration-300",
+                message.trim()
+                  ? "bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 translate-y-[-2px]"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 opacity-50"
+              )}
+            >
+              {sendMessage.isPending ? (
+                <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              ) : (
+                <Send className={cn("h-4.5 w-4.5", message.trim() && "ml-0.5")} />
+              )}
+              <span className="sr-only">Send</span>
+            </Button>
           </div>
-        )}
-
-        <div className="flex items-end gap-2 bg-slate-100/60 dark:bg-slate-800/50 rounded-[28px] p-1.5 border border-slate-200/60 dark:border-slate-700/60 transition-all focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:border-rose-300/60 dark:focus-within:border-rose-700/50 focus-within:shadow-sm">
-          <Popover open={showTaskPicker} onOpenChange={setShowTaskPicker}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "flex-shrink-0 h-10 w-10 rounded-full transition-colors",
-                  mentionedTask 
-                    ? "text-rose-600 bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/50 dark:text-rose-400"
-                    : "text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-rose-400"
-                )}
-              >
-                <Hash className="h-5 w-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-0 rounded-2xl shadow-xl border-slate-200 dark:border-slate-800 overflow-hidden" align="start" sideOffset={12}>
-              <Command>
-                <CommandInput placeholder={t("familyChat.searchTask")} className="border-none focus:ring-0" />
-                <CommandList className="max-h-[280px]">
-                  <CommandEmpty className="py-6 text-center text-sm text-slate-500">{t("familyChat.noTasksFound")}</CommandEmpty>
-                  <CommandGroup heading={t("familyChat.availableTasks")} className="px-1">
-                    {tasks.filter(tk => !tk.completed).map((task) => (
-                      <CommandItem
-                        key={task.id}
-                        className="rounded-xl px-3 py-2 cursor-pointer mb-1"
-                        onSelect={() => {
-                          setMentionedTaskId(task.id)
-                          setShowTaskPicker(false)
-                        }}
-                      >
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                          <span className="font-medium text-sm truncate">{task.title}</span>
-                          {task.description && (
-                            <span className="text-xs text-muted-foreground truncate opacity-80">
-                              {task.description}
-                            </span>
-                          )}
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-
-          <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={t("chat.placeholder")}
-            className="flex-1 min-h-[44px] max-h-32 resize-none border-0 bg-transparent py-3 px-1 text-[15px] shadow-none focus-visible:ring-0 placeholder:text-slate-400"
-            rows={1}
-          />
-
-          <Button
-            onClick={handleSend}
-            disabled={!message.trim() || sendMessage.isPending}
-            size="icon"
-            className={cn(
-              "flex-shrink-0 h-10 w-10 rounded-full transition-all duration-300",
-              message.trim()
-                ? "bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-md hover:scale-105 active:scale-95"
-                : "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500"
-            )}
-          >
-            <Send className={cn("h-4 w-4", message.trim() && "ml-0.5")} />
-            <span className="sr-only">Send</span>
-          </Button>
-        </div>
-
-        <div className="flex justify-center mt-2 opacity-60 hover:opacity-100 transition-opacity">
-          <p className="text-[10px] text-muted-foreground flex items-center gap-1 cursor-default">
-            {t("familyChat.taskHintPrefix")} <Hash className="h-2.5 w-2.5" /> {t("familyChat.taskHintSuffix")}
-          </p>
         </div>
       </div>
     </div>
