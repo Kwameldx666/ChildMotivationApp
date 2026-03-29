@@ -201,72 +201,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
         <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-sky-500/[0.04] dark:bg-sky-500/[0.02] blur-[100px] animate-pulse" style={{ animationDuration: "16s", animationDelay: "3s" }} />
       </div>
 
-      {/* ═══════════════════════════════════════════════
-           TOP HEADER BAR — full-width
-         ═══════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-xl border-b border-border/20">
-        {/* Gradient accent stripe */}
-        <div className={cn("h-1 w-full bg-gradient-to-r", rank.grad)} />
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-14 gap-3">
-          {/* Greeting + Level badge */}
-          <div className="flex items-center gap-2.5 truncate flex-1 min-w-0">
-            <div className={cn(
-              "shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-white shadow-sm",
-              "bg-gradient-to-br", rank.grad,
-            )}>
-              {level}
-            </div>
-            <p className="text-sm md:text-base font-bold truncate">
-              {t(getGreetingKey())}, <span className="text-foreground">{userProfile.name}</span>
-            </p>
-          </div>
-
-          {/* Points coin */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/20">
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow-sm">
-              <Star className="h-3 w-3 text-white" />
-            </div>
-            <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
-              {statsLoading ? "·" : points.toLocaleString()}
-            </span>
-          </div>
-
-          {/* Streak */}
-          {streak > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-400/20">
-              <Flame className={cn("h-4 w-4 text-orange-500", streak >= 3 && "animate-streak-flame")} />
-              <span className="text-sm font-black text-orange-600 dark:text-orange-400">{streak}</span>
-            </div>
-          )}
-
-          {/* Notifications bell — always visible */}
-          <NotificationsPopover />
-
-          {/* Language flags — gamified, directly visible */}
-          <LanguageSwitcher gamified />
-
-          {/* Settings gear */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="h-9 w-9 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5">
-              <div className="flex items-center justify-center gap-1 py-1.5">
-                <ThemeToggle />
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowAvatarPicker(true)} className="rounded-xl text-sm">
-                <User className="mr-2 h-4 w-4" /> {t("child.navigation.changeAvatar")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onLogout} className="rounded-xl text-sm text-destructive focus:text-destructive">
-                <LogOut className="mr-2 h-4 w-4" /> {t("child.navigation.logout")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </header>
+      
 
 
       {/* ═══════════════════════════════════════════════
