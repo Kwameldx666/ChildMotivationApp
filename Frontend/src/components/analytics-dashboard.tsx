@@ -1143,12 +1143,15 @@ export default function AnalyticsDashboard() {
         })
 
         titleContainer.style.display = "block"
-        titleContainer.style.position = "absolute"
+        titleContainer.style.position = "fixed"
         titleContainer.style.left = "-9999px"
         titleContainer.style.top = "0"
         titleContainer.style.width = "900px"
 
-        await new Promise((resolve) => setTimeout(resolve, 200))
+        // Force relayout
+        void titleContainer.offsetWidth;
+
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
         try {
           const titleImg = await toPng(titleContainer, {
@@ -1178,13 +1181,16 @@ export default function AnalyticsDashboard() {
       const container = allChartsRef.current
       if (container) {
         container.style.display = "block"
-        container.style.position = "absolute"
+        container.style.position = "fixed"
         container.style.left = "-9999px"
         container.style.top = "0"
         container.style.width = "900px"
         container.style.backgroundColor = "#ffffff"
 
-        await new Promise((resolve) => setTimeout(resolve, 600))
+        // Force relayout
+        void container.offsetWidth;
+
+        await new Promise((resolve) => setTimeout(resolve, 800))
 
         const restoreExport = prepareForCapture(container)
         const chartNodes = container.querySelectorAll<HTMLElement>("[data-chart-export]")
