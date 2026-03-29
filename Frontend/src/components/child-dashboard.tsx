@@ -282,7 +282,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
 
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
             
-            {/* LEFT: AVATAR & STREAK BADGE */}
+            {/* LEFT: AVATAR & LEVEL */}
             <div className="relative flex shrink-0 justify-center items-center">
               {/* Avatar trigger */}
               <button
@@ -309,53 +309,65 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                   </div>
                 </div>
               </button>
-
-              {/* BEAUTIFUL STREAK BADGE FLOATING */}
-              {streak > 0 && (
-                <div className="absolute -right-6 top-0 md:-right-8 md:top-2 animate-bounce-slow z-20" style={{ pointerEvents: "none" }}>
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-orange-500/40 blur-lg rounded-full" />
-                    <div className="relative flex items-center gap-1 md:gap-1.5 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-full border-2 border-white/40 shadow-2xl overflow-hidden backdrop-blur-md">
-                      <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.3)_0%,transparent_100%)]" />
-                      <Flame className={cn("h-4 w-4 md:h-5 md:w-5 drop-shadow-lg", streak >= 3 && "animate-streak-flame")} />
-                      <span className="text-sm md:text-lg font-black drop-shadow-md tabular-nums tracking-tight">{streak}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* RIGHT: INFO & PROGRESS */}
             <div className="flex-1 w-full text-center md:text-left flex flex-col justify-center items-center md:items-start">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent mb-3 tracking-tight">
-                {userProfile.name}
-              </h1>
-              
-              {/* RANK TAG AND TASKS DONE */}
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-5">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent tracking-tight">
+                  {userProfile.name}
+                </h1>
                 <div className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-background/60 shadow-sm backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10"
+                  "inline-flex w-max mx-auto sm:mx-0 items-center gap-2 px-4 py-2 rounded-2xl bg-background/60 shadow-sm backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10"
                 )}>
                   <span className="text-lg md:text-xl drop-shadow-sm">{rank.emoji}</span>
                   <span className={cn("text-sm md:text-base font-extrabold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
                     {t(`childProfile.rank.${rank.key}`)}
                   </span>
                 </div>
+              </div>
+              
+              {/* BEAUTIFUL STATS GRID: DAY STREAK & TOTAL XP */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 w-full max-w-xl">
+                {/* DAY STREAK */}
+                <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <Flame className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md", streak >= 3 && "animate-streak-flame")} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">{t("childDashboard.nav.streak", "���� ������")}</p>
+                    <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{streak}</p>
+                  </div>
+                </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/10 shadow-sm backdrop-blur-md ring-1 ring-emerald-500/20">
-                  <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500 drop-shadow-sm" />
-                  <span className="text-sm md:text-base font-extrabold text-emerald-600 dark:text-emerald-400">
-                    {done} {t("childDashboard.nav.tasks")}
-                  </span>
+                {/* TOTAL XP */}
+                <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500/10 to-indigo-500/5 border border-sky-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
+                  <div className="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/30">
+                    <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">��������� ����</p>
+                    <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{xp}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* PROGRESS BAR ONLY (NO TEXT) */}
+              {/* PROGRESS BAR WITH TEXT */}
               <div data-tour="child-xp" className="w-full max-w-xl group">
-                <div className="relative flex-1 h-6 md:h-8 rounded-2xl bg-muted/80 overflow-hidden shadow-inner ring-1 ring-inset ring-border/60">
+                <div className="flex justify-between items-end mb-2 px-1">
+                  <span className="text-[10px] sm:text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
+                    {t("childProfile.xpTitle", "�������� ������")}
+                  </span>
+                  <span className="text-sm font-black text-foreground">
+                    {xpIn} <span className="text-muted-foreground/60">/ 100 XP</span>
+                  </span>
+                </div>
+                <div className="relative flex-1 h-5 md:h-7 rounded-2xl bg-muted/80 overflow-hidden shadow-inner ring-1 ring-inset ring-border/60">
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 opacity-[0.15]"
+                    className="pointer-events-none absolute inset-0 opacity-[0.14]"
                     style={{
                       backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--foreground)) 10px, hsl(var(--foreground)) 20px)",
                     }}
