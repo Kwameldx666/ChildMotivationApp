@@ -54,6 +54,59 @@ const sanitizeContext = (context?: Record<string, string>) => {
   }, {})
 }
 
+const resolveLocaleFamily = (context?: Record<string, string>) => {
+  const locale = context?.locale?.toLowerCase() ?? ''
+  if (locale.startsWith('ru')) return 'ru' as const
+  if (locale.startsWith('ro')) return 'ro' as const
+  return 'en' as const
+}
+
+const looksLikeAnswerOption = (value: string) => {
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return false
+  if (normalized.length > 90) return false
+  if (normalized.endsWith('?')) return false
+
+  return /^(да|нет|хочу|давай|можно|подходит|yes|no|let|please|ok|okay|da|nu|vreau|bine|sigur)\b/i.test(normalized)
+}
+
+const buildFallbackFollowUps = (locale: 'ru' | 'en' | 'ro', hasQuestionInReply: boolean) => {
+  if (locale === 'ru') {
+    return hasQuestionInReply
+      ? ['Да, давай так.', 'Сделай вариант попроще.', 'Нет, предложи другой вариант.']
+      : ['Продолжай, хочу детали.', 'Сократи до 2-3 шагов.', 'Сделай вариант для ребёнка.']
+  }
+
+  if (locale === 'ro') {
+    return hasQuestionInReply
+      ? ['Da, mergem așa.', 'Fă o variantă mai simplă.', 'Nu, propune altă variantă.']
+      : ['Continuă, vreau mai multe detalii.', 'Scurtează la 2-3 pași.', 'Fă o variantă pentru copil.']
+  }
+
+  return hasQuestionInReply
+    ? ['Yes, let us do that.', 'Make it simpler.', 'No, suggest another option.']
+    : ['Continue, I want more details.', 'Shorten it to 2-3 steps.', 'Make a child-friendly version.']
+}
+
+const normalizeFollowUps = (
+  reply: string,
+  suggestions: string[] | undefined,
+  context?: Record<string, string>,
+) => {
+  const unique = Array.from(
+    new Set((suggestions ?? []).map(item => item.trim()).filter(Boolean)),
+  ).slice(0, 3)
+
+  const answerLike = unique.filter(looksLikeAnswerOption)
+  if (answerLike.length > 0) {
+    return answerLike.slice(0, 3)
+  }
+
+  const localeFamily = resolveLocaleFamily(context)
+  const hasQuestionInReply = reply.includes('?') || reply.includes('؟')
+  return buildFallbackFollowUps(localeFamily, hasQuestionInReply)
+}
+
 interface PersistedChatState {
   messages: Array<Omit<ChatMessage, 'timestamp'> & { timestamp: string }>
   conversationId: string | null
@@ -185,9 +238,15 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
           actions: response.actions ?? [],
         }
 
+        const normalizedFollowUps = normalizeFollowUps(
+          assistantMessage.content,
+          response.followUpSuggestions,
+          preparedContext,
+        )
+
         setConversationId(response.conversationId ?? null)
         setMessages(prev => [...prev, assistantMessage])
-        setFollowUps(response.followUpSuggestions?.filter(Boolean) ?? [])
+        setFollowUps(normalizedFollowUps)
         setPendingActions(response.actions ?? [])
         setLastReplyAt(assistantMessage.timestamp)
       } catch (error) {

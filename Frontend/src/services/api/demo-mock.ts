@@ -174,6 +174,117 @@ const deriveStartedByChild = (task: DemoTask) => {
   return task.pendingApproval || task.completed || !!task.completedAt
 }
 
+type DemoKnownTier = 'free' | 'basic' | 'premium' | 'family' | 'trial'
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+
+const normalizeDemoTier = (tier: string | undefined): DemoKnownTier => {
+  const normalized = String(tier ?? 'free').trim().toLowerCase()
+  if (normalized === 'free' || normalized === 'basic' || normalized === 'premium' || normalized === 'family' || normalized === 'trial') {
+    return normalized
+  }
+  return 'free'
+}
+
+const calcDaysRemaining = (endDate: string | null) => {
+  if (!endDate) return null
+  const endTs = new Date(endDate).getTime()
+  if (Number.isNaN(endTs)) return null
+  return Math.max(0, Math.ceil((endTs - Date.now()) / DAY_IN_MS))
+}
+
+const normalizeDemoSubscription = (subscription: DemoSubscription): DemoSubscription => {
+  const tier = normalizeDemoTier(subscription.tier)
+
+  if (tier === 'free') {
+    return {
+      ...subscription,
+      tier: 'Free',
+      pricePerMonth: 0,
+      autoRenew: false,
+      maxChildren: 1,
+      maxTasksPerDay: 5,
+      hasAIAssistant: false,
+      hasAdvancedAnalytics: false,
+      hasCustomRewards: false,
+      hasPrioritySupport: false,
+      hasFamilySharing: false,
+      hasOfflineMode: false,
+      endDate: null,
+      daysRemaining: null,
+    }
+  }
+
+  if (tier === 'trial') {
+    const trialEndDate = subscription.endDate ?? new Date(Date.now() + (7 * DAY_IN_MS)).toISOString()
+    return {
+      ...subscription,
+      tier: 'Basic',
+      pricePerMonth: 0,
+      autoRenew: false,
+      maxChildren: 3,
+      maxTasksPerDay: 20,
+      hasAIAssistant: true,
+      hasAdvancedAnalytics: false,
+      hasCustomRewards: false,
+      hasPrioritySupport: false,
+      hasFamilySharing: false,
+      hasOfflineMode: false,
+      endDate: trialEndDate,
+      daysRemaining: calcDaysRemaining(trialEndDate),
+    }
+  }
+
+  if (tier === 'basic') {
+    return {
+      ...subscription,
+      tier: 'Basic',
+      pricePerMonth: 4.99,
+      maxChildren: 3,
+      maxTasksPerDay: 20,
+      hasAIAssistant: true,
+      hasAdvancedAnalytics: false,
+      hasCustomRewards: false,
+      hasPrioritySupport: false,
+      hasFamilySharing: false,
+      hasOfflineMode: false,
+      daysRemaining: calcDaysRemaining(subscription.endDate),
+    }
+  }
+
+  if (tier === 'premium') {
+    return {
+      ...subscription,
+      tier: 'Premium',
+      pricePerMonth: 9.99,
+      maxChildren: 10,
+      maxTasksPerDay: 100,
+      hasAIAssistant: true,
+      hasAdvancedAnalytics: true,
+      hasCustomRewards: true,
+      hasPrioritySupport: true,
+      hasFamilySharing: false,
+      hasOfflineMode: true,
+      daysRemaining: calcDaysRemaining(subscription.endDate),
+    }
+  }
+
+  return {
+    ...subscription,
+    tier: 'Family',
+    pricePerMonth: 14.99,
+    maxChildren: 20,
+    maxTasksPerDay: 1000,
+    hasAIAssistant: true,
+    hasAdvancedAnalytics: true,
+    hasCustomRewards: true,
+    hasPrioritySupport: true,
+    hasFamilySharing: true,
+    hasOfflineMode: true,
+    daysRemaining: calcDaysRemaining(subscription.endDate),
+  }
+}
+
 const isValidDemoDb = (value: unknown): value is DemoDb => {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<DemoDb>
@@ -918,16 +1029,23 @@ const loadDb = (): DemoDb => {
       ...task,
       startedByChild: deriveStartedByChild(task),
     }))
+    const normalizedSubscriptions = Object.fromEntries(
+      Object.entries(parsedDb.subscriptionsByUserId).map(([userId, subscription]) => {
+        return [userId, normalizeDemoSubscription(subscription)]
+      }),
+    )
     const normalizedDb: DemoDb = {
       ...parsedDb,
       tasks: normalizedTasks,
+      subscriptionsByUserId: normalizedSubscriptions,
     }
 
     const hasTaskLifecyclePatch = parsedDb.tasks.some((task, index) => {
       return task.startedByChild !== normalizedTasks[index].startedByChild
     })
+    const hasSubscriptionPatch = JSON.stringify(parsedDb.subscriptionsByUserId) !== JSON.stringify(normalizedSubscriptions)
 
-    if (hasTaskLifecyclePatch) {
+    if (hasTaskLifecyclePatch || hasSubscriptionPatch) {
       window.localStorage.setItem(DEMO_DB_STORAGE_KEY, JSON.stringify(normalizedDb))
     }
 
@@ -1237,6 +1355,44 @@ const buildAiReply = (message: string, db: DemoDb, mode?: string) => {
   }
 
   return `Отличная идея!\n\nПо запросу «${message}» предлагаю:\n- разбить задачу на 2-3 шага\n- добавить понятный дедлайн\n- закрепить быструю награду за выполнение\n\nЕсли хотите, могу сразу создать черновик задач.`
+}
+
+const buildAiFollowUpSuggestions = (message: string, mode?: string) => {
+  const normalizedMessage = message.toLowerCase()
+  const shouldAnalyze = mode === 'analytics'
+    || normalizedMessage.includes('analy')
+    || normalizedMessage.includes('аналит')
+    || normalizedMessage.includes('прогресс')
+
+  if (shouldAnalyze) {
+    return [
+      'Да, покажи приоритет на 3 дня.',
+      'Сделай версию короче.',
+      'Нет, предложи другой план.',
+    ]
+  }
+
+  if (normalizedMessage.includes('задач') || normalizedMessage.includes('task')) {
+    return [
+      'Да, сделай 3 короткие задачи.',
+      'Сделай вариант попроще.',
+      'Нет, предложи другой формат.',
+    ]
+  }
+
+  if (normalizedMessage.includes('наград') || normalizedMessage.includes('reward') || normalizedMessage.includes('приз')) {
+    return [
+      'Да, предложи бюджетные награды.',
+      'Сделай варианты для выходных.',
+      'Нет, хочу другой список.',
+    ]
+  }
+
+  return [
+    'Да, давай так.',
+    'Сделай вариант попроще.',
+    'Нет, предложи другой вариант.',
+  ]
 }
 
 const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
@@ -1710,23 +1866,42 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
   }
 
   if (method === 'GET' && pathname === '/api-gateway/user-service/subscription/me') {
-    return { status: 200, data: db.subscriptionsByUserId[currentUserId] ?? Object.values(db.subscriptionsByUserId)[0] }
+    const current = db.subscriptionsByUserId[currentUserId] ?? Object.values(db.subscriptionsByUserId)[0]
+    return { status: 200, data: current ? normalizeDemoSubscription(current) : current }
   }
 
   const subByUser = pathMatches(pathname, /^\/api-gateway\/user-service\/subscription\/([^/]+)$/)
   if (subByUser && method === 'GET') {
-    return { status: 200, data: db.subscriptionsByUserId[subByUser[1]] ?? Object.values(db.subscriptionsByUserId)[0] }
+    const current = db.subscriptionsByUserId[subByUser[1]] ?? Object.values(db.subscriptionsByUserId)[0]
+    return { status: 200, data: current ? normalizeDemoSubscription(current) : current }
   }
 
   if (method === 'POST' && pathname === '/api-gateway/user-service/subscription/change') {
     const current = db.subscriptionsByUserId[currentUserId] ?? Object.values(db.subscriptionsByUserId)[0]
-    const tier = typeof body?.tier === 'string' ? body.tier : current.tier
-    const next = {
+    const requestedTier = typeof body?.tier === 'string' ? body.tier : current.tier
+    const requestedKnownTier = normalizeDemoTier(requestedTier)
+    const currentKnownTier = normalizeDemoTier(current.tier)
+    const tierChanged = requestedKnownTier !== currentKnownTier
+    const nextEndDate = tierChanged
+      ? requestedKnownTier === 'free'
+        ? null
+        : requestedKnownTier === 'trial'
+          ? new Date(Date.now() + (7 * DAY_IN_MS)).toISOString()
+          : new Date(Date.now() + (30 * DAY_IN_MS)).toISOString()
+      : current.endDate
+
+    const next = normalizeDemoSubscription({
       ...current,
-      tier,
-      pricePerMonth: tier.toLowerCase() === 'free' ? 0 : tier.toLowerCase() === 'basic' ? 4.99 : tier.toLowerCase() === 'premium' ? 9.99 : 14.99,
-      autoRenew: typeof body?.autoRenew === 'boolean' ? body.autoRenew : current.autoRenew,
-    }
+      tier: requestedTier,
+      status: 'Active',
+      startDate: tierChanged ? nowIso() : current.startDate,
+      endDate: nextEndDate,
+      autoRenew: typeof body?.autoRenew === 'boolean'
+        ? body.autoRenew
+        : requestedKnownTier === 'trial'
+          ? false
+          : current.autoRenew,
+    })
     db.subscriptionsByUserId[currentUserId] = next
     saveDb(db)
     return { status: 200, data: next }
@@ -1734,11 +1909,11 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
 
   if (method === 'POST' && pathname === '/api-gateway/user-service/subscription/cancel') {
     const current = db.subscriptionsByUserId[currentUserId] ?? Object.values(db.subscriptionsByUserId)[0]
-    const next = {
+    const next = normalizeDemoSubscription({
       ...current,
       status: current.endDate && new Date(current.endDate) <= new Date() ? 'Expired' : 'Active',
       autoRenew: false,
-    }
+    })
     db.subscriptionsByUserId[currentUserId] = next
     saveDb(db)
     return { status: 200, data: next }
@@ -1764,7 +1939,7 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
       data: {
         conversationId: makeId('ai-conv'),
         reply: buildAiReply(userMessage, db, mode),
-        followUpSuggestions: ['Сделай 3 задачи для младшего ребёнка', 'Предложи 5 наград до 300 очков', 'Собери план на неделю'],
+        followUpSuggestions: buildAiFollowUpSuggestions(userMessage, mode),
         actions: [
           {
             type: 'CreateTasks',

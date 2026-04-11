@@ -406,28 +406,34 @@ public sealed class RuleBasedAiOrchestrator(TimeProvider timeProvider) : IAiOrch
         var followUps = ru
             ? new List<string>
             {
-                "Хотите уточнить длительность или сложность задачи?",
-                "Хотите идеи для системы наград?"
+                "Да, давайте так.",
+                "Сделайте вариант попроще.",
+                "Предложите другой вариант."
             }
             : new List<string>
             {
-                "Would you like to clarify duration or difficulty of the task?",
-                "Would you like ideas for a reward system?"
+                "Yes, let's do that.",
+                "Make a simpler version.",
+                "Suggest another option."
             };
 
         if (context.ContainsKey("childName"))
-            followUps.Add(ru
-                ? "Расскажите, что ребёнку нравится больше всего — это сделает рекомендации точнее."
-                : "Tell me what the child likes most — this will make recommendations more accurate.");
+            followUps[1] = ru
+                ? "Сделайте вариант с учётом интересов ребёнка."
+                : "Make a version based on the child's interests.";
 
         if (message.Contains("учёб", StringComparison.OrdinalIgnoreCase)
             || message.Contains("homework", StringComparison.OrdinalIgnoreCase)
             || message.Contains("study", StringComparison.OrdinalIgnoreCase))
-            followUps.Add(ru
-                ? "Нужен ли план подготовки домашних заданий на неделю?"
-                : "Do you need a homework preparation plan for the week?");
+            followUps[0] = ru
+                ? "Да, составьте план подготовки на неделю."
+                : "Yes, create a weekly homework plan.";
 
-        return followUps;
+        return followUps
+            .Where(item => !string.IsNullOrWhiteSpace(item))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(3)
+            .ToArray();
     }
 
     private static IEnumerable<AiInsightCard> GenerateInsights(int windowDays, int limit, bool ru)

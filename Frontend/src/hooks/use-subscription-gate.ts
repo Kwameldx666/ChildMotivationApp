@@ -39,6 +39,12 @@ const TIER_ORDER: Record<string, number> = {
   family: 3,
 }
 
+const normalizeTierName = (tier: string | undefined | null) => {
+  const normalized = (tier ?? "free").toLowerCase().trim()
+  if (normalized === "trial") return "basic"
+  return normalized
+}
+
 /**
  * Get the required tier label for a feature (for upgrade prompts).
  */
@@ -112,7 +118,7 @@ export function useSubscriptionGate(): SubscriptionGateResult {
   const { data: subscription, isLoading } = useCurrentSubscription()
 
   return useMemo(() => {
-    const currentTier = (subscription?.tier ?? "free").toLowerCase()
+    const currentTier = normalizeTierName(subscription?.tier)
 
     return {
       subscription,
@@ -134,7 +140,7 @@ export function useSubscriptionGate(): SubscriptionGateResult {
 
       isAtLeastTier: (tier: string) => {
         const currentOrder = TIER_ORDER[currentTier] ?? 0
-        const requiredOrder = TIER_ORDER[tier.toLowerCase()] ?? 0
+        const requiredOrder = TIER_ORDER[normalizeTierName(tier)] ?? 0
         return currentOrder >= requiredOrder
       },
     }

@@ -285,6 +285,9 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
             "Keywords that indicate task completion: \"complete\", \"done\", \"выполн\", \"готов\", \"finish\"\n\n" +
             "Response format (strictly JSON):\n" +
             "{\"reply\": \"Text response to user\", \"followUps\": [\"suggestion1\"], \"actions\": [{\"type\": \"CreateTask\", \"label\": \"label\", \"description\": \"desc\", \"variant\": \"primary\", \"priority\": 1, \"payload\": {}}]}\n\n" +
+            "followUps MUST be short clickable USER REPLY options to your latest message, not new assistant questions.\n" +
+            "Each followUp: 2-8 words, same language as user, no trailing question mark.\n" +
+            "Good style examples: \"Да, давай так\", \"Сделай проще\", \"Нет, другой вариант\".\n\n" +
             "If no actions are needed, return an empty actions array: [].\n" +
             "Reply ONLY with valid JSON without markdown code blocks.";
 
@@ -316,6 +319,7 @@ internal sealed class OpenAiOrchestrator : IAiOrchestrator
         }
         prompt.AppendLine();
         prompt.AppendLine("Reply with JSON. If an action is needed — always include actions. Reply in the same language as the user's message.");
+        prompt.AppendLine("followUps must be user reply options (short answers), not assistant questions.");
 
         messages.Add(OpenAiMessage.User(prompt.ToString()));
         return messages;
