@@ -13,6 +13,7 @@ public static class TaskMappingExtensions
             task.Description,
             task.Completed,
             task.PendingApproval,
+            task.StartedByChild,
             task.CreatedAt,
             task.UpdatedAt,
             task.CompletedAt,

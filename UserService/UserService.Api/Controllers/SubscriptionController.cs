@@ -73,7 +73,7 @@ public class SubscriptionController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
-    /// Cancel subscription (downgrade to Free)
+    /// Cancel subscription renewal (keeps current plan active until period end)
     /// </summary>
     [Authorize]
     [HttpPost("cancel")]

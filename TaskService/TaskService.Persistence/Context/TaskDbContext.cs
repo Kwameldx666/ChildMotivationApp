@@ -32,6 +32,7 @@ public class TaskDbContext(DbContextOptions<TaskDbContext> options) : DbContext(
             b.Property(x => x.Description).HasMaxLength(2000);
             b.Property(x => x.Completed).HasDefaultValue(false);
             b.Property(x => x.PendingApproval).HasDefaultValue(false);
+            b.Property(x => x.StartedByChild).HasDefaultValue(false);
             b.Property(x => x.CreatedAt).IsRequired();
             b.Property(x => x.UpdatedAt);
             b.Property(x => x.CreatedByUserId).HasMaxLength(64).IsRequired();

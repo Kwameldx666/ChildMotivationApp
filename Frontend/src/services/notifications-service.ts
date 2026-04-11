@@ -1,8 +1,10 @@
 import { httpClient } from '@/services/api/http-client'
+import type { UserSettings } from '@/services/user-settings-service'
 
 export type NotificationType = 
   | 'task_created' 
   | 'task_completed' 
+  | 'task_updated'
   | 'task_assigned' 
   | 'reward_purchased' 
   | 'achievement_unlocked'
@@ -23,6 +25,28 @@ export interface NotificationDto {
 
 export interface MarkReadPayload {
   notificationIds: string[]
+}
+
+type NotificationVisibilitySettings = Pick<
+  UserSettings,
+  'taskNotificationsEnabled' | 'rewardNotificationsEnabled' | 'achievementNotificationsEnabled' | 'systemNotificationsEnabled'
+>
+
+export function isNotificationAllowedBySettings(type: string, settings: NotificationVisibilitySettings): boolean {
+  if (type.startsWith('task_')) return settings.taskNotificationsEnabled
+  if (type.startsWith('reward_')) return settings.rewardNotificationsEnabled
+  if (type === 'achievement_unlocked' || type === 'streak_bonus' || type === 'level_up') {
+    return settings.achievementNotificationsEnabled
+  }
+
+  return settings.systemNotificationsEnabled
+}
+
+export function filterNotificationsBySettings(
+  notifications: NotificationDto[],
+  settings: NotificationVisibilitySettings,
+): NotificationDto[] {
+  return notifications.filter((notification) => isNotificationAllowedBySettings(notification.type, settings))
 }
 
 export const notificationsService = {

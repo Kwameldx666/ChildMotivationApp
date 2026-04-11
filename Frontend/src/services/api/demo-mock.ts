@@ -32,6 +32,7 @@ type DemoTask = {
   description?: string
   completed: boolean
   pendingApproval: boolean
+  startedByChild?: boolean
   createdAt: string
   updatedAt?: string | null
   completedAt?: string | null
@@ -166,6 +167,13 @@ type DemoResponse = {
 
 let serverDb: DemoDb | null = null
 
+const deriveStartedByChild = (task: DemoTask) => {
+  if (typeof task.startedByChild === 'boolean') {
+    return task.startedByChild
+  }
+  return task.pendingApproval || task.completed || !!task.completedAt
+}
+
 const isValidDemoDb = (value: unknown): value is DemoDb => {
   if (!value || typeof value !== 'object') return false
   const candidate = value as Partial<DemoDb>
@@ -299,6 +307,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Собрать игрушки в коробку и протереть стол',
       completed: false,
       pendingApproval: false,
+      startedByChild: false,
       createdAt: shiftDays(-2),
       createdByUserId: parentId,
       difficulty: 2,
@@ -314,6 +323,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Любая книга на выбор, затем краткий пересказ',
       completed: true,
       pendingApproval: false,
+      startedByChild: true,
       createdAt: shiftDays(-5),
       completedAt: shiftDays(-4),
       createdByUserId: parentId,
@@ -329,6 +339,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Расставить тарелки и приборы к ужину',
       completed: false,
       pendingApproval: true,
+      startedByChild: true,
       createdAt: shiftDays(-1),
       createdByUserId: parentId,
       difficulty: 1,
@@ -351,6 +362,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Решить 2 упражнения и проверить ответы',
       completed: false,
       pendingApproval: false,
+      startedByChild: false,
       createdAt: shiftDays(-3),
       createdByUserId: parentTwoId,
       difficulty: 2,
@@ -366,6 +378,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Погулять минимум 25 минут',
       completed: true,
       pendingApproval: false,
+      startedByChild: true,
       createdAt: shiftDays(-6),
       completedAt: shiftDays(-6),
       createdByUserId: parentTwoId,
@@ -381,6 +394,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Полить все растения в гостиной и на кухне',
       completed: false,
       pendingApproval: false,
+      startedByChild: true,
       createdAt: shiftDays(-1),
       createdByUserId: parentId,
       difficulty: 1,
@@ -396,6 +410,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Проверить тетради, пенал и форму на завтра',
       completed: true,
       pendingApproval: false,
+      startedByChild: true,
       createdAt: shiftDays(-2),
       completedAt: shiftDays(-2),
       createdByUserId: parentId,
@@ -411,6 +426,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Отсортировать книги по предметам',
       completed: false,
       pendingApproval: false,
+      startedByChild: false,
       createdAt: shiftDays(-7),
       createdByUserId: parentTwoId,
       difficulty: 3,
@@ -426,6 +442,7 @@ const createSeedDb = (): DemoDb => {
       description: '15 минут утренней зарядки',
       completed: false,
       pendingApproval: true,
+      startedByChild: true,
       createdAt: shiftDays(0),
       createdByUserId: parentId,
       difficulty: 1,
@@ -448,6 +465,7 @@ const createSeedDb = (): DemoDb => {
       description: 'Выучить 15 новых слов и пройти мини-тест',
       completed: false,
       pendingApproval: false,
+      startedByChild: false,
       createdAt: shiftDays(-4),
       createdByUserId: parentTwoId,
       difficulty: 2,
@@ -895,7 +913,25 @@ const loadDb = (): DemoDb => {
       window.localStorage.setItem(DEMO_DB_STORAGE_KEY, JSON.stringify(seeded))
       return seeded
     }
-    return parsed
+    const parsedDb = parsed as DemoDb
+    const normalizedTasks = parsedDb.tasks.map(task => ({
+      ...task,
+      startedByChild: deriveStartedByChild(task),
+    }))
+    const normalizedDb: DemoDb = {
+      ...parsedDb,
+      tasks: normalizedTasks,
+    }
+
+    const hasTaskLifecyclePatch = parsedDb.tasks.some((task, index) => {
+      return task.startedByChild !== normalizedTasks[index].startedByChild
+    })
+
+    if (hasTaskLifecyclePatch) {
+      window.localStorage.setItem(DEMO_DB_STORAGE_KEY, JSON.stringify(normalizedDb))
+    }
+
+    return normalizedDb
   } catch {
     const seeded = createSeedDb()
     try {
@@ -1152,7 +1188,7 @@ const makeAnalytics = (db: DemoDb, windowDays: number = 30) => {
     weeklyProgress,
     taskStatus: {
       completed,
-      inProgress: tasks.filter(task => !task.completed && !task.pendingApproval).length,
+      inProgress: tasks.filter(task => !task.completed && !task.pendingApproval && deriveStartedByChild(task)).length,
       overdue: tasks.filter(task => !task.completed && !!task.dueDate && new Date(task.dueDate).getTime() < now).length,
     },
     pointsTrend,
@@ -1295,6 +1331,7 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
       description: typeof payload.description === 'string' ? payload.description : undefined,
       completed: false,
       pendingApproval: false,
+      startedByChild: false,
       createdAt: nowIso(),
       createdByUserId: currentUserId,
       difficulty: typeof payload.difficulty === 'number' ? payload.difficulty : 2,
@@ -1325,6 +1362,9 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
       description: typeof body?.description === 'string' ? body.description : current.description,
       difficulty: typeof body?.difficulty === 'number' ? body.difficulty : current.difficulty,
       completed: typeof body?.completed === 'boolean' ? body.completed : current.completed,
+      startedByChild: typeof body?.completed === 'boolean'
+        ? body.completed || deriveStartedByChild(current)
+        : deriveStartedByChild(current),
       updatedAt: nowIso(),
       assignedToUserId: typeof body?.assignedToUserId === 'string' ? body.assignedToUserId : current.assignedToUserId,
     }
@@ -1340,28 +1380,39 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
     return { status: 200, data: {} }
   }
 
-  const completeTask = pathMatches(pathname, /^\/api-gateway\/tasks\/([^/]+)\/(complete|request-approval|approve|reject)$/)
+  const completeTask = pathMatches(pathname, /^\/api-gateway\/tasks\/([^/]+)\/(start|complete|request-approval|approve|reject)$/)
   if (completeTask && method === 'POST') {
     const taskId = completeTask[1]
     const action = completeTask[2]
     const task = db.tasks.find(item => item.id === taskId)
     if (task) {
+      if (action === 'start') {
+        task.completed = false
+        task.completedAt = null
+        task.pendingApproval = false
+        task.startedByChild = true
+      }
       if (action === 'complete') {
         task.completed = true
         task.completedAt = nowIso()
         task.pendingApproval = false
+        task.startedByChild = true
       }
       if (action === 'request-approval') {
         task.pendingApproval = true
+        task.startedByChild = true
       }
       if (action === 'approve') {
         task.pendingApproval = false
         task.completed = true
         task.completedAt = nowIso()
+        task.startedByChild = true
       }
       if (action === 'reject') {
         task.pendingApproval = false
         task.completed = false
+        task.completedAt = null
+        task.startedByChild = true
       }
       task.updatedAt = nowIso()
       saveDb(db)
@@ -1384,6 +1435,7 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
       fileSize: 245_000,
     }
     task.pendingApproval = true
+    task.startedByChild = true
     saveDb(db)
     return { status: 200, data: task }
   }
@@ -1681,10 +1733,10 @@ const resolveDemo = (input: DemoRequestInput): DemoResponse | null => {
   }
 
   if (method === 'POST' && pathname === '/api-gateway/user-service/subscription/cancel') {
+    const current = db.subscriptionsByUserId[currentUserId] ?? Object.values(db.subscriptionsByUserId)[0]
     const next = {
-      ...db.subscriptionsByUserId[currentUserId],
-      tier: 'Free',
-      pricePerMonth: 0,
+      ...current,
+      status: current.endDate && new Date(current.endDate) <= new Date() ? 'Expired' : 'Active',
       autoRenew: false,
     }
     db.subscriptionsByUserId[currentUserId] = next

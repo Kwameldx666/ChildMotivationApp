@@ -138,6 +138,7 @@ export default function AnalyticsDashboard() {
   const [currentChart, setCurrentChart] = useState(0)
   const [selectedChild, setSelectedChild] = useState("all")
   const [windowDays, setWindowDays] = useState(30)
+  const [showAdvancedCharts, setShowAdvancedCharts] = useState(false)
   const exportRef = useRef<HTMLDivElement | null>(null)
   const allChartsRef = useRef<HTMLDivElement | null>(null)
   const [exporting, setExporting] = useState(false)
@@ -161,6 +162,19 @@ export default function AnalyticsDashboard() {
     { id: "pointsGrowth", titleKey: "analytics.charts.pointsGrowth", descKey: "analytics.chartDescriptions.pointsGrowth" },
     { id: "streakHeatmap", titleKey: "analytics.charts.streakHeatmap", descKey: "analytics.chartDescriptions.streakHeatmap" },
   ]
+
+  const advancedChartIndexes = [2, 6]
+  const visibleChartIndexes = showAdvancedCharts
+    ? chartsConfig.map((_, idx) => idx)
+    : chartsConfig.map((_, idx) => idx).filter((idx) => !advancedChartIndexes.includes(idx))
+
+  useEffect(() => {
+    if (!visibleChartIndexes.includes(currentChart)) {
+      setCurrentChart(visibleChartIndexes[0] ?? 0)
+    }
+  }, [currentChart, visibleChartIndexes])
+
+  const visibleChartPosition = Math.max(0, visibleChartIndexes.indexOf(currentChart)) + 1
 
   /* ── Per-chart time override (null = use global) ── */
   const [chartTimeOverride, setChartTimeOverride] = useState<Record<number, number | null>>({})
@@ -987,11 +1001,17 @@ export default function AnalyticsDashboard() {
   }
 
   const nextChart = () => {
-    setCurrentChart((prev) => (prev + 1) % chartsConfig.length)
+    const currentPosition = visibleChartIndexes.indexOf(currentChart)
+    const safePosition = currentPosition >= 0 ? currentPosition : 0
+    const nextIndex = visibleChartIndexes[(safePosition + 1) % visibleChartIndexes.length] ?? 0
+    setCurrentChart(nextIndex)
   }
 
   const prevChart = () => {
-    setCurrentChart((prev) => (prev - 1 + chartsConfig.length) % chartsConfig.length)
+    const currentPosition = visibleChartIndexes.indexOf(currentChart)
+    const safePosition = currentPosition >= 0 ? currentPosition : 0
+    const prevIndex = visibleChartIndexes[(safePosition - 1 + visibleChartIndexes.length) % visibleChartIndexes.length] ?? 0
+    setCurrentChart(prevIndex)
   }
 
   /**
@@ -1447,7 +1467,7 @@ export default function AnalyticsDashboard() {
                 </p>
               </div>
               <p className="text-[10px] text-muted-foreground/60 mt-1 ml-4">
-                {t('analyticsDashboard.chartOf', { current: currentChart + 1, total: chartsConfig.length })}
+                {t('analyticsDashboard.chartOf', { current: visibleChartPosition, total: visibleChartIndexes.length })}
               </p>
             </div>
             <div className="flex gap-1.5">
@@ -1492,28 +1512,41 @@ export default function AnalyticsDashboard() {
         {/* ── Quick switch ── */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Award className="w-4 h-4 text-violet-500" />
-              {t('analyticsDashboard.quickSwitch')}
-            </CardTitle>
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Award className="w-4 h-4 text-violet-500" />
+                {t('analyticsDashboard.quickSwitch')}
+              </CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => setShowAdvancedCharts((v) => !v)}
+              >
+                {showAdvancedCharts ? t('analyticsDashboard.hideAdvancedCharts') : t('analyticsDashboard.showAdvancedCharts')}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {chartsConfig.map((chart, idx) => (
+              {visibleChartIndexes.map((chartIndex, visibleIndex) => {
+                const chart = chartsConfig[chartIndex]
+                return (
                 <Button
                   key={chart.id}
-                  variant={currentChart === idx ? "default" : "outline"}
+                  variant={currentChart === chartIndex ? "default" : "outline"}
                   size="sm"
                   className={`text-xs rounded-xl transition-all duration-200 ${
-                    currentChart === idx
+                    currentChart === chartIndex
                       ? 'shadow-md shadow-violet-500/20'
                       : 'hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-sm'
                   }`}
-                  onClick={() => setCurrentChart(idx)}
+                  onClick={() => setCurrentChart(chartIndex)}
                 >
-                  {idx + 1}. {t(chart.titleKey)}
+                  {visibleIndex + 1}. {t(chart.titleKey)}
                 </Button>
-              ))}
+              )})}
             </div>
           </CardContent>
         </Card>

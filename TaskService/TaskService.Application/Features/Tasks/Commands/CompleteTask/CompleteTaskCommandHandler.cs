@@ -46,19 +46,21 @@ public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand>
         await _repository.UpdateAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Send notifications to parent and child
-        var userIds = new List<string> { task.CreatedByUserId }; // Parent
-        if (!string.IsNullOrEmpty(task.AssignedToUserId) && task.AssignedToUserId != task.CreatedByUserId)
-        {
-            userIds.Add(task.AssignedToUserId); // Child
-        }
+        // Notify parent about completion; child already sees immediate UI feedback
+        var userIds = new[] { task.CreatedByUserId }
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        await _notificationClient.SendTaskCompletedNotificationAsync(
-            task.Id.ToString(),
-            task.Title,
-            task.Description ?? "",
-            userIds.ToArray(),
-            cancellationToken);
+        if (userIds.Length > 0)
+        {
+            await _notificationClient.SendTaskCompletedNotificationAsync(
+                task.Id.ToString(),
+                task.Title,
+                task.Description ?? "",
+                userIds,
+                cancellationToken);
+        }
 
         return Unit.Value;
     }

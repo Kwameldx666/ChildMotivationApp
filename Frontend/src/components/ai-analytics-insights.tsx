@@ -19,6 +19,7 @@ const formatPercent = (value: number) => `${Math.round(value)}%`
 const isLowQualityAiReply = (reply: string) => {
   const trimmed = reply.trim()
   if (!trimmed) return true
+  if (!/\d/.test(trimmed)) return true
 
   const lines = trimmed
     .split("\n")
@@ -33,6 +34,11 @@ const isLowQualityAiReply = (reply: string) => {
     "разбить задачу",
     "понятный дедлайн",
     "быструю награду",
+    "great idea",
+    "you can do it",
+    "excellent progress",
+    "idee grozava",
+    "progres excelent",
   ]
 
   const normalized = trimmed.toLowerCase()
@@ -117,6 +123,7 @@ export default function AiAnalyticsInsights({ analytics, windowDays }: AiAnalyti
     try {
       const summary = buildAnalyticsSummary()
       const localeMap: Record<string, string> = { en: "en-US", ru: "ru-RU", ro: "ro-RO" }
+      const languageInstruction = locale === "ru" ? "Russian" : locale === "ro" ? "Romanian" : "English"
       const response = await aiService.sendChatMessage({
         message: [
           "You are a strict family productivity analyst.",
@@ -124,7 +131,8 @@ export default function AiAnalyticsInsights({ analytics, windowDays }: AiAnalyti
           "Each bullet must contain: metric -> risk -> concrete action for this week.",
           "No generic motivational phrases.",
           "Use numeric values from the data.",
-          "Language: Russian.",
+          "Focus on overdue risks, completion momentum, and child-specific coaching.",
+          `Language: ${languageInstruction}.`,
           "",
           summary,
         ].join("\n"),

@@ -113,12 +113,15 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
   }
 
   const handleQuickAction = (prompt: string) => {
+    if (isThinking) return
     setInput("")
     void sendMessage(prompt)
   }
 
   const handleSuggestion = (prompt: string) => {
-    setInput(prompt)
+    if (isThinking) return
+    setInput("")
+    void sendMessage(prompt)
   }
 
   return (

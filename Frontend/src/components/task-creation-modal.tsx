@@ -281,8 +281,8 @@ export default function TaskCreationModal({ open, onClose, onSubmit: _onSubmit }
                   >
                     <option value="none">{t("taskCreation.noConfirmation")}</option>
                     <option value="photo">{t("taskCreation.confirmationPhoto")}</option>
-                    <option value="video">{t("taskCreation.videoLabel") || "Видео"}</option>
-                    <option value="document">{t("taskCreation.documentLabel") || "Документ"}</option>
+                    <option value="video">{t("tasksList.evidence.videoLabel")}</option>
+                    <option value="document">{t("tasksList.evidence.documentLabel")}</option>
                   </select>
                 </div>
 

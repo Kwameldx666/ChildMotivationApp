@@ -26,13 +26,12 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
   useNotifications,
-  useUnreadNotificationsCount,
   useMarkNotificationsRead,
   useMarkAllNotificationsRead,
 } from "@/services/notifications-queries"
 import { useUserSettings } from "@/hooks/use-user-settings"
 import { canReceiveLiveNotifications } from "@/services/user-settings-service"
-import type { NotificationType, NotificationDto } from "@/services/notifications-service"
+import { filterNotificationsBySettings, type NotificationType, type NotificationDto } from "@/services/notifications-service"
 import { useTranslation } from "@/i18n/provider"
 
 const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
@@ -128,19 +127,19 @@ export function NotificationsPopover() {
   const lastUnreadCountRef = useRef(0)
   
   // Запросы к API
-  const { data: notifications, isLoading, isError } = useNotifications()
-  const { data: unreadCount } = useUnreadNotificationsCount()
+  const { data: notifications, isLoading } = useNotifications()
   const markRead = useMarkNotificationsRead()
   const markAllRead = useMarkAllNotificationsRead()
 
   // Use real API data only
-  const displayNotifications = settings.notificationsEnabled ? (notifications ?? []) : []
+  const displayNotifications = settings.notificationsEnabled
+    ? filterNotificationsBySettings(notifications ?? [], settings)
+    : []
 
   const displayUnreadCount = useMemo(() => {
     if (!settings.notificationsEnabled) return 0
-    if (typeof unreadCount === "number") return unreadCount
     return displayNotifications.filter(n => !n.isRead).length
-  }, [unreadCount, displayNotifications, settings.notificationsEnabled])
+  }, [displayNotifications, settings.notificationsEnabled])
 
   // Request native notification permission on mount
   useEffect(() => {

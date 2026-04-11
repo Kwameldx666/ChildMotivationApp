@@ -81,8 +81,9 @@ export default function AIAssistant() {
   }
 
   const handleSuggestion = (prompt: string) => {
-    setInput(prompt)
-    setTimeout(() => handleSend(prompt), 100)
+    if (isLoading) return
+    setInput("")
+    void handleSend(prompt)
   }
 
   return (

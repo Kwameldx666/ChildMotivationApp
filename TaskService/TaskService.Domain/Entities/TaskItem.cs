@@ -37,6 +37,7 @@ public class TaskItem
     public string? Description { get; private set; }
     public bool Completed { get; private set; }
     public bool PendingApproval { get; private set; }
+    public bool StartedByChild { get; private set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
@@ -134,6 +135,7 @@ public class TaskItem
     {
         Completed = completed;
         PendingApproval = false;
+        StartedByChild = completed;
         CompletedAt = completed ? when : null;
         UpdatedAt = DateTime.UtcNow;
     }
@@ -142,13 +144,16 @@ public class TaskItem
     {
         if (Completed)
             throw new InvalidOperationException("Task is already completed.");
+
         PendingApproval = true;
+        StartedByChild = true;
         UpdatedAt = when;
     }
 
     public void RejectApproval(DateTime when)
     {
         PendingApproval = false;
+        StartedByChild = true;
         UpdatedAt = when;
     }
 
@@ -158,6 +163,7 @@ public class TaskItem
             throw new InvalidOperationException("Completed task cannot be moved to in-progress.");
 
         PendingApproval = false;
+        StartedByChild = true;
         UpdatedAt = when;
     }
 

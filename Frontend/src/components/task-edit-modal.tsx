@@ -132,8 +132,8 @@ export default function TaskEditModal({ open, onOpenChange, task, onSave }: Task
               >
                 <option value="none">{t("taskEdit.noConfirmation")}</option>
                 <option value="photo">{t("taskEdit.photoVideo")}</option>
-                <option value="video">{t("taskCreation.videoLabel") || "Видео"}</option>
-                <option value="document">{t("taskCreation.documentLabel") || "Документ"}</option>
+                <option value="video">{t("tasksList.evidence.videoLabel")}</option>
+                <option value="document">{t("tasksList.evidence.documentLabel")}</option>
               </select>
             </div>
           </div>

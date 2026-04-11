@@ -22,13 +22,12 @@ public class ApproveTaskCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Notify child that parent approved
-        var userIds = new List<string>();
-        if (!string.IsNullOrEmpty(task.AssignedToUserId))
-            userIds.Add(task.AssignedToUserId);
-        if (!string.IsNullOrEmpty(task.CreatedByUserId))
-            userIds.Add(task.CreatedByUserId);
+        var userIds = new[] { task.AssignedToUserId }
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        if (userIds.Count > 0)
+        if (userIds.Length > 0)
         {
             await notificationClient.SendTaskCompletedNotificationAsync(
                 task.Id.ToString(),

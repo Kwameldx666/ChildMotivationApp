@@ -21,7 +21,7 @@ public class RejectApprovalCommandHandler(
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var recipients = new[] { task.CreatedByUserId, task.AssignedToUserId }
+        var recipients = new[] { task.AssignedToUserId }
             .Where(userId => !string.IsNullOrWhiteSpace(userId))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();

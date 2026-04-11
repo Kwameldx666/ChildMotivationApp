@@ -68,6 +68,10 @@ using (var scope = app.Services.CreateScope())
         await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"PendingApproval\" boolean NOT NULL DEFAULT false");
 
+        // Add StartedByChild column if missing (status should only move to in-progress after child starts)
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"StartedByChild\" boolean NOT NULL DEFAULT false");
+
         // ── Seed demo tasks for screenshots ──
         var parentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
         var demoTaskCount = await db.Tasks.CountAsync(t => t.CreatedByUserId == parentId);

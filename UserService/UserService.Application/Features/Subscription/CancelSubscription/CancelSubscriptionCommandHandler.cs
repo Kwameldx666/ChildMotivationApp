@@ -2,7 +2,6 @@ using MediatR;
 using UserService.Application.Dto.User;
 using UserService.Application.Interfaces;
 using UserService.Domain.Enums;
-using UserService.Domain.Factories;
 
 namespace UserService.Application.Features.Subscription.CancelSubscription;
 
@@ -40,24 +39,25 @@ public class CancelSubscriptionCommandHandler : IRequestHandler<CancelSubscripti
                 DaysRemaining: null);
         }
 
-        // Отменяем подписку (переводим на Free)
-        var freeSubscription = SubscriptionFactory.Create(SubscriptionTier.Free);
-        
-        subscription.Tier = SubscriptionTier.Free;
-        subscription.Status = SubscriptionStatus.Cancelled;
-        subscription.EndDate = DateTime.UtcNow;
+        // Cancel means disabling auto-renew, keeping current tier active until EndDate.
+        subscription.CancelledAt = DateTime.UtcNow;
         subscription.AutoRenew = false;
-        subscription.PricePerMonth = 0;
-        subscription.MaxChildren = freeSubscription.MaxChildren;
-        subscription.MaxTasksPerDay = freeSubscription.MaxTasksPerDay;
-        subscription.HasAIAssistant = false;
-        subscription.HasAdvancedAnalytics = false;
-        subscription.HasCustomRewards = false;
-        subscription.HasPrioritySupport = false;
-        subscription.HasFamilySharing = false;
-        subscription.HasOfflineMode = false;
+
+        // Keep paid features to the end of current billing period.
+        if (subscription.EndDate.HasValue && subscription.EndDate.Value <= DateTime.UtcNow)
+        {
+            subscription.Status = SubscriptionStatus.Expired;
+        }
+        else
+        {
+            subscription.Status = SubscriptionStatus.Active;
+        }
 
         await _subscriptionRepository.UpdateAsync(subscription, cancellationToken);
+
+        int? daysRemaining = subscription.EndDate.HasValue
+            ? (int)Math.Max(0, (subscription.EndDate.Value - DateTime.UtcNow).TotalDays)
+            : null;
 
         return new SubscriptionDto(
             Tier: subscription.Tier.ToString(),
@@ -74,6 +74,6 @@ public class CancelSubscriptionCommandHandler : IRequestHandler<CancelSubscripti
             HasPrioritySupport: subscription.HasPrioritySupport,
             HasFamilySharing: subscription.HasFamilySharing,
             HasOfflineMode: subscription.HasOfflineMode,
-            DaysRemaining: null);
+            DaysRemaining: daysRemaining);
     }
 }

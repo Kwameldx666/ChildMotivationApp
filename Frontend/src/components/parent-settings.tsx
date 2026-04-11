@@ -109,6 +109,58 @@ export default function ParentSettings({ familyName }: ParentSettingsProps) {
             />
           </div>
 
+          <div className="border-t border-border/30 pt-3 space-y-3">
+            <p className="text-xs font-medium text-muted-foreground">{t("notifications.categoriesTitle")}</p>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-medium text-sm">{t("notifications.taskNotifications")}</Label>
+                <p className="text-xs text-muted-foreground">{t("notifications.taskNotificationsDesc")}</p>
+              </div>
+              <Switch
+                checked={settings.taskNotificationsEnabled}
+                onCheckedChange={(value) => handleSettingChange("taskNotificationsEnabled", value)}
+                disabled={!settings.notificationsEnabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-medium text-sm">{t("notifications.rewardNotifications")}</Label>
+                <p className="text-xs text-muted-foreground">{t("notifications.rewardNotificationsDesc")}</p>
+              </div>
+              <Switch
+                checked={settings.rewardNotificationsEnabled}
+                onCheckedChange={(value) => handleSettingChange("rewardNotificationsEnabled", value)}
+                disabled={!settings.notificationsEnabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-medium text-sm">{t("notifications.achievementNotifications")}</Label>
+                <p className="text-xs text-muted-foreground">{t("notifications.achievementNotificationsDesc")}</p>
+              </div>
+              <Switch
+                checked={settings.achievementNotificationsEnabled}
+                onCheckedChange={(value) => handleSettingChange("achievementNotificationsEnabled", value)}
+                disabled={!settings.notificationsEnabled}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-medium text-sm">{t("notifications.systemNotifications")}</Label>
+                <p className="text-xs text-muted-foreground">{t("notifications.systemNotificationsDesc")}</p>
+              </div>
+              <Switch
+                checked={settings.systemNotificationsEnabled}
+                onCheckedChange={(value) => handleSettingChange("systemNotificationsEnabled", value)}
+                disabled={!settings.notificationsEnabled}
+              />
+            </div>
+          </div>
+
           {settings.notificationsEnabled && (
             <div className="border-t border-border/30 pt-3 space-y-3">
               <div>

@@ -13,12 +13,11 @@ import { useTranslation } from "@/i18n/provider"
 import { cn } from "@/lib/utils"
 import {
   useNotifications,
-  useUnreadNotificationsCount,
   useMarkNotificationsRead,
   useMarkAllNotificationsRead,
   useDeleteNotification,
 } from "@/services/notifications-queries"
-import type { NotificationType, NotificationDto } from "@/services/notifications-service"
+import { filterNotificationsBySettings, type NotificationType, type NotificationDto } from "@/services/notifications-service"
 import { useUserSettings } from "@/hooks/use-user-settings"
 
 const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
@@ -82,14 +81,15 @@ export default function NotificationsPage() {
 
   // Real API queries
   const { data: notifications, isLoading } = useNotifications()
-  const { data: unreadCountData } = useUnreadNotificationsCount()
   const markRead = useMarkNotificationsRead()
   const markAllRead = useMarkAllNotificationsRead()
   const deleteNotification = useDeleteNotification()
 
-  const allNotifications = settings.notificationsEnabled ? (notifications ?? []) : []
+  const allNotifications = settings.notificationsEnabled
+    ? filterNotificationsBySettings(notifications ?? [], settings)
+    : []
   const unreadCount = settings.notificationsEnabled
-    ? (typeof unreadCountData === "number" ? unreadCountData : allNotifications.filter(n => !n.isRead).length)
+    ? allNotifications.filter(n => !n.isRead).length
     : 0
 
   const filteredNotifications = useMemo(() => {

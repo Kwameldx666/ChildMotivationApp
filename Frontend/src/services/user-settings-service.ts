@@ -5,6 +5,10 @@ const SETTINGS_STORAGE_KEY = 'familyapp_user_settings'
 export interface UserSettings {
   notificationsEnabled: boolean
   soundEnabled: boolean
+  taskNotificationsEnabled: boolean
+  rewardNotificationsEnabled: boolean
+  achievementNotificationsEnabled: boolean
+  systemNotificationsEnabled: boolean
   nightModeStart: string
   nightModeEnd: string
   timeLimitEnabled: boolean
@@ -21,6 +25,10 @@ export interface UserSettings {
 const defaultSettings: UserSettings = {
   notificationsEnabled: true,
   soundEnabled: true,
+  taskNotificationsEnabled: true,
+  rewardNotificationsEnabled: true,
+  achievementNotificationsEnabled: true,
+  systemNotificationsEnabled: true,
   nightModeStart: "22:00",
   nightModeEnd: "08:00",
   timeLimitEnabled: false,

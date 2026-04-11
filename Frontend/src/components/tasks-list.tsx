@@ -196,13 +196,10 @@ const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
 function mapStatus(task: TaskDto): TaskStatus {
 	if (task.completed) return "completed"
 	if (task.pendingApproval) return "pending_approval"
+	if (task.startedByChild) return "in_progress"
 	if (!task.createdAt) return "pending"
 	const created = new Date(task.createdAt)
 	if (Number.isNaN(created.getTime())) return "pending"
-	const updated = task.updatedAt ? new Date(task.updatedAt) : null
-	if (updated && !Number.isNaN(updated.getTime()) && updated.getTime() > created.getTime()) {
-		return "in_progress"
-	}
 	const days = (Date.now() - created.getTime()) / 86_400_000
 	if (days > 10) return "overdue"
 	return "pending"

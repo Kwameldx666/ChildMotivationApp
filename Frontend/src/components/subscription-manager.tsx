@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2, Zap, BarChart3, Gift, ShieldCheck, Calendar, CreditCard, RefreshCw } from "lucide-react"
+import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2, Zap, BarChart3, Gift, ShieldCheck, Calendar, CreditCard } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
 import PremiumPricing from "./premium-pricing"
@@ -132,10 +132,25 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
   }
 
   const handleCancelSubscription = async () => {
+    if (!subscription || isFree) return
+
+    const expiry = formatEndDate(subscription.endDate)
+    const confirmationMessage = expiry
+      ? t("subscriptionManager.cancelConfirmWithDate", { date: expiry })
+      : t("subscriptionManager.cancelConfirm")
+
+    if (!window.confirm(confirmationMessage)) {
+      return
+    }
+
     try {
       await cancelSubscription.mutateAsync()
-      toast({ title: t("subscriptionManager.subscriptionCancelled"), description: t("subscriptionManager.switchedToFree") })
-      onUpgrade?.("free")
+      toast({
+        title: t("subscriptionManager.subscriptionCancelled"),
+        description: expiry
+          ? t("subscriptionManager.cancelScheduledWithDate", { date: expiry })
+          : t("subscriptionManager.cancelScheduled"),
+      })
     } catch {
       toast({ title: t("common.error"), description: t("subscriptionManager.cancelError"), variant: "destructive" })
     }
@@ -155,20 +170,6 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
       })
     } catch {
       toast({ title: t("common.error"), description: t("subscriptionManager.autoRenewUpdateError"), variant: "destructive" })
-    }
-  }
-
-  const handleExtendSubscription = async () => {
-    if (!subscription || isFree) return
-
-    try {
-      await changeSubscription.mutateAsync({ tier: currentTier, autoRenew: subscription.autoRenew })
-      toast({
-        title: t("subscriptionManager.subscriptionExtended"),
-        description: t("subscriptionManager.subscriptionExtendedDesc"),
-      })
-    } catch {
-      toast({ title: t("common.error"), description: t("subscriptionManager.extendError"), variant: "destructive" })
     }
   }
 
@@ -305,17 +306,6 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="h-8 gap-1.5"
-                  onClick={handleExtendSubscription}
-                  disabled={isSubscriptionUpdating}
-                >
-                  {changeSubscription.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                  {t("subscriptionManager.extendSubscription")}
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
                   className="h-8"
                   onClick={handleToggleAutoRenew}
                   disabled={isSubscriptionUpdating}
@@ -327,14 +317,22 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                 <button
                   className="text-sm text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
                   onClick={handleCancelSubscription}
-                  disabled={isSubscriptionUpdating}
+                  disabled={isSubscriptionUpdating || !subscription?.autoRenew}
                 >
                   {cancelSubscription.isPending ? (
                     <Loader2 className="h-3 w-3 animate-spin inline mr-1" />
                   ) : null}
-                  {t("subscription.cancel")}
+                  {subscription?.autoRenew
+                    ? t("subscription.cancel")
+                    : t("subscriptionManager.cancellationScheduled")}
                 </button>
               </div>
+
+              {!subscription?.autoRenew && subscription?.endDate && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  {t("subscriptionManager.cancelScheduledWithDate", { date: formatEndDate(subscription.endDate) || subscription.endDate })}
+                </p>
+              )}
             </>
           )}
 
