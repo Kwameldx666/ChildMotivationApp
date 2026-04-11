@@ -152,6 +152,15 @@ public class TaskItem
         UpdatedAt = when;
     }
 
+    public void MarkInProgress(DateTime when)
+    {
+        if (Completed)
+            throw new InvalidOperationException("Completed task cannot be moved to in-progress.");
+
+        PendingApproval = false;
+        UpdatedAt = when;
+    }
+
     public void AttachEvidence(
         string storagePath,
         string originalFileName,

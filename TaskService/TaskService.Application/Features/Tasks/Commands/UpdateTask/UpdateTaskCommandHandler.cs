@@ -53,11 +53,9 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         await _repository.UpdateAsync(task, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var recipients = new[] { task.CreatedByUserId, task.AssignedToUserId }
-            .Where(userId => !string.IsNullOrWhiteSpace(userId))
-            .Select(userId => userId!)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var recipients = string.IsNullOrWhiteSpace(task.AssignedToUserId)
+            ? Array.Empty<string>()
+            : new[] { task.AssignedToUserId! };
 
         if (recipients.Length > 0)
         {

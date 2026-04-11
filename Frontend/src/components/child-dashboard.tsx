@@ -34,6 +34,9 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import GuidedTour, { useFirstVisitTour, type TourStep } from "@/components/guided-tour"
 import ErrorBoundary from "@/components/error-boundary"
+import { authApi } from "@/features/auth/api/authApi"
+import { setSession } from "@/features/auth/store/authSlice"
+import { useAppDispatch } from "@/store/hooks"
 
 /* ═══════════ Types ═══════════ */
 
@@ -111,6 +114,7 @@ function StatCard({ icon, label, value, gradient, delay = 0, emoji }: {
 export default function ChildDashboard({ userId, userProfile, onLogout }: ChildDashboardProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
+  const dispatch = useAppDispatch()
   const [activeTab, setActiveTab] = useState("tasks")
   const { stats, isLoading: statsLoading } = useChildProgressStats()
   const { data: tasks = [] } = useTasks()
@@ -542,13 +546,11 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                   const file = e.target.files?.[0]
                   if (!file) return
                   try {
-                    let uid: string | undefined
-                    const raw = localStorage.getItem("familyapp_current_user")
-                    if (raw) uid = JSON.parse(raw).id
-                    if (!uid) { alert(t("childDashboard.userNotFound")); return }
                     const { authService } = await import("@/services/auth-service")
-                    await authService.uploadAvatar(uid, file)
-                    window.location.reload()
+                    await authService.uploadAvatar(userId, file)
+                    const refreshed = await authApi.getProfile(userId)
+                    dispatch(setSession(refreshed))
+                    setShowAvatarPicker(false)
                   } catch (err) {
                     console.error(err)
                     toast({

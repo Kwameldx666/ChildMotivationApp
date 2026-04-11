@@ -35,6 +35,8 @@ import {
 } from "@/components/ui/dialog"
 import { useTranslation } from "@/i18n/provider"
 import { cn } from "@/lib/utils"
+import { useAppDispatch } from "@/store/hooks"
+import { setSession } from "@/features/auth/store/authSlice"
 
 interface ChildProfileProps {
   childId: string
@@ -111,6 +113,7 @@ export default function ChildProfile({
   stats,
   statsLoading,
 }: ChildProfileProps) {
+  const dispatch = useAppDispatch()
   const [activeTab, setActiveTab] = useState<ProfileTab>("overview")
   const [showPhotoDialog, setShowPhotoDialog] = useState(false)
   const [photoUploadLoading, setPhotoUploadLoading] = useState(false)
@@ -152,6 +155,8 @@ export default function ChildProfile({
       reader.readAsDataURL(file)
       const { authService } = await import("@/services/auth-service")
       await authService.uploadAvatar(childId, file)
+      const refreshed = await authApi.getProfile(childId)
+      dispatch(setSession(refreshed))
       setShowPhotoDialog(false)
       setPhotoUploadLoading(false)
     } catch (err) {
@@ -161,7 +166,7 @@ export default function ChildProfile({
       setLocalAvatarSymbol(avatarSymbol)
       alert(t("childProfile.photoUploadError"))
     }
-  }, [childId, avatarImageUrl, avatarSymbol, t])
+  }, [childId, avatarImageUrl, avatarSymbol, dispatch, t])
 
   const handlePhotoEmoji = useCallback(async (emoji: string) => {
     try {
@@ -169,7 +174,8 @@ export default function ChildProfile({
       setLocalAvatarImageUrl(null)
       setShowPhotoDialog(false)
       setPhotoUploadLoading(true)
-      await authApi.updateProfile(childId, { name, avatar: emoji })
+      const updated = await authApi.updateProfile(childId, { name, avatar: emoji })
+      dispatch(setSession(updated))
       setPhotoUploadLoading(false)
     } catch (err) {
       console.error("Emoji change error:", err)
@@ -177,7 +183,7 @@ export default function ChildProfile({
       setPhotoUploadLoading(false)
       alert(t("childProfile.photoUploadError"))
     }
-  }, [childId, avatarSymbol, name, t])
+  }, [childId, avatarSymbol, dispatch, name, t])
 
   const onDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setDragActive(true) }, [])
   const onDragLeave = useCallback(() => setDragActive(false), [])

@@ -22,6 +22,7 @@ export interface TaskDto {
   description?: string
   completed: boolean
   pendingApproval: boolean
+  startedByChild?: boolean
   createdAt: string
   updatedAt?: string | null
   completedAt?: string | null
@@ -70,6 +71,9 @@ export const tasksService = {
   },
   reject(taskId: string) {
     return httpClient.post<void>(`/api-gateway/tasks/${taskId}/reject`)
+  },
+  start(taskId: string) {
+    return httpClient.post<void>(`/api-gateway/tasks/${taskId}/start`)
   },
   submitEvidence(taskId: string, file: File) {
     const formData = new FormData()

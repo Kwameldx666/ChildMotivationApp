@@ -7,6 +7,7 @@ using TaskService.Application.Features.Tasks.Commands.CompleteTask;
 using TaskService.Application.Features.Tasks.Commands.RequestApproval;
 using TaskService.Application.Features.Tasks.Commands.ApproveTask;
 using TaskService.Application.Features.Tasks.Commands.RejectApproval;
+using TaskService.Application.Features.Tasks.Commands.StartTask;
 using TaskService.Application.Features.Tasks.Commands.CreateTask;
 using TaskService.Application.Features.Tasks.Commands.DeleteTask;
 using TaskService.Application.Features.Tasks.Commands.SubmitTaskEvidence;
@@ -98,6 +99,13 @@ public class TasksController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> Reject(Guid id, CancellationToken cancellationToken)
     {
         await mediator.Send(new RejectApprovalCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/start")]
+    public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new StartTaskCommand(id), cancellationToken);
         return NoContent();
     }
 

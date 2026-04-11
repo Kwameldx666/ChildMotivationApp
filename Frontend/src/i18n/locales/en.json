@@ -135,7 +135,7 @@
       "4": "Hard",
       "5": "Very Hard"
     },
-    "pendingApproval": "Ожидает одобрения"
+    "pendingApproval": "Pending Approval"
   },
   "rewards": {
     "title": "Rewards",
@@ -275,11 +275,11 @@
       "basic": {
         "name": "Basic",
         "tagline": "Daily help with chores & motivation",
-        "price": "299",
-        "priceAmount": "299 lei",
-        "yearlyPrice": "2990",
-        "yearlyMonthlyPrice": "249 lei",
-        "yearlyDiscount": "-17%",
+        "price": "49",
+        "priceAmount": "49 lei",
+        "yearlyPrice": "468",
+        "yearlyMonthlyPrice": "39 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Unlimited children",
           "AI generates age-appropriate tasks",
@@ -292,11 +292,11 @@
       "premium": {
         "name": "Premium",
         "tagline": "Insights that help you raise kids better",
-        "price": "599",
-        "priceAmount": "599 lei",
-        "yearlyPrice": "5990",
-        "yearlyMonthlyPrice": "499 lei",
-        "yearlyDiscount": "-17%",
+        "price": "99",
+        "priceAmount": "99 lei",
+        "yearlyPrice": "948",
+        "yearlyMonthlyPrice": "79 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Everything in Basic",
           "AI adapts tasks to child's behavior",
@@ -310,11 +310,11 @@
       "family": {
         "name": "Family",
         "tagline": "Both parents, grandparents & nanny in sync",
-        "price": "999",
-        "priceAmount": "999 lei",
-        "yearlyPrice": "9990",
-        "yearlyMonthlyPrice": "833 lei",
-        "yearlyDiscount": "-17%",
+        "price": "149",
+        "priceAmount": "149 lei",
+        "yearlyPrice": "1428",
+        "yearlyMonthlyPrice": "119 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Everything in Premium",
           "Up to 5 caregiver accounts",
@@ -1459,16 +1459,17 @@
     "progress": "Progress",
     "edit": "Edit",
     "delete": "Delete",
+    "start": "Start work",
     "complete": "Complete",
     "approve": "Approve",
     "completed": "Completed",
     "evidenceSubmitted": "Submitted",
     "evidenceRequired": "Required",
-    "waitingApproval": "Ожидает одобрения",
-    "askAi": "Спросить ИИ",
-    "askParent": "Спросить родителя",
-    "askParentMessage": "У меня вопрос по этой задаче",
-    "askParentSent": "Сообщение отправлено родителю!"
+    "waitingApproval": "Awaiting approval",
+    "askAi": "Ask AI",
+    "askParent": "Ask parent",
+    "askParentMessage": "I have a question about this task",
+    "askParentSent": "Message sent to parent!"
   },
   "familyGoals": {
     "title": "Family Goals",
@@ -1590,6 +1591,7 @@
     "pickChildren": "Select children"
   },
   "childChatHub": {
+    "familyChat": "Family chat",
     "privateChat": "Private chat",
     "aiChat": "AI chat",
     "chatWithParent": "Chat with {name}",
@@ -1612,7 +1614,18 @@
     "featureSupport": "Priority Support",
     "limitChildren": "Children limit",
     "limitTasks": "Tasks limit",
-    "perDay": "/day"
+    "perDay": "/day",
+    "autoRenewEnabled": "Auto-renewal on",
+    "autoRenewDisabled": "Auto-renewal off",
+    "enableAutoRenew": "Enable auto-renewal",
+    "disableAutoRenew": "Disable auto-renewal",
+    "extendSubscription": "Extend for 1 month",
+    "subscriptionExtended": "Subscription extended",
+    "subscriptionExtendedDesc": "A new billing period has started",
+    "extendError": "Failed to extend subscription",
+    "autoRenewUpdated": "Auto-renewal updated",
+    "autoRenewUpdateError": "Failed to update auto-renewal",
+    "daysLeft": "{count}d left"
   },
   "taskDetails": {
     "description": "Description",
@@ -2189,7 +2202,7 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "overdue": "Overdue",
-      "pendingApproval": "Ожидает одобрения"
+      "pendingApproval": "Pending Approval"
     },
     "journey": {
       "assigned": "Assigned",
@@ -3000,12 +3013,12 @@
     "hint": "Сохраните новый пароль — он понадобится ребёнку для входа. Если ваша почта подтверждена, он также отправлен на ваш email."
   },
   "childrenPage": {
-    "title": "Мои дети",
-    "subtitle": "Добавляйте и управляйте профилями детей",
-    "emptyTitle": "Пока нет детей",
-    "emptyDescription": "Добавьте ребёнка, чтобы он мог выполнять задачи, получать награды и общаться в семейном чате",
-    "addFirstChild": "Добавить первого ребёнка",
-    "autoCredentialsNote": "Логин и пароль создадутся автоматически",
-    "yearsOld": "лет"
+    "title": "My Children",
+    "subtitle": "Add and manage children profiles",
+    "emptyTitle": "No children yet",
+    "emptyDescription": "Add a child so they can complete tasks, earn rewards, and chat with family",
+    "addFirstChild": "Add first child",
+    "autoCredentialsNote": "Login and password are generated automatically",
+    "yearsOld": "years old"
   }
 }

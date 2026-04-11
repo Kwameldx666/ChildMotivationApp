@@ -51,6 +51,7 @@ export interface OrderDto {
 }
 
 export interface CreateOrderPayload {
+  userId: string
   items: Array<{
     productId: string
     quantity: number
@@ -82,8 +83,9 @@ export const shopService = {
   listProducts() {
     return httpClient.get<ProductDto[]>('/api-gateway/shop/products')
   },
-  listOrders() {
-    return httpClient.get<OrderDto[]>('/api-gateway/shop/orders')
+  listOrders(userId?: string) {
+    const query = userId ? `?userId=${encodeURIComponent(userId)}` : ''
+    return httpClient.get<OrderDto[]>(`/api-gateway/shop/orders${query}`)
   },
   createOrder(payload: CreateOrderPayload) {
     return httpClient.post<OrderDto>('/api-gateway/shop/orders', payload)

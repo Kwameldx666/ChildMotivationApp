@@ -1,10 +1,9 @@
 "use client"
 
-import type { LucideIcon } from "lucide-react"
 import {
-  Edit, Eye, Upload, CheckCircle2, AlertCircle, FileCheck, BookOpen,
+  Eye, Upload, CheckCircle2, AlertCircle, FileCheck,
   Zap, Trophy, ZoomIn, Clock, CalendarDays, Camera, Video, FileText,
-  Trash2, Sparkles, ChevronRight, Shield, Star, MoreHorizontal, X, Pencil,
+  Trash2, Sparkles, Star, MoreHorizontal, X,
   Bot, MessageCircle
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -21,7 +19,7 @@ import { cn } from "@/lib/utils"
 import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { tasksService } from "@/services/tasks-service"
 import { useTranslation } from "@/i18n/provider"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type MouseEvent } from "react"
 import { openAiChat } from "@/components/ai-chat-widget"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
@@ -47,6 +45,7 @@ interface TaskRowProps {
   onReject: (task: TaskDto) => void
   onUploadEvidence: (task: DecoratedTask) => void
   onViewEvidence: (task: DecoratedTask) => void
+  onStart: (task: DecoratedTask) => void
   onEdit: (task: DecoratedTask) => void
   onDelete: (id: string) => void
   onAskParent?: (task: DecoratedTask, customMessage: string) => void
@@ -117,6 +116,13 @@ const STATUS_THEME = {
 
 type StatusKey = keyof typeof STATUS_THEME
 
+const JOURNEY_STEPS = [
+  "tasksList.journey.assigned",
+  "tasksList.journey.inProgress",
+  "tasksList.journey.review",
+  "tasksList.journey.done",
+] as const
+
 export default function TaskRow({ 
   task, 
   userType,
@@ -125,6 +131,7 @@ export default function TaskRow({
   onReject, 
   onUploadEvidence, 
   onViewEvidence, 
+  onStart,
   onEdit,
   onDelete,
   onAskParent,
@@ -202,7 +209,23 @@ export default function TaskRow({
     : "pending"
   const theme = STATUS_THEME[statusKey]
   const progress = Math.round(task.progressValue ?? 0)
+  const journeyIndex = statusKey === "completed"
+    ? 3
+    : statusKey === "pending_approval"
+      ? 2
+      : statusKey === "in_progress" || statusKey === "overdue"
+        ? 1
+        : 0
+  const currentJourneyLabel = t(JOURNEY_STEPS[journeyIndex])
   const IconComponent = evidenceMeta?.icon || FileCheck
+  const canCardEdit = userType === "parent" && !task.completed
+
+  const handleCardClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (!canCardEdit) return
+    const target = event.target as HTMLElement | null
+    if (target?.closest('[data-action-zone="true"]')) return
+    onEdit(task)
+  }
 
   return (
     <div className={cn(
@@ -211,8 +234,9 @@ export default function TaskRow({
       theme.border,
       theme.bg,
       theme.glow,
+      canCardEdit && "cursor-pointer",
       task.completed && "opacity-85"
-    )}>
+    )} onClick={handleCardClick}>
       {/* ───── Colored accent stripe (left edge — thicker, gradient) ───── */}
       <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 rounded-l-3xl", theme.accent)} />
 
@@ -280,17 +304,15 @@ export default function TaskRow({
           </span>
         </div>
 
-        {/* ── Row 3: Progress — fun striped bar ── */}
-        <div className="space-y-1.5">
+        {/* ── Row 3: Progress by stage ── */}
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               {t("taskRow.progress")}
             </span>
-            <span className="text-xs font-black tabular-nums text-foreground">{progress}%</span>
+            <span className="text-[11px] font-semibold text-foreground/80">{currentJourneyLabel}</span>
           </div>
-          {/* Fun gradient progress bar with better contrast and dimensions */}
           <div className="relative h-3.5 w-full overflow-hidden rounded-full bg-slate-200/90 dark:bg-slate-800/90 ring-1 ring-inset ring-slate-300/80 dark:ring-slate-700/80 shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
-            {/* Background ticks */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-30 text-slate-500 dark:text-slate-400"
@@ -299,8 +321,7 @@ export default function TaskRow({
                   'repeating-linear-gradient(90deg, transparent 0 14px, currentColor 14px 15px)',
               }}
             />
-            
-            {/* Fill track */}
+
             <div
               className={cn(
                 "relative h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_12px_rgba(56,189,248,0.4)] dark:shadow-[0_0_12px_rgba(14,165,233,0.3)]",
@@ -310,7 +331,6 @@ export default function TaskRow({
                 width: progress > 0 ? `${progress}%` : "0%",
               }}
             >
-              {/* Glossy highlight */}
               <div
                 aria-hidden="true"
                 className="absolute inset-0 opacity-40 rounded-full"
@@ -319,7 +339,6 @@ export default function TaskRow({
                     'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 55%, rgba(0,0,0,0.15) 100%)',
                 }}
               />
-              {/* Progress head marker */}
               {progress > 0 && progress < 100 && (
                 <div
                   aria-hidden="true"
@@ -327,17 +346,35 @@ export default function TaskRow({
                 />
               )}
             </div>
-            
-            {/* 100% Sparkle icon */}
+
             {progress >= 100 && (
               <div className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] animate-success-pop drop-shadow-sm">🎉</div>
             )}
+          </div>
+
+          <div className="grid grid-cols-4 gap-1">
+            {JOURNEY_STEPS.map((stepKey, stepIndex) => {
+              const isReached = stepIndex <= journeyIndex
+              return (
+                <div
+                  key={stepKey}
+                  className={cn(
+                    "rounded-md px-1 py-1 text-center text-[10px] font-medium leading-tight transition-colors",
+                    isReached
+                      ? "bg-blue-100/70 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                      : "bg-slate-100/70 text-slate-500 dark:bg-slate-800/50 dark:text-slate-400"
+                  )}
+                >
+                  {t(stepKey)}
+                </div>
+              )
+            })}
           </div>
         </div>
 
         {/* ── Row 4: Evidence ── */}
         {requiresEvidence && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3" data-action-zone="true">
             {/* Evidence thumbnail (if image & ready) */}
             {thumbnailUrl && (
               <button
@@ -376,7 +413,7 @@ export default function TaskRow({
         "flex items-center gap-3 border-t px-5 py-3.5",
         "border-slate-100 dark:border-slate-800/60",
         "bg-gradient-to-r from-slate-50/50 via-white/30 to-slate-50/50 dark:from-slate-900/20 dark:via-background/30 dark:to-slate-900/20"
-      )}>
+      )} data-action-zone="true">
         {/* ─ Left: Evidence actions ─ */}
         <div className="flex items-center gap-1.5">
           {evidenceReady && (
@@ -489,7 +526,7 @@ export default function TaskRow({
 
         {/* ─ Right: Actions ─ */}
         <div className="flex items-center gap-2">
-          {/* ─ Parent: context menu for Edit / Delete ─ */}
+          {/* ─ Parent: context menu for Delete ─ */}
           {userType === "parent" && !task.completed && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -503,15 +540,6 @@ export default function TaskRow({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-[160px]">
                 <DropdownMenuItem
-                  onClick={() => onEdit(task)}
-                  disabled={updateLoading}
-                  className="gap-2 cursor-pointer"
-                >
-                  <Pencil className="h-4 w-4 text-muted-foreground" />
-                  {t("taskRow.edit")}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
                   onClick={() => onDelete(task.id)}
                   disabled={deleteLoading}
                   className="gap-2 cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
@@ -524,8 +552,26 @@ export default function TaskRow({
           )}
 
           {/* ─ Primary actions ─ */}
-          {/* Child: show "Complete" only if NOT pending_approval and NOT completed */}
-          {!task.completed && !task.pendingApproval && userType === "child" && (
+            {/* Child: start task explicitly from pending state */}
+            {!task.completed && !task.pendingApproval && userType === "child" && statusKey === "pending" && (
+              <Button
+                size="sm"
+                className={cn(
+                  "h-10 gap-2 rounded-2xl px-6 text-sm font-black text-white btn-bounce",
+                  "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700",
+                  "shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35",
+                  "transition-all duration-200 hover:scale-[1.03]"
+                )}
+                onClick={() => onStart(task)}
+                disabled={updateLoading}
+              >
+                <Clock className="h-4 w-4" />
+                {t("taskRow.start")} 🚀
+              </Button>
+            )}
+
+            {/* Child: show "Complete" only if NOT pending_approval and NOT completed */}
+            {!task.completed && !task.pendingApproval && userType === "child" && statusKey !== "pending" && (
             requiresEvidence && !evidenceReady ? (
               <Button
                 size="sm"

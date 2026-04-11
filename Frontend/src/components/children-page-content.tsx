@@ -47,8 +47,6 @@ const formatMemberName = (member: FamilyMember) => {
   return member.name
 }
 
-const formatShortId = (id: string) => id.split("-")[0]?.toUpperCase() ?? id
-
 /* ─── Add Child Modal ─── */
 function AddChildModal({
   onClose,
@@ -332,7 +330,6 @@ export default function ChildrenPageContent() {
   const { data, isLoading, isFetching, isError, refetch } = useFamilyMembers({
     enabled: true,
   })
-  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [showAddChild, setShowAddChild] = useState(false)
   const [resetPasswordChild, setResetPasswordChild] = useState<FamilyMember | null>(null)
 
@@ -343,18 +340,6 @@ export default function ChildrenPageContent() {
 
   const handleChildClick = (childId: string) => {
     router.push(`/dashboard/child/${childId}`)
-  }
-
-  const handleCopyId = async (e: React.MouseEvent, source?: string | null) => {
-    e.stopPropagation()
-    if (!source) return
-    try {
-      await navigator.clipboard.writeText(source)
-      setCopiedId(source)
-      setTimeout(() => setCopiedId(null), 2000)
-    } catch (error) {
-      console.error("[children-page] Failed to copy value", error)
-    }
   }
 
   if (isLoading || (isFetching && !data)) {
@@ -447,22 +432,6 @@ export default function ChildrenPageContent() {
                   <p className="text-sm text-muted-foreground">
                     {child.age ? `${child.age} ${t("childrenPage.yearsOld")}` : t("profile.ageNotSpecified")}
                   </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs bg-secondary/20 px-2 py-1 rounded font-mono font-semibold" title={child.id}>
-                      ID: {formatShortId(child.id)}
-                    </span>
-                    <button
-                      onClick={(e) => handleCopyId(e, child.id)}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      title={t("profile.copyId")}
-                    >
-                      {copiedId === child.id ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <button

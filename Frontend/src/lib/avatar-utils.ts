@@ -23,11 +23,23 @@ export function resolveAvatarUrl(avatar: string | null | undefined): string | nu
     return value
   }
 
+  const base = DEFAULT_API_BASE_URL.replace(/\/$/, '')
+
   // Relative path from user-service static files → full gateway URL
   if (value.startsWith('/avatars/') || value.startsWith('avatars/')) {
     const fileName = value.replace(/^\/?avatars\//, '')
-    const base = DEFAULT_API_BASE_URL.replace(/\/$/, '')
     return `${base}/api-gateway/profile/avatars/${fileName}`
+  }
+
+  // Gateway-relative avatar path returned by some profile endpoints
+  if (value.startsWith('/api-gateway/profile/avatars/') || value.startsWith('api-gateway/profile/avatars/')) {
+    const normalizedPath = value.startsWith('/') ? value : `/${value}`
+    return `${base}${normalizedPath}`
+  }
+
+  if (value.startsWith('/profile/avatars/') || value.startsWith('profile/avatars/')) {
+    const normalizedPath = value.startsWith('/') ? value : `/${value}`
+    return `${base}/api-gateway${normalizedPath}`
   }
 
   // Anything else (emoji, initials, etc.) — return as-is

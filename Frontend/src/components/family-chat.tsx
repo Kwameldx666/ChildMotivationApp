@@ -165,11 +165,28 @@ export default function FamilyChat({
     return groups
   }, [messages])
 
-  // Получаем уникальных участников чата
   const chatParticipants = useMemo(() => {
     const participantMap = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean; role?: string }>()
-    
-    // Добавляем текущего пользователя
+    const lastActivityByUser = new Map<string, number>()
+    const now = Date.now()
+    const onlineWindowMs = 5 * 60 * 1000
+
+    messages.forEach((msg) => {
+      const createdAt = new Date(msg.createdAt).getTime()
+      if (Number.isNaN(createdAt)) return
+      const previous = lastActivityByUser.get(msg.senderId)
+      if (!previous || createdAt > previous) {
+        lastActivityByUser.set(msg.senderId, createdAt)
+      }
+    })
+
+    const isUserOnline = (userId: string) => {
+      if (userId === currentUserId) return true
+      const lastActivity = lastActivityByUser.get(userId)
+      if (!lastActivity) return false
+      return now - lastActivity <= onlineWindowMs
+    }
+
     participantMap.set(currentUserId, {
       id: currentUserId,
       name: currentUserName,
@@ -178,33 +195,34 @@ export default function FamilyChat({
       role: userRole,
     })
 
-    participants.forEach(participant => {
+    participants.forEach((participant) => {
       participantMap.set(participant.id, {
         id: participant.id,
         name: participant.name,
         avatar: participant.avatar ?? undefined,
-        isOnline: true,
+        isOnline: isUserOnline(participant.id),
         role: participant.role,
       })
     })
-    
-    // Добавляем отправителей из сообщений
-    messages.forEach(msg => {
-      if (!participantMap.has(msg.senderId)) {
-        // Симулируем онлайн статус - если сообщение было в последние 5 минут
-        const lastMessageTime = new Date(msg.createdAt).getTime()
-        const now = Date.now()
-        const isOnline = (now - lastMessageTime) < 5 * 60 * 1000
-        
+
+    messages.forEach((msg) => {
+      const existing = participantMap.get(msg.senderId)
+      if (existing) {
         participantMap.set(msg.senderId, {
-          id: msg.senderId,
-          name: msg.senderName,
-          avatar: msg.senderAvatar,
-          isOnline,
+          ...existing,
+          isOnline: isUserOnline(msg.senderId),
         })
+        return
       }
+
+      participantMap.set(msg.senderId, {
+        id: msg.senderId,
+        name: msg.senderName,
+        avatar: msg.senderAvatar,
+        isOnline: isUserOnline(msg.senderId),
+      })
     })
-    
+
     return Array.from(participantMap.values())
   }, [messages, currentUserId, currentUserName, currentUserAvatar, participants, userRole])
 

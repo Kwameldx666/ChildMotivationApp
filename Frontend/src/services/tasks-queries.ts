@@ -170,6 +170,14 @@ export function useRejectTask() {
   })
 }
 
+export function useStartTask() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => tasksService.start(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+  })
+}
+
 export function useSubmitTaskEvidence() {
   const qc = useQueryClient()
   return useMutation({

@@ -21,10 +21,10 @@ export function useShopProducts() {
   })
 }
 
-export function useShopOrders(enabled: boolean = true) {
+export function useShopOrders(userId?: string, enabled: boolean = true) {
   return useQuery<OrderDto[]>({
-    queryKey: ['shop', 'orders'],
-    queryFn: () => shopService.listOrders(),
+    queryKey: ['shop', 'orders', userId ?? 'all'],
+    queryFn: () => shopService.listOrders(userId),
     staleTime: 1000 * 60 * 3, // 3 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
     enabled,

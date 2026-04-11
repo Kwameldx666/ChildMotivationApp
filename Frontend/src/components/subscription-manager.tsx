@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2, Zap, BarChart3, Gift, ShieldCheck, Calendar, CreditCard } from "lucide-react"
+import { Crown, Sparkles, Users, Star, Check, ArrowRight, Loader2, Zap, BarChart3, Gift, ShieldCheck, Calendar, CreditCard, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
 import PremiumPricing from "./premium-pricing"
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useCurrentSubscription, useChangeSubscription, useCancelSubscription } from "@/services/subscription-queries"
-import type { SubscriptionDto } from "@/services/subscription-service"
 
 const TIER_ORDER: Record<string, number> = {
   free: 0,
@@ -50,8 +49,8 @@ const tierInfo = {
     bg: "bg-blue-50 dark:bg-blue-950/30",
     accent: "border-blue-200 dark:border-blue-800",
     gradient: "from-blue-100 to-cyan-200",
-    price: 299,
-    yearlyPrice: 2990,
+    price: 49,
+    yearlyPrice: 468,
   },
   premium: {
     nameKey: "subscriptionManager.tierPremium",
@@ -60,8 +59,8 @@ const tierInfo = {
     bg: "bg-purple-50 dark:bg-purple-950/30",
     accent: "border-purple-200 dark:border-purple-800",
     gradient: "from-purple-100 to-pink-200",
-    price: 599,
-    yearlyPrice: 5990,
+    price: 99,
+    yearlyPrice: 948,
   },
   family: {
     nameKey: "subscriptionManager.tierFamily",
@@ -70,8 +69,8 @@ const tierInfo = {
     bg: "bg-amber-50 dark:bg-amber-950/30",
     accent: "border-amber-200 dark:border-amber-800",
     gradient: "from-amber-100 to-orange-200",
-    price: 999,
-    yearlyPrice: 9990,
+    price: 149,
+    yearlyPrice: 1428,
   },
 }
 
@@ -142,6 +141,37 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
     }
   }
 
+  const handleToggleAutoRenew = async () => {
+    if (!subscription || isFree) return
+
+    const nextAutoRenewState = !subscription.autoRenew
+    try {
+      await changeSubscription.mutateAsync({ tier: currentTier, autoRenew: nextAutoRenewState })
+      toast({
+        title: t("subscriptionManager.autoRenewUpdated"),
+        description: nextAutoRenewState
+          ? t("subscriptionManager.autoRenewEnabled")
+          : t("subscriptionManager.autoRenewDisabled"),
+      })
+    } catch {
+      toast({ title: t("common.error"), description: t("subscriptionManager.autoRenewUpdateError"), variant: "destructive" })
+    }
+  }
+
+  const handleExtendSubscription = async () => {
+    if (!subscription || isFree) return
+
+    try {
+      await changeSubscription.mutateAsync({ tier: currentTier, autoRenew: subscription.autoRenew })
+      toast({
+        title: t("subscriptionManager.subscriptionExtended"),
+        description: t("subscriptionManager.subscriptionExtendedDesc"),
+      })
+    } catch {
+      toast({ title: t("common.error"), description: t("subscriptionManager.extendError"), variant: "destructive" })
+    }
+  }
+
   if (isLoading && !subscription) {
     return (
       <Card>
@@ -171,6 +201,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
   const displayTasks = isUnlimited(subscription?.maxTasksPerDay)
     ? `∞${t("subscriptionManager.perDay")}`
     : `${subscription?.maxTasksPerDay}${t("subscriptionManager.perDay")}`
+  const isSubscriptionUpdating = changeSubscription.isPending || cancelSubscription.isPending
 
   return (
     <>
@@ -220,8 +251,13 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                   <span className="font-medium">
                     {subscription?.pricePerMonth ? `${subscription.pricePerMonth} ${t("subscription.currency")} ${t("subscription.perMonth")}` : "—"}
                   </span>
-                  {subscription?.autoRenew && (
-                    <span className="text-green-600 text-[10px]">• {t("subscription.autoRenewal")}</span>
+                  {subscription && (
+                    <span className={cn(
+                      "text-[10px]",
+                      subscription.autoRenew ? "text-green-600" : "text-amber-600"
+                    )}>
+                      • {subscription.autoRenew ? t("subscriptionManager.autoRenewEnabled") : t("subscriptionManager.autoRenewDisabled")}
+                    </span>
                   )}
                 </div>
                 {/* Validity chip */}
@@ -230,7 +266,7 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                     <Calendar className="h-3 w-3 text-muted-foreground" />
                     <span>{t("subscriptionManager.validUntil")} {formatEndDate(subscription.endDate)}</span>
                     {subscription.daysRemaining != null && (
-                      <span className="text-muted-foreground">({subscription.daysRemaining}д)</span>
+                      <span className="text-muted-foreground">({t("subscriptionManager.daysLeft", { count: String(subscription.daysRemaining) })})</span>
                     )}
                   </div>
                 )}
@@ -263,12 +299,35 @@ export default function SubscriptionManager({ currentTier: propTier, onUpgrade }
                 ))}
               </div>
 
-              {/* Cancel button */}
-              <div className="pt-1">
+              {/* Subscription actions */}
+              <div className="pt-1 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5"
+                  onClick={handleExtendSubscription}
+                  disabled={isSubscriptionUpdating}
+                >
+                  {changeSubscription.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                  {t("subscriptionManager.extendSubscription")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8"
+                  onClick={handleToggleAutoRenew}
+                  disabled={isSubscriptionUpdating}
+                >
+                  {subscription?.autoRenew
+                    ? t("subscriptionManager.disableAutoRenew")
+                    : t("subscriptionManager.enableAutoRenew")}
+                </Button>
                 <button
                   className="text-sm text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
                   onClick={handleCancelSubscription}
-                  disabled={cancelSubscription.isPending}
+                  disabled={isSubscriptionUpdating}
                 >
                   {cancelSubscription.isPending ? (
                     <Loader2 className="h-3 w-3 animate-spin inline mr-1" />

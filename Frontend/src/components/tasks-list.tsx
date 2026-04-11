@@ -35,10 +35,10 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
 	useTasks,
-	useCompleteTask,
 	useRequestApproval,
 	useApproveTask,
 	useRejectTask,
+	useStartTask,
 	useUpdateTask,
 	useDeleteTask,
 	useSubmitTaskEvidence,
@@ -176,7 +176,13 @@ const STATUS_FILTER_COLORS: Record<TaskStatus | "all", { active: string; count: 
 	overdue: { active: "bg-red-600 text-white", count: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
 }
 
-const JOURNEY_STEPS = ["tasksList.journey.assigned", "tasksList.journey.inProgress", "tasksList.journey.review", "tasksList.journey.done"] as const
+const STATUS_PROGRESS_VALUE: Record<TaskStatus, number> = {
+	pending: 0,
+	in_progress: 35,
+	pending_approval: 70,
+	completed: 100,
+	overdue: 35,
+}
 
 const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
 	{ id: "all", label: "tasksList.filters.all", hint: "tasksList.filters.allHint" },
@@ -193,16 +199,19 @@ function mapStatus(task: TaskDto): TaskStatus {
 	if (!task.createdAt) return "pending"
 	const created = new Date(task.createdAt)
 	if (Number.isNaN(created.getTime())) return "pending"
+	const updated = task.updatedAt ? new Date(task.updatedAt) : null
+	if (updated && !Number.isNaN(updated.getTime()) && updated.getTime() > created.getTime()) {
+		return "in_progress"
+	}
 	const days = (Date.now() - created.getTime()) / 86_400_000
 	if (days > 10) return "overdue"
-	if (days > 2) return "in_progress"
 	return "pending"
 }
 
 function formatDate(value?: string | Date): string {
-	if (!value) return "â€”"
+	if (!value) return "-"
 	const date = typeof value === "string" ? new Date(value) : value
-	if (Number.isNaN(date.getTime())) return "â€”"
+	if (Number.isNaN(date.getTime())) return "-"
 	return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short" }).format(date)
 }
 
@@ -242,10 +251,10 @@ export default function TasksList({ userType }: TasksListProps) {
 	const session = useAppSelector(selectAuthSession)
 	const familyId = session?.family?.id
 	const sendFamilyMessage = useSendFamilyMessage(familyId)
-	const completeTask = useCompleteTask()
 	const requestApproval = useRequestApproval()
 	const approveTask = useApproveTask()
 	const rejectTask = useRejectTask()
+	const startTask = useStartTask()
 	const updateTask = useUpdateTask()
 	const deleteTask = useDeleteTask()
 	const submitEvidence = useSubmitTaskEvidence()
@@ -316,7 +325,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				accent,
 				createdLabel: formatDate(task.createdAt),
 				dueLabel: formatDate(dueDate),
-				progressValue: task.completed ? 100 : Math.min(100, 35 + difficulty * 12),
+				progressValue: STATUS_PROGRESS_VALUE[status],
 			}
 		})
 		.sort((a: DecoratedTask, b: DecoratedTask) => {
@@ -332,7 +341,7 @@ export default function TasksList({ userType }: TasksListProps) {
 			acc[task.status] += 1
 			return acc
 		},
-		{ pending: 0, in_progress: 0, completed: 0, overdue: 0 } as Record<TaskStatus, number>,
+		{ pending: 0, in_progress: 0, pending_approval: 0, completed: 0, overdue: 0 } as Record<TaskStatus, number>,
 	)
 
 	const [activeFilter, setActiveFilter] = useState<TaskStatus | "all">("all")
@@ -381,6 +390,13 @@ export default function TasksList({ userType }: TasksListProps) {
 			rejectTask.mutate(task.id)
 		},
 		[rejectTask],
+	)
+
+	const handleStart = useCallback(
+		(task: TaskDto) => {
+			startTask.mutate(task.id)
+		},
+		[startTask],
 	)
 
 	const handleEvidenceSubmit = useCallback(
@@ -619,6 +635,7 @@ export default function TasksList({ userType }: TasksListProps) {
 									onReject={() => handleReject(task)}
 									onViewEvidence={() => handleViewEvidence(task)}
 									onUploadEvidence={() => setPendingEvidenceTask(task)}
+																					onStart={() => handleStart(task)}
 									onEdit={() => openEditModal(task)}
 									onDelete={() => handleDeleteTask(task.id)}
 									onAskParent={userType === "child" && familyId ? (t2, customMessage) => {
@@ -630,8 +647,8 @@ export default function TasksList({ userType }: TasksListProps) {
 											}
 										)
 									} : undefined}
-									confirmLoading={requestApproval.isPending || approveTask.isPending}
-									updateLoading={updateTask.isPending || rejectTask.isPending}
+																					confirmLoading={requestApproval.isPending || approveTask.isPending || startTask.isPending}
+																					updateLoading={updateTask.isPending || rejectTask.isPending || startTask.isPending}
 									downloadLoading={downloadEvidence.isPending}
 									deleteLoading={deleteTask.isPending}
 								/>

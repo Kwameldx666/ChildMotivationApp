@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { MessageCircle, Sparkles } from "lucide-react"
+import { MessageCircle, Sparkles, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/i18n/provider"
 import { useAppSelector } from "@/store/hooks"
@@ -15,7 +15,7 @@ import { useUserSettings } from "@/hooks/use-user-settings"
 export default function ChildChatHub() {
   const { t } = useTranslation()
   const session = useAppSelector(selectAuthSession)
-  const [mode, setMode] = useState<"messages" | "ai">("messages")
+  const [mode, setMode] = useState<"family" | "private" | "ai">("family")
   const { settings } = useUserSettings()
 
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(session) })
@@ -29,18 +29,41 @@ export default function ChildChatHub() {
 
   if (!session) return null
 
+  const familyChatId = primaryParent ? primaryParent.id : session.user.id
   const privateChatId = primaryParent
     ? buildPrivateChatId(primaryParent.id, session.user.id)
     : session.user.id
+
+  const familyParticipants = useMemo(() => {
+    const participants = [...familyMembers]
+    if (!participants.some(member => member.id === session.user.id)) {
+      participants.push({
+        id: session.user.id,
+        name: session.profile.name,
+        avatar: session.profile.avatar,
+        role: "child",
+      })
+    }
+    return participants
+  }, [familyMembers, session.profile.avatar, session.profile.name, session.user.id])
 
   return (
     <div className="space-y-4" data-tour="child-chat">
       <div className="flex items-center gap-2 rounded-xl border p-1 w-fit bg-muted/20">
         <Button
           size="sm"
-          variant={mode === "messages" ? "default" : "ghost"}
+          variant={mode === "family" ? "default" : "ghost"}
           className="gap-1.5"
-          onClick={() => setMode("messages")}
+          onClick={() => setMode("family")}
+        >
+          <Users className="h-4 w-4" />
+          {t("childChatHub.familyChat")}
+        </Button>
+        <Button
+          size="sm"
+          variant={mode === "private" ? "default" : "ghost"}
+          className="gap-1.5"
+          onClick={() => setMode("private")}
         >
           <MessageCircle className="h-4 w-4" />
           {t("childChatHub.privateChat")}
@@ -57,7 +80,25 @@ export default function ChildChatHub() {
         </Button>
       </div>
 
-      {mode === "messages" ? (
+      {mode === "family" ? (
+        <div className="h-[calc(100vh-360px)] min-h-[500px]">
+          <FamilyChat
+            familyId={familyChatId}
+            currentUserId={session.user.id}
+            currentUserName={session.profile.name}
+            currentUserAvatar={session.profile.avatar}
+            userRole="child"
+            fullScreen={false}
+            chatTitle={t("childChatHub.familyChat")}
+            participants={familyParticipants.map(member => ({
+              id: member.id,
+              name: member.name,
+              avatar: member.avatar,
+              role: member.role,
+            }))}
+          />
+        </div>
+      ) : mode === "private" ? (
         primaryParent ? (
           <div className="h-[calc(100vh-360px)] min-h-[500px]">
             <FamilyChat

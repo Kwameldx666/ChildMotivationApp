@@ -580,7 +580,7 @@
       "4": "Greu",
       "5": "Foarte greu"
     },
-    "pendingApproval": "Ожидает одобрения"
+    "pendingApproval": "În așteptarea aprobării"
   },
   "rewards": {
     "title": "Recompense",
@@ -721,9 +721,9 @@
         "tagline": "Ajutor zilnic cu treburile și motivația",
         "price": "49",
         "priceAmount": "49 lei",
-        "yearlyPrice": "499",
-        "yearlyMonthlyPrice": "41 lei",
-        "yearlyDiscount": "-15%",
+        "yearlyPrice": "468",
+        "yearlyMonthlyPrice": "39 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Copii nelimitați",
           "AI generează sarcini pe vârstă",
@@ -738,9 +738,9 @@
         "tagline": "Perspective care ajută în creșterea copiilor",
         "price": "99",
         "priceAmount": "99 lei",
-        "yearlyPrice": "999",
-        "yearlyMonthlyPrice": "83 lei",
-        "yearlyDiscount": "-16%",
+        "yearlyPrice": "948",
+        "yearlyMonthlyPrice": "79 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Tot din Basic",
           "AI adaptează sarcinile la comportamentul copilului",
@@ -756,9 +756,9 @@
         "tagline": "Ambii părinți, bunicii și bona — sincronizați",
         "price": "149",
         "priceAmount": "149 lei",
-        "yearlyPrice": "1499",
-        "yearlyMonthlyPrice": "124 lei",
-        "yearlyDiscount": "-17%",
+        "yearlyPrice": "1428",
+        "yearlyMonthlyPrice": "119 lei",
+        "yearlyDiscount": "-20%",
         "features": [
           "Tot din Premium",
           "Până la 5 conturi de adulți",
@@ -1459,16 +1459,17 @@
     "progress": "Progres",
     "edit": "Editare",
     "delete": "Ștergere",
+    "start": "Începe lucrul",
     "complete": "Finalizare",
     "approve": "Aprobă",
     "completed": "Finalizat",
     "evidenceSubmitted": "Trimis",
     "evidenceRequired": "Necesar",
-    "waitingApproval": "Ожидает одобрения",
-    "askAi": "Спросить ИИ",
-    "askParent": "Спросить родителя",
-    "askParentMessage": "У меня вопрос по этой задаче",
-    "askParentSent": "Сообщение отправлено родителю!"
+    "waitingApproval": "În așteptarea aprobării",
+    "askAi": "Întreabă AI",
+    "askParent": "Întreabă părintele",
+    "askParentMessage": "Am o întrebare despre această sarcină",
+    "askParentSent": "Mesaj trimis părintelui!"
   },
   "familyGoals": {
     "title": "Obiectivele familiei",
@@ -1590,6 +1591,7 @@
     "pickChildren": "Selectați copiii"
   },
   "childChatHub": {
+    "familyChat": "Chat de familie",
     "privateChat": "Chat privat",
     "aiChat": "Chat AI",
     "chatWithParent": "Chat cu {name}",
@@ -1612,7 +1614,18 @@
     "featureSupport": "Suport prioritar",
     "limitChildren": "Limită copii",
     "limitTasks": "Limită sarcini",
-    "perDay": "/zi"
+    "perDay": "/zi",
+    "autoRenewEnabled": "Reînnoire automată activă",
+    "autoRenewDisabled": "Reînnoire automată oprită",
+    "enableAutoRenew": "Activează reînnoirea automată",
+    "disableAutoRenew": "Dezactivează reînnoirea automată",
+    "extendSubscription": "Prelungește cu 1 lună",
+    "subscriptionExtended": "Abonament prelungit",
+    "subscriptionExtendedDesc": "A început o nouă perioadă de facturare",
+    "extendError": "Nu s-a putut prelungi abonamentul",
+    "autoRenewUpdated": "Reînnoire automată actualizată",
+    "autoRenewUpdateError": "Nu s-a putut actualiza reînnoirea automată",
+    "daysLeft": "au rămas {count} zile"
   },
   "taskDetails": {
     "description": "Descriere",
@@ -2189,7 +2202,7 @@
       "inProgress": "În desfășurare",
       "completed": "Finalizat",
       "overdue": "Întârziat",
-      "pendingApproval": "Ожидает одобрения"
+      "pendingApproval": "În așteptarea aprobării"
     },
     "journey": {
       "assigned": "Atribuit",
@@ -3000,12 +3013,12 @@
     }
   },
   "childrenPage": {
-    "title": "Мои дети",
-    "subtitle": "Добавляйте и управляйте профилями детей",
-    "emptyTitle": "Пока нет детей",
-    "emptyDescription": "Добавьте ребёнка, чтобы он мог выполнять задачи, получать награды и общаться в семейном чате",
-    "addFirstChild": "Добавить первого ребёнка",
-    "autoCredentialsNote": "Логин и пароль создадутся автоматически",
-    "yearsOld": "лет"
+    "title": "Copiii mei",
+    "subtitle": "Adăugați și gestionați profilurile copiilor",
+    "emptyTitle": "Nu sunt copii încă",
+    "emptyDescription": "Adăugați un copil pentru a putea finaliza sarcini, câștiga recompense și discuta în chatul familiei",
+    "addFirstChild": "Adaugă primul copil",
+    "autoCredentialsNote": "Loginul și parola sunt generate automat",
+    "yearsOld": "ani"
   }
 }

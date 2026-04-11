@@ -31,6 +31,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/i18n/provider"
+import { useAppSelector } from "@/store/hooks"
+import { selectAuthSession } from "@/features/auth/store/authSlice"
 
 interface RewardsShopProps {
   userType: "parent" | "child"
@@ -65,10 +67,12 @@ function resolveIntlLocale(locale: string) {
 export default function RewardsShop({ userType, locale = "ru", childBalance }: RewardsShopProps) {
   const { toast } = useToast()
   const { t, locale: activeLocale } = useTranslation()
+  const session = useAppSelector(selectAuthSession)
+  const currentUserId = session?.user.id ?? ""
   const isParent = userType === "parent"
 
   const productsQuery = useShopProducts()
-  const ordersQuery = useShopOrders(!isParent)
+  const ordersQuery = useShopOrders(currentUserId, Boolean(currentUserId))
   const createOrder = useCreateOrder()
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
@@ -143,6 +147,14 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
   }, [activeLocale, t])
 
   const handlePurchase = async (product: ProductDto) => {
+    if (!currentUserId) {
+      toast({
+        title: t("common.error"),
+        description: t("rewardsShop.toasts.tryAgain"),
+        variant: "destructive",
+      })
+      return
+    }
     if (product.stock <= 0) {
       toast({
         title: t("rewardsShop.toasts.productUnavailable.title"),
@@ -160,7 +172,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
       return
     }
     try {
-      await createOrder.mutateAsync({ items: [{ productId: product.id, quantity: 1 }] })
+      await createOrder.mutateAsync({ userId: currentUserId, items: [{ productId: product.id, quantity: 1 }] })
       toast({
         title: t("rewardsShop.toasts.orderCreated.title"),
         description: t("rewardsShop.toasts.orderCreated.description", { name: product.name }),
@@ -572,7 +584,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                             try {
                               await markAsDelivered.mutateAsync({
                                 id: order.id,
-                                payload: { deliveredByUserId: "parent-user-id", notes: "Награда выдана" },
+                                payload: { deliveredByUserId: currentUserId, notes: "Награда выдана" },
                               })
                               toast({
                                 title: t("rewardsShop.toasts.success"),
@@ -612,7 +624,7 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
                             try {
                               await confirmReceived.mutateAsync({
                                 id: order.id,
-                                payload: { confirmedByUserId: "child-user-id" },
+                                payload: { confirmedByUserId: currentUserId },
                               })
                               toast({
                                 title: t("rewardsShop.toasts.success"),

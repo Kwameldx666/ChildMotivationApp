@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -43,7 +43,6 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
   const [cardExpiry, setCardExpiry] = useState("")
   const [cardCvv, setCardCvv] = useState("")
   const [cardName, setCardName] = useState("")
-  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const { toast } = useToast()
 
   const meta = tierMeta[(tierId ?? tierName)?.toLowerCase()] ?? tierMeta.premium
@@ -56,7 +55,6 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
     if (open) {
       setStep("summary")
       setBillingCycle("monthly")
-      setAgreedToTerms(true)
     }
   }, [open])
 
@@ -142,7 +140,6 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
     setCardCvv("")
     setCardName("")
     setStep("summary")
-    setAgreedToTerms(false)
   }
 
   const handleClose = () => {
@@ -327,26 +324,13 @@ export default function PaymentModal({ open, onClose, tierName, tierId, price, y
         </span>
       </div>
 
-      {/* Terms checkbox */}
-      <label className="flex items-start gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={agreedToTerms}
-          onChange={(e) => setAgreedToTerms(e.target.checked)}
-          className="mt-0.5 rounded border-border"
-        />
-        <span className="text-xs text-muted-foreground leading-tight">
-          {t("paymentModal.agreeToTerms")}
-        </span>
-      </label>
-
       <div className="flex gap-2">
         <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
           {t("paymentModal.cancel")}
         </Button>
         <Button
           type="submit"
-          disabled={(!isCardValid && !shouldSkipCardValidation) || !agreedToTerms}
+          disabled={!isCardValid && !shouldSkipCardValidation}
           className={cn("flex-1 bg-gradient-to-r text-white hover:opacity-90", meta.gradient)}
         >
           {t("paymentModal.pay", { price: (billingCycle === "yearly" && yearlyPrice ? yearlyPrice : displayPrice).toFixed(0) + " lei" })}
