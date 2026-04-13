@@ -52,6 +52,7 @@ import TaskRow from "./task-row"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/i18n/provider"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
+import { ApiError } from "@/services/api/http-client"
 import { computeTaskDifficulty, computeTaskXp, computeTaskPoints, getStreakMultiplier } from "@/lib/task-metrics"
 import { useChildProgressStats } from "@/hooks/use-child-progress-stats"
 import { selectAuthSession } from "@/features/auth/store/authSlice"
@@ -193,10 +194,10 @@ const FILTERS: { id: TaskStatus | "all"; label: string; hint: string }[] = [
 ]
 
 
-function mapStatus(task: TaskDto): TaskStatus {
+function mapStatus(task: TaskDto, startedLocally = false): TaskStatus {
 	if (task.completed) return "completed"
 	if (task.pendingApproval) return "pending_approval"
-	if (task.startedByChild) return "in_progress"
+	if (task.startedByChild || startedLocally) return "in_progress"
 	if (!task.createdAt) return "pending"
 	const created = new Date(task.createdAt)
 	if (Number.isNaN(created.getTime())) return "pending"
@@ -257,6 +258,7 @@ export default function TasksList({ userType }: TasksListProps) {
 	const submitEvidence = useSubmitTaskEvidence()
 	const downloadEvidence = useDownloadTaskEvidence()
 	const { toast } = useToast()
+	const [fallbackStartedTaskIds, setFallbackStartedTaskIds] = useState<Set<string>>(() => new Set())
 	const [pendingEvidenceTask, setPendingEvidenceTask] = useState<DecoratedTask | null>(null)
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 	const [editableTask, setEditableTask] = useState<EditableTask | null>(null)
@@ -306,7 +308,7 @@ export default function TasksList({ userType }: TasksListProps) {
 
 	const decoratedTasks: DecoratedTask[] = tasks
 		.map((task, index): DecoratedTask => {
-			const status = mapStatus(task)
+			const status = mapStatus(task, fallbackStartedTaskIds.has(task.id))
 			const difficulty = computeTaskDifficulty(task)
 			const xpReward = computeTaskXp(task)
 			const pointsReward = computeTaskPoints(task)
@@ -393,11 +395,31 @@ export default function TasksList({ userType }: TasksListProps) {
 		async (task: TaskDto) => {
 			try {
 				await startTask.mutateAsync(task.id)
+				setFallbackStartedTaskIds((previous) => {
+					if (!previous.has(task.id)) return previous
+					const next = new Set(previous)
+					next.delete(task.id)
+					return next
+				})
 				toast({
 					title: t("tasksList.toast.taskStarted"),
 					description: t("tasksList.toast.taskStartedDesc"),
 				})
 			} catch (startError) {
+				if (userType === "child" && startError instanceof ApiError && startError.status === 404) {
+					setFallbackStartedTaskIds((previous) => {
+						if (previous.has(task.id)) return previous
+						const next = new Set(previous)
+						next.add(task.id)
+						return next
+					})
+					toast({
+						title: t("tasksList.toast.taskStarted"),
+						description: t("tasksList.toast.startFallbackMode"),
+					})
+					return
+				}
+
 				console.error(startError)
 				toast({
 					title: t("tasksList.toast.startFailed"),
@@ -406,7 +428,7 @@ export default function TasksList({ userType }: TasksListProps) {
 				})
 			}
 		},
-		[startTask, toast, t],
+		[startTask, toast, t, userType],
 	)
 
 	const handleEvidenceSubmit = useCallback(

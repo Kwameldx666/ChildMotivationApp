@@ -2255,6 +2255,7 @@
       "tryAgain": "Please try again",
       "taskStarted": "Task started",
       "taskStartedDesc": "Great. You can begin working on it now.",
+      "startFallbackMode": "Server does not support task start yet. Compatibility mode is enabled.",
       "startFailed": "Failed to start task",
       "evidenceSubmitted": "Evidence submitted",
       "evidenceSubmittedDesc": "Your evidence is now awaiting review",

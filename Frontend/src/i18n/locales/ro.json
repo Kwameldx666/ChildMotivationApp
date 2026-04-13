@@ -2255,6 +2255,7 @@
       "tryAgain": "Încercați din nou",
       "taskStarted": "Sarcină începută",
       "taskStartedDesc": "Perfect. Poți începe să lucrezi la ea.",
+      "startFallbackMode": "Serverul nu suportă încă pornirea sarcinii. A fost activat modul de compatibilitate.",
       "startFailed": "Nu s-a putut porni sarcina",
       "evidenceSubmitted": "Dovadă trimisă",
       "evidenceSubmittedDesc": "Dovada dumneavoastră așteaptă revizuirea",

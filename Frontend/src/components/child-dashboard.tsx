@@ -159,7 +159,12 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
 
   const avatarFallback = useMemo(() => {
     const v = userProfile.avatar?.trim()
-    if (v && v !== "?" && !avatarImageUrl) return v
+    if (v && !avatarImageUrl) {
+      const cleaned = v.replace(/[?\uFFFD]/g, "").trim()
+      if (cleaned) {
+        return Array.from(cleaned)[0] ?? cleaned
+      }
+    }
     return userProfile.name?.trim()?.charAt(0)?.toUpperCase() || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
@@ -319,7 +324,6 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     {avatarFallback}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -top-3 -right-3 text-3xl md:text-4xl animate-star-twinkle opacity-90 drop-shadow-lg">✨</div>
                 
                 {/* Level Circle */}
                 <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
