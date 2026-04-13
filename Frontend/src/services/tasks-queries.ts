@@ -118,7 +118,11 @@ export function useCreateTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (payload: CreateTaskPayload) => tasksService.create(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -126,7 +130,11 @@ export function useUpdateTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskPayload }) => tasksService.update(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -134,7 +142,11 @@ export function useDeleteTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -142,7 +154,11 @@ export function useCompleteTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.complete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -150,7 +166,11 @@ export function useRequestApproval() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.requestApproval(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -158,7 +178,11 @@ export function useApproveTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.approve(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -166,7 +190,11 @@ export function useRejectTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.reject(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -174,7 +202,11 @@ export function useStartTask() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => tasksService.start(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 
@@ -182,7 +214,11 @@ export function useSubmitTaskEvidence() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => tasksService.submitEvidence(id, file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tasks'] })
+      qc.invalidateQueries({ queryKey: ['missions'] })
+      qc.invalidateQueries({ queryKey: ['achievements'] })
+    },
   })
 }
 

@@ -1395,13 +1395,41 @@
       "approvalRejected": "Sarcina necesită actualizări: \"{taskTitle}\"",
       "completed": "Sarcina a fost finalizată: \"{taskTitle}\""
     },
+    "taskEvidenceSubmitted": {
+      "title": "Dovadă trimisă",
+      "message": "A fost trimisă dovada pentru sarcina: \"{taskTitle}\""
+    },
+    "taskDeleted": {
+      "title": "Sarcină ștearsă",
+      "message": "Sarcina a fost ștearsă: \"{taskTitle}\""
+    },
     "rewardPurchased": {
       "title": "Recompensă cumpărată",
       "message": "Achiziția recompensei a fost confirmată"
     },
+    "rewardAvailable": {
+      "title": "Recompensă disponibilă",
+      "message": "O recompensă nouă este disponibilă"
+    },
+    "rewardDelivered": {
+      "title": "Recompensă livrată",
+      "message": "Recompensa ta a fost livrată"
+    },
     "achievementUnlocked": {
       "title": "Realizare deblocată",
       "message": "Ai deblocat o realizare nouă"
+    },
+    "comment": {
+      "title": "Comentariu nou",
+      "message": "{author} a lăsat un comentariu la sarcina: \"{taskTitle}\""
+    },
+    "childCompletedTask": {
+      "title": "Copilul a finalizat sarcina",
+      "message": "{childName} a finalizat sarcina: \"{taskTitle}\""
+    },
+    "orderCreated": {
+      "title": "Comandă nouă de recompensă",
+      "message": "A fost creată o comandă nouă în magazinul de recompense"
     },
     "streakBonus": {
       "title": "Bonus de serie",

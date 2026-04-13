@@ -8,10 +8,10 @@ const normalizeUserIds = (userIds: string[]) => {
   return Array.from(
     new Set(
       userIds
-        .map(userId => userId.trim())
+        .map(userId => userId.trim().toLowerCase())
         .filter(Boolean),
     ),
-  ).slice(0, 100)
+  ).slice(0, 100).sort()
 }
 
 export const presenceService = {

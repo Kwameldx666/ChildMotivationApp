@@ -7,10 +7,17 @@ public class ConnectionManager : IConnectionManager
     private readonly ConcurrentDictionary<string, HashSet<string>> _userConnections = new();
     private readonly ConcurrentDictionary<string, string> _connectionToUser = new();
 
+    private static string NormalizeUserId(string userId)
+    {
+        return userId.Trim().ToLowerInvariant();
+    }
+
     public Task AddConnectionAsync(string userId, string connectionId)
     {
+        var normalizedUserId = NormalizeUserId(userId);
+
         _userConnections.AddOrUpdate(
-            userId,
+            normalizedUserId,
             _ => new HashSet<string> { connectionId },
             (_, connections) =>
             {
@@ -21,7 +28,7 @@ public class ConnectionManager : IConnectionManager
                 return connections;
             });
 
-        _connectionToUser[connectionId] = userId;
+        _connectionToUser[connectionId] = normalizedUserId;
         
         return Task.CompletedTask;
     }
@@ -49,7 +56,9 @@ public class ConnectionManager : IConnectionManager
 
     public Task<IEnumerable<string>> GetConnectionsAsync(string userId)
     {
-        if (_userConnections.TryGetValue(userId, out var connections))
+        var normalizedUserId = NormalizeUserId(userId);
+
+        if (_userConnections.TryGetValue(normalizedUserId, out var connections))
         {
             lock (connections)
             {

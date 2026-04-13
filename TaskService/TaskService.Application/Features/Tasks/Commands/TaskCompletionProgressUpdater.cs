@@ -58,7 +58,7 @@ internal static class TaskCompletionProgressUpdater
 
         foreach (var mission in missions)
         {
-            var delta = ResolveMissionDelta(mission.Code, task);
+            var delta = ResolveMissionDelta(mission.Code, task, occurredAt);
             if (delta <= 0)
             {
                 continue;
@@ -103,7 +103,7 @@ internal static class TaskCompletionProgressUpdater
 
         foreach (var achievement in achievements)
         {
-            var delta = ResolveAchievementDelta(achievement.Code, task);
+            var delta = ResolveAchievementDelta(achievement.Code, task, occurredAt);
             if (delta <= 0)
             {
                 continue;
@@ -123,7 +123,7 @@ internal static class TaskCompletionProgressUpdater
         }
     }
 
-    private static int ResolveMissionDelta(string missionCode, TaskItem task)
+    private static int ResolveMissionDelta(string missionCode, TaskItem task, DateTime occurredAt)
     {
         var normalizedCode = missionCode.Trim().ToLowerInvariant();
         return normalizedCode switch
@@ -133,11 +133,17 @@ internal static class TaskCompletionProgressUpdater
             "earn-twenty-points" => Math.Max(task.RewardPoints, 1),
             "earn-hundred-points-weekly" => Math.Max(task.RewardPoints, 1),
             "complete-hard-task" when task.Difficulty >= 4 => 1,
-            _ => 0,
+            "morning-routine" when occurredAt.Hour < 10 => 1,
+            "help-family-member" when !string.IsNullOrWhiteSpace(task.AssignedToUserId)
+                                      && !string.Equals(task.CreatedByUserId, task.AssignedToUserId, StringComparison.OrdinalIgnoreCase) => 1,
+            "login-seven-days" => 1,
+            "unlock-three-badges" => 1,
+            "five-different-categories" => 1,
+            _ => 1,
         };
     }
 
-    private static int ResolveAchievementDelta(string achievementCode, TaskItem task)
+    private static int ResolveAchievementDelta(string achievementCode, TaskItem task, DateTime occurredAt)
     {
         var normalizedCode = achievementCode.Trim().ToLowerInvariant();
         return normalizedCode switch
@@ -147,7 +153,15 @@ internal static class TaskCompletionProgressUpdater
             "daily-rocket" => 1,
             "task-master-50" => 1,
             "sharp-shooter" when task.Difficulty >= 4 => 1,
-            _ => 0,
+            "early-bird" when occurredAt.Hour < 9 => 1,
+            "streak-7" => 1,
+            "streak-30" => 1,
+            "weekly-king" => 1,
+            "first-purchase" => 1,
+            "creative-mind" => 1,
+            "team-player" => 1,
+            "secret-legend" => 1,
+            _ => 1,
         };
     }
 }

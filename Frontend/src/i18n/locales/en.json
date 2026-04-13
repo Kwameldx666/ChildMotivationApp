@@ -1395,13 +1395,41 @@
       "approvalRejected": "Task needs updates: \"{taskTitle}\"",
       "completed": "Task completed: \"{taskTitle}\""
     },
+    "taskEvidenceSubmitted": {
+      "title": "Evidence submitted",
+      "message": "Evidence was submitted for task: \"{taskTitle}\""
+    },
+    "taskDeleted": {
+      "title": "Task deleted",
+      "message": "Task was deleted: \"{taskTitle}\""
+    },
     "rewardPurchased": {
       "title": "Reward purchased",
       "message": "A reward purchase was confirmed"
     },
+    "rewardAvailable": {
+      "title": "Reward available",
+      "message": "A new reward is now available"
+    },
+    "rewardDelivered": {
+      "title": "Reward delivered",
+      "message": "Your reward has been delivered"
+    },
     "achievementUnlocked": {
       "title": "Achievement unlocked",
       "message": "You unlocked a new achievement"
+    },
+    "comment": {
+      "title": "New comment",
+      "message": "{author} left a comment on task: \"{taskTitle}\""
+    },
+    "childCompletedTask": {
+      "title": "Task completed by child",
+      "message": "{childName} completed task: \"{taskTitle}\""
+    },
+    "orderCreated": {
+      "title": "New reward order",
+      "message": "A new order was created in the rewards shop"
     },
     "streakBonus": {
       "title": "Streak bonus",

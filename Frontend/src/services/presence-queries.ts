@@ -14,7 +14,7 @@ export function useOnlinePresence(userIds: string[], options: UseOnlinePresenceO
     return Array.from(
       new Set(
         userIds
-          .map(userId => userId.trim())
+          .map(userId => userId.trim().toLowerCase())
           .filter(Boolean),
       ),
     )

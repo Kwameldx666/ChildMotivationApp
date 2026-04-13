@@ -51,11 +51,12 @@ public class NotificationHub : Hub
     {
         var httpContext = Context.GetHttpContext();
         var userId = httpContext?.Request.Query["userId"].ToString();
+        var normalizedUserId = userId?.Trim();
         
-        if (!string.IsNullOrEmpty(userId))
+        if (!string.IsNullOrWhiteSpace(normalizedUserId))
         {
-            await _connectionManager.AddConnectionAsync(userId, Context.ConnectionId);
-            _logger.LogInformation("User {UserId} connected with connection {ConnectionId}", userId, Context.ConnectionId);
+            await _connectionManager.AddConnectionAsync(normalizedUserId, Context.ConnectionId);
+            _logger.LogInformation("User {UserId} connected with connection {ConnectionId}", normalizedUserId, Context.ConnectionId);
         }
         else
         {

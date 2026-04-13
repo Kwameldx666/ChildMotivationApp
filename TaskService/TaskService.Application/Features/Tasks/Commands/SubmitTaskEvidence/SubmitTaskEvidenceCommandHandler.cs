@@ -87,6 +87,7 @@ public class SubmitTaskEvidenceCommandHandler : IRequestHandler<SubmitTaskEviden
                 new Dictionary<string, object>
                 {
                     ["taskId"] = task.Id.ToString(),
+                    ["taskTitle"] = task.Title,
                     ["uploadedBy"] = request.UploadedByUserId,
                     ["fileName"] = request.FileName
                 },

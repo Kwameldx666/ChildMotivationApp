@@ -151,6 +151,7 @@ public class NotificationClient : INotificationClient
                     data = new Dictionary<string, object>
                     {
                         ["taskId"] = taskId,
+                        ["taskTitle"] = taskTitle,
                         ["author"] = commentAuthor
                     }
                 };

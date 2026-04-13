@@ -1395,13 +1395,41 @@
       "approvalRejected": "Задача требует доработки: \"{taskTitle}\"",
       "completed": "Задача выполнена: \"{taskTitle}\""
     },
+    "taskEvidenceSubmitted": {
+      "title": "Доказательство отправлено",
+      "message": "Для задачи отправлено подтверждение: \"{taskTitle}\""
+    },
+    "taskDeleted": {
+      "title": "Задача удалена",
+      "message": "Задача удалена: \"{taskTitle}\""
+    },
     "rewardPurchased": {
       "title": "Награда куплена",
       "message": "Покупка награды подтверждена"
     },
+    "rewardAvailable": {
+      "title": "Награда доступна",
+      "message": "Стала доступна новая награда"
+    },
+    "rewardDelivered": {
+      "title": "Награда доставлена",
+      "message": "Ваша награда была доставлена"
+    },
     "achievementUnlocked": {
       "title": "Достижение получено",
       "message": "Вы открыли новое достижение"
+    },
+    "comment": {
+      "title": "Новый комментарий",
+      "message": "{author} оставил(а) комментарий к задаче: \"{taskTitle}\""
+    },
+    "childCompletedTask": {
+      "title": "Ребёнок выполнил задачу",
+      "message": "{childName} выполнил(а) задачу: \"{taskTitle}\""
+    },
+    "orderCreated": {
+      "title": "Новый заказ награды",
+      "message": "В магазине наград создан новый заказ"
     },
     "streakBonus": {
       "title": "Бонус за серию",

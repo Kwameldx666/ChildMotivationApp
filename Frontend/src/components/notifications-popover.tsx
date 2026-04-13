@@ -34,30 +34,45 @@ import { canReceiveLiveNotifications } from "@/services/user-settings-service"
 import {
   filterNotificationsBySettings,
   getLocalizedNotificationContent,
-  type NotificationType,
   type NotificationDto,
 } from "@/services/notifications-service"
 import { useTranslation } from "@/i18n/provider"
 
-const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
+const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
   task_created: Target,
   task_completed: Check,
+  task_updated: Target,
   task_assigned: Target,
+  task_deleted: X,
+  task_evidence_submitted: Target,
   reward_purchased: Gift,
+  reward_available: Gift,
+  reward_delivered: Gift,
   achievement_unlocked: Trophy,
   streak_bonus: Zap,
   level_up: Star,
+  comment: Info,
+  child_completed_task: Check,
+  order_created: Gift,
   general: Info,
 }
 
-const NOTIFICATION_COLORS: Record<NotificationType, string> = {
+const NOTIFICATION_COLORS: Record<string, string> = {
   task_created: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
   task_completed: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  task_updated: "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400",
   task_assigned: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+  task_deleted: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+  task_evidence_submitted: "bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400",
   reward_purchased: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  reward_available: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  reward_delivered: "bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400",
   achievement_unlocked: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
   streak_bonus: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
   level_up: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+  comment: "bg-slate-100 text-slate-700 dark:bg-slate-800/40 dark:text-slate-300",
+  child_completed_task: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  order_created: "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
   general: "bg-gray-100 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
 }
 

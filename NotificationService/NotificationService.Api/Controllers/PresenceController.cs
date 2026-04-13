@@ -13,6 +13,7 @@ public class PresenceController(IConnectionManager connectionManager) : Controll
         var normalizedUserIds = (userIds ?? Array.Empty<string>())
             .Select(userId => userId?.Trim())
             .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Select(userId => userId!.ToLowerInvariant())
             .Distinct(StringComparer.Ordinal)
             .Take(100)
             .ToArray();

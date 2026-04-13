@@ -44,7 +44,11 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand>
                 "Task Deleted",
                 $"Task \"{task.Title}\" was deleted.",
                 "task_deleted",
-                new Dictionary<string, object> { ["taskId"] = task.Id.ToString() },
+                new Dictionary<string, object>
+                {
+                    ["taskId"] = task.Id.ToString(),
+                    ["taskTitle"] = task.Title,
+                },
                 cancellationToken);
         }
 

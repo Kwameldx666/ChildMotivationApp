@@ -6,10 +6,17 @@ export type NotificationType =
   | 'task_completed' 
   | 'task_updated'
   | 'task_assigned' 
+  | 'task_deleted'
+  | 'task_evidence_submitted'
   | 'reward_purchased' 
+  | 'reward_available'
+  | 'reward_delivered'
   | 'achievement_unlocked'
   | 'streak_bonus'
   | 'level_up'
+  | 'comment'
+  | 'child_completed_task'
+  | 'order_created'
   | 'general'
 
 export interface NotificationDto {
@@ -40,8 +47,12 @@ type NotificationVisibilitySettings = Pick<
 >
 
 export function isNotificationAllowedBySettings(type: string, settings: NotificationVisibilitySettings): boolean {
-  if (type.startsWith('task_')) return settings.taskNotificationsEnabled
-  if (type.startsWith('reward_')) return settings.rewardNotificationsEnabled
+  if (type.startsWith('task_') || type === 'comment' || type === 'child_completed_task') {
+    return settings.taskNotificationsEnabled
+  }
+
+  if (type.startsWith('reward_') || type === 'order_created') return settings.rewardNotificationsEnabled
+
   if (type === 'achievement_unlocked' || type === 'streak_bonus' || type === 'level_up') {
     return settings.achievementNotificationsEnabled
   }
@@ -66,6 +77,56 @@ function pickDataString(notification: NotificationDto, key: string): string | un
   return pickString(notification.data?.[key])
 }
 
+const GENERIC_TITLES = new Set([
+  'task updated',
+  'new task',
+  'task completed',
+  'new task assigned',
+  'evidence submitted',
+  'task deleted',
+  'новая задача',
+  'задача обновлена',
+  'задача выполнена',
+  'задача назначена',
+  'доказательство отправлено',
+  'задача удалена',
+  'sarcină nouă',
+  'sarcină actualizată',
+  'sarcină finalizată',
+  'sarcină atribuită',
+  'dovadă trimisă',
+  'sarcină ștearsă',
+])
+
+function normalizeText(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[!?.]+$/g, '')
+    .replace(/\s+/g, ' ')
+}
+
+function isGenericTitle(value: string | undefined): boolean {
+  if (!value) return false
+  return GENERIC_TITLES.has(normalizeText(value))
+}
+
+function extractTaskTitleFromMessage(message: string | undefined): string | undefined {
+  if (!message) return undefined
+
+  const quotedMatch = message.match(/["«]([^"»]+)["»]/)
+  if (quotedMatch?.[1]) {
+    return pickString(quotedMatch[1])
+  }
+
+  const colonMatch = message.match(/:\s*(.+)$/)
+  if (!colonMatch?.[1]) {
+    return undefined
+  }
+
+  return pickString(colonMatch[1].replace(/^["«]|["»]$/g, ''))
+}
+
 function translateWithFallback(
   t: TranslateFn,
   key: string,
@@ -82,7 +143,8 @@ export function getLocalizedNotificationContent(
 ): LocalizedNotificationContent {
   const taskTitle = pickDataString(notification, 'taskTitle')
     ?? pickDataString(notification, 'title')
-    ?? pickString(notification.title)
+    ?? extractTaskTitleFromMessage(notification.message)
+    ?? (isGenericTitle(notification.title) ? undefined : pickString(notification.title))
     ?? 'Task'
 
   const fallback = {
@@ -112,7 +174,9 @@ export function getLocalizedNotificationContent(
   }
 
   if (notification.type === 'task_updated') {
-    const status = (pickDataString(notification, 'status') ?? '').toLowerCase()
+    const status = (pickDataString(notification, 'status') ?? '')
+      .replace(/[\s_-]/g, '')
+      .toLowerCase()
     let statusMessageKey = 'notificationContent.taskUpdated.message'
     if (status === 'inprogress') statusMessageKey = 'notificationContent.taskUpdated.inProgress'
     if (status === 'pendingapproval') statusMessageKey = 'notificationContent.taskUpdated.pendingApproval'
@@ -125,10 +189,38 @@ export function getLocalizedNotificationContent(
     }
   }
 
+  if (notification.type === 'task_evidence_submitted') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskEvidenceSubmitted.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.taskEvidenceSubmitted.message', fallback.message, { taskTitle }),
+    }
+  }
+
+  if (notification.type === 'task_deleted') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskDeleted.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.taskDeleted.message', fallback.message, { taskTitle }),
+    }
+  }
+
   if (notification.type === 'reward_purchased') {
     return {
       title: translateWithFallback(t, 'notificationContent.rewardPurchased.title', fallback.title),
       message: translateWithFallback(t, 'notificationContent.rewardPurchased.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'reward_available') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.rewardAvailable.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.rewardAvailable.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'reward_delivered') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.rewardDelivered.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.rewardDelivered.message', fallback.message),
     }
   }
 
@@ -150,6 +242,29 @@ export function getLocalizedNotificationContent(
     return {
       title: translateWithFallback(t, 'notificationContent.levelUp.title', fallback.title),
       message: translateWithFallback(t, 'notificationContent.levelUp.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'comment') {
+    const author = pickDataString(notification, 'author') ?? 'User'
+    return {
+      title: translateWithFallback(t, 'notificationContent.comment.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.comment.message', fallback.message, { author, taskTitle }),
+    }
+  }
+
+  if (notification.type === 'child_completed_task') {
+    const childName = pickDataString(notification, 'childName') ?? ''
+    return {
+      title: translateWithFallback(t, 'notificationContent.childCompletedTask.title', fallback.title, { childName }),
+      message: translateWithFallback(t, 'notificationContent.childCompletedTask.message', fallback.message, { childName, taskTitle }),
+    }
+  }
+
+  if (notification.type === 'order_created') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.orderCreated.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.orderCreated.message', fallback.message),
     }
   }
 

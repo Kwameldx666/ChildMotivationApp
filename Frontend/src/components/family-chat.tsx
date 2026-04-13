@@ -192,38 +192,26 @@ export default function FamilyChat({
 
   const chatParticipants = useMemo(() => {
     const participantMap = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean; role?: string }>()
-    const lastActivityByUser = new Map<string, number>()
     const presenceStatuses = presenceData?.statuses ?? {}
-    const now = Date.now()
-    const onlineWindowMs = 5 * 60 * 1000
 
-    messages.forEach((msg) => {
-      const createdAt = new Date(msg.createdAt).getTime()
-      if (Number.isNaN(createdAt)) return
-      const previous = lastActivityByUser.get(msg.senderId)
-      if (!previous || createdAt > previous) {
-        lastActivityByUser.set(msg.senderId, createdAt)
-      }
+    const normalizedPresenceStatuses = new Map<string, boolean>()
+    Object.entries(presenceStatuses).forEach(([userId, isOnline]) => {
+      const normalizedId = userId.trim().toLowerCase()
+      if (!normalizedId) return
+      normalizedPresenceStatuses.set(normalizedId, Boolean(isOnline))
     })
 
     const isUserOnline = (userId: string) => {
-      if (userId === currentUserId) return true
-
-      const presenceOnline = presenceStatuses[userId]
-      if (typeof presenceOnline === "boolean") {
-        return presenceOnline
-      }
-
-      const lastActivity = lastActivityByUser.get(userId)
-      if (!lastActivity) return false
-      return now - lastActivity <= onlineWindowMs
+      const normalizedId = userId?.trim().toLowerCase()
+      if (!normalizedId) return false
+      return normalizedPresenceStatuses.get(normalizedId) === true
     }
 
     participantMap.set(currentUserId, {
       id: currentUserId,
       name: currentUserName,
       avatar: currentUserAvatar,
-      isOnline: true,
+      isOnline: isUserOnline(currentUserId),
       role: userRole,
     })
 
