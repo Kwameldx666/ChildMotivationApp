@@ -371,7 +371,7 @@ export default function AiChatWidget() {
     context,
     maxHistory: 10,
     t,
-    storageKey: session ? `familyquest:ai-chat:widget:${session.user.id}` : undefined,
+    storageKey: session ? `familyquest:ai-chat:widget:v2:${session.profile.role}:${session.user.id}` : undefined,
   })
 
   /* ── quick starters ── */

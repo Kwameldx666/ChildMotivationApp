@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { aiService, type AiAction, type AiChatRequestPayload, type AiChatResponsePayload } from '@/services/ai-service'
 
@@ -115,6 +115,14 @@ interface PersistedChatState {
   lastReplyAt: string | null
 }
 
+interface HydratedChatState {
+  messages: ChatMessage[]
+  conversationId: string | null
+  followUps: string[]
+  pendingActions: AiAction[]
+  lastReplyAt: Date | null
+}
+
 const loadPersistedState = (storageKey?: string): PersistedChatState | null => {
   if (!storageKey || typeof window === 'undefined') return null
   try {
@@ -137,6 +145,34 @@ const savePersistedState = (storageKey: string, state: PersistedChatState) => {
   }
 }
 
+const createGreetingMessages = (greeting?: string) => {
+  if (!greeting) return []
+  return [{ id: 'greeting', role: 'assistant' as const, content: greeting, timestamp: new Date() }]
+}
+
+const hydrateChatState = (persisted: PersistedChatState | null, greeting?: string): HydratedChatState => {
+  if (persisted?.messages?.length) {
+    return {
+      messages: persisted.messages.map((message) => ({
+        ...message,
+        timestamp: new Date(message.timestamp),
+      })),
+      conversationId: persisted.conversationId ?? null,
+      followUps: persisted.followUps ?? [],
+      pendingActions: persisted.pendingActions ?? [],
+      lastReplyAt: persisted.lastReplyAt ? new Date(persisted.lastReplyAt) : null,
+    }
+  }
+
+  return {
+    messages: createGreetingMessages(greeting),
+    conversationId: null,
+    followUps: [],
+    pendingActions: [],
+    lastReplyAt: greeting ? new Date() : null,
+  }
+}
+
 const buildHistoryPayload = (messages: ChatMessage[], maxHistory: number): AiChatRequestPayload['history'] => {
   return messages
     .filter(message => message.role !== 'system')
@@ -155,28 +191,36 @@ export function useAiChat(options?: UseAiChatOptions): UseAiChatResult {
   const preparedContext = useMemo(() => sanitizeContext(options?.context), [options?.context])
   const t = options?.t ?? ((key: string) => key)
 
-  const persisted = useMemo(() => loadPersistedState(storageKey), [storageKey])
-  const initialMessages: ChatMessage[] = useMemo(() => {
-    if (persisted?.messages?.length) {
-      return persisted.messages.map((message) => ({
-        ...message,
-        timestamp: new Date(message.timestamp),
-      }))
+  const initialState = useMemo(
+    () => hydrateChatState(loadPersistedState(storageKey), greeting),
+    [storageKey, greeting],
+  )
+
+  const [messages, setMessages] = useState<ChatMessage[]>(initialState.messages)
+  const [conversationId, setConversationId] = useState<string | null>(initialState.conversationId)
+  const [followUps, setFollowUps] = useState<string[]>(initialState.followUps)
+  const [pendingActions, setPendingActions] = useState<AiAction[]>(initialState.pendingActions)
+  const [lastReplyAt, setLastReplyAt] = useState<Date | null>(initialState.lastReplyAt)
+  const [isThinking, setIsThinking] = useState(false)
+  const hydratedStorageKeyRef = useRef<string | undefined>(storageKey)
+
+  useEffect(() => {
+    if (hydratedStorageKeyRef.current === storageKey) {
+      return
     }
 
-    if (!greeting) return []
-    return [{ id: 'greeting', role: 'assistant', content: greeting, timestamp: new Date() }]
-  }, [greeting, persisted?.messages])
-
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
-  const [conversationId, setConversationId] = useState<string | null>(persisted?.conversationId ?? null)
-  const [followUps, setFollowUps] = useState<string[]>(persisted?.followUps ?? [])
-  const [pendingActions, setPendingActions] = useState<AiAction[]>(persisted?.pendingActions ?? [])
-  const [lastReplyAt, setLastReplyAt] = useState<Date | null>(persisted?.lastReplyAt ? new Date(persisted.lastReplyAt) : greeting ? new Date() : null)
-  const [isThinking, setIsThinking] = useState(false)
+    hydratedStorageKeyRef.current = storageKey
+    const nextState = hydrateChatState(loadPersistedState(storageKey), greeting)
+    setMessages(nextState.messages)
+    setConversationId(nextState.conversationId)
+    setFollowUps(nextState.followUps)
+    setPendingActions(nextState.pendingActions)
+    setLastReplyAt(nextState.lastReplyAt)
+    setIsThinking(false)
+  }, [storageKey, greeting])
 
   const reset = useCallback(() => {
-    const resetMessages = greeting ? [{ id: 'greeting', role: 'assistant' as const, content: greeting, timestamp: new Date() }] : []
+    const resetMessages = createGreetingMessages(greeting)
     setMessages(resetMessages)
     setConversationId(null)
     setFollowUps([])

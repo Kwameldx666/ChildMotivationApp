@@ -155,7 +155,7 @@ export default function ChildAiChat() {
     context,
     maxHistory: 20,
     t,
-    storageKey: session ? `familyquest:ai-chat:child:${session.user.id}` : undefined,
+    storageKey: session ? `familyquest:ai-chat:child:v2:${session.profile.role}:${session.user.id}` : undefined,
   })
 
   const starters = useMemo(
