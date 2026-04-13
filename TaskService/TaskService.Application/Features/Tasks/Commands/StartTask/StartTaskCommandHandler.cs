@@ -17,7 +17,9 @@ public class StartTaskCommandHandler(
         if (task is null)
             throw new NotFoundException(nameof(task), request.Id);
 
-        task.MarkInProgress(dateTimeProvider.UtcNow);
+        var occurredAt = dateTimeProvider.UtcNow;
+        task.AssignToUserIfUnassigned(NormalizeUserId(request.ActingUserId), occurredAt);
+        task.MarkInProgress(occurredAt);
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -33,5 +35,15 @@ public class StartTaskCommandHandler(
         }
 
         return Unit.Value;
+    }
+
+    private static string? NormalizeUserId(string? userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return userId.Trim().ToLowerInvariant();
     }
 }

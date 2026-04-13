@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TaskService.Api.Contracts.Tasks;
 using TaskService.Application.Dto.Tasks;
 using TaskService.Application.Features.Tasks.Commands.CompleteTask;
@@ -84,7 +85,7 @@ public class TasksController(IMediator mediator) : ControllerBase
     [HttpPost("{id:guid}/request-approval")]
     public async Task<IActionResult> RequestApproval(Guid id, CancellationToken cancellationToken)
     {
-        await mediator.Send(new RequestApprovalCommand(id), cancellationToken);
+        await mediator.Send(new RequestApprovalCommand(id, ResolveCurrentChildUserId()), cancellationToken);
         return NoContent();
     }
 
@@ -105,7 +106,7 @@ public class TasksController(IMediator mediator) : ControllerBase
     [HttpPost("{id:guid}/start")]
     public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
     {
-        await mediator.Send(new StartTaskCommand(id), cancellationToken);
+        await mediator.Send(new StartTaskCommand(id, ResolveCurrentChildUserId()), cancellationToken);
         return NoContent();
     }
 
@@ -135,6 +136,31 @@ public class TasksController(IMediator mediator) : ControllerBase
     {
         var evidence = await mediator.Send(new GetTaskEvidenceQuery(id), cancellationToken);
         return File(evidence.Content, evidence.ContentType, evidence.FileName, enableRangeProcessing: true);
+    }
+
+    private string? ResolveCurrentChildUserId()
+    {
+        var role = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
+        if (!string.Equals(role, "child", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return ResolveCurrentUserId();
+    }
+
+    private string? ResolveCurrentUserId()
+    {
+        var userId = User.FindFirst("sub")?.Value
+            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("id")?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return userId.Trim().ToLowerInvariant();
     }
 
     private static TaskEvidenceRequirement ResolveEvidenceRequirement(string? value)

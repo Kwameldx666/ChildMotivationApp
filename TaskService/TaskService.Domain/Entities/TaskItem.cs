@@ -131,6 +131,23 @@ public class TaskItem
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public bool AssignToUserIfUnassigned(string? userId, DateTime when)
+    {
+        if (!string.IsNullOrWhiteSpace(AssignedToUserId))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return false;
+        }
+
+        AssignedToUserId = userId.Trim().ToLowerInvariant();
+        UpdatedAt = when;
+        return true;
+    }
+
     public void SetCompletion(bool completed, DateTime when)
     {
         Completed = completed;

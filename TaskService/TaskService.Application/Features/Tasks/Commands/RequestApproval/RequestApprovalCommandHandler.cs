@@ -23,7 +23,9 @@ public class RequestApprovalCommandHandler(
                 new("Evidence", "This task requires attaching confirmation before requesting approval.")
             ]);
 
-        task.RequestApproval(dateTimeProvider.UtcNow);
+        var occurredAt = dateTimeProvider.UtcNow;
+        task.AssignToUserIfUnassigned(NormalizeUserId(request.ActingUserId), occurredAt);
+        task.RequestApproval(occurredAt);
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -40,5 +42,15 @@ public class RequestApprovalCommandHandler(
         }
 
         return Unit.Value;
+    }
+
+    private static string? NormalizeUserId(string? userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return userId.Trim().ToLowerInvariant();
     }
 }

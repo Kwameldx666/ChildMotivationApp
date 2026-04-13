@@ -58,6 +58,37 @@ public sealed class TaskItemLifecycleTests
     }
 
     [Fact]
+    public void AssignToUserIfUnassigned_ShouldAssignNormalizedUserId()
+    {
+        var when = DateTime.UtcNow;
+        var task = TaskItem.Create("Task", null, "parent", DateTime.UtcNow, TaskEvidenceRequirement.None);
+
+        var changed = task.AssignToUserIfUnassigned("  CHILD-1  ", when);
+
+        Assert.True(changed);
+        Assert.Equal("child-1", task.AssignedToUserId);
+        Assert.Equal(when, task.UpdatedAt);
+    }
+
+    [Fact]
+    public void AssignToUserIfUnassigned_ShouldNotOverrideExistingAssignment()
+    {
+        var when = DateTime.UtcNow;
+        var task = TaskItem.Create(
+            "Task",
+            null,
+            "parent",
+            DateTime.UtcNow,
+            TaskEvidenceRequirement.None,
+            assignedToUserId: "child-existing");
+
+        var changed = task.AssignToUserIfUnassigned("child-new", when);
+
+        Assert.False(changed);
+        Assert.Equal("child-existing", task.AssignedToUserId);
+    }
+
+    [Fact]
     public void AttachEvidence_ShouldThrow_WhenEvidenceNotRequired()
     {
         var task = TaskItem.Create("Task", null, "parent", DateTime.UtcNow, TaskEvidenceRequirement.None);
