@@ -85,38 +85,36 @@ export default function ChildChatHub() {
             }))}
           />
         </div>
-      ) : mode === "private" ? (
-        primaryParent ? (
-          <div className="h-[calc(100vh-320px)] min-h-[500px]">
-            <FamilyChat
-              familyId={privateChatId}
-              currentUserId={session.user.id}
-              currentUserName={session.profile.name}
-              currentUserAvatar={session.profile.avatar}
-              userRole="child"
-              fullScreen={false}
-              chatTitle={t("childChatHub.chatWithParent", { name: primaryParent.name })}
-              participants={[
-                {
-                  id: primaryParent.id,
-                  name: primaryParent.name,
-                  avatar: primaryParent.avatar,
-                  role: primaryParent.role,
-                },
-                {
-                  id: session.user.id,
-                  name: session.profile.name,
-                  avatar: session.profile.avatar,
-                  role: "child",
-                },
-              ]}
-            />
-          </div>
-        ) : (
-          <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-            {t("childChatHub.noParent")}
-          </div>
-        )
+      ) : primaryParent ? (
+        <div className="h-[calc(100vh-320px)] min-h-[500px]">
+          <FamilyChat
+            familyId={privateChatId}
+            currentUserId={session.user.id}
+            currentUserName={session.profile.name}
+            currentUserAvatar={session.profile.avatar}
+            userRole="child"
+            fullScreen={false}
+            chatTitle={t("childChatHub.chatWithParent", { name: primaryParent.name })}
+            participants={[
+              {
+                id: primaryParent.id,
+                name: primaryParent.name,
+                avatar: primaryParent.avatar,
+                role: primaryParent.role,
+              },
+              {
+                id: session.user.id,
+                name: session.profile.name,
+                avatar: session.profile.avatar,
+                role: "child",
+              },
+            ]}
+          />
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+          {t("childChatHub.noParent")}
+        </div>
       )}
     </div>
   )
