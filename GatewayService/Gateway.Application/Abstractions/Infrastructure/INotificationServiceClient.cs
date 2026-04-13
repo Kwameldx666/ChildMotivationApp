@@ -35,6 +35,12 @@ public interface INotificationServiceClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Get online statuses for a list of users
+    /// </summary>
+    Task<HttpResponseMessage> GetOnlineStatusesAsync(List<string> userIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Send a task notification (fire-and-forget from gateway)
     /// </summary>
     Task<HttpResponseMessage> SendTaskNotificationAsync(string endpoint, object request,

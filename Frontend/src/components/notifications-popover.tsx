@@ -31,7 +31,12 @@ import {
 } from "@/services/notifications-queries"
 import { useUserSettings } from "@/hooks/use-user-settings"
 import { canReceiveLiveNotifications } from "@/services/user-settings-service"
-import { filterNotificationsBySettings, type NotificationType, type NotificationDto } from "@/services/notifications-service"
+import {
+  filterNotificationsBySettings,
+  getLocalizedNotificationContent,
+  type NotificationType,
+  type NotificationDto,
+} from "@/services/notifications-service"
 import { useTranslation } from "@/i18n/provider"
 
 const NOTIFICATION_ICONS: Record<NotificationType, typeof Bell> = {
@@ -86,6 +91,7 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const { t, locale } = useTranslation()
   const Icon = NOTIFICATION_ICONS[notification.type] ?? Info
   const colorClass = NOTIFICATION_COLORS[notification.type] ?? NOTIFICATION_COLORS.general
+  const localized = useMemo(() => getLocalizedNotificationContent(notification, t), [notification, t])
 
   const timeAgo = useMemo(() => {
     return formatTimeAgo(notification.createdAt, t, locale)
@@ -105,14 +111,14 @@ function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className={cn("text-sm font-medium truncate", !notification.isRead && "font-semibold")}>
-            {notification.title}
+            {localized.title}
           </p>
           {!notification.isRead && (
             <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
           )}
         </div>
         <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-          {notification.message}
+          {localized.message}
         </p>
         <p className="text-[10px] text-muted-foreground mt-1">{timeAgo}</p>
       </div>
@@ -172,9 +178,10 @@ export function NotificationsPopover() {
       const newNotifs = displayNotifications.filter(n => !n.isRead)
       if (newNotifs.length > 0) {
         const latestNotif = newNotifs[0]
+        const localized = getLocalizedNotificationContent(latestNotif, t)
         try {
-          new Notification(latestNotif.title, {
-            body: latestNotif.message,
+          new Notification(localized.title, {
+            body: localized.message,
             icon: "/icon.png"
           })
         } catch (e) {
@@ -193,13 +200,6 @@ export function NotificationsPopover() {
     if (!settings.notificationsEnabled) return
     markAllRead.mutate()
   }, [settings.notificationsEnabled, markAllRead])
-
-  // Mark all as read when opening popover
-  useEffect(() => {
-    if (open && displayUnreadCount > 0) {
-      handleMarkAllRead()
-    }
-  }, [open, displayUnreadCount, handleMarkAllRead])
 
   // To prevent the UI from "jumping" instantly when opening the popover
   // we can freeze the visually unread notifications while the popover is open.

@@ -27,14 +27,14 @@ public class RequestApprovalCommandHandler(
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Notify the parent that child requests approval
-        if (!string.IsNullOrEmpty(task.CreatedByUserId))
+        // Keep task update notifications scoped to the child assignee.
+        if (!string.IsNullOrWhiteSpace(task.AssignedToUserId))
         {
             await notificationClient.SendTaskUpdatedNotificationAsync(
                 task.Id.ToString(),
                 task.Title,
                 task.Description ?? "",
-                [task.CreatedByUserId],
+                [task.AssignedToUserId!],
                 "PendingApproval",
                 cancellationToken);
         }

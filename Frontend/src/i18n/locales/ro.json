@@ -1374,6 +1374,44 @@
       "levelUpMessage": "Felicitări! Ați atins nivelul 5"
     }
   },
+  "notificationContent": {
+    "taskCreated": {
+      "title": "Sarcină nouă",
+      "message": "A fost creată o sarcină nouă: \"{taskTitle}\""
+    },
+    "taskAssigned": {
+      "title": "Sarcină atribuită",
+      "message": "Ai primit o sarcină nouă: \"{taskTitle}\""
+    },
+    "taskCompleted": {
+      "title": "Sarcină finalizată",
+      "message": "Sarcina a fost finalizată: \"{taskTitle}\""
+    },
+    "taskUpdated": {
+      "title": "Sarcină actualizată",
+      "message": "Sarcina a fost actualizată: \"{taskTitle}\"",
+      "inProgress": "Sarcina este în desfășurare: \"{taskTitle}\"",
+      "pendingApproval": "Sarcina a fost trimisă spre aprobare: \"{taskTitle}\"",
+      "approvalRejected": "Sarcina necesită actualizări: \"{taskTitle}\"",
+      "completed": "Sarcina a fost finalizată: \"{taskTitle}\""
+    },
+    "rewardPurchased": {
+      "title": "Recompensă cumpărată",
+      "message": "Achiziția recompensei a fost confirmată"
+    },
+    "achievementUnlocked": {
+      "title": "Realizare deblocată",
+      "message": "Ai deblocat o realizare nouă"
+    },
+    "streakBonus": {
+      "title": "Bonus de serie",
+      "message": "Ai primit un bonus pentru serie"
+    },
+    "levelUp": {
+      "title": "Nivel nou",
+      "message": "Ai atins un nivel nou"
+    }
+  },
   "taskReview": {
     "title": "Verificare sarcină: {taskTitle}",
     "childLabel": "Copil: {childName}",

@@ -22,25 +22,45 @@ public class NotificationService : INotificationService
 
     public async Task SendTaskCreatedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_created", "New Task", $"Task created: {notification.Title}");
+        await SaveNotificationAsync(
+            userId,
+            "task_created",
+            "New Task",
+            $"Task created: {notification.Title}",
+            BuildTaskData(notification));
         await SendToUserAsync(userId, "TaskCreated", notification);
     }
 
     public async Task SendTaskUpdatedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_updated", "Task Updated", $"Task updated: {notification.Title}");
+        await SaveNotificationAsync(
+            userId,
+            "task_updated",
+            "Task Updated",
+            $"Task updated: {notification.Title}",
+            BuildTaskData(notification));
         await SendToUserAsync(userId, "TaskUpdated", notification);
     }
 
     public async Task SendTaskCompletedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_completed", "Task Completed!", $"Task completed: {notification.Title}");
+        await SaveNotificationAsync(
+            userId,
+            "task_completed",
+            "Task Completed!",
+            $"Task completed: {notification.Title}",
+            BuildTaskData(notification));
         await SendToUserAsync(userId, "TaskCompleted", notification);
     }
 
     public async Task SendTaskAssignedNotificationAsync(TaskNotification notification, string userId)
     {
-        await SaveNotificationAsync(userId, "task_assigned", "New Task Assigned", $"Task assigned to you: {notification.Title}");
+        await SaveNotificationAsync(
+            userId,
+            "task_assigned",
+            "New Task Assigned",
+            $"Task assigned to you: {notification.Title}",
+            BuildTaskData(notification));
         await SendToUserAsync(userId, "TaskAssigned", notification);
     }
 
@@ -61,6 +81,27 @@ public class NotificationService : INotificationService
             Data = data
         };
         await _storageService.CreateAsync(storedNotification);
+    }
+
+    private static Dictionary<string, object> BuildTaskData(TaskNotification notification)
+    {
+        var data = new Dictionary<string, object>
+        {
+            ["taskId"] = notification.TaskId,
+            ["taskTitle"] = notification.Title,
+            ["description"] = notification.Description,
+            ["status"] = notification.Status,
+            ["assignedTo"] = notification.AssignedTo,
+            ["assignedBy"] = notification.AssignedBy,
+            ["priority"] = notification.Priority,
+        };
+
+        if (notification.DueDate.HasValue)
+        {
+            data["dueDate"] = notification.DueDate.Value;
+        }
+
+        return data;
     }
 
     private async Task SendToUserAsync<T>(string userId, string method, T data)

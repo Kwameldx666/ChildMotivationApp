@@ -58,6 +58,27 @@ public class NotificationServiceClient(
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> GetOnlineStatusesAsync(List<string> userIds,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedUserIds = (userIds ?? [])
+            .Select(userId => userId?.Trim())
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalizedUserIds.Count == 0)
+        {
+            throw new ArgumentException("At least one userId is required.", nameof(userIds));
+        }
+
+        var query = string.Join("&", normalizedUserIds.Select(userId => $"userIds={Uri.EscapeDataString(userId!)}"));
+        var requestUri = $"{_endpoints.PresenceBase}/online?{query}";
+
+        return _client.SendHttpRequestAsync<object>(HttpMethod.Get, requestUri, null, SerializerOptions,
+            cancellationToken);
+    }
+
     public Task<HttpResponseMessage> SendTaskNotificationAsync(string endpoint, object request,
         CancellationToken cancellationToken = default)
     {

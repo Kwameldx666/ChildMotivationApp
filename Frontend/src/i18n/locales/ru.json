@@ -1374,6 +1374,44 @@
       "levelUpMessage": "Поздравляем! Достигнут 5 уровень"
     }
   },
+  "notificationContent": {
+    "taskCreated": {
+      "title": "Новая задача",
+      "message": "Создана новая задача: \"{taskTitle}\""
+    },
+    "taskAssigned": {
+      "title": "Задача назначена",
+      "message": "Вам назначили новую задачу: \"{taskTitle}\""
+    },
+    "taskCompleted": {
+      "title": "Задача выполнена",
+      "message": "Задача выполнена: \"{taskTitle}\""
+    },
+    "taskUpdated": {
+      "title": "Задача обновлена",
+      "message": "Задача обновлена: \"{taskTitle}\"",
+      "inProgress": "Задача в процессе: \"{taskTitle}\"",
+      "pendingApproval": "Задача отправлена на проверку: \"{taskTitle}\"",
+      "approvalRejected": "Задача требует доработки: \"{taskTitle}\"",
+      "completed": "Задача выполнена: \"{taskTitle}\""
+    },
+    "rewardPurchased": {
+      "title": "Награда куплена",
+      "message": "Покупка награды подтверждена"
+    },
+    "achievementUnlocked": {
+      "title": "Достижение получено",
+      "message": "Вы открыли новое достижение"
+    },
+    "streakBonus": {
+      "title": "Бонус за серию",
+      "message": "Вы получили бонус за серию"
+    },
+    "levelUp": {
+      "title": "Новый уровень",
+      "message": "Вы достигли нового уровня"
+    }
+  },
   "taskReview": {
     "title": "Проверка задачи: {taskTitle}",
     "childLabel": "Ребёнок: {childName}",

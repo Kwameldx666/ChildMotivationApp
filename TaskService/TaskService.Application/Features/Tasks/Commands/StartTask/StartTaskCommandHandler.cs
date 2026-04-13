@@ -21,13 +21,13 @@ public class StartTaskCommandHandler(
         await repository.UpdateAsync(task, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(task.CreatedByUserId))
+        if (!string.IsNullOrWhiteSpace(task.AssignedToUserId))
         {
             await notificationClient.SendTaskUpdatedNotificationAsync(
                 task.Id.ToString(),
                 task.Title,
                 task.Description ?? string.Empty,
-                [task.CreatedByUserId],
+                [task.AssignedToUserId!],
                 "InProgress",
                 cancellationToken);
         }

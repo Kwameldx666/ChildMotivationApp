@@ -27,6 +27,13 @@ export interface MarkReadPayload {
   notificationIds: string[]
 }
 
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string
+
+export interface LocalizedNotificationContent {
+  title: string
+  message: string
+}
+
 type NotificationVisibilitySettings = Pick<
   UserSettings,
   'taskNotificationsEnabled' | 'rewardNotificationsEnabled' | 'achievementNotificationsEnabled' | 'systemNotificationsEnabled'
@@ -47,6 +54,106 @@ export function filterNotificationsBySettings(
   settings: NotificationVisibilitySettings,
 ): NotificationDto[] {
   return notifications.filter((notification) => isNotificationAllowedBySettings(notification.type, settings))
+}
+
+function pickString(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+function pickDataString(notification: NotificationDto, key: string): string | undefined {
+  return pickString(notification.data?.[key])
+}
+
+function translateWithFallback(
+  t: TranslateFn,
+  key: string,
+  fallback: string,
+  params?: Record<string, string | number>,
+): string {
+  const translated = t(key, params)
+  return translated === key ? fallback : translated
+}
+
+export function getLocalizedNotificationContent(
+  notification: NotificationDto,
+  t: TranslateFn,
+): LocalizedNotificationContent {
+  const taskTitle = pickDataString(notification, 'taskTitle')
+    ?? pickDataString(notification, 'title')
+    ?? pickString(notification.title)
+    ?? 'Task'
+
+  const fallback = {
+    title: notification.title,
+    message: notification.message,
+  }
+
+  if (notification.type === 'task_created') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskCreated.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.taskCreated.message', fallback.message, { taskTitle }),
+    }
+  }
+
+  if (notification.type === 'task_assigned') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskAssigned.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.taskAssigned.message', fallback.message, { taskTitle }),
+    }
+  }
+
+  if (notification.type === 'task_completed') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskCompleted.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.taskCompleted.message', fallback.message, { taskTitle }),
+    }
+  }
+
+  if (notification.type === 'task_updated') {
+    const status = (pickDataString(notification, 'status') ?? '').toLowerCase()
+    let statusMessageKey = 'notificationContent.taskUpdated.message'
+    if (status === 'inprogress') statusMessageKey = 'notificationContent.taskUpdated.inProgress'
+    if (status === 'pendingapproval') statusMessageKey = 'notificationContent.taskUpdated.pendingApproval'
+    if (status === 'approvalrejected') statusMessageKey = 'notificationContent.taskUpdated.approvalRejected'
+    if (status === 'completed') statusMessageKey = 'notificationContent.taskUpdated.completed'
+
+    return {
+      title: translateWithFallback(t, 'notificationContent.taskUpdated.title', fallback.title),
+      message: translateWithFallback(t, statusMessageKey, fallback.message, { taskTitle }),
+    }
+  }
+
+  if (notification.type === 'reward_purchased') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.rewardPurchased.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.rewardPurchased.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'achievement_unlocked') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.achievementUnlocked.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.achievementUnlocked.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'streak_bonus') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.streakBonus.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.streakBonus.message', fallback.message),
+    }
+  }
+
+  if (notification.type === 'level_up') {
+    return {
+      title: translateWithFallback(t, 'notificationContent.levelUp.title', fallback.title),
+      message: translateWithFallback(t, 'notificationContent.levelUp.message', fallback.message),
+    }
+  }
+
+  return fallback
 }
 
 export const notificationsService = {

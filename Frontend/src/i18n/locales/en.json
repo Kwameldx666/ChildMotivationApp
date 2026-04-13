@@ -1374,6 +1374,44 @@
       "levelUpMessage": "Congratulations! Reached level 5"
     }
   },
+  "notificationContent": {
+    "taskCreated": {
+      "title": "New task",
+      "message": "A new task was created: \"{taskTitle}\""
+    },
+    "taskAssigned": {
+      "title": "Task assigned",
+      "message": "You received a new task: \"{taskTitle}\""
+    },
+    "taskCompleted": {
+      "title": "Task completed",
+      "message": "Task completed: \"{taskTitle}\""
+    },
+    "taskUpdated": {
+      "title": "Task updated",
+      "message": "Task updated: \"{taskTitle}\"",
+      "inProgress": "Task is in progress: \"{taskTitle}\"",
+      "pendingApproval": "Task sent for approval: \"{taskTitle}\"",
+      "approvalRejected": "Task needs updates: \"{taskTitle}\"",
+      "completed": "Task completed: \"{taskTitle}\""
+    },
+    "rewardPurchased": {
+      "title": "Reward purchased",
+      "message": "A reward purchase was confirmed"
+    },
+    "achievementUnlocked": {
+      "title": "Achievement unlocked",
+      "message": "You unlocked a new achievement"
+    },
+    "streakBonus": {
+      "title": "Streak bonus",
+      "message": "You received a streak bonus"
+    },
+    "levelUp": {
+      "title": "Level up",
+      "message": "You reached a new level"
+    }
+  },
   "taskReview": {
     "title": "Review task: {taskTitle}",
     "childLabel": "Child: {childName}",

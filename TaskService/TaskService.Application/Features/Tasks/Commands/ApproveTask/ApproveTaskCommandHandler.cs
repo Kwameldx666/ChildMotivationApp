@@ -1,6 +1,7 @@
 using MediatR;
 using TaskService.Application.Abstractions;
 using TaskService.Application.Common.Exceptions;
+using TaskService.Application.Features.Tasks.Commands;
 using TaskService.Domain.Repositories;
 
 namespace TaskService.Application.Features.Tasks.Commands.ApproveTask;
@@ -9,7 +10,11 @@ public class ApproveTaskCommandHandler(
     ITaskRepository repository,
     IUnitOfWork unitOfWork,
     IDateTimeProvider dateTimeProvider,
-    INotificationClient notificationClient) : IRequestHandler<ApproveTaskCommand>
+    INotificationClient notificationClient,
+    IMissionRepository missionRepository,
+    IMissionProgressRepository missionProgressRepository,
+    IAchievementRepository achievementRepository,
+    IAchievementProgressRepository achievementProgressRepository) : IRequestHandler<ApproveTaskCommand>
 {
     public async Task<Unit> Handle(ApproveTaskCommand request, CancellationToken cancellationToken)
     {
@@ -17,8 +22,29 @@ public class ApproveTaskCommandHandler(
         if (task is null)
             throw new NotFoundException(nameof(task), request.Id);
 
-        task.SetCompletion(true, dateTimeProvider.UtcNow);
+        var wasCompleted = task.Completed;
+        var completedAt = dateTimeProvider.UtcNow;
+
+        task.SetCompletion(true, completedAt);
         await repository.UpdateAsync(task, cancellationToken);
+
+        if (!wasCompleted)
+        {
+            var progressUserId = string.IsNullOrWhiteSpace(task.AssignedToUserId)
+                ? task.CreatedByUserId
+                : task.AssignedToUserId!;
+
+            await TaskCompletionProgressUpdater.ApplyAsync(
+                task,
+                progressUserId,
+                completedAt,
+                missionRepository,
+                missionProgressRepository,
+                achievementRepository,
+                achievementProgressRepository,
+                cancellationToken);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Notify child that parent approved

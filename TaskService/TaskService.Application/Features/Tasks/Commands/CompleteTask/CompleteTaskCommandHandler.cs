@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using MediatR;
 using TaskService.Application.Abstractions;
 using TaskService.Application.Common.Exceptions;
+using TaskService.Application.Features.Tasks.Commands;
 using TaskService.Domain.Repositories;
 
 namespace TaskService.Application.Features.Tasks.Commands.CompleteTask;
@@ -13,17 +14,29 @@ public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand>
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly INotificationClient _notificationClient;
+    private readonly IMissionRepository _missionRepository;
+    private readonly IMissionProgressRepository _missionProgressRepository;
+    private readonly IAchievementRepository _achievementRepository;
+    private readonly IAchievementProgressRepository _achievementProgressRepository;
 
     public CompleteTaskCommandHandler(
         ITaskRepository repository,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider,
-        INotificationClient notificationClient)
+        INotificationClient notificationClient,
+        IMissionRepository missionRepository,
+        IMissionProgressRepository missionProgressRepository,
+        IAchievementRepository achievementRepository,
+        IAchievementProgressRepository achievementProgressRepository)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
         _notificationClient = notificationClient;
+        _missionRepository = missionRepository;
+        _missionProgressRepository = missionProgressRepository;
+        _achievementRepository = achievementRepository;
+        _achievementProgressRepository = achievementProgressRepository;
     }
 
     public async Task<Unit> Handle(CompleteTaskCommand request, CancellationToken cancellationToken)
@@ -42,12 +55,33 @@ public class CompleteTaskCommandHandler : IRequestHandler<CompleteTaskCommand>
             });
         }
 
-        task.SetCompletion(true, _dateTimeProvider.UtcNow);
+        var wasCompleted = task.Completed;
+        var completedAt = _dateTimeProvider.UtcNow;
+
+        task.SetCompletion(true, completedAt);
         await _repository.UpdateAsync(task, cancellationToken);
+
+        if (!wasCompleted)
+        {
+            var progressUserId = string.IsNullOrWhiteSpace(task.AssignedToUserId)
+                ? task.CreatedByUserId
+                : task.AssignedToUserId!;
+
+            await TaskCompletionProgressUpdater.ApplyAsync(
+                task,
+                progressUserId,
+                completedAt,
+                _missionRepository,
+                _missionProgressRepository,
+                _achievementRepository,
+                _achievementProgressRepository,
+                cancellationToken);
+        }
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Notify parent about completion; child already sees immediate UI feedback
-        var userIds = new[] { task.CreatedByUserId }
+        // Completion/update alerts should be delivered to the child assignee.
+        var userIds = new[] { task.AssignedToUserId }
             .Where(userId => !string.IsNullOrWhiteSpace(userId))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();

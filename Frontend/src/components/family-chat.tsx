@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { useFamilyMessages, useSendFamilyMessage } from "@/services/family-chat-queries"
+import { useOnlinePresence } from "@/services/presence-queries"
 import { useTasks } from "@/services/tasks-queries"
 import type { FamilyMessageDto } from "@/services/family-chat-service"
 import { useToast } from "@/hooks/use-toast"
@@ -165,9 +166,34 @@ export default function FamilyChat({
     return groups
   }, [messages])
 
+  const participantIdsForPresence = useMemo(() => {
+    const ids = new Set<string>()
+    ids.add(currentUserId)
+
+    participants.forEach((participant) => {
+      if (participant.id?.trim()) {
+        ids.add(participant.id)
+      }
+    })
+
+    messages.forEach((msg) => {
+      if (msg.senderId?.trim()) {
+        ids.add(msg.senderId)
+      }
+    })
+
+    return Array.from(ids)
+  }, [currentUserId, participants, messages])
+
+  const { data: presenceData } = useOnlinePresence(participantIdsForPresence, {
+    enabled: participantIdsForPresence.length > 0,
+    refetchIntervalMs: 15_000,
+  })
+
   const chatParticipants = useMemo(() => {
     const participantMap = new Map<string, { id: string; name: string; avatar?: string; isOnline: boolean; role?: string }>()
     const lastActivityByUser = new Map<string, number>()
+    const presenceStatuses = presenceData?.statuses ?? {}
     const now = Date.now()
     const onlineWindowMs = 5 * 60 * 1000
 
@@ -182,6 +208,12 @@ export default function FamilyChat({
 
     const isUserOnline = (userId: string) => {
       if (userId === currentUserId) return true
+
+      const presenceOnline = presenceStatuses[userId]
+      if (typeof presenceOnline === "boolean") {
+        return presenceOnline
+      }
+
       const lastActivity = lastActivityByUser.get(userId)
       if (!lastActivity) return false
       return now - lastActivity <= onlineWindowMs
@@ -224,7 +256,7 @@ export default function FamilyChat({
     })
 
     return Array.from(participantMap.values())
-  }, [messages, currentUserId, currentUserName, currentUserAvatar, participants, userRole])
+  }, [messages, currentUserId, currentUserName, currentUserAvatar, participants, userRole, presenceData])
 
   // Показываем полноэкранную загрузку только при первой загрузке
   if (isLoading && !messages.length) {

@@ -97,4 +97,26 @@ public class NotificationsController(INotificationServiceClient notificationClie
         using var response = await notificationClient.DeleteAsync(userId, id, cancellationToken);
         return await response.ToActionResultAsync();
     }
+
+    /// <summary>
+    ///     Get online statuses for users
+    /// </summary>
+    [HttpGet("online")]
+    public async Task<IActionResult> GetOnlineStatuses([FromQuery] string[] userIds, CancellationToken cancellationToken)
+    {
+        if (userIds is null || userIds.Length == 0)
+            return BadRequest("At least one userId is required.");
+
+        var normalizedUserIds = userIds
+            .Select(userId => userId?.Trim())
+            .Where(userId => !string.IsNullOrWhiteSpace(userId))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (normalizedUserIds.Count == 0)
+            return BadRequest("At least one userId is required.");
+
+        using var response = await notificationClient.GetOnlineStatusesAsync(normalizedUserIds!, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
 }

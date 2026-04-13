@@ -17,7 +17,12 @@ import {
   useMarkAllNotificationsRead,
   useDeleteNotification,
 } from "@/services/notifications-queries"
-import { filterNotificationsBySettings, type NotificationType, type NotificationDto } from "@/services/notifications-service"
+import {
+  filterNotificationsBySettings,
+  getLocalizedNotificationContent,
+  type NotificationType,
+  type NotificationDto,
+} from "@/services/notifications-service"
 import { useUserSettings } from "@/hooks/use-user-settings"
 
 const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
@@ -221,6 +226,7 @@ export default function NotificationsPage() {
                 const Icon = NOTIFICATION_ICONS[notif.type] ?? Bell
                 const colorClass = NOTIFICATION_COLORS[notif.type] ?? NOTIFICATION_COLORS.general
                 const timeAgo = formatTimeAgo(notif.createdAt, t, locale)
+                const localized = getLocalizedNotificationContent(notif, t)
 
                 return (
                   <Card
@@ -240,9 +246,9 @@ export default function NotificationsPage() {
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <p className={cn("font-semibold", !notif.isRead ? "text-foreground" : "text-muted-foreground")}>
-                                {notif.title}
+                                {localized.title}
                               </p>
-                              <p className="text-sm text-muted-foreground mt-0.5">{notif.message}</p>
+                              <p className="text-sm text-muted-foreground mt-0.5">{localized.message}</p>
                             </div>
                             {!notif.isRead && (
                               <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />

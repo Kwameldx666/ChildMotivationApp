@@ -1,11 +1,12 @@
 "use client"
 
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { CssVarsProvider } from '@mui/joy/styles'
+import * as signalR from '@microsoft/signalr'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import { I18nProvider } from '@/i18n/provider'
@@ -18,6 +19,47 @@ import { selectAuthSession } from '@/features/auth/store/authSlice'
 
 interface AppProvidersProps {
   children: ReactNode
+}
+
+function PresenceConnectionBridge() {
+  const session = useAppSelector(selectAuthSession)
+  const userId = session?.user.id?.trim()
+
+  useEffect(() => {
+    if (!userId) return
+
+    const signalRUrl = process.env.NEXT_PUBLIC_SIGNALR_URL || 'http://161.35.169.189:8090'
+    const hubUrl = `${signalRUrl}/hubs/notifications?userId=${encodeURIComponent(userId)}`
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(hubUrl)
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Warning)
+      .build()
+
+    let disposed = false
+
+    const connect = async () => {
+      try {
+        await connection.start()
+      } catch {
+        if (!disposed) {
+          setTimeout(() => {
+            void connect()
+          }, 5000)
+        }
+      }
+    }
+
+    void connect()
+
+    return () => {
+      disposed = true
+      void connection.stop()
+    }
+  }, [userId])
+
+  return null
 }
 
 function AiWidgetMount() {
@@ -71,6 +113,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             >
               <CssVarsProvider theme={theme} defaultMode="light">
                 {children}
+                <PresenceConnectionBridge />
                 <AiWidgetMount />
                 <Toaster position="top-right" richColors closeButton duration={4000} />
                 {process.env.NODE_ENV !== 'production' ? (
