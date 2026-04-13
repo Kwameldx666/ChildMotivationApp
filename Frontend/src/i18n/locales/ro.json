@@ -107,6 +107,16 @@
       "summary": "Rezumatul săptămânii",
       "summaryPrompt": "Rezumă progresul copilului din această săptămână cu realizările cheie."
     },
+    "childStarters": {
+      "tasks": "Plan pentru azi",
+      "tasksPrompt": "Ajută-mă să aleg 3 sarcini realiste pentru azi, ca să le termin sigur.",
+      "rewards": "Cum obțin recompense",
+      "rewardsPrompt": "Explică-mi cum pot strânge puncte mai repede și ce recompensă să aleg prima.",
+      "talk": "Mesaj către părinte",
+      "talkPrompt": "Ajută-mă să scriu un mesaj politicos către părinte că îmi este greu și am nevoie de ajutor.",
+      "summary": "Progresul meu",
+      "summaryPrompt": "Fă-mi un rezumat scurt al progresului pe săptămâna aceasta și un pas pentru mâine."
+    },
     "inputPlaceholder": "Scrie un mesaj…",
     "contextLabel": "Contextul sarcinii",
     "contextQuestionPrompt": "Descrie exact la ce ai nevoie de ajutor pentru această sarcină:",

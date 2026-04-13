@@ -159,13 +159,16 @@ export default function ChildAiChat() {
   })
 
   const starters = useMemo(
-    () => [
-      { emoji: "🎯", label: t("aiWidget.starters.tasks"), prompt: t("aiWidget.starters.tasksPrompt") },
-      { emoji: "🏆", label: t("aiWidget.starters.rewards"), prompt: t("aiWidget.starters.rewardsPrompt") },
-      { emoji: "💬", label: t("aiWidget.starters.talk"), prompt: t("aiWidget.starters.talkPrompt") },
-      { emoji: "📊", label: t("aiWidget.starters.summary"), prompt: t("aiWidget.starters.summaryPrompt") },
-    ],
-    [t],
+    () => {
+      const keyRoot = role === "child" ? "aiWidget.childStarters" : "aiWidget.starters"
+      return [
+        { emoji: "🎯", label: t(`${keyRoot}.tasks`), prompt: t(`${keyRoot}.tasksPrompt`) },
+        { emoji: "🏆", label: t(`${keyRoot}.rewards`), prompt: t(`${keyRoot}.rewardsPrompt`) },
+        { emoji: "💬", label: t(`${keyRoot}.talk`), prompt: t(`${keyRoot}.talkPrompt`) },
+        { emoji: "📊", label: t(`${keyRoot}.summary`), prompt: t(`${keyRoot}.summaryPrompt`) },
+      ]
+    },
+    [role, t],
   )
 
   const scrollToBottom = useCallback(() => {

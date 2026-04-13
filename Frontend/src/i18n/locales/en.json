@@ -750,6 +750,16 @@
       "summary": "Week summary",
       "summaryPrompt": "Summarize the child's progress this week with key achievements."
     },
+    "childStarters": {
+      "tasks": "Plan for today",
+      "tasksPrompt": "Help me choose 3 realistic tasks for today so I can complete them.",
+      "rewards": "How to earn rewards",
+      "rewardsPrompt": "Explain how I can earn points faster and which reward to pick first.",
+      "talk": "Message to my parent",
+      "talkPrompt": "Help me write a polite message to my parent that I am struggling and need help.",
+      "summary": "My progress",
+      "summaryPrompt": "Give me a short progress check for this week and one step for tomorrow."
+    },
     "inputPlaceholder": "Type your message…",
     "contextLabel": "Task context",
     "contextQuestionPrompt": "Describe what exactly you need help with for this task:",
