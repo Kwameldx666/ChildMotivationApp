@@ -66,11 +66,13 @@ internal static class TaskCompletionProgressUpdater
             }
 
             var anchorDate = MissionCycle.GetAnchorDate(occurredAt, mission.Recurrence);
+            var isNewProgress = false;
             if (!progressByMissionId.TryGetValue(mission.Id, out var progress))
             {
                 progress = MissionProgress.Create(mission.Id, userId, anchorDate, occurredAt);
                 await missionProgressRepository.AddAsync(progress, cancellationToken);
                 progressByMissionId[mission.Id] = progress;
+                isNewProgress = true;
             }
             else if (progress.ResetIfExpired(anchorDate))
             {
@@ -79,7 +81,11 @@ internal static class TaskCompletionProgressUpdater
 
             if (progress.ApplyDelta(delta, mission.TargetValue, occurredAt))
             {
-                await missionProgressRepository.UpdateAsync(progress, cancellationToken);
+                // Newly created progress is already tracked as Added; calling Update would flip it to Modified.
+                if (!isNewProgress)
+                {
+                    await missionProgressRepository.UpdateAsync(progress, cancellationToken);
+                }
             }
         }
     }
@@ -110,16 +116,22 @@ internal static class TaskCompletionProgressUpdater
                 continue;
             }
 
+            var isNewProgress = false;
             if (!progressByAchievementId.TryGetValue(achievement.Id, out var progress))
             {
                 progress = AchievementProgress.Create(achievement.Id, userId, occurredAt);
                 await achievementProgressRepository.AddAsync(progress, cancellationToken);
                 progressByAchievementId[achievement.Id] = progress;
+                isNewProgress = true;
             }
 
             if (progress.ApplyDelta(delta, achievement.TargetValue, occurredAt))
             {
-                await achievementProgressRepository.UpdateAsync(progress, cancellationToken);
+                // Newly created progress is already tracked as Added; calling Update would flip it to Modified.
+                if (!isNewProgress)
+                {
+                    await achievementProgressRepository.UpdateAsync(progress, cancellationToken);
+                }
             }
         }
     }
