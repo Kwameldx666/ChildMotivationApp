@@ -2462,7 +2462,7 @@
       "gallery": "Gallery",
       "quests": "Quests",
       "shop": "Shop",
-      "chat": "AI Chat",
+      "chat": "Chat",
       "achievements": "Awards",
       "me": "Me"
     },
@@ -3003,7 +3003,7 @@
       },
       "nav": {
         "title": "Навигация",
-        "desc": "Переключайся между разделами: задания, галерея, квесты, магазин, ИИ-чат, достижения."
+        "desc": "Switch between sections: tasks, gallery, quests, shop and family chat."
       },
       "tasks": {
         "title": "Твои задания",
@@ -3014,8 +3014,8 @@
         "desc": "Трать заработанные баллы на крутые награды. Чем больше заданий, тем больше можно купить!"
       },
       "chat": {
-        "title": "ИИ-чат",
-        "desc": "Нужна помощь с заданием? Спроси ИИ-ассистента — он подскажет и объяснит."
+        "title": "Family chat",
+        "desc": "Chat with your family here. The AI assistant opens from the separate floating button in the bottom-right corner."
       },
       "achievements": {
         "title": "Достижения",

@@ -2462,7 +2462,7 @@
       "gallery": "Galerie",
       "quests": "Misiuni",
       "shop": "Magazin",
-      "chat": "Chat AI",
+      "chat": "Chat",
       "achievements": "Premii",
       "me": "Eu"
     },
@@ -3014,7 +3014,7 @@
       },
       "nav": {
         "title": "Навигация",
-        "desc": "Переключайся между разделами: задания, галерея, квесты, магазин, ИИ-чат, достижения."
+        "desc": "Comută între secțiuni: sarcini, galerie, misiuni, magazin și chat-ul familiei."
       },
       "tasks": {
         "title": "Твои задания",
@@ -3025,8 +3025,8 @@
         "desc": "Трать заработанные баллы на крутые награды. Чем больше заданий, тем больше можно купить!"
       },
       "chat": {
-        "title": "ИИ-чат",
-        "desc": "Нужна помощь с заданием? Спроси ИИ-ассистента — он подскажет и объяснит."
+        "title": "Chat de familie",
+        "desc": "Aici poți vorbi cu familia. Asistentul AI se deschide din butonul flotant separat din colțul dreapta-jos."
       },
       "achievements": {
         "title": "Достижения",

@@ -1,22 +1,19 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { MessageCircle, Sparkles, Users } from "lucide-react"
+import { MessageCircle, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/i18n/provider"
 import { useAppSelector } from "@/store/hooks"
 import { selectAuthSession } from "@/features/auth/store/authSlice"
 import { useFamilyMembers } from "@/services/family-queries"
 import FamilyChat from "@/components/family-chat"
-import ChildAiChat from "@/components/child-ai-chat"
 import { buildPrivateChatId } from "@/lib/private-chat-id"
-import { useUserSettings } from "@/hooks/use-user-settings"
 
 export default function ChildChatHub() {
   const { t } = useTranslation()
   const session = useAppSelector(selectAuthSession)
-  const [mode, setMode] = useState<"family" | "private" | "ai">("family")
-  const { settings } = useUserSettings()
+  const [mode, setMode] = useState<"family" | "private">("family")
 
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(session) })
 
@@ -49,7 +46,7 @@ export default function ChildChatHub() {
 
   return (
     <div className="space-y-4" data-tour="child-chat">
-      <div className="flex items-center gap-2 rounded-xl border p-1 w-fit bg-muted/20">
+      <div className="flex items-center gap-2 rounded-xl border p-1 w-fit bg-background">
         <Button
           size="sm"
           variant={mode === "family" ? "default" : "ghost"}
@@ -68,20 +65,10 @@ export default function ChildChatHub() {
           <MessageCircle className="h-4 w-4" />
           {t("childChatHub.privateChat")}
         </Button>
-        <Button
-          size="sm"
-          variant={mode === "ai" ? "default" : "ghost"}
-          className="gap-1.5"
-          onClick={() => setMode("ai")}
-          disabled={!settings.aiChatEnabled}
-        >
-          <Sparkles className="h-4 w-4" />
-          {t("childChatHub.aiChat")}
-        </Button>
       </div>
 
       {mode === "family" ? (
-        <div className="h-[calc(100vh-360px)] min-h-[500px]">
+        <div className="h-[calc(100vh-320px)] min-h-[500px]">
           <FamilyChat
             familyId={familyChatId}
             currentUserId={session.user.id}
@@ -100,7 +87,7 @@ export default function ChildChatHub() {
         </div>
       ) : mode === "private" ? (
         primaryParent ? (
-          <div className="h-[calc(100vh-360px)] min-h-[500px]">
+          <div className="h-[calc(100vh-320px)] min-h-[500px]">
             <FamilyChat
               familyId={privateChatId}
               currentUserId={session.user.id}
@@ -130,12 +117,6 @@ export default function ChildChatHub() {
             {t("childChatHub.noParent")}
           </div>
         )
-      ) : settings.aiChatEnabled ? (
-        <ChildAiChat />
-      ) : (
-        <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-          {t("aiControl.enableChatDesc")}
-        </div>
       )}
     </div>
   )

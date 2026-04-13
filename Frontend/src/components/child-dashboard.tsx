@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import {
   CheckCircle2, LogOut, User,
   Flame, Star, Trophy, Target, Crown, Sparkles,
-  Gift, Settings, Image, Zap, MessageCircle, Bot,
+  Gift, Settings, Image, Zap, MessageCircle,
 } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { NotificationsPopover } from "@/components/notifications-popover"
@@ -62,7 +62,7 @@ const TABS = [
   { id: "gallery",      labelKey: "childDashboard.nav.gallery",      Icon: Image,        emoji: "📸", grad: "from-pink-400 to-rose-500",     ring: "ring-pink-400/40",    glow: "shadow-pink-500/25",    dot: "bg-pink-400",    bgLight: "bg-pink-500/10",    textColor: "text-pink-600 dark:text-pink-400"    },
   { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400",  bgLight: "bg-orange-500/10",  textColor: "text-orange-600 dark:text-orange-400"  },
   { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400",  bgLight: "bg-violet-500/10",  textColor: "text-violet-600 dark:text-violet-400"  },
-  { id: "chat",         labelKey: "childDashboard.nav.chat",         Icon: Bot,          emoji: "🤖", grad: "from-cyan-400 to-blue-500",     ring: "ring-cyan-400/40",    glow: "shadow-cyan-500/25",    dot: "bg-cyan-400",    bgLight: "bg-cyan-500/10",    textColor: "text-cyan-600 dark:text-cyan-400"      },
+  { id: "chat",         labelKey: "childDashboard.nav.chat",         Icon: MessageCircle, emoji: "💬", grad: "from-cyan-400 to-blue-500",     ring: "ring-cyan-400/40",    glow: "shadow-cyan-500/25",    dot: "bg-cyan-400",    bgLight: "bg-cyan-500/10",    textColor: "text-cyan-600 dark:text-cyan-400"      },
 
 ] as const
 
@@ -146,7 +146,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
     { target: "[data-tour='child-nav']", titleKey: "tour.child.nav.title", descriptionKey: "tour.child.nav.desc", icon: "🗂️", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
     { target: "[data-tour='child-tasks']", titleKey: "tour.child.tasks.title", descriptionKey: "tour.child.tasks.desc", icon: "⚡", placement: "bottom", onBeforeStep: () => setActiveTab("tasks") },
     { target: "[data-tour='child-shop']", titleKey: "tour.child.shop.title", descriptionKey: "tour.child.shop.desc", icon: "🎁", placement: "bottom", onBeforeStep: () => setActiveTab("shop") },
-    { target: "[data-tour='child-chat']", titleKey: "tour.child.chat.title", descriptionKey: "tour.child.chat.desc", icon: "🤖", placement: "bottom" },
+    { target: "[data-tour='child-chat']", titleKey: "tour.child.chat.title", descriptionKey: "tour.child.chat.desc", icon: "💬", placement: "bottom" },
     { target: null, titleKey: "tour.child.done.title", descriptionKey: "tour.child.done.desc", icon: "🚀" },
   ], [t])
 
@@ -209,25 +209,16 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
   return (
     <div className="min-h-screen w-full bg-background relative overflow-x-hidden">
 
-      {/* ═══ GRADIENT MESH BACKGROUND — dreamy child-friendly atmosphere ═══ */}
-      <div className="fixed inset-0 pointer-events-none z-0" aria-hidden>
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-violet-500/[0.06] dark:bg-violet-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "8s" }} />
-        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full bg-pink-500/[0.06] dark:bg-pink-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
-        <div className="absolute bottom-20 left-1/4 w-[400px] h-[400px] rounded-full bg-amber-500/[0.05] dark:bg-amber-500/[0.03] blur-[120px] animate-pulse" style={{ animationDuration: "12s", animationDelay: "4s" }} />
-        <div className="absolute top-2/3 right-1/3 w-[350px] h-[350px] rounded-full bg-emerald-500/[0.05] dark:bg-emerald-500/[0.02] blur-[120px] animate-pulse" style={{ animationDuration: "14s", animationDelay: "6s" }} />
-        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-sky-500/[0.04] dark:bg-sky-500/[0.02] blur-[100px] animate-pulse" style={{ animationDuration: "16s", animationDelay: "3s" }} />
-      </div>
-
       {/* ===============================================
            CLEAN MINIMAL NAVBAR
          =============================================== */}
-      <header className="sticky top-0 z-50 w-full bg-background/60 backdrop-blur-xl border-b border-border/10">
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur border-b border-border">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 sm:h-16">
           
           {/* Logo / Greeting */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-md">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted flex items-center justify-center">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div className="flex flex-col">
               <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-none mb-0.5">
@@ -243,7 +234,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Store Points - Big & Clear */}
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/15 transition-colors border border-amber-500/20 cursor-default">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-muted/40 transition-colors border border-border cursor-default">
               <Star className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 fill-amber-500" />
               <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums leading-none">
                 {statsLoading ? "..." : points.toLocaleString()}
@@ -300,12 +291,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
              HERO SECTION avatar, stats, XP
            =============================================== */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 pt-4 pb-2">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-card/80 via-card/50 to-background/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl p-6 sm:p-10">
-          
-          {/* Decorative blur orbs */}
-          <div className="absolute top-0 right-0 -m-32 w-96 h-96 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 -m-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.05)_0%,transparent_100%)] pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-card border border-border shadow-sm p-6 sm:p-8">
 
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
             
@@ -340,14 +326,14 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
             {/* RIGHT: INFO & PROGRESS */}
             <div className="flex-1 w-full text-center md:text-left flex flex-col justify-center items-center md:items-start">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-5">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent tracking-tight">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
                   {userProfile.name}
                 </h1>
                 <div className={cn(
-                  "inline-flex w-max mx-auto sm:mx-0 items-center gap-2 px-4 py-2 rounded-2xl bg-background/60 shadow-sm backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10"
+                  "inline-flex w-max mx-auto sm:mx-0 items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 ring-1 ring-border"
                 )}>
                   <span className="text-lg md:text-xl drop-shadow-sm">{rank.emoji}</span>
-                  <span className={cn("text-sm md:text-base font-extrabold bg-gradient-to-r bg-clip-text text-transparent", rank.grad)}>
+                  <span className="text-sm md:text-base font-semibold text-foreground">
                     {t(`childProfile.rank.${rank.key}`)}
                   </span>
                 </div>
@@ -454,7 +440,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
            GAME NAVIGATION — desktop horizontal bar
          ═══════════════════════════════════════════════ */}
       <div className="hidden md:block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 mb-4">
-        <nav data-tour="child-nav" className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/30 shadow-sm">
+        <nav data-tour="child-nav" className="flex items-center gap-1 p-1 rounded-xl bg-card border border-border">
           {TABS.map(tab => {
             const active = activeTab === tab.id
             return (
@@ -463,22 +449,14 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                 data-tour={`child-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-sm font-bold transition-all duration-200",
+                  "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150",
                   active
-                    ? ["bg-background shadow-lg ring-1 ring-border/30", tab.glow, "scale-[1.02]"]
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/60",
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                 )}
               >
-                {active ? (
-                  <span className="text-xl animate-tab-pop">{tab.emoji}</span>
-                ) : (
-                  <tab.Icon className="h-4.5 w-4.5" />
-                )}
-                <span className={cn(
-                  "text-sm font-bold",
-                  active && "bg-gradient-to-r bg-clip-text text-transparent",
-                  active && tab.grad,
-                )}>
+                <tab.Icon className="h-4.5 w-4.5" />
+                <span>
                   {t(tab.labelKey)}
                 </span>
               </button>
@@ -509,10 +487,10 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
         <div className="mx-3 mb-3">
           <nav className={cn(
-            "flex items-center justify-around h-[64px] rounded-[22px]",
-            "bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl",
-            "border border-white/40 dark:border-slate-700/30",
-            "shadow-[0_8px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5)]",
+            "flex items-center justify-around h-[62px] rounded-2xl",
+            "bg-card/95 backdrop-blur",
+            "border border-border",
+            "shadow-sm",
           )}>
             {TABS.map(tab => {
               const active = activeTab === tab.id
@@ -522,25 +500,17 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                   onClick={() => setActiveTab(tab.id)}
                   className="relative flex flex-col items-center justify-center h-full w-full"
                 >
-                  {/* Active glow dot */}
-                  {active && (
-                    <div className={cn("absolute -top-1.5 w-1.5 h-1.5 rounded-full", tab.dot, "shadow-sm")} />
-                  )}
                   <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-2xl transition-all duration-200",
+                    "flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-150",
                     active
-                      ? ["bg-gradient-to-br text-white shadow-lg", tab.grad, tab.glow, "scale-110"]
-                      : "text-muted-foreground/50",
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground/60",
                   )}>
-                    {active ? (
-                      <span className="text-lg animate-tab-pop">{tab.emoji}</span>
-                    ) : (
-                      <tab.Icon className="h-5 w-5" />
-                    )}
+                    <tab.Icon className="h-5 w-5" />
                   </div>
                   <span className={cn(
-                    "text-[9px] font-bold mt-0.5 leading-none transition-colors",
-                    active ? "text-foreground" : "text-muted-foreground/40",
+                    "text-[10px] font-medium mt-0.5 leading-none transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground/50",
                   )}>
                     {t(tab.labelKey)}
                   </span>
