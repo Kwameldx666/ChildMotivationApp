@@ -20,7 +20,7 @@ import type { TaskDto, TaskEvidenceRequirement } from "@/services/tasks-service"
 import { tasksService } from "@/services/tasks-service"
 import { useTranslation } from "@/i18n/provider"
 import { useEffect, useRef, useState, type MouseEvent } from "react"
-import { openAiChat } from "@/components/ai-chat-widget"
+import { openAiChatWithContext } from "@/components/ai-chat-widget"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
 import { Send } from "lucide-react"
@@ -463,8 +463,7 @@ export default function TaskRow({
                   className="h-8 w-8 p-0 rounded-lg text-primary hover:bg-primary/10"
                   onClick={() => {
                     const detail = `${task.title}${task.description ? ': ' + task.description : ''}`
-                    window.dispatchEvent(new CustomEvent("ai-widget:open-with-message", { detail }))
-                    openAiChat()
+                    openAiChatWithContext(detail, t("taskRow.askAiPrompt"))
                   }}
                 >
                   <Bot className="h-4 w-4" />

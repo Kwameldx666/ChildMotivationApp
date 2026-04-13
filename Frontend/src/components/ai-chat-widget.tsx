@@ -256,9 +256,34 @@ function TypingDots() {
    Custom event to open widget from anywhere
    ═══════════════════════════════════════════════ */
 const AI_WIDGET_OPEN_EVENT = "ai-widget:open"
+const AI_WIDGET_OPEN_WITH_MESSAGE_EVENT = "ai-widget:open-with-message"
+
+type AiWidgetContextDetail =
+  | string
+  | {
+      context?: string
+      prompt?: string
+    }
 
 /** Call this from any component to open the floating AI chat */
 export function openAiChat() {
+  window.dispatchEvent(new CustomEvent(AI_WIDGET_OPEN_EVENT))
+}
+
+/** Open chat and prefill contextual draft that user can edit before sending. */
+export function openAiChatWithContext(context: string, prompt?: string) {
+  if (typeof window === "undefined") return
+  const safeContext = context.trim()
+  const safePrompt = prompt?.trim()
+
+  window.dispatchEvent(
+    new CustomEvent<AiWidgetContextDetail>(AI_WIDGET_OPEN_WITH_MESSAGE_EVENT, {
+      detail: {
+        context: safeContext,
+        prompt: safePrompt,
+      },
+    }),
+  )
   window.dispatchEvent(new CustomEvent(AI_WIDGET_OPEN_EVENT))
 }
 
@@ -273,28 +298,43 @@ export default function AiChatWidget() {
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [input, setInput] = useState("")
+  const [hasContextDraft, setHasContextDraft] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   /* ── listen for external open requests ── */
-  const pendingMessageRef = useRef<string | null>(null)
+  const pendingDraftRef = useRef<string | null>(null)
 
   useEffect(() => {
     const handler = () => setOpen(true)
     window.addEventListener(AI_WIDGET_OPEN_EVENT, handler)
 
     const ctxHandler = (e: Event) => {
-      const detail = (e as CustomEvent<string>).detail
-      if (detail) pendingMessageRef.current = detail
+      const detail = (e as CustomEvent<AiWidgetContextDetail>).detail
+
+      let contextText = ""
+      let promptText = t("aiWidget.contextQuestionPrompt")
+
+      if (typeof detail === "string") {
+        contextText = detail.trim()
+      } else if (detail && typeof detail === "object") {
+        contextText = detail.context?.trim() ?? ""
+        promptText = detail.prompt?.trim() || promptText
+      }
+
+      if (contextText) {
+        pendingDraftRef.current = `${t("aiWidget.contextLabel")}:\n${contextText}\n\n${promptText}`
+      }
+
       setOpen(true)
     }
-    window.addEventListener("ai-widget:open-with-message", ctxHandler)
+    window.addEventListener(AI_WIDGET_OPEN_WITH_MESSAGE_EVENT, ctxHandler)
 
     return () => {
       window.removeEventListener(AI_WIDGET_OPEN_EVENT, handler)
-      window.removeEventListener("ai-widget:open-with-message", ctxHandler)
+      window.removeEventListener(AI_WIDGET_OPEN_WITH_MESSAGE_EVENT, ctxHandler)
     }
-  }, [])
+  }, [t])
 
   /* ── build greeting & context from session ── */
   const role = session?.profile.role ?? "parent"
@@ -358,11 +398,16 @@ export default function AiChatWidget() {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 200)
-      // If opened with a task context message, auto-send it
-      if (pendingMessageRef.current) {
-        const msg = pendingMessageRef.current
-        pendingMessageRef.current = null
-        setTimeout(() => void sendMessage(msg), 300)
+      // If opened with context, prefill draft so user can refine the question.
+      if (pendingDraftRef.current) {
+        const draft = pendingDraftRef.current
+        pendingDraftRef.current = null
+        setHasContextDraft(true)
+        setInput((prev) => {
+          if (!prev.trim()) return draft
+          if (prev.includes(draft)) return prev
+          return `${prev.trim()}\n\n${draft}`
+        })
       }
     }
   }, [open])
@@ -372,6 +417,7 @@ export default function AiChatWidget() {
     const text = input.trim()
     if (!text || isThinking) return
     setInput("")
+    setHasContextDraft(false)
     await sendMessage(text)
   }
 
@@ -384,12 +430,14 @@ export default function AiChatWidget() {
 
   const handleStarter = (prompt: string) => {
     setInput("")
+    setHasContextDraft(false)
     void sendMessage(prompt)
   }
 
   const handleReset = () => {
     reset()
     setInput("")
+    setHasContextDraft(false)
   }
 
   /* ── don't render for unauthenticated users or when AI is disabled ── */
@@ -566,7 +614,10 @@ export default function AiChatWidget() {
                 <Textarea
                   ref={inputRef}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value)
+                    if (!e.target.value.trim()) setHasContextDraft(false)
+                  }}
                   onKeyDown={handleKeyDown}
                   placeholder={t("aiWidget.inputPlaceholder")}
                   rows={1}
@@ -581,6 +632,11 @@ export default function AiChatWidget() {
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
+              {hasContextDraft && (
+                <p className="mt-1.5 text-[10px] text-primary/80">
+                  {t("aiWidget.contextReadyHint")}
+                </p>
+              )}
               <p className="mt-1.5 text-center text-[10px] text-muted-foreground/50">
                 {t("aiWidget.poweredBy")}
               </p>

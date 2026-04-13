@@ -108,6 +108,9 @@
       "summaryPrompt": "Rezumă progresul copilului din această săptămână cu realizările cheie."
     },
     "inputPlaceholder": "Scrie un mesaj…",
+    "contextLabel": "Contextul sarcinii",
+    "contextQuestionPrompt": "Descrie exact la ce ai nevoie de ajutor pentru această sarcină:",
+    "contextReadyHint": "Context adăugat. Completează întrebarea și apasă trimite.",
     "newChat": "Conversație nouă",
     "expand": "Extinde",
     "collapse": "Restrânge",
@@ -1476,6 +1479,7 @@
     "evidenceRequired": "Necesar",
     "waitingApproval": "În așteptarea aprobării",
     "askAi": "Întreabă AI",
+    "askAiPrompt": "Ajută-mă să finalizez această sarcină în pași simpli pentru copil.",
     "askParent": "Întreabă părintele",
     "askParentMessage": "Am o întrebare despre această sarcină",
     "askParentSent": "Mesaj trimis părintelui!"
@@ -1604,7 +1608,8 @@
     "privateChat": "Chat privat",
     "aiChat": "Chat AI",
     "chatWithParent": "Chat cu {name}",
-    "noParent": "Profilul părintelui nu a fost găsit încă în membrii familiei."
+    "noParent": "Profilul părintelui nu a fost găsit încă în membrii familiei.",
+    "aiHint": "Pentru întrebări către AI folosește butonul flotant de chat din dreapta jos."
   },
   "subscriptionManager": {
     "tierFree": "Gratuit",

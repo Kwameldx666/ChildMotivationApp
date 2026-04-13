@@ -45,77 +45,84 @@ export default function ChildChatHub() {
   }, [familyMembers, session.profile.avatar, session.profile.name, session.user.id])
 
   return (
-    <div className="space-y-4" data-tour="child-chat">
-      <div className="flex items-center gap-2 rounded-xl border p-1 w-fit bg-background">
-        <Button
-          size="sm"
-          variant={mode === "family" ? "default" : "ghost"}
-          className="gap-1.5"
-          onClick={() => setMode("family")}
-        >
-          <Users className="h-4 w-4" />
-          {t("childChatHub.familyChat")}
-        </Button>
-        <Button
-          size="sm"
-          variant={mode === "private" ? "default" : "ghost"}
-          className="gap-1.5"
-          onClick={() => setMode("private")}
-        >
-          <MessageCircle className="h-4 w-4" />
-          {t("childChatHub.privateChat")}
-        </Button>
-      </div>
+    <div className="space-y-3" data-tour="child-chat">
+      <section className="rounded-2xl border bg-card p-3 sm:p-4 shadow-sm">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-1.5 rounded-xl border p-1 w-fit bg-background">
+            <Button
+              size="sm"
+              variant={mode === "family" ? "default" : "ghost"}
+              className="gap-1.5"
+              onClick={() => setMode("family")}
+            >
+              <Users className="h-4 w-4" />
+              {t("childChatHub.familyChat")}
+            </Button>
+            <Button
+              size="sm"
+              variant={mode === "private" ? "default" : "ghost"}
+              className="gap-1.5"
+              onClick={() => setMode("private")}
+            >
+              <MessageCircle className="h-4 w-4" />
+              {t("childChatHub.privateChat")}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("childChatHub.aiHint")}</p>
+        </div>
+      </section>
 
-      {mode === "family" ? (
-        <div className="h-[calc(100vh-320px)] min-h-[500px]">
-          <FamilyChat
-            familyId={familyChatId}
-            currentUserId={session.user.id}
-            currentUserName={session.profile.name}
-            currentUserAvatar={session.profile.avatar}
-            userRole="child"
-            fullScreen={false}
-            chatTitle={t("childChatHub.familyChat")}
-            participants={familyParticipants.map(member => ({
-              id: member.id,
-              name: member.name,
-              avatar: member.avatar,
-              role: member.role,
-            }))}
-          />
-        </div>
-      ) : primaryParent ? (
-        <div className="h-[calc(100vh-320px)] min-h-[500px]">
-          <FamilyChat
-            familyId={privateChatId}
-            currentUserId={session.user.id}
-            currentUserName={session.profile.name}
-            currentUserAvatar={session.profile.avatar}
-            userRole="child"
-            fullScreen={false}
-            chatTitle={t("childChatHub.chatWithParent", { name: primaryParent.name })}
-            participants={[
-              {
-                id: primaryParent.id,
-                name: primaryParent.name,
-                avatar: primaryParent.avatar,
-                role: primaryParent.role,
-              },
-              {
-                id: session.user.id,
-                name: session.profile.name,
-                avatar: session.profile.avatar,
-                role: "child",
-              },
-            ]}
-          />
-        </div>
-      ) : (
-        <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-          {t("childChatHub.noParent")}
-        </div>
-      )}
+      <section className="rounded-2xl border bg-card p-2 sm:p-3 shadow-sm">
+        {mode === "family" ? (
+          <div className="h-[calc(100vh-360px)] min-h-[420px]">
+            <FamilyChat
+              familyId={familyChatId}
+              currentUserId={session.user.id}
+              currentUserName={session.profile.name}
+              currentUserAvatar={session.profile.avatar}
+              userRole="child"
+              fullScreen={false}
+              chatTitle={t("childChatHub.familyChat")}
+              participants={familyParticipants.map(member => ({
+                id: member.id,
+                name: member.name,
+                avatar: member.avatar,
+                role: member.role,
+              }))}
+            />
+          </div>
+        ) : primaryParent ? (
+          <div className="h-[calc(100vh-360px)] min-h-[420px]">
+            <FamilyChat
+              familyId={privateChatId}
+              currentUserId={session.user.id}
+              currentUserName={session.profile.name}
+              currentUserAvatar={session.profile.avatar}
+              userRole="child"
+              fullScreen={false}
+              chatTitle={t("childChatHub.chatWithParent", { name: primaryParent.name })}
+              participants={[
+                {
+                  id: primaryParent.id,
+                  name: primaryParent.name,
+                  avatar: primaryParent.avatar,
+                  role: primaryParent.role,
+                },
+                {
+                  id: session.user.id,
+                  name: session.profile.name,
+                  avatar: session.profile.avatar,
+                  role: "child",
+                },
+              ]}
+            />
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+            {t("childChatHub.noParent")}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

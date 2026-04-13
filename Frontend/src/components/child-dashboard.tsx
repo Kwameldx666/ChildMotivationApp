@@ -290,147 +290,97 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
       {/* ====
              HERO SECTION avatar, stats, XP
            =============================================== */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 pt-4 pb-2">
-        <div className="relative overflow-hidden rounded-3xl bg-card border border-border shadow-sm p-6 sm:p-8">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-3 pt-3 pb-2">
+        <div className="rounded-2xl border bg-card p-4 sm:p-5 shadow-sm">
+          <div className="grid gap-4 lg:grid-cols-[220px,1fr] lg:items-center">
+            <button
+              onClick={() => setShowAvatarPicker(true)}
+              className="mx-auto lg:mx-0 flex flex-col items-center gap-2"
+              aria-label={t("child.navigation.changeAvatar")}
+            >
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border shadow-sm">
+                {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" className="object-cover" />}
+                <AvatarFallback className="text-3xl sm:text-4xl font-bold bg-muted">{avatarFallback}</AvatarFallback>
+              </Avatar>
+              <span className="inline-flex items-center gap-1 rounded-full border bg-muted/40 px-2.5 py-1 text-xs font-semibold">
+                <Crown className="h-3.5 w-3.5 text-amber-500" />
+                LVL {level}
+              </span>
+            </button>
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 lg:gap-12">
-            
-            {/* LEFT: AVATAR & LEVEL */}
-            <div className="relative flex shrink-0 justify-center items-center">
-              {/* Avatar trigger */}
-              <button
-                onClick={() => setShowAvatarPicker(true)}
-                className="relative group peer"
-                aria-label={t("child.navigation.changeAvatar")}
-              >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 blur-xl group-hover:blur-2xl transition-all duration-500 opacity-60" />
-                <Avatar className="relative h-28 w-28 md:h-36 md:w-36 ring-8 ring-background/80 dark:ring-background/40 shadow-2xl group-hover:scale-105 transition-all duration-500">
-                  {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt="" className="object-cover" />}
-                  <AvatarFallback className="text-5xl md:text-6xl bg-gradient-to-br from-violet-100 via-pink-50 to-amber-50 dark:from-violet-900/60 dark:via-pink-900/40 dark:to-amber-900/30 font-bold">
-                    {avatarFallback}
-                  </AvatarFallback>
-                </Avatar>
-                
-                {/* Level Circle */}
-                <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
-                  <div className={cn(
-                    "h-7 px-4 md:h-9 md:px-5 rounded-full flex items-center justify-center text-xs md:text-sm font-black text-white ring-4 ring-background shadow-xl group-hover:scale-110 transition-transform duration-300",
-                    "bg-gradient-to-r", rank.grad,
-                  )}>
-                    LVL {level}
-                  </div>
+            <div className="space-y-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">{userProfile.name}</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{t("childDashboard.heroMessage")}</p>
                 </div>
-              </button>
-            </div>
-
-            {/* RIGHT: INFO & PROGRESS */}
-            <div className="flex-1 w-full text-center md:text-left flex flex-col justify-center items-center md:items-start">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-5">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-                  {userProfile.name}
-                </h1>
-                <div className={cn(
-                  "inline-flex w-max mx-auto sm:mx-0 items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 ring-1 ring-border"
-                )}>
-                  <span className="text-lg md:text-xl drop-shadow-sm">{rank.emoji}</span>
-                  <span className="text-sm md:text-base font-semibold text-foreground">
-                    {t(`childProfile.rank.${rank.key}`)}
-                  </span>
+                <div className="inline-flex items-center gap-1.5 rounded-full border bg-muted/40 px-3 py-1.5 text-xs font-medium w-fit">
+                  <span>{rank.emoji}</span>
+                  <span>{t(`childProfile.rank.${rank.key}`)}</span>
                 </div>
               </div>
 
-              <p className="mb-4 text-sm md:text-base text-muted-foreground font-medium">
-                {t("childDashboard.heroMessage")}
-              </p>
-              
-              {/* BEAUTIFUL STATS GRID: DAY STREAK & ВСЕГО XP */}
-              <div data-tour="child-stats" className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 w-full max-w-xl">
-                {/* DAY STREAK */}
-                <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                    <Flame className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md", streak >= 3 && "animate-streak-flame")} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">{t("gameHub.dayStreak")}</p>
-                    <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{streak}</p>
-                  </div>
+              <div data-tour="child-stats" className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="rounded-xl border bg-muted/30 px-3 py-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("gameHub.dayStreak")}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums flex items-center gap-1.5">
+                    <Flame className={cn("h-4 w-4 text-orange-500", streak >= 3 && "animate-streak-flame")} />
+                    {streak}
+                  </p>
                 </div>
-
-                {/* TOTAL XP */}
-                <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500/10 to-indigo-500/5 border border-sky-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
-                  <div className="absolute inset-0 bg-gradient-to-br from-sky-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/30">
-                    <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">XP</p>
-                    <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{xp}</p>
-                  </div>
+                <div className="rounded-xl border bg-muted/30 px-3 py-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">XP</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums flex items-center gap-1.5">
+                    <Zap className="h-4 w-4 text-sky-500" />
+                    {xp}
+                  </p>
                 </div>
-              </div>
-
-              <div className="mb-5 flex flex-wrap items-center gap-2 w-full max-w-xl">
                 <button
                   type="button"
                   onClick={() => setActiveTab("tasks")}
-                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/15 transition-colors"
+                  className="rounded-xl border bg-muted/30 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors"
                 >
-                  ⚡ {t("childDashboard.nav.tasks")}: {activeTasksCount}
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("childDashboard.nav.tasks")}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">{activeTasksCount}</p>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("tasks")}
-                  className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-500/15 transition-colors"
+                  className="rounded-xl border bg-muted/30 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors"
                 >
-                  ⏰ {t("tasks.pendingApproval")}: {reviewQueueCount}
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("tasks.pendingApproval")}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">{reviewQueueCount}</p>
                 </button>
+              </div>
+
+              <div data-tour="child-xp" className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{t("childDashboard.nextLevel")}</span>
+                  <span className="tabular-nums">{xpIn}/100 XP</span>
+                </div>
+                <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${xpPct}%` }} />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setActiveTab("shop")}
-                  className="inline-flex items-center gap-2 rounded-full border border-violet-300/40 bg-violet-500/10 px-3.5 py-1.5 text-xs font-bold text-violet-700 dark:text-violet-300 hover:bg-violet-500/15 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs font-medium hover:bg-muted/40 transition-colors"
                 >
-                  🎁 {t("childDashboard.nav.shop")}: {points}
+                  <Gift className="h-3.5 w-3.5 text-violet-500" />
+                  {t("childDashboard.nav.shop")}: {points}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("chat")}
+                  className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs font-medium hover:bg-muted/40 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5 text-cyan-500" />
+                  {t("childDashboard.nav.chat")}
                 </button>
               </div>
-
-              {/* PROGRESS BAR WITH TEXT */}
-              <div data-tour="child-xp" className="w-full max-w-xl group">
-                <div className="flex justify-between items-end mb-2 px-1">
-                  <span className="text-[10px] sm:text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
-                    {t("childDashboard.nextLevel")}
-                  </span>
-                  <span className="text-sm font-black text-foreground">
-                    {xpIn} <span className="text-muted-foreground/60">/ 100 XP</span>
-                  </span>
-                </div>
-                <div className="relative flex-1 h-5 md:h-7 rounded-2xl bg-muted/80 overflow-hidden shadow-inner ring-1 ring-inset ring-border/60">
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 opacity-[0.14]"
-                    style={{
-                      backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, hsl(var(--foreground)) 10px, hsl(var(--foreground)) 20px)",
-                    }}
-                  />
-                  <div
-                    className="relative h-full rounded-2xl bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-400 transition-all duration-1000 animate-xp-fill shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-                    style={{ width: `${xpPct}%` }}
-                  >
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 opacity-40 mix-blend-overlay"
-                      style={{
-                        backgroundImage: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 50%, rgba(0,0,0,0.2) 100%)",
-                      }}
-                    />
-                    <div
-                      aria-hidden="true"
-                      className="absolute right-0 top-1/2 h-full w-4 md:w-6 -translate-y-1/2 bg-gradient-to-l from-white/70 to-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
@@ -469,16 +419,18 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
            CONTENT — full width
          ═══════════════════════════════════════════════ */}
       <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 md:pb-10 pt-1">
-        <ErrorBoundary
-          key={activeTab}
-          fallback={
-            <div className="rounded-2xl border border-dashed p-6 text-center text-muted-foreground">
-              {t("common.error")}
-            </div>
-          }
-        >
-          {activeTabContent}
-        </ErrorBoundary>
+        <section className="rounded-2xl border bg-card/70 p-3 sm:p-4 shadow-sm">
+          <ErrorBoundary
+            key={activeTab}
+            fallback={
+              <div className="rounded-2xl border border-dashed p-6 text-center text-muted-foreground">
+                {t("common.error")}
+              </div>
+            }
+          >
+            {activeTabContent}
+          </ErrorBoundary>
+        </section>
       </main>
 
       {/* ═══════════════════════════════════════════════

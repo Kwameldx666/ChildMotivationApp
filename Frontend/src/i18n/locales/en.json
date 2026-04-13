@@ -751,6 +751,9 @@
       "summaryPrompt": "Summarize the child's progress this week with key achievements."
     },
     "inputPlaceholder": "Type your message…",
+    "contextLabel": "Task context",
+    "contextQuestionPrompt": "Describe what exactly you need help with for this task:",
+    "contextReadyHint": "Context added. Add your question and press send.",
     "newChat": "New conversation",
     "expand": "Expand",
     "collapse": "Collapse",
@@ -1476,6 +1479,7 @@
     "evidenceRequired": "Required",
     "waitingApproval": "Awaiting approval",
     "askAi": "Ask AI",
+    "askAiPrompt": "Help me complete this task with simple steps for a child.",
     "askParent": "Ask parent",
     "askParentMessage": "I have a question about this task",
     "askParentSent": "Message sent to parent!"
@@ -1604,7 +1608,8 @@
     "privateChat": "Private chat",
     "aiChat": "AI chat",
     "chatWithParent": "Chat with {name}",
-    "noParent": "Parent profile not found in family members yet."
+    "noParent": "Parent profile not found in family members yet.",
+    "aiHint": "Use the floating chat button in the bottom-right for AI questions."
   },
   "subscriptionManager": {
     "tierFree": "Free",

@@ -12,10 +12,30 @@ import { I18nProvider } from '@/i18n/provider'
 import { appStore, persistor } from '@/store/appStore'
 import { theme } from '@/theme'
 import AiChatWidget from '@/components/ai-chat-widget'
-import { FeatureHide } from '@/components/feature-gate'
+import { useSubscriptionGate } from '@/hooks/use-subscription-gate'
+import { useAppSelector } from '@/store/hooks'
+import { selectAuthSession } from '@/features/auth/store/authSlice'
 
 interface AppProvidersProps {
   children: ReactNode
+}
+
+function AiWidgetMount() {
+  const session = useAppSelector(selectAuthSession)
+  const { hasFeature, isLoading } = useSubscriptionGate()
+
+  if (!session) return null
+
+  const role = session.profile.role?.toLowerCase()
+  const isChild = role === 'child'
+
+  // Children always get the floating AI widget as requested.
+  if (isChild) return <AiChatWidget />
+
+  if (isLoading) return null
+  if (!hasFeature('aiAssistant')) return null
+
+  return <AiChatWidget />
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -51,9 +71,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             >
               <CssVarsProvider theme={theme} defaultMode="light">
                 {children}
-                <FeatureHide feature="aiAssistant">
-                  <AiChatWidget />
-                </FeatureHide>
+                <AiWidgetMount />
                 <Toaster position="top-right" richColors closeButton duration={4000} />
                 {process.env.NODE_ENV !== 'production' ? (
                   <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
