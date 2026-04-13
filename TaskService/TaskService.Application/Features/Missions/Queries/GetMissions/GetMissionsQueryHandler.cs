@@ -29,7 +29,8 @@ public class GetMissionsQueryHandler : IRequestHandler<GetMissionsQuery, IReadOn
 
     public async Task<IReadOnlyList<MissionDto>> Handle(GetMissionsQuery request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId))
+        var normalizedUserId = NormalizeUserId(request.UserId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             return Array.Empty<MissionDto>();
         }
@@ -43,7 +44,7 @@ public class GetMissionsQueryHandler : IRequestHandler<GetMissionsQuery, IReadOn
         var missionLookup = missions.ToDictionary(mission => mission.Id);
         var missionIds = missionLookup.Keys.ToArray();
 
-        var progressItems = await _progressRepository.GetByUserAsync(request.UserId, missionIds, cancellationToken);
+        var progressItems = await _progressRepository.GetByUserAsync(normalizedUserId, missionIds, cancellationToken);
         var progressByMission = progressItems.ToDictionary(progress => progress.MissionId);
 
         var now = _dateTimeProvider.UtcNow;
@@ -80,5 +81,10 @@ public class GetMissionsQueryHandler : IRequestHandler<GetMissionsQuery, IReadOn
             .ToList();
 
         return result;
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId?.Trim().ToLowerInvariant() ?? string.Empty;
     }
 }

@@ -25,8 +25,10 @@ public class MissionsController(IMediator mediator) : ControllerBase
             return BadRequest("User identifier is required.");
         }
 
+        var normalizedUserId = userId.Trim().ToLowerInvariant();
+
         var recurrenceFilter = TryParseRecurrence(recurrence);
-        var missions = await mediator.Send(new GetMissionsQuery(userId, recurrenceFilter), cancellationToken);
+        var missions = await mediator.Send(new GetMissionsQuery(normalizedUserId, recurrenceFilter), cancellationToken);
         return Ok(missions);
     }
 
@@ -43,7 +45,9 @@ public class MissionsController(IMediator mediator) : ControllerBase
             return BadRequest("User identifier is required.");
         }
 
-        var command = new UpdateMissionProgressCommand(id, request.UserId, request.ProgressDelta);
+        var normalizedUserId = request.UserId.Trim().ToLowerInvariant();
+
+        var command = new UpdateMissionProgressCommand(id, normalizedUserId, request.ProgressDelta);
         var updated = await mediator.Send(command, cancellationToken);
         return Ok(updated);
     }

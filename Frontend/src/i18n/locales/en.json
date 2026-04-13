@@ -1957,6 +1957,11 @@
   "leaderboard": {
     "title": "Leaderboard",
     "level": "Level {level}",
+    "subtitle": "Real family ranking by earned points",
+    "empty": "No ranking data yet",
+    "unknown": "Unknown player",
+    "you": "You",
+    "tasks": "{count} tasks",
     "mockName1": "Maria",
     "mockName2": "Ivan",
     "mockName3": "Anna"
@@ -2940,7 +2945,10 @@
     "castle": "Castle",
     "seriesPercent": "{percent}% collected",
     "outOf": "{unlocked} of {total} collected",
-    "locked": "Locked"
+    "locked": "Locked",
+    "rulesHint": "Each sticker is unlocked by a matching achievement.",
+    "unlockFor": "For: {title}",
+    "progress": "{progress}/{total}"
   },
   "addChild": {
     "title": "Add Child",

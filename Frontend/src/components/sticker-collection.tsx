@@ -1,36 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, Lock, Star } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { cn } from "@/lib/utils"
+import { useAchievements } from "@/services/gamification-queries"
 
 const STICKER_SERIES = {
   animals: [
-    { id: 1, emoji: "🦁", name: "stickerCollection.lion", unlocked: true },
-    { id: 2, emoji: "🐼", name: "stickerCollection.panda", unlocked: true },
-    { id: 3, emoji: "🦊", name: "stickerCollection.fox", unlocked: false },
-    { id: 4, emoji: "🐨", name: "stickerCollection.koala", unlocked: true },
-    { id: 5, emoji: "🦉", name: "stickerCollection.owl", unlocked: false },
-    { id: 6, emoji: "🐸", name: "stickerCollection.frog", unlocked: false },
+    { id: 1, emoji: "🦁", name: "stickerCollection.lion", achievementIndex: 0 },
+    { id: 2, emoji: "🐼", name: "stickerCollection.panda", achievementIndex: 1 },
+    { id: 3, emoji: "🦊", name: "stickerCollection.fox", achievementIndex: 2 },
+    { id: 4, emoji: "🐨", name: "stickerCollection.koala", achievementIndex: 3 },
+    { id: 5, emoji: "🦉", name: "stickerCollection.owl", achievementIndex: 4 },
+    { id: 6, emoji: "🐸", name: "stickerCollection.frog", achievementIndex: 5 },
   ],
   robots: [
-    { id: 7, emoji: "🤖", name: "stickerCollection.robot", unlocked: true },
-    { id: 8, emoji: "👾", name: "stickerCollection.alien", unlocked: false },
-    { id: 9, emoji: "🚀", name: "stickerCollection.rocket", unlocked: true },
-    { id: 10, emoji: "⚙️", name: "stickerCollection.mechanism", unlocked: false },
-    { id: 11, emoji: "🔋", name: "stickerCollection.battery", unlocked: false },
-    { id: 12, emoji: "💻", name: "stickerCollection.computer", unlocked: true },
+    { id: 7, emoji: "🤖", name: "stickerCollection.robot", achievementIndex: 6 },
+    { id: 8, emoji: "👾", name: "stickerCollection.alien", achievementIndex: 7 },
+    { id: 9, emoji: "🚀", name: "stickerCollection.rocket", achievementIndex: 8 },
+    { id: 10, emoji: "⚙️", name: "stickerCollection.mechanism", achievementIndex: 9 },
+    { id: 11, emoji: "🔋", name: "stickerCollection.battery", achievementIndex: 10 },
+    { id: 12, emoji: "💻", name: "stickerCollection.computer", achievementIndex: 11 },
   ],
   fantasy: [
-    { id: 13, emoji: "🦄", name: "stickerCollection.unicorn", unlocked: true },
-    { id: 14, emoji: "🐉", name: "stickerCollection.dragon", unlocked: false },
-    { id: 15, emoji: "🧙", name: "stickerCollection.wizard", unlocked: false },
-    { id: 16, emoji: "👑", name: "stickerCollection.crown", unlocked: true },
-    { id: 17, emoji: "⚔️", name: "stickerCollection.sword", unlocked: false },
-    { id: 18, emoji: "🏰", name: "stickerCollection.castle", unlocked: true },
+    { id: 13, emoji: "🦄", name: "stickerCollection.unicorn", achievementIndex: 12 },
+    { id: 14, emoji: "🐉", name: "stickerCollection.dragon", achievementIndex: 13 },
+    { id: 15, emoji: "🧙", name: "stickerCollection.wizard", achievementIndex: 14 },
+    { id: 16, emoji: "👑", name: "stickerCollection.crown", achievementIndex: 15 },
+    { id: 17, emoji: "⚔️", name: "stickerCollection.sword", achievementIndex: 16 },
+    { id: 18, emoji: "🏰", name: "stickerCollection.castle", achievementIndex: 17 },
   ],
+}
+
+const SERIES_KEYS = Object.keys(STICKER_SERIES) as Array<keyof typeof STICKER_SERIES>
+
+type StickerViewModel = {
+  id: number
+  emoji: string
+  name: string
+  unlocked: boolean
+  achievementTitle?: string
+  progress: number
+  total: number
 }
 
 const SERIES_THEMES = {
@@ -42,13 +55,38 @@ const SERIES_THEMES = {
 export default function StickerCollection() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<keyof typeof STICKER_SERIES>("animals")
+  const { data: achievements = [] } = useAchievements()
 
-  const calculateProgress = (series: typeof STICKER_SERIES.animals) => {
+  const stickerSeries = useMemo(() => {
+    const mapped = {} as Record<keyof typeof STICKER_SERIES, StickerViewModel[]>
+
+    SERIES_KEYS.forEach((seriesKey) => {
+      mapped[seriesKey] = STICKER_SERIES[seriesKey].map((sticker) => {
+        const achievement = achievements[sticker.achievementIndex]
+        const total = Math.max(achievement?.total ?? 1, 1)
+        const progress = Math.min(Math.max(achievement?.progress ?? 0, 0), total)
+
+        return {
+          id: sticker.id,
+          emoji: sticker.emoji,
+          name: sticker.name,
+          unlocked: Boolean(achievement?.unlocked),
+          achievementTitle: achievement?.title,
+          progress,
+          total,
+        }
+      })
+    })
+
+    return mapped
+  }, [achievements])
+
+  const calculateProgress = (series: StickerViewModel[]) => {
     const unlocked = series.filter((s) => s.unlocked).length
     return { unlocked, total: series.length, percent: Math.round((unlocked / series.length) * 100) }
   }
 
-  const allTotal = Object.values(STICKER_SERIES).flat()
+  const allTotal = SERIES_KEYS.flatMap((seriesKey) => stickerSeries[seriesKey])
   const totalUnlocked = allTotal.filter(s => s.unlocked).length
 
   return (
@@ -62,6 +100,7 @@ export default function StickerCollection() {
           <div>
             <h2 className="text-base font-black">{t("stickers.title")}</h2>
             <p className="text-xs text-muted-foreground">{t("stickers.description")}</p>
+            <p className="text-[11px] text-muted-foreground">{t("stickerCollection.rulesHint")}</p>
           </div>
         </div>
         <Badge className="bg-gradient-to-r from-pink-400 to-rose-500 text-white border-0 text-xs font-bold rounded-full px-3 py-1 shadow-sm gap-1">
@@ -72,9 +111,9 @@ export default function StickerCollection() {
 
       {/* Series tabs — fun pill style */}
       <nav className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-muted/30 border border-border/20">
-        {(Object.keys(STICKER_SERIES) as Array<keyof typeof STICKER_SERIES>).map((key) => {
+        {SERIES_KEYS.map((key) => {
           const theme = SERIES_THEMES[key]
-          const progress = calculateProgress(STICKER_SERIES[key])
+          const progress = calculateProgress(stickerSeries[key])
           const active = activeTab === key
           return (
             <button
@@ -101,7 +140,7 @@ export default function StickerCollection() {
 
       {/* Collection progress bar */}
       {(() => {
-        const progress = calculateProgress(STICKER_SERIES[activeTab])
+        const progress = calculateProgress(stickerSeries[activeTab])
         const theme = SERIES_THEMES[activeTab]
         return (
           <div className={cn("rounded-2xl border-2 p-4", theme.bg, theme.border)}>
@@ -125,7 +164,7 @@ export default function StickerCollection() {
 
       {/* Sticker grid — collectible card style */}
       <div className="grid grid-cols-3 gap-3">
-        {STICKER_SERIES[activeTab].map((sticker, idx) => {
+        {stickerSeries[activeTab].map((sticker, idx) => {
           const theme = SERIES_THEMES[activeTab]
           return (
             <div
@@ -154,13 +193,25 @@ export default function StickerCollection() {
                   <span className="text-[10px] sm:text-xs font-bold text-center leading-tight px-1 line-clamp-1">
                     {t(sticker.name)}
                   </span>
+                  {sticker.achievementTitle && (
+                    <span className="text-[9px] sm:text-[10px] text-muted-foreground text-center leading-tight px-1 line-clamp-2">
+                      {t("stickerCollection.unlockFor", { title: sticker.achievementTitle })}
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
                   <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center">
                     <Lock className="w-5 h-5 text-muted-foreground/40" />
                   </div>
-                  <span className="text-[10px] text-muted-foreground/50 font-bold">{t("stickerCollection.locked")}</span>
+                  <span className="text-[10px] text-muted-foreground/70 font-bold text-center px-1 line-clamp-2">
+                    {sticker.achievementTitle
+                      ? t("stickerCollection.unlockFor", { title: sticker.achievementTitle })
+                      : t("stickerCollection.locked")}
+                  </span>
+                  <span className="text-[9px] text-muted-foreground/60 font-semibold text-center">
+                    {t("stickerCollection.progress", { progress: sticker.progress, total: sticker.total })}
+                  </span>
                 </>
               )}
             </div>

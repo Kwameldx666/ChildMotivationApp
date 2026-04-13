@@ -16,14 +16,15 @@ internal static class TaskCompletionProgressUpdater
         IAchievementProgressRepository achievementProgressRepository,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(userId))
+        var normalizedUserId = NormalizeUserId(userId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             return;
         }
 
         await UpdateMissionProgressAsync(
             task,
-            userId,
+            normalizedUserId,
             occurredAt,
             missionRepository,
             missionProgressRepository,
@@ -31,7 +32,7 @@ internal static class TaskCompletionProgressUpdater
 
         await UpdateAchievementProgressAsync(
             task,
-            userId,
+            normalizedUserId,
             occurredAt,
             achievementRepository,
             achievementProgressRepository,
@@ -163,5 +164,10 @@ internal static class TaskCompletionProgressUpdater
             "secret-legend" => 1,
             _ => 1,
         };
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId.Trim().ToLowerInvariant();
     }
 }

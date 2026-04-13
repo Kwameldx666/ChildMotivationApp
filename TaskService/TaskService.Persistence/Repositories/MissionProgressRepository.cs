@@ -17,7 +17,8 @@ public class MissionProgressRepository : IMissionProgressRepository
 
     public async Task<IReadOnlyList<MissionProgress>> GetByUserAsync(string userId, IEnumerable<Guid> missionIds, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(userId))
+        var normalizedUserId = NormalizeUserId(userId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             return Array.Empty<MissionProgress>();
         }
@@ -30,15 +31,22 @@ public class MissionProgressRepository : IMissionProgressRepository
 
         return await _dbContext.MissionProgress
             .Include(progress => progress.Mission)
-            .Where(progress => progress.UserId == userId && missionIdList.Contains(progress.MissionId))
+            .Where(progress =>
+                missionIdList.Contains(progress.MissionId)
+                && (progress.UserId == normalizedUserId || progress.UserId.ToLower() == normalizedUserId))
             .ToListAsync(cancellationToken);
     }
 
     public Task<MissionProgress?> GetAsync(Guid missionId, string userId, CancellationToken cancellationToken = default)
     {
+        var normalizedUserId = NormalizeUserId(userId);
+
         return _dbContext.MissionProgress
             .Include(progress => progress.Mission)
-            .FirstOrDefaultAsync(progress => progress.MissionId == missionId && progress.UserId == userId, cancellationToken);
+            .FirstOrDefaultAsync(
+                progress => progress.MissionId == missionId
+                            && (progress.UserId == normalizedUserId || progress.UserId.ToLower() == normalizedUserId),
+                cancellationToken);
     }
 
     public Task AddAsync(MissionProgress progress, CancellationToken cancellationToken = default)
@@ -50,5 +58,10 @@ public class MissionProgressRepository : IMissionProgressRepository
     {
         _dbContext.MissionProgress.Update(progress);
         return Task.CompletedTask;
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId?.Trim().ToLowerInvariant() ?? string.Empty;
     }
 }

@@ -21,7 +21,8 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
 
     public async Task<IReadOnlyList<AchievementDto>> Handle(GetAchievementsQuery request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId))
+        var normalizedUserId = NormalizeUserId(request.UserId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             return Array.Empty<AchievementDto>();
         }
@@ -33,7 +34,7 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
         }
 
         var achievementIds = achievements.Select(a => a.Id).ToArray();
-        var progressItems = await _progressRepository.GetByUserAsync(request.UserId, achievementIds, cancellationToken);
+        var progressItems = await _progressRepository.GetByUserAsync(normalizedUserId, achievementIds, cancellationToken);
         var progressLookup = progressItems.ToDictionary(p => p.AchievementId);
 
         var result = achievements
@@ -47,5 +48,10 @@ public class GetAchievementsQueryHandler : IRequestHandler<GetAchievementsQuery,
             .ToList();
 
         return result;
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId?.Trim().ToLowerInvariant() ?? string.Empty;
     }
 }

@@ -1966,6 +1966,11 @@
   "leaderboard": {
     "title": "Таблица лидеров",
     "level": "Уровень {level}",
+    "subtitle": "Реальный семейный рейтинг по заработанным очкам",
+    "empty": "Пока нет данных для рейтинга",
+    "unknown": "Неизвестный игрок",
+    "you": "Вы",
+    "tasks": "{count} задач",
     "mockName1": "Мария",
     "mockName2": "Иван",
     "mockName3": "Анна"
@@ -3033,7 +3038,10 @@
     "castle": "Замок",
     "seriesPercent": "{percent}% собрано",
     "outOf": "{unlocked} из {total} собрано",
-    "locked": "Заблокировано"
+    "locked": "Заблокировано",
+    "rulesHint": "Каждый стикер открывается через соответствующее достижение.",
+    "unlockFor": "За: {title}",
+    "progress": "{progress}/{total}"
   },
   "addChild": {
     "title": "Добавить ребёнка",

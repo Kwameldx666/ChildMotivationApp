@@ -166,6 +166,8 @@ export default function FamilyChat({
     return groups
   }, [messages])
 
+  const normalizedCurrentUserId = useMemo(() => currentUserId.trim().toLowerCase(), [currentUserId])
+
   const participantIdsForPresence = useMemo(() => {
     const ids = new Set<string>()
     ids.add(currentUserId)
@@ -207,7 +209,14 @@ export default function FamilyChat({
       return normalizedPresenceStatuses.get(normalizedId) === true
     }
 
-    participantMap.set(currentUserId, {
+    const toParticipantKey = (userId: string | null | undefined) => userId?.trim().toLowerCase() ?? ""
+
+    const currentUserKey = toParticipantKey(currentUserId)
+    if (!currentUserKey) {
+      return []
+    }
+
+    participantMap.set(currentUserKey, {
       id: currentUserId,
       name: currentUserName,
       avatar: currentUserAvatar,
@@ -216,26 +225,35 @@ export default function FamilyChat({
     })
 
     participants.forEach((participant) => {
-      participantMap.set(participant.id, {
+      const participantKey = toParticipantKey(participant.id)
+      if (!participantKey) return
+
+      const existingParticipant = participantMap.get(participantKey)
+      participantMap.set(participantKey, {
         id: participant.id,
         name: participant.name,
-        avatar: participant.avatar ?? undefined,
+        avatar: participant.avatar ?? existingParticipant?.avatar,
         isOnline: isUserOnline(participant.id),
-        role: participant.role,
+        role: participant.role ?? existingParticipant?.role,
       })
     })
 
     messages.forEach((msg) => {
-      const existing = participantMap.get(msg.senderId)
+      const senderKey = toParticipantKey(msg.senderId)
+      if (!senderKey) return
+
+      const existing = participantMap.get(senderKey)
       if (existing) {
-        participantMap.set(msg.senderId, {
+        participantMap.set(senderKey, {
           ...existing,
           isOnline: isUserOnline(msg.senderId),
+          name: normalizeDisplayName(msg.senderName, existing.name),
+          avatar: msg.senderAvatar ?? existing.avatar,
         })
         return
       }
 
-      participantMap.set(msg.senderId, {
+      participantMap.set(senderKey, {
         id: msg.senderId,
         name: msg.senderName,
         avatar: msg.senderAvatar,
@@ -324,7 +342,7 @@ export default function FamilyChat({
             </div>
             {/* Список участников */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {chatParticipants.filter(p => p.id !== currentUserId).map((participant) => (
+              {chatParticipants.filter(p => p.id.trim().toLowerCase() !== normalizedCurrentUserId).map((participant) => (
                 <div key={participant.id} className="flex items-center gap-2 bg-slate-100/50 dark:bg-slate-800/40 rounded-full pr-3 pl-1 py-1 border border-slate-200/50 dark:border-slate-700/50">
                   {(() => {
                     const participantName = normalizeDisplayName(participant.name)
@@ -354,7 +372,7 @@ export default function FamilyChat({
                   })()}
                 </div>
               ))}
-              {chatParticipants.filter(p => p.id !== currentUserId).length === 0 && (
+              {chatParticipants.filter(p => p.id.trim().toLowerCase() !== normalizedCurrentUserId).length === 0 && (
                 <span className="text-xs text-muted-foreground/70 italic px-2">{t("familyChat.noParticipants")}</span>
               )}
             </div>
@@ -375,11 +393,14 @@ export default function FamilyChat({
 
             {/* Messages */}
             {group.messages.map((msg) => {
-              const isOwnMessage = msg.senderId === currentUserId
+              const normalizedSenderId = msg.senderId?.trim().toLowerCase() ?? ""
+              const isOwnMessage = normalizedSenderId === normalizedCurrentUserId
               const mentionedTaskInMsg = msg.mentionedTaskId 
                 ? tasks.find(tk => tk.id === msg.mentionedTaskId)
                 : null
-              const senderInfo = chatParticipants.find(p => p.id === msg.senderId)
+              const senderInfo = chatParticipants.find(
+                p => p.id.trim().toLowerCase() === normalizedSenderId,
+              )
 
               return (
                 <div

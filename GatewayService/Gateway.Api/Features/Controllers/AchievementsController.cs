@@ -14,7 +14,7 @@ public class AchievementsController(ITaskServiceClient taskClient) : ControllerB
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetUserId()?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         using var response = await taskClient.GetAchievementsAsync(userId, cancellationToken);
@@ -25,7 +25,7 @@ public class AchievementsController(ITaskServiceClient taskClient) : ControllerB
     public async Task<IActionResult> UpdateProgress(Guid id, [FromBody] UpdateAchievementProgressRequest? request,
         CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetUserId()?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         var payload = new

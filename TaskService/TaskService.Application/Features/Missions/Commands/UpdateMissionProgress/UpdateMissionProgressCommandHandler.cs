@@ -35,7 +35,8 @@ public class UpdateMissionProgressCommandHandler : IRequestHandler<UpdateMission
             throw new ArgumentException("Mission identifier is required", nameof(request.MissionId));
         }
 
-        if (string.IsNullOrWhiteSpace(request.UserId))
+        var normalizedUserId = NormalizeUserId(request.UserId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             throw new ArgumentException("User identifier is required", nameof(request.UserId));
         }
@@ -55,11 +56,11 @@ public class UpdateMissionProgressCommandHandler : IRequestHandler<UpdateMission
         var now = _dateTimeProvider.UtcNow;
         var anchor = MissionCycle.GetAnchorDate(now, mission.Recurrence);
 
-        var progress = await _progressRepository.GetAsync(request.MissionId, request.UserId, cancellationToken);
+        var progress = await _progressRepository.GetAsync(request.MissionId, normalizedUserId, cancellationToken);
         var isNew = progress is null;
         if (isNew)
         {
-            progress = MissionProgress.Create(request.MissionId, request.UserId, anchor, now);
+            progress = MissionProgress.Create(request.MissionId, normalizedUserId, anchor, now);
             await _progressRepository.AddAsync(progress!, cancellationToken);
         }
         else if (progress!.ResetIfExpired(anchor))
@@ -74,5 +75,10 @@ public class UpdateMissionProgressCommandHandler : IRequestHandler<UpdateMission
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return mission.ToDto(progress);
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId?.Trim().ToLowerInvariant() ?? string.Empty;
     }
 }

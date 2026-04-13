@@ -26,7 +26,7 @@ public class MissionProgress
         {
             Id = Guid.NewGuid(),
             MissionId = missionId,
-            UserId = userId.Trim(),
+            UserId = userId.Trim().ToLowerInvariant(),
             AnchorDate = anchorDate.Date,
             UpdatedAt = createdAt,
             ProgressValue = 0

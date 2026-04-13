@@ -25,7 +25,7 @@ public class AchievementProgress
         {
             Id = Guid.NewGuid(),
             AchievementId = achievementId,
-            UserId = userId.Trim(),
+            UserId = userId.Trim().ToLowerInvariant(),
             UpdatedAt = createdAt,
             ProgressValue = 0
         };

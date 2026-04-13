@@ -1957,6 +1957,11 @@
   "leaderboard": {
     "title": "Clasament",
     "level": "Nivel {level}",
+    "subtitle": "Clasament real al familiei după punctele câștigate",
+    "empty": "Nu există încă date pentru clasament",
+    "unknown": "Jucător necunoscut",
+    "you": "Tu",
+    "tasks": "{count} sarcini",
     "mockName1": "Maria",
     "mockName2": "Ivan",
     "mockName3": "Anna"
@@ -2940,7 +2945,10 @@
     "castle": "Castel",
     "seriesPercent": "{percent}% colectat",
     "outOf": "{unlocked} din {total} colectate",
-    "locked": "Blocat"
+    "locked": "Blocat",
+    "rulesHint": "Fiecare sticker se deblochează prin realizarea corespunzătoare.",
+    "unlockFor": "Pentru: {title}",
+    "progress": "{progress}/{total}"
   },
   "addChild": {
     "title": "Adăugați copil",

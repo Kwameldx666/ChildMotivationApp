@@ -14,7 +14,7 @@ public class MissionsController(ITaskServiceClient taskClient) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? recurrence, CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetUserId()?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         using var response = await taskClient.GetMissionsAsync(userId, recurrence, cancellationToken);
@@ -25,7 +25,7 @@ public class MissionsController(ITaskServiceClient taskClient) : ControllerBase
     public async Task<IActionResult> UpdateProgress(Guid id, [FromBody] UpdateMissionProgressRequest? request,
         CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
+        var userId = User.GetUserId()?.Trim().ToLowerInvariant();
         if (string.IsNullOrWhiteSpace(userId)) return Unauthorized("User identifier is missing in the token.");
 
         var payload = new

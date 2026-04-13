@@ -21,7 +21,9 @@ public class AchievementsController(IMediator mediator) : ControllerBase
             return BadRequest("User identifier is required.");
         }
 
-        var achievements = await mediator.Send(new GetAchievementsQuery(userId), cancellationToken);
+        var normalizedUserId = userId.Trim().ToLowerInvariant();
+
+        var achievements = await mediator.Send(new GetAchievementsQuery(normalizedUserId), cancellationToken);
         return Ok(achievements);
     }
 
@@ -38,7 +40,9 @@ public class AchievementsController(IMediator mediator) : ControllerBase
             return BadRequest("User identifier is required.");
         }
 
-        var command = new UpdateAchievementProgressCommand(id, request.UserId, request.ProgressDelta);
+        var normalizedUserId = request.UserId.Trim().ToLowerInvariant();
+
+        var command = new UpdateAchievementProgressCommand(id, normalizedUserId, request.ProgressDelta);
         var updated = await mediator.Send(command, cancellationToken);
         return Ok(updated);
     }

@@ -34,7 +34,8 @@ public class UpdateAchievementProgressCommandHandler : IRequestHandler<UpdateAch
             throw new ArgumentException("Achievement identifier is required", nameof(request.AchievementId));
         }
 
-        if (string.IsNullOrWhiteSpace(request.UserId))
+        var normalizedUserId = NormalizeUserId(request.UserId);
+        if (string.IsNullOrWhiteSpace(normalizedUserId))
         {
             throw new ArgumentException("User identifier is required", nameof(request.UserId));
         }
@@ -52,12 +53,12 @@ public class UpdateAchievementProgressCommandHandler : IRequestHandler<UpdateAch
         }
 
         var now = _dateTimeProvider.UtcNow;
-        var progress = await _progressRepository.GetAsync(request.AchievementId, request.UserId, cancellationToken);
+        var progress = await _progressRepository.GetAsync(request.AchievementId, normalizedUserId, cancellationToken);
         var isNew = progress is null;
 
         if (isNew)
         {
-            progress = AchievementProgress.Create(request.AchievementId, request.UserId, now);
+            progress = AchievementProgress.Create(request.AchievementId, normalizedUserId, now);
             await _progressRepository.AddAsync(progress!, cancellationToken);
         }
 
@@ -68,5 +69,10 @@ public class UpdateAchievementProgressCommandHandler : IRequestHandler<UpdateAch
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return achievement.ToDto(progress);
+    }
+
+    private static string NormalizeUserId(string userId)
+    {
+        return userId?.Trim().ToLowerInvariant() ?? string.Empty;
     }
 }
