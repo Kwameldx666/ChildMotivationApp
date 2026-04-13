@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Security.Claims;
 using Gateway.Application.Abstractions.Infrastructure;
 using Gateway.Application.Features.Ai.DTOs;
 using Gateway.Authorization;
@@ -81,6 +82,9 @@ public sealed class AiController(
             foreach (var pair in payload.Context)
                 context[pair.Key] = pair.Value;
 
+        context["requestedByUserId"] = userId;
+        context["audience"] = IsChildUser(User) ? "child" : "parent";
+
         var upstreamPayload = new
         {
             requestedByUserId = userId,
@@ -135,10 +139,29 @@ public sealed class AiController(
                 new ExecuteAiActionResponse { Success = false, Message = "User identifier is missing." });
 
         var ru = request.Language == null || request.Language.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+        var actionType = request.Action.Type?.Trim();
+
+        if (string.IsNullOrWhiteSpace(actionType))
+            return BadRequest(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru ? "Тип действия обязателен." : "Action type is required."
+            });
+
+        var normalizedActionType = actionType.ToUpperInvariant();
+
+        if (IsChildUser(User) && IsRestrictedActionForChild(normalizedActionType))
+            return Ok(new ExecuteAiActionResponse
+            {
+                Success = false,
+                Message = ru
+                    ? "Для детского аккаунта это действие через ИИ недоступно. Попросите родителя выполнить его."
+                    : "This AI action is not available for child accounts. Please ask your parent to perform it."
+            });
 
         try
         {
-            return request.Action.Type.ToUpperInvariant() switch
+            return normalizedActionType switch
             {
                 "CREATETASK" => await ExecuteCreateTask(request.Action, userId, ru, cancellationToken),
                 "CREATETASKS" => await ExecuteCreateTasks(request.Action, userId, ru, cancellationToken),
@@ -150,8 +173,8 @@ public sealed class AiController(
                 {
                     Success = false,
                     Message = ru
-                        ? $"Тип действия «{request.Action.Type}» не поддерживается для прямого выполнения."
-                        : $"Action type '{request.Action.Type}' is not supported for direct execution."
+                        ? $"Тип действия «{actionType}» не поддерживается для прямого выполнения."
+                        : $"Action type '{actionType}' is not supported for direct execution."
                 })
             };
         }
@@ -165,6 +188,26 @@ public sealed class AiController(
                     : $"Failed to execute action: {ex.Message}"
             });
         }
+    }
+
+    private static bool IsChildUser(ClaimsPrincipal user)
+    {
+        var role = user.FindFirst(ClaimTypes.Role)?.Value
+                   ?? user.FindFirst("role")?.Value;
+
+        return string.Equals(role, "child", StringComparison.OrdinalIgnoreCase)
+               || user.IsInRole("child");
+    }
+
+    private static bool IsRestrictedActionForChild(string actionType)
+    {
+        return actionType is
+            "CREATETASK"
+            or "CREATETASKS"
+            or "UPDATETASK"
+            or "COMPLETETASK"
+            or "CREATEREWARD"
+            or "CREATEREWARDS";
     }
 
     private async Task<IActionResult> ExecuteCreateTask(AiActionDto action, string userId, bool ru,

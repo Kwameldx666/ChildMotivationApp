@@ -13,6 +13,3 @@ public class ConfirmOrderReceivedRequest
     [StringLength(64, ErrorMessage = "ID ребёнка не может превышать 64 символа")]
     public string ConfirmedByUserId { get; init; } = string.Empty;
 }
-
-
-

@@ -127,6 +127,14 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
   const xpIn    = xp % 100
   const xpPct   = Math.min(100, xpIn)
   const rank    = getRank(level)
+  const activeTasksCount = useMemo(
+    () => tasks.filter((task) => !task.completed && !task.pendingApproval).length,
+    [tasks],
+  )
+  const reviewQueueCount = useMemo(
+    () => tasks.filter((task) => task.pendingApproval).length,
+    [tasks],
+  )
 
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const { showTour, completeTour } = useFirstVisitTour("child-tour-seen")
@@ -151,7 +159,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
 
   const avatarFallback = useMemo(() => {
     const v = userProfile.avatar?.trim()
-    if (v && !avatarImageUrl) return v
+    if (v && v !== "?" && !avatarImageUrl) return v
     return userProfile.name?.trim()?.charAt(0)?.toUpperCase() || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
@@ -266,7 +274,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                   className="rounded-xl px-3 py-2 cursor-pointer text-sm font-medium transition-colors focus:bg-primary/10"
                 >
                   <User className="mr-2 h-4 w-4" /> 
-                   
+                  {t("child.navigation.changeAvatar")}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem 
@@ -311,7 +319,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     {avatarFallback}
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -top-3 -right-3 text-3xl md:text-4xl animate-star-twinkle opacity-90 drop-shadow-lg">?</div>
+                <div className="absolute -top-3 -right-3 text-3xl md:text-4xl animate-star-twinkle opacity-90 drop-shadow-lg">✨</div>
                 
                 {/* Level Circle */}
                 <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
@@ -340,9 +348,13 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                   </span>
                 </div>
               </div>
+
+              <p className="mb-4 text-sm md:text-base text-muted-foreground font-medium">
+                {t("childDashboard.heroMessage")}
+              </p>
               
               {/* BEAUTIFUL STATS GRID: DAY STREAK & ВСЕГО XP */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 w-full max-w-xl">
+              <div data-tour="child-stats" className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 w-full max-w-xl">
                 {/* DAY STREAK */}
                 <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/5 border border-orange-500/20 p-3 sm:p-4 flex items-center gap-3 md:gap-4 shadow-sm backdrop-blur-md">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -350,7 +362,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     <Flame className={cn("h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md", streak >= 3 && "animate-streak-flame")} />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">ДНЕЙ ПОДРЯД</p>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-orange-600/70 dark:text-orange-400/70">{t("gameHub.dayStreak")}</p>
                     <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{streak}</p>
                   </div>
                 </div>
@@ -362,17 +374,41 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
                     <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow-md" />
                   </div>
                   <div className="text-left">
-                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">ВСЕГО XP</p>
+                    <p className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-sky-600/70 dark:text-sky-400/70">XP</p>
                     <p className="text-xl sm:text-2xl font-black tabular-nums text-foreground leading-none mt-0.5">{xp}</p>
                   </div>
                 </div>
+              </div>
+
+              <div className="mb-5 flex flex-wrap items-center gap-2 w-full max-w-xl">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("tasks")}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/15 transition-colors"
+                >
+                  ⚡ {t("childDashboard.nav.tasks")}: {activeTasksCount}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("tasks")}
+                  className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-500/15 transition-colors"
+                >
+                  ⏰ {t("tasks.pendingApproval")}: {reviewQueueCount}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("shop")}
+                  className="inline-flex items-center gap-2 rounded-full border border-violet-300/40 bg-violet-500/10 px-3.5 py-1.5 text-xs font-bold text-violet-700 dark:text-violet-300 hover:bg-violet-500/15 transition-colors"
+                >
+                  🎁 {t("childDashboard.nav.shop")}: {points}
+                </button>
               </div>
 
               {/* PROGRESS BAR WITH TEXT */}
               <div data-tour="child-xp" className="w-full max-w-xl group">
                 <div className="flex justify-between items-end mb-2 px-1">
                   <span className="text-[10px] sm:text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
-                    ПРОГРЕСС УРОВНЯ
+                    {t("childDashboard.nextLevel")}
                   </span>
                   <span className="text-sm font-black text-foreground">
                     {xpIn} <span className="text-muted-foreground/60">/ 100 XP</span>

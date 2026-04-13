@@ -396,8 +396,6 @@ export default function AiChatWidget() {
   if (!session) return null
   if (!settings.aiChatEnabled) return null
 
-  const unreadHint = messages.length > 1 && !open
-
   /* ── size classes ── */
   const panelW = expanded ? "w-[520px]" : "w-[380px]"
   const panelH = expanded ? "h-[600px]" : "h-[480px]"
@@ -419,11 +417,6 @@ export default function AiChatWidget() {
           aria-label={t("aiWidget.openChat")}
         >
           <MessageSquare className="h-6 w-6" />
-          {unreadHint && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-              !
-            </span>
-          )}
         </button>
       )}
 
@@ -494,7 +487,7 @@ export default function AiChatWidget() {
                     onExecuteAction={executeAction}
                     onDismissAction={dismissAction}
                     actionFilter={(a) => {
-                      const taskTypes = ["CreateTask", "CreateTasks", "CompleteTask"]
+                      const taskTypes = ["CreateTask", "CreateTasks", "UpdateTask", "CompleteTask"]
                       const rewardTypes = ["CreateReward", "CreateRewards"]
                       if (role === "child" && [...taskTypes, ...rewardTypes].includes(a.type)) return false
                       if (taskTypes.includes(a.type) && !settings.aiCanCreateTasks) return false
@@ -520,7 +513,7 @@ export default function AiChatWidget() {
 
             {/* ─── Pending Actions (filtered by AI permissions) ─── */}
             {(() => {
-              const taskTypes = ["CreateTask", "CreateTasks", "CompleteTask"]
+              const taskTypes = ["CreateTask", "CreateTasks", "UpdateTask", "CompleteTask"]
               const rewardTypes = ["CreateReward", "CreateRewards"]
               const filtered = pendingActions.filter((a) => {
                 if (role === "child" && [...taskTypes, ...rewardTypes].includes(a.type)) return false

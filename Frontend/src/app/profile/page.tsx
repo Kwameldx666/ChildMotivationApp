@@ -202,7 +202,7 @@ export default function ProfilePage() {
   const user = session.user
   const avatarDisplay = avatarPreview || resolveAvatarUrl(profile.avatar)
   const isImage = avatarDisplay && (avatarDisplay.startsWith("http") || avatarDisplay.startsWith("data:"))
-  const initials = `${(profile.name?.[0] || "").toUpperCase()}${(profile.lastName?.[0] || "").toUpperCase()}` || "?"
+  const initials = `${(profile.name?.[0] || "").toUpperCase()}${(profile.lastName?.[0] || "").toUpperCase()}` || "🙂"
   const isChild = profile.role === "child"
   const roleLabel = isChild ? (t("common.child") || "Child") : (t("common.parent") || "Parent")
 

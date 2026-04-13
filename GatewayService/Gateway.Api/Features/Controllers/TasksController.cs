@@ -254,6 +254,13 @@ public class TasksController(
         return await response.ToActionResultAsync();
     }
 
+    [HttpPost("{id:guid}/start")]
+    public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
+    {
+        using var response = await taskClient.StartAsync(id, cancellationToken);
+        return await response.ToActionResultAsync();
+    }
+
     [HttpPost("{id:guid}/request-approval")]
     public async Task<IActionResult> RequestApproval(Guid id, CancellationToken cancellationToken)
     {

@@ -390,10 +390,23 @@ export default function TasksList({ userType }: TasksListProps) {
 	)
 
 	const handleStart = useCallback(
-		(task: TaskDto) => {
-			startTask.mutate(task.id)
+		async (task: TaskDto) => {
+			try {
+				await startTask.mutateAsync(task.id)
+				toast({
+					title: t("tasksList.toast.taskStarted"),
+					description: t("tasksList.toast.taskStartedDesc"),
+				})
+			} catch (startError) {
+				console.error(startError)
+				toast({
+					title: t("tasksList.toast.startFailed"),
+					description: mapApiError(startError, t("tasksList.toast.tryAgain")),
+					variant: "destructive",
+				})
+			}
 		},
-		[startTask],
+		[startTask, toast, t],
 	)
 
 	const handleEvidenceSubmit = useCallback(
@@ -632,7 +645,7 @@ export default function TasksList({ userType }: TasksListProps) {
 									onReject={() => handleReject(task)}
 									onViewEvidence={() => handleViewEvidence(task)}
 									onUploadEvidence={() => setPendingEvidenceTask(task)}
-																					onStart={() => handleStart(task)}
+																				onStart={() => void handleStart(task)}
 									onEdit={() => openEditModal(task)}
 									onDelete={() => handleDeleteTask(task.id)}
 									onAskParent={userType === "child" && familyId ? (t2, customMessage) => {

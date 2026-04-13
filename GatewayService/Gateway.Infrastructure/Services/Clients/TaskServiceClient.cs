@@ -63,6 +63,13 @@ public class TaskServiceClient(IHttpClientFactory clientFactory, IOptionsSnapsho
             cancellationToken);
     }
 
+    public Task<HttpResponseMessage> StartAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var requestUri = BuildTaskPath(id) + "/start";
+        return _client.SendHttpRequestAsync<object>(HttpMethod.Post, requestUri, null, SerializerOptions,
+            cancellationToken);
+    }
+
     public Task<HttpResponseMessage> RequestApprovalAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var requestUri = BuildTaskPath(id) + "/request-approval";

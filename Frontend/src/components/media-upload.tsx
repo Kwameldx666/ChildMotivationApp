@@ -50,6 +50,32 @@ const SOURCE_CONFIG: Record<UploadSource, {
 	}
 }
 
+const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024
+
+const EVIDENCE_FORMAT_RULES: Record<Exclude<TaskEvidenceRequirement, "none">, {
+	mimePrefixes: string[]
+	extensions: string[]
+}> = {
+	photo: {
+		mimePrefixes: ["image/"],
+		extensions: [".jpg", ".jpeg", ".png", ".webp"]
+	},
+	video: {
+		mimePrefixes: ["video/"],
+		extensions: [".mp4", ".mov", ".webm"]
+	},
+	document: {
+		mimePrefixes: ["application/", "text/plain"],
+		extensions: [".pdf", ".doc", ".docx", ".txt"]
+	}
+}
+
+const getFileExtension = (fileName: string): string => {
+	const dotIndex = fileName.lastIndexOf(".")
+	if (dotIndex < 0) return ""
+	return fileName.slice(dotIndex).toLowerCase()
+}
+
 export default function MediaUpload({
 	evidenceType,
 	onFileSelect,
@@ -58,6 +84,7 @@ export default function MediaUpload({
 }: MediaUploadProps) {
 	const { t } = useTranslation()
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+	const [validationError, setValidationError] = useState<string | null>(null)
 	const [isRecording, setIsRecording] = useState(false)
 	const [recordingTime, setRecordingTime] = useState(0)
 	const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
@@ -81,6 +108,41 @@ export default function MediaUpload({
 		}
 	})()
 
+	const getAllowedExtensionsLabel = (): string => {
+		if (evidenceType === "none") return ""
+		return EVIDENCE_FORMAT_RULES[evidenceType].extensions.join(", ")
+	}
+
+	const validateSelectedFile = (candidateFile: File): string | null => {
+		if (candidateFile.size > MAX_FILE_SIZE_BYTES) {
+			return t("mediaUpload.maxFileSizeExceeded")
+		}
+
+		if (evidenceType === "none") return null
+
+		const rule = EVIDENCE_FORMAT_RULES[evidenceType]
+		const extension = getFileExtension(candidateFile.name)
+		const contentType = candidateFile.type.toLowerCase()
+
+		const isMimeAllowed = rule.mimePrefixes.some((prefix) => contentType.startsWith(prefix))
+		const isExtensionAllowed = rule.extensions.includes(extension)
+
+		if (!isMimeAllowed || !isExtensionAllowed) {
+			return `${t("mediaUpload.invalidFileType")} ${t("mediaUpload.allowedFormats")}: ${rule.extensions.join(", ")}`
+		}
+
+		return null
+	}
+
+	const getSourceAccept = (source: UploadSource): string | undefined => {
+		if (source === "gallery") {
+			if (evidenceType === "photo") return "image/*"
+			if (evidenceType === "video") return "video/*"
+		}
+
+		return SOURCE_CONFIG[source].accept
+	}
+
 	// Очистка при размонтировании
 	useEffect(() => {
 		return () => {
@@ -94,22 +156,34 @@ export default function MediaUpload({
 	}, [])
 
 	const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0]
-		if (!file) return
+		const candidateFile = event.target.files?.[0]
+		if (!candidateFile) return
 
-		onFileSelect(file)
-
-		// Создаем превью для изображений и видео
-		if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
-			const url = URL.createObjectURL(file)
-			setPreviewUrl(url)
-		} else {
-			setPreviewUrl(null)
+		const validationMessage = validateSelectedFile(candidateFile)
+		if (validationMessage) {
+			setValidationError(validationMessage)
+			event.target.value = ""
+			return
 		}
+
+		setValidationError(null)
+		onFileSelect(candidateFile)
+
+		setPreviewUrl((previousPreviewUrl) => {
+			if (previousPreviewUrl) {
+				URL.revokeObjectURL(previousPreviewUrl)
+			}
+
+			if (candidateFile.type.startsWith("image/") || candidateFile.type.startsWith("video/")) {
+				return URL.createObjectURL(candidateFile)
+			}
+
+			return null
+		})
 
 		// Очищаем input для возможности повторного выбора того же файла
 		event.target.value = ""
-	}, [onFileSelect])
+	}, [onFileSelect, validateSelectedFile])
 
 	const handleSourceClick = async (source: UploadSource) => {
 		if (source === "record-video") {
@@ -168,10 +242,32 @@ export default function MediaUpload({
 				const blob = new Blob(recordedChunksRef.current, { type: mimeType })
 				const extension = mimeType.includes('webm') ? 'webm' : 'mp4'
 				const file = new File([blob], `video-${Date.now()}.${extension}`, { type: mimeType })
+				const validationMessage = validateSelectedFile(file)
+				if (validationMessage) {
+					setValidationError(validationMessage)
+					if (streamRef.current) {
+						streamRef.current.getTracks().forEach(track => track.stop())
+						streamRef.current = null
+					}
+					setIsRecording(false)
+					setRecordingTime(0)
+					if (timerRef.current) {
+						clearInterval(timerRef.current)
+						timerRef.current = null
+					}
+					return
+				}
+
+				setValidationError(null)
 				onFileSelect(file)
 				
 				const url = URL.createObjectURL(blob)
-				setPreviewUrl(url)
+				setPreviewUrl((previousPreviewUrl) => {
+					if (previousPreviewUrl) {
+						URL.revokeObjectURL(previousPreviewUrl)
+					}
+					return url
+				})
 				
 				if (streamRef.current) {
 					streamRef.current.getTracks().forEach(track => track.stop())
@@ -226,6 +322,7 @@ export default function MediaUpload({
 			URL.revokeObjectURL(previewUrl)
 			setPreviewUrl(null)
 		}
+		setValidationError(null)
 		onClear()
 	}
 
@@ -365,9 +462,19 @@ export default function MediaUpload({
 					<div>
 						<p className="text-sm font-semibold text-blue-900">{t("mediaUpload.howToUpload")}</p>
 						<p className="text-sm text-blue-700 mt-1">{getInstructionText()}</p>
+						<p className="text-xs text-blue-600 mt-2">
+							{t("mediaUpload.maxSizeHint")}
+							{evidenceType !== "none" ? ` ${t("mediaUpload.allowedFormats")}: ${getAllowedExtensionsLabel()}` : ""}
+						</p>
 					</div>
 				</div>
 			</Card>
+
+			{validationError && (
+				<div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+					{validationError}
+				</div>
+			)}
 
 			{/* Кнопки выбора источника */}
 			<div className="grid gap-3 sm:grid-cols-2">
@@ -381,7 +488,7 @@ export default function MediaUpload({
 								<input
 									ref={(el) => { fileInputRefs.current[source] = el }}
 									type="file"
-									accept={config.accept}
+									accept={getSourceAccept(source)}
 									onChange={handleFileChange}
 									className="hidden"
 									{...(config.capture && { capture: config.capture as any })}

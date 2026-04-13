@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { useAiChat, type ChatMessage } from "@/hooks/use-ai-chat"
 import type { AiAction } from "@/services/ai-service"
 import { useTranslation } from "@/i18n/provider"
+import { useUserSettings } from "@/hooks/use-user-settings"
 
 interface AIChatPageProps {
   userName?: string
@@ -28,6 +29,7 @@ type QuickAction = {
 
 export default function AIChatPage({ userName, role = "parent", familyName, onBack }: AIChatPageProps) {
   const { t } = useTranslation()
+  const { settings } = useUserSettings()
 
   const quickActions: QuickAction[] = useMemo(() => [
     {
@@ -124,6 +126,17 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
     void sendMessage(prompt)
   }
 
+  const actionFilter = useCallback((action: AiAction) => {
+    const taskTypes = ["CreateTask", "CreateTasks", "UpdateTask", "CompleteTask"]
+    const rewardTypes = ["CreateReward", "CreateRewards"]
+    if (role === "child" && [...taskTypes, ...rewardTypes].includes(action.type)) return false
+    if (taskTypes.includes(action.type) && !settings.aiCanCreateTasks) return false
+    if (rewardTypes.includes(action.type) && !settings.aiCanCreateRewards) return false
+    return true
+  }, [role, settings.aiCanCreateTasks, settings.aiCanCreateRewards])
+
+  const visiblePendingActions = pendingActions.filter(actionFilter)
+
   return (
     <div className="relative min-h-screen bg-[#050914] text-slate-50">
       <div className="pointer-events-none absolute inset-0">
@@ -197,18 +210,21 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
                       </div>
                       
                       {/* Render actions for assistant messages */}
-                      {message.role === "assistant" && message.actions && message.actions.length > 0 && (
-                        <div className="mt-2 flex max-w-[80%] flex-wrap gap-2">
-                          {message.actions.map((action, idx) => (
-                            <ActionButton
-                              key={`${message.id}-action-${idx}`}
-                              action={action}
-                              onExecute={executeAction}
-                              onDismiss={dismissAction}
-                            />
-                          ))}
-                        </div>
-                      )}
+                      {message.role === "assistant" && message.actions && (() => {
+                        const visibleActions = message.actions.filter(actionFilter)
+                        return visibleActions.length > 0 ? (
+                          <div className="mt-2 flex max-w-[80%] flex-wrap gap-2">
+                            {visibleActions.map((action, idx) => (
+                              <ActionButton
+                                key={`${message.id}-action-${idx}`}
+                                action={action}
+                                onExecute={executeAction}
+                                onDismiss={dismissAction}
+                              />
+                            ))}
+                          </div>
+                        ) : null
+                      })()}
                     </div>
                   ))}
 
@@ -222,13 +238,13 @@ export default function AIChatPage({ userName, role = "parent", familyName, onBa
               </div>
 
               {/* Pending Actions Panel */}
-              {pendingActions.length > 0 && (
+              {visiblePendingActions.length > 0 && (
                 <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
                   <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-emerald-200">
                     {t("aiChatPage.actions.available")}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {pendingActions.map((action, idx) => (
+                    {visiblePendingActions.map((action, idx) => (
                       <ActionButton
                         key={`pending-${idx}`}
                         action={action}
