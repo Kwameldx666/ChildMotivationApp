@@ -39,6 +39,12 @@ const parseTimestamp = (value?: string | null): number | null => {
   return Number.isNaN(ts) ? null : ts
 }
 
+const normalizeUserId = (value?: string | null): string | null => {
+  if (!value) return null
+  const normalized = value.trim().toLowerCase()
+  return normalized.length > 0 ? normalized : null
+}
+
 const getTaskCompletionTimestamp = (task: TaskDto): number | null => {
   if (!task.completed) return null
   return parseTimestamp(task.completedAt) ?? parseTimestamp(task.updatedAt) ?? parseTimestamp(task.createdAt)
@@ -217,29 +223,61 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     // Children from family members (role=child) or from task assignees
     const familyMembers = familyQuery.data ?? []
     const normalizeRole = (role?: string | null) => role?.trim().toLowerCase() ?? ''
-    const childMembersByRole = familyMembers.filter(m => normalizeRole(m.role) === 'child')
-    const parentMembers = familyMembers.filter(m => normalizeRole(m.role) === 'parent')
+    const normalizedFamilyMembers = familyMembers
+      .map(member => {
+        const normalizedId = normalizeUserId(member.id)
+        if (!normalizedId) return null
+        return { ...member, normalizedId }
+      })
+      .filter((member): member is NonNullable<typeof member> => member !== null)
+
+    const childMembersByRole = normalizedFamilyMembers.filter(m => normalizeRole(m.role) === 'child')
+    const parentMembers = normalizedFamilyMembers.filter(m => normalizeRole(m.role) === 'parent')
     const childMembers = childMembersByRole.length > 0
       ? childMembersByRole
-      : familyMembers.filter(m => !parentMembers.some(parent => parent.id === m.id))
+      : normalizedFamilyMembers.filter(m => !parentMembers.some(parent => parent.normalizedId === m.normalizedId))
+
+    const childMembersById = new Map(childMembers.map(member => [member.normalizedId, member]))
+    const resolveTaskChildId = (task: TaskDto): string | null => {
+      const assignedTo = normalizeUserId(task.assignedToUserId)
+      if (assignedTo) return assignedTo
+
+      const createdBy = normalizeUserId(task.createdByUserId)
+      if (!createdBy) return null
+
+      return childMembersById.has(createdBy) ? createdBy : null
+    }
+
+    const childTasksById = new Map<string, TaskDto[]>()
+    for (const task of recentTasks) {
+      const childId = resolveTaskChildId(task)
+      if (!childId) continue
+
+      const existing = childTasksById.get(childId)
+      if (existing) {
+        existing.push(task)
+      } else {
+        childTasksById.set(childId, [task])
+      }
+    }
 
     // Unique child IDs from tasks
     const childIdsFromTasks = [...new Set(
       allTasks
-        .map(t => t.assignedToUserId)
+        .map(resolveTaskChildId)
         .filter((id): id is string => !!id)
     )]
 
     // Merge: prefer family member data for name, fall back to ID
     const childIdSet = new Set([
-      ...childMembers.map(m => m.id),
+      ...childMembers.map(m => m.normalizedId),
       ...childIdsFromTasks,
     ])
     const activeChildIds = [...childIdSet]
 
     const childrenStats: ChildStats[] = activeChildIds.map((childId, idx) => {
-      const member = childMembers.find(m => m.id === childId)
-      const childTasks = recentTasks.filter(t => t.assignedToUserId === childId)
+      const member = childMembersById.get(childId)
+      const childTasks = childTasksById.get(childId) ?? []
       const completed = childTasks.filter(t => {
         const completedTs = getTaskCompletionTimestamp(t)
         return completedTs !== null && completedTs >= cutoff
@@ -279,22 +317,22 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     // Per-child breakdowns
     const perChildActivity: ChildBreakdown<DailyActivity>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildWeeklyActivity(recentTasks.filter(t => t.assignedToUserId === childId), windowDays),
+      data: buildWeeklyActivity(childTasksById.get(childId) ?? [], windowDays),
     }))
 
     const perChildDifficulty: ChildBreakdown<CategoryData>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildDifficultyDistribution(recentTasks.filter(t => t.assignedToUserId === childId)),
+      data: buildDifficultyDistribution(childTasksById.get(childId) ?? []),
     }))
 
     const perChildProgress: ChildBreakdown<WeeklyProgress>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildWeeklyProgress(recentTasks.filter(t => t.assignedToUserId === childId), windowDays),
+      data: buildWeeklyProgress(childTasksById.get(childId) ?? [], windowDays),
     }))
 
     const perChildPointsTrend: ChildBreakdown<PointsTrend>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildPointsTrend(recentTasks.filter(t => t.assignedToUserId === childId), windowDays),
+      data: buildPointsTrend(childTasksById.get(childId) ?? [], windowDays),
     }))
 
     return {
