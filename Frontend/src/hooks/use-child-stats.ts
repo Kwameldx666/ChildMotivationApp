@@ -56,7 +56,7 @@ interface UseChildStatsOptions {
 
 export const useChildStats = ({ childId, enabled = true }: UseChildStatsOptions) => {
   const tasksQuery = useTasks()
-  const ordersQuery = useShopOrders()
+  const ordersQuery = useShopOrders(childId, enabled && Boolean(childId))
 
   const stats = useMemo<ChildStats>(() => {
     if (!enabled || !childId) return DEFAULT_STATS
@@ -64,7 +64,11 @@ export const useChildStats = ({ childId, enabled = true }: UseChildStatsOptions)
     const allTasks = tasksQuery.data ?? []
     
     // Filter tasks assigned to this child
-    const childTasks = allTasks.filter((task) => task.assignedToUserId === childId)
+    const childTasks = allTasks.filter((task) => {
+      const assignedTo = task.assignedToUserId?.trim()
+      const createdBy = task.createdByUserId?.trim()
+      return assignedTo === childId || (!assignedTo && createdBy === childId)
+    })
     const completedTasks = childTasks.filter((task) => task.completed)
     const pendingTasks = childTasks.filter((task) => !task.completed).length
     
@@ -85,8 +89,7 @@ export const useChildStats = ({ childId, enabled = true }: UseChildStatsOptions)
       ? Math.round(totalPointsEarned / completedTasks.length) 
       : 0
 
-    // TODO: When API supports filtering orders by child
-    const orders = ordersQuery.data ?? []
+    const orders = (ordersQuery.data ?? []).filter((order) => order.userId === childId)
     const totalPointsSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0)
     const points = Math.max(0, totalPointsEarned - totalPointsSpent)
     const rewardsPurchased = orders.length

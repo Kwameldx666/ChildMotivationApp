@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useTasks } from '@/services/tasks-queries'
 import { useShopOrders } from '@/services/shop-queries'
+import { useAppSelector } from '@/store/hooks'
+import { selectAuthSession } from '@/features/auth/store/authSlice'
 import { 
   computeTaskXp, 
   calculateTaskStreak, 
@@ -43,12 +45,25 @@ const DEFAULT_STATS: ChildProgressStats = {
 }
 
 export const useChildProgressStats = () => {
+  const session = useAppSelector(selectAuthSession)
+  const isChildSession = session?.profile.role === 'child'
+  const childUserId = isChildSession ? session.user.id : null
   const tasksQuery = useTasks()
-  const ordersQuery = useShopOrders()
+  const ordersQuery = useShopOrders(childUserId ?? undefined, Boolean(session))
 
   const stats = useMemo<ChildProgressStats>(() => {
+    if (!session) return DEFAULT_STATS
+
     const tasks = tasksQuery.data ?? []
-    const completedTasks = tasks.filter((task) => task.completed)
+    const scopedTasks = isChildSession && childUserId
+      ? tasks.filter((task) => {
+          const assignedTo = task.assignedToUserId?.trim()
+          const createdBy = task.createdByUserId?.trim()
+          return assignedTo === childUserId || (!assignedTo && createdBy === childUserId)
+        })
+      : tasks
+
+    const completedTasks = scopedTasks.filter((task) => task.completed)
     const streak = calculateTaskStreak(completedTasks)
     const streakMultiplier = getStreakMultiplier(streak)
     
@@ -66,7 +81,9 @@ export const useChildProgressStats = () => {
       ? Math.round(totalPointsEarned / completedTasks.length) 
       : 0
 
-    const orders = ordersQuery.data ?? []
+    const orders = isChildSession && childUserId
+      ? (ordersQuery.data ?? []).filter((order) => order.userId === childUserId)
+      : (ordersQuery.data ?? [])
     const totalPointsSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0)
     const points = Math.max(0, totalPointsEarned - totalPointsSpent)
     const rewardsPurchased = orders.length
@@ -90,7 +107,7 @@ export const useChildProgressStats = () => {
       averagePointsPerTask,
       rewardProgress,
     }
-  }, [tasksQuery.data, ordersQuery.data])
+  }, [session, isChildSession, childUserId, tasksQuery.data, ordersQuery.data])
 
   return {
     stats: stats ?? DEFAULT_STATS,

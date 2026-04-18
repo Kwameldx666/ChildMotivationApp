@@ -13,7 +13,6 @@ namespace Gateway.Features.Controllers;
 [Route("api-gateway/[controller]")]
 public class TasksController(
     ITaskServiceClient taskClient,
-    IUserServiceClient userServiceClient,
     ILogger<TasksController> logger) : ControllerBase
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
@@ -44,39 +43,23 @@ public class TasksController(
             var mergedTasksById = (await ReadTasksAsync(assignedTasksResponse, cancellationToken))
                 .ToDictionary(GetTaskId, task => task);
 
-            using var familyMembersResponse = await userServiceClient.GetCurrentFamilyMembersAsync(cancellationToken);
-            if (familyMembersResponse.IsSuccessStatusCode)
+            using var ownTasksResponse = await taskClient.GetAllAsync(userId, null, cancellationToken);
+            if (ownTasksResponse.IsSuccessStatusCode)
             {
-                var parentIds = await ReadParentIdsAsync(familyMembersResponse, userId, cancellationToken);
-
-                foreach (var parentId in parentIds)
+                var ownTasks = await ReadTasksAsync(ownTasksResponse, cancellationToken);
+                foreach (var task in ownTasks.Where(task =>
+                             string.IsNullOrWhiteSpace(GetTaskAssignedTo(task))
+                             || string.Equals(GetTaskAssignedTo(task), userId, StringComparison.OrdinalIgnoreCase)))
                 {
-                    using var parentTasksResponse = await taskClient.GetAllAsync(parentId, null, cancellationToken);
-                    if (!parentTasksResponse.IsSuccessStatusCode)
-                    {
-                        logger.LogWarning(
-                            "Failed to fetch tasks created by parent {ParentId} for child {ChildId}. Status: {StatusCode}",
-                            parentId,
-                            userId,
-                            (int)parentTasksResponse.StatusCode);
-                        continue;
-                    }
-
-                    var parentTasks = await ReadTasksAsync(parentTasksResponse, cancellationToken);
-                    foreach (var task in parentTasks.Where(task =>
-                                 string.IsNullOrWhiteSpace(GetTaskAssignedTo(task)) ||
-                                 GetTaskAssignedTo(task) == userId))
-                    {
-                        mergedTasksById.TryAdd(GetTaskId(task), task);
-                    }
+                    mergedTasksById.TryAdd(GetTaskId(task), task);
                 }
             }
             else
             {
                 logger.LogWarning(
-                    "Failed to load family members for child {ChildId}. Status: {StatusCode}",
+                    "Failed to load self-created tasks for child {ChildId}. Status: {StatusCode}",
                     userId,
-                    (int)familyMembersResponse.StatusCode);
+                    (int)ownTasksResponse.StatusCode);
             }
 
             var tasks = mergedTasksById.Values
@@ -87,7 +70,12 @@ public class TasksController(
             return Ok(tasks);
         }
 
-        var createdBy = isParent ? userId : null;
+        if (!isParent && !isChild)
+        {
+            logger.LogWarning("Unknown role for user {UserId}; applying self-scoped task filter.", userId);
+        }
+
+        var createdBy = userId;
         var assignedTo = (isChild && !isParent) ? userId : null;
 
         using var response = await taskClient.GetAllAsync(createdBy, assignedTo, cancellationToken);
@@ -155,52 +143,6 @@ public class TasksController(
 
         var pascalName = char.ToUpperInvariant(camelCaseName[0]) + camelCaseName.Substring(1);
         return source.TryGetValue(pascalName, out value);
-    }
-
-    private static async Task<IReadOnlyList<string>> ReadParentIdsAsync(
-        HttpResponseMessage response,
-        string currentUserId,
-        CancellationToken cancellationToken)
-    {
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
-
-        var root = document.RootElement;
-        var members = root.ValueKind == JsonValueKind.Array
-            ? root
-            : root.TryGetProperty("data", out var dataNode) && dataNode.ValueKind == JsonValueKind.Array
-                ? dataNode
-                : root.TryGetProperty("items", out var itemsNode) && itemsNode.ValueKind == JsonValueKind.Array
-                    ? itemsNode
-                    : default;
-
-        if (members.ValueKind != JsonValueKind.Array)
-        {
-            return [];
-        }
-
-        var parentIds = new List<string>();
-
-        foreach (var member in members.EnumerateArray())
-        {
-            if (member.ValueKind != JsonValueKind.Object) continue;
-
-            var role = member.TryGetProperty("role", out var roleNode)
-                ? roleNode.GetString()
-                : null;
-            if (!string.Equals(role, "parent", StringComparison.OrdinalIgnoreCase)) continue;
-
-            var memberId = member.TryGetProperty("id", out var idNode)
-                ? idNode.GetString()
-                : member.TryGetProperty("userId", out var userIdNode)
-                    ? userIdNode.GetString()
-                    : null;
-
-            if (string.IsNullOrWhiteSpace(memberId) || memberId == currentUserId) continue;
-            parentIds.Add(memberId);
-        }
-
-        return parentIds;
     }
 
     [HttpGet("{id:guid}")]

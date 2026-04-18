@@ -95,15 +95,26 @@ export function useTasks() {
     queryKey: ['tasks', ...scopedKey],
     queryFn: async () => {
       const tasks = await tasksService.list()
+      const normalizedTasks = Array.isArray(tasks) ? tasks : []
 
       const isChild = session?.profile.role === 'child'
-      const hasNoTasks = !Array.isArray(tasks) || tasks.length === 0
+      const childId = session?.user.id
 
-      if (isChild && hasNoTasks && session?.user.id) {
-        return buildMockChildTasks(session.user.id)
+      if (isChild && childId) {
+        const scopedChildTasks = normalizedTasks.filter((task) => {
+          const assignedTo = task.assignedToUserId?.trim()
+          const createdBy = task.createdByUserId?.trim()
+          return assignedTo === childId || (!assignedTo && createdBy === childId)
+        })
+
+        if (scopedChildTasks.length === 0) {
+          return buildMockChildTasks(childId)
+        }
+
+        return scopedChildTasks
       }
 
-      return tasks
+      return normalizedTasks
     },
     enabled: Boolean(session),
     staleTime: 1000 * 30,          // 30 seconds before considered stale
