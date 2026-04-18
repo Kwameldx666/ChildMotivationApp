@@ -6,21 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
-  Bell, Moon, Sun, AlertCircle,
-  Loader2, Bot, Sparkles, CheckCircle2, Palette, Shield,
-  ExternalLink,
+  Bell,
+  Bot, Sparkles, CheckCircle2,
 } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useRouter } from "next/navigation"
 import { useTranslation } from "@/i18n/provider"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import SubscriptionManager from "./subscription-manager"
 import { useUserSettings } from "@/hooks/use-user-settings"
 import { cn } from "@/lib/utils"
@@ -33,17 +22,13 @@ interface ParentSettingsProps {
 const SETTINGS_TABS = [
   { id: "notifications", labelKey: "parentSettings.tabs.notifications", Icon: Bell },
   { id: "ai",            labelKey: "parentSettings.tabs.ai",            Icon: Bot },
-  { id: "appearance",    labelKey: "parentSettings.tabs.appearance",    Icon: Palette },
-  { id: "danger",        labelKey: "parentSettings.tabs.danger",        Icon: Shield },
 ] as const
 
 type SettingsTab = typeof SETTINGS_TABS[number]["id"]
 
-export default function ParentSettings({ familyName }: ParentSettingsProps) {
-  const { theme, setTheme } = useTheme()
-  const router = useRouter()
+export default function ParentSettings({ familyName: _familyName }: ParentSettingsProps) {
   const { t } = useTranslation()
-  const { settings, updateSettings, clearAllData, isLoading } = useUserSettings()
+  const { settings, updateSettings } = useUserSettings()
   const [activeTab, setActiveTab] = useState<SettingsTab>("notifications")
 
   const handleSettingChange = (key: string, value: any) => {
@@ -70,7 +55,6 @@ export default function ParentSettings({ familyName }: ParentSettingsProps) {
                 active
                   ? "bg-background shadow-sm text-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/50",
-                tab.id === "danger" && active && "text-destructive",
               )}
             >
               <tab.Icon className="h-4 w-4 shrink-0" />
@@ -259,79 +243,6 @@ export default function ParentSettings({ familyName }: ParentSettingsProps) {
               </div>
             </>
           )}
-        </div>
-      </div>
-
-      {/* ═══ TAB: APPEARANCE ═══ */}
-      <div className={cn(activeTab === "appearance" ? "block" : "hidden", "space-y-3")}>
-        <div className="flex items-center justify-between rounded-xl border border-border/30 bg-card p-5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
-              {theme === "dark" ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
-            </div>
-            <div>
-              <Label className="font-medium text-sm">{t("settings.theme")}</Label>
-              <p className="text-[11px] text-muted-foreground">
-                {theme === "dark" ? t("settings.themeDark") : t("settings.themeLight")}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="rounded-lg gap-1.5 text-sm font-semibold h-9"
-          >
-            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-            {theme === "dark" ? t("settings.lightThemeLabel") : t("settings.darkThemeLabel")}
-          </Button>
-        </div>
-      </div>
-
-      {/* ═══ TAB: DANGER ═══ */}
-      <div className={cn(activeTab === "danger" ? "block" : "hidden", "space-y-3")}>
-        <div className="rounded-xl border border-destructive/20 bg-card p-5 space-y-4">
-          <div>
-            <p className="text-sm font-semibold text-destructive">{t("settings.dangerZone")}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t("settings.dangerDescription")}</p>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-destructive/40 text-destructive hover:bg-destructive/5 bg-transparent gap-2 text-sm font-semibold h-9"
-              >
-                <AlertCircle className="w-3.5 h-3.5" />
-                {t("settings.clearAllData")}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm rounded-2xl">
-              <DialogHeader>
-                <DialogTitle className="text-base">{t("settings.clearAllDataConfirm")}</DialogTitle>
-                <DialogDescription className="text-xs">{t("settings.clearAllDataMessage")}</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">{t("settings.whatWillBeDeleted")}</p>
-                <ul className="text-xs space-y-1 text-muted-foreground list-disc list-inside">
-                  <li>{t("settings.allTasksDeleted")}</li>
-                  <li>{t("settings.allRewardsDeleted")}</li>
-                  <li>{t("settings.allStatisticsDeleted")}</li>
-                  <li>{t("settings.childProfilesDeleted")}</li>
-                </ul>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  className="w-full text-xs font-semibold"
-                  onClick={clearAllData}
-                  disabled={isLoading}
-                >
-                  {isLoading && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-                  {t("settings.clearAllData")}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </div>

@@ -174,6 +174,14 @@ export default function AnalyticsDashboard() {
     }
   }, [currentChart, visibleChartIndexes])
 
+  useEffect(() => {
+    if (!analytics || selectedChild === "all") return
+    const childStillExists = analytics.childrenStats.some((child) => child.childId === selectedChild)
+    if (!childStillExists) {
+      setSelectedChild("all")
+    }
+  }, [analytics, selectedChild])
+
   const visibleChartPosition = Math.max(0, visibleChartIndexes.indexOf(currentChart)) + 1
 
   /* ── Per-chart time override (null = use global) ── */

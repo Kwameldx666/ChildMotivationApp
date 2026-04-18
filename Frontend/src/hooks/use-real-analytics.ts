@@ -33,6 +33,21 @@ const startOfDay = (d: Date) => {
 
 const dayKey = (d: Date) => startOfDay(d).getTime()
 
+const parseTimestamp = (value?: string | null): number | null => {
+  if (!value) return null
+  const ts = new Date(value).getTime()
+  return Number.isNaN(ts) ? null : ts
+}
+
+const getTaskCompletionTimestamp = (task: TaskDto): number | null => {
+  if (!task.completed) return null
+  return parseTimestamp(task.completedAt) ?? parseTimestamp(task.updatedAt) ?? parseTimestamp(task.createdAt)
+}
+
+const getTaskActivityTimestamp = (task: TaskDto): number => {
+  return getTaskCompletionTimestamp(task) ?? parseTimestamp(task.updatedAt) ?? parseTimestamp(task.createdAt) ?? 0
+}
+
 /* ── build helpers ── */
 
 function buildWeeklyActivity(tasks: TaskDto[], windowDays: number): DailyActivity[] {
@@ -47,8 +62,8 @@ function buildWeeklyActivity(tasks: TaskDto[], windowDays: number): DailyActivit
       const dateEnd = dateStart + 86_400_000
 
       const dayTasks = tasks.filter(t => {
-        if (!t.completedAt) return false
-        const ts = new Date(t.completedAt).getTime()
+        const ts = getTaskCompletionTimestamp(t)
+        if (ts === null) return false
         return ts >= dateStart && ts < dateEnd
       })
 
@@ -72,8 +87,8 @@ function buildWeeklyActivity(tasks: TaskDto[], windowDays: number): DailyActivit
     const we = startOfDay(weekEnd).getTime() + 86_400_000
 
     const weekTasks = tasks.filter(t => {
-      if (!t.completedAt) return false
-      const ts = new Date(t.completedAt).getTime()
+      const ts = getTaskCompletionTimestamp(t)
+      if (ts === null) return false
       return ts >= ws && ts < we
     })
 
@@ -154,8 +169,8 @@ function buildPointsTrend(tasks: TaskDto[], windowDays: number): PointsTrend[] {
     const we = startOfDay(end).getTime() + 86_400_000
 
     const periodCompleted = tasks.filter(t => {
-      if (!t.completedAt) return false
-      const ts = new Date(t.completedAt).getTime()
+      const ts = getTaskCompletionTimestamp(t)
+      if (ts === null) return false
       return ts >= ws && ts < we
     })
 
@@ -188,9 +203,12 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     if (!allTasks) return null
 
     const cutoff = Date.now() - windowDays * 86_400_000
-    const recentTasks = allTasks.filter(t => new Date(t.createdAt).getTime() >= cutoff)
+    const recentTasks = allTasks.filter(t => getTaskActivityTimestamp(t) >= cutoff)
 
-    const completedTasks = recentTasks.filter(t => t.completed)
+    const completedTasks = recentTasks.filter(t => {
+      const completedTs = getTaskCompletionTimestamp(t)
+      return completedTs !== null && completedTs >= cutoff
+    })
     const totalPoints = completedTasks.reduce((s, t) => s + computeTaskPoints(t), 0)
     const completionRate = recentTasks.length > 0
       ? (completedTasks.length / recentTasks.length) * 100
@@ -207,7 +225,7 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
 
     // Unique child IDs from tasks
     const childIdsFromTasks = [...new Set(
-      recentTasks
+      allTasks
         .map(t => t.assignedToUserId)
         .filter((id): id is string => !!id)
     )]
@@ -222,7 +240,10 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     const childrenStats: ChildStats[] = activeChildIds.map((childId, idx) => {
       const member = childMembers.find(m => m.id === childId)
       const childTasks = recentTasks.filter(t => t.assignedToUserId === childId)
-      const completed = childTasks.filter(t => t.completed)
+      const completed = childTasks.filter(t => {
+        const completedTs = getTaskCompletionTimestamp(t)
+        return completedTs !== null && completedTs >= cutoff
+      })
       const pending = childTasks.filter(t => !t.completed).length
 
       return {

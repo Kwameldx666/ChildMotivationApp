@@ -446,7 +446,7 @@
       "streakHeatmap": "Quest Journey"
     },
     "chartDescriptions": {
-      "activityPulse": "How many tasks are completed each day and how many points are earned. The dashed line shows the average trend.",
+      "activityPulse": "How many tasks are completed each day and how many points are earned. The dashed line shows a 3-period moving average of completed tasks.",
       "childrenLeaderboard": "A ranking of children by points earned — who is the most active this period.",
       "difficultyRadar": "Distribution of tasks by difficulty level — shows what kind of tasks the child completes most often.",
       "completionMomentum": "What percentage of assigned tasks are completed each week. The dashed line shows the 80% target.",
@@ -464,7 +464,7 @@
       "pending": "Pending",
       "remaining": "Remaining",
       "completionRate": "Completion %",
-      "trend": "Trend",
+      "trend": "Tasks Avg (3 periods)",
       "avgRate": "Average",
       "completionPercent": "Completion %",
       "goal": "Goal",
@@ -2321,6 +2321,8 @@
       "pendingHint": "Show pending tasks",
       "inProgress": "In Progress",
       "inProgressHint": "Show tasks in progress",
+      "in_progress": "In Progress",
+      "in_progressHint": "Show tasks in progress",
       "completed": "Completed",
       "completedHint": "Show completed tasks",
       "overdue": "Overdue",

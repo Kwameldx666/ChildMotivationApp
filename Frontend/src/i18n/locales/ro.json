@@ -896,7 +896,7 @@
       "streakHeatmap": "Calea eroului"
     },
     "chartDescriptions": {
-      "activityPulse": "Câte sarcini sunt finalizate zilnic și câte puncte sunt câștigate. Linia punctată arată tendința medie.",
+      "activityPulse": "Câte sarcini sunt finalizate zilnic și câte puncte sunt câștigate. Linia punctată arată media mobilă pe 3 perioade a sarcinilor finalizate.",
       "childrenLeaderboard": "Clasamentul copiilor după puncte câștigate — cine este cel mai activ în această perioadă.",
       "difficultyRadar": "Distribuția sarcinilor pe nivel de dificultate — arată ce tip de sarcini finalizează copilul cel mai des.",
       "completionMomentum": "Ce procent din sarcinile atribuite sunt finalizate săptămânal. Linia punctată arată obiectivul de 80%.",
@@ -914,7 +914,7 @@
       "pending": "În așteptare",
       "remaining": "Rămase",
       "completionRate": "Rată finalizare %",
-      "trend": "Tendință",
+      "trend": "Medie sarcini (3 perioade)",
       "avgRate": "Media",
       "completionPercent": "% finalizare",
       "goal": "Obiectiv",
@@ -2321,6 +2321,8 @@
       "pendingHint": "Arată sarcinile în așteptare",
       "inProgress": "În desfășurare",
       "inProgressHint": "Arată sarcinile în desfășurare",
+      "in_progress": "În desfășurare",
+      "in_progressHint": "Arată sarcinile în desfășurare",
       "completed": "Finalizate",
       "completedHint": "Arată sarcinile finalizate",
       "overdue": "Întârziate",
