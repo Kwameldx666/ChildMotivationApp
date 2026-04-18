@@ -3,88 +3,6 @@ import { useAppSelector } from '@/store/hooks'
 import { selectAuthSession } from '@/features/auth/store/authSlice'
 import { tasksService, TaskDto, CreateTaskPayload, UpdateTaskPayload } from './tasks-service'
 
-function buildMockChildTasks(childId: string): TaskDto[] {
-  const now = new Date()
-  const day = 24 * 60 * 60 * 1000
-
-  const toIso = (offsetDays: number) => new Date(now.getTime() - offsetDays * day).toISOString()
-
-  return [
-    {
-      id: `mock-child-task-${childId}-1`,
-      title: 'Заправить кровать',
-      description: 'Утренний порядок в комнате',
-      completed: true,
-      pendingApproval: false,
-      createdAt: toIso(4),
-      completedAt: toIso(0),
-      updatedAt: toIso(0),
-      createdByUserId: 'mock-parent',
-      assignedToUserId: childId,
-      difficulty: 2,
-      rewardPoints: 10,
-      evidence: {
-        requirement: 'none',
-        isSubmitted: false,
-      },
-    },
-    {
-      id: `mock-child-task-${childId}-2`,
-      title: 'Сделать домашнее задание',
-      description: 'Математика и чтение',
-      completed: true,
-      pendingApproval: false,
-      createdAt: toIso(3),
-      completedAt: toIso(1),
-      updatedAt: toIso(1),
-      createdByUserId: 'mock-parent',
-      assignedToUserId: childId,
-      difficulty: 4,
-      rewardPoints: 25,
-      evidence: {
-        requirement: 'photo',
-        isSubmitted: true,
-        fileName: 'homework.jpg',
-        contentType: 'image/jpeg',
-      },
-    },
-    {
-      id: `mock-child-task-${childId}-3`,
-      title: 'Помочь накрыть на стол',
-      description: 'Подготовить посуду к ужину',
-      completed: false,
-      pendingApproval: false,
-      createdAt: toIso(1),
-      updatedAt: toIso(1),
-      createdByUserId: 'mock-parent',
-      assignedToUserId: childId,
-      difficulty: 3,
-      rewardPoints: 15,
-      evidence: {
-        requirement: 'photo',
-        isSubmitted: false,
-      },
-    },
-    {
-      id: `mock-child-task-${childId}-4`,
-      title: 'Прочитать 20 минут',
-      description: 'Книга перед сном',
-      completed: false,
-      pendingApproval: false,
-      createdAt: toIso(0),
-      updatedAt: toIso(0),
-      createdByUserId: 'mock-parent',
-      assignedToUserId: childId,
-      difficulty: 2,
-      rewardPoints: 10,
-      evidence: {
-        requirement: 'none',
-        isSubmitted: false,
-      },
-    },
-  ]
-}
-
 export function useTasks() {
   const session = useAppSelector(selectAuthSession)
   const scopedKey: [string, string] = session
@@ -107,11 +25,6 @@ export function useTasks() {
           const createdBy = task.createdByUserId?.trim().toLowerCase()
           return assignedTo === normalizedChildId || (!assignedTo && createdBy === normalizedChildId)
         })
-
-        if (scopedChildTasks.length === 0) {
-          return buildMockChildTasks(childId)
-        }
-
         return scopedChildTasks
       }
 
