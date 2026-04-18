@@ -84,10 +84,10 @@ function buildWeeklyActivity(tasks: TaskDto[], windowDays: number): DailyActivit
   // Weekly buckets
   const buckets = Math.ceil(windowDays / 7)
   return Array.from({ length: buckets }, (_, i) => {
-    const weekStart = new Date(now)
-    weekStart.setDate(weekStart.getDate() - (buckets - 1 - i) * 7)
-    const weekEnd = new Date(weekStart)
-    weekEnd.setDate(weekEnd.getDate() + 6)
+    const weekEnd = new Date(now)
+    weekEnd.setDate(weekEnd.getDate() - (buckets - 1 - i) * 7)
+    const weekStart = new Date(weekEnd)
+    weekStart.setDate(weekStart.getDate() - 6)
 
     const ws = startOfDay(weekStart).getTime()
     const we = startOfDay(weekEnd).getTime() + 86_400_000
@@ -125,15 +125,15 @@ function buildWeeklyProgress(tasks: TaskDto[], windowDays: number): WeeklyProgre
   const buckets = useDailyGranularity ? windowDays : Math.min(Math.ceil(windowDays / 7), 8)
 
   return Array.from({ length: buckets }, (_, i) => {
-    const start = new Date(now)
+    const end = new Date(now)
     if (useDailyGranularity) {
-      start.setDate(start.getDate() - (buckets - 1 - i))
+      end.setDate(end.getDate() - (buckets - 1 - i))
     } else {
-      start.setDate(start.getDate() - (buckets - 1 - i) * 7)
+      end.setDate(end.getDate() - (buckets - 1 - i) * 7)
     }
 
-    const end = new Date(start)
-    if (!useDailyGranularity) end.setDate(end.getDate() + 6)
+    const start = new Date(end)
+    if (!useDailyGranularity) start.setDate(start.getDate() - 6)
 
     const ws = startOfDay(start).getTime()
     const we = startOfDay(end).getTime() + 86_400_000
@@ -147,7 +147,7 @@ function buildWeeklyProgress(tasks: TaskDto[], windowDays: number): WeeklyProgre
     const total = periodTasks.length
 
     const label = useDailyGranularity
-      ? fmtDate(start)
+      ? fmtDate(end)
       : `${fmtDate(start)}–${fmtDate(end)}`
 
     return { week: label, completed, total }
@@ -159,29 +159,28 @@ function buildPointsTrend(tasks: TaskDto[], windowDays: number): PointsTrend[] {
   const useDailyGranularity = windowDays <= 14
   const buckets = useDailyGranularity ? windowDays : Math.ceil(windowDays / 7)
 
-  let cumulative = 0
   return Array.from({ length: buckets }, (_, i) => {
-    const start = new Date(now)
+    const end = new Date(now)
     if (useDailyGranularity) {
-      start.setDate(start.getDate() - (buckets - 1 - i))
+      end.setDate(end.getDate() - (buckets - 1 - i))
     } else {
-      start.setDate(start.getDate() - (buckets - 1 - i) * 7)
+      end.setDate(end.getDate() - (buckets - 1 - i) * 7)
     }
 
-    const end = new Date(start)
-    if (!useDailyGranularity) end.setDate(end.getDate() + 6)
+    const start = new Date(end)
+    if (!useDailyGranularity) start.setDate(start.getDate() - 6)
 
-    const ws = startOfDay(start).getTime()
     const we = startOfDay(end).getTime() + 86_400_000
 
-    const periodCompleted = tasks.filter(t => {
+    const cumulative = tasks.reduce((sum, t) => {
       const ts = getTaskCompletionTimestamp(t)
-      if (ts === null) return false
-      return ts >= ws && ts < we
-    })
+      if (ts !== null && ts < we) {
+        return sum + computeTaskPoints(t)
+      }
+      return sum
+    }, 0)
 
-    cumulative += periodCompleted.reduce((s, t) => s + computeTaskPoints(t), 0)
-    const label = useDailyGranularity ? fmtDate(start) : `${fmtDate(start)}–${fmtDate(end)}`
+    const label = useDailyGranularity ? fmtDate(end) : `${fmtDate(start)}–${fmtDate(end)}`
     return { date: label, points: cumulative }
   })
 }
@@ -249,6 +248,20 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     }
 
     const childTasksById = new Map<string, TaskDto[]>()
+    const allChildTasksById = new Map<string, TaskDto[]>()
+
+    for (const task of allTasks) {
+      const childId = resolveTaskChildId(task)
+      if (!childId) continue
+
+      const existingAll = allChildTasksById.get(childId)
+      if (existingAll) {
+        existingAll.push(task)
+      } else {
+        allChildTasksById.set(childId, [task])
+      }
+    }
+
     for (const task of recentTasks) {
       const childId = resolveTaskChildId(task)
       if (!childId) continue
@@ -332,7 +345,7 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
 
     const perChildPointsTrend: ChildBreakdown<PointsTrend>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildPointsTrend(childTasksById.get(childId) ?? [], windowDays),
+      data: buildPointsTrend(allChildTasksById.get(childId) ?? [], windowDays),
     }))
 
     return {
@@ -346,7 +359,7 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
       difficultyDistribution: buildDifficultyDistribution(recentTasks),
       weeklyProgress: buildWeeklyProgress(recentTasks, windowDays),
       taskStatus,
-      pointsTrend: buildPointsTrend(recentTasks, windowDays),
+      pointsTrend: buildPointsTrend(allTasks, windowDays),
       perChildActivity,
       perChildDifficulty,
       perChildProgress,
