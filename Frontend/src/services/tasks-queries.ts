@@ -101,10 +101,11 @@ export function useTasks() {
       const childId = session?.user.id
 
       if (isChild && childId) {
+        const normalizedChildId = childId.trim().toLowerCase()
         const scopedChildTasks = normalizedTasks.filter((task) => {
-          const assignedTo = task.assignedToUserId?.trim()
-          const createdBy = task.createdByUserId?.trim()
-          return assignedTo === childId || (!assignedTo && createdBy === childId)
+          const assignedTo = task.assignedToUserId?.trim().toLowerCase()
+          const createdBy = task.createdByUserId?.trim().toLowerCase()
+          return assignedTo === normalizedChildId || (!assignedTo && createdBy === normalizedChildId)
         })
 
         if (scopedChildTasks.length === 0) {

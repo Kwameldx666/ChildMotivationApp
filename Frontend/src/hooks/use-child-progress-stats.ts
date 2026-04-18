@@ -48,18 +48,19 @@ export const useChildProgressStats = () => {
   const session = useAppSelector(selectAuthSession)
   const isChildSession = session?.profile.role === 'child'
   const childUserId = isChildSession ? session.user.id : null
+  const normalizedChildUserId = childUserId?.trim().toLowerCase() ?? null
   const tasksQuery = useTasks()
-  const ordersQuery = useShopOrders(childUserId ?? undefined, Boolean(session))
+  const ordersQuery = useShopOrders(normalizedChildUserId ?? undefined, Boolean(session))
 
   const stats = useMemo<ChildProgressStats>(() => {
     if (!session) return DEFAULT_STATS
 
     const tasks = tasksQuery.data ?? []
-    const scopedTasks = isChildSession && childUserId
+    const scopedTasks = isChildSession && normalizedChildUserId
       ? tasks.filter((task) => {
-          const assignedTo = task.assignedToUserId?.trim()
-          const createdBy = task.createdByUserId?.trim()
-          return assignedTo === childUserId || (!assignedTo && createdBy === childUserId)
+          const assignedTo = task.assignedToUserId?.trim().toLowerCase()
+          const createdBy = task.createdByUserId?.trim().toLowerCase()
+          return assignedTo === normalizedChildUserId || (!assignedTo && createdBy === normalizedChildUserId)
         })
       : tasks
 
@@ -81,8 +82,8 @@ export const useChildProgressStats = () => {
       ? Math.round(totalPointsEarned / completedTasks.length) 
       : 0
 
-    const orders = isChildSession && childUserId
-      ? (ordersQuery.data ?? []).filter((order) => order.userId === childUserId)
+    const orders = isChildSession && normalizedChildUserId
+      ? (ordersQuery.data ?? []).filter((order) => order.userId?.trim().toLowerCase() === normalizedChildUserId)
       : (ordersQuery.data ?? [])
     const totalPointsSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0)
     const points = Math.max(0, totalPointsEarned - totalPointsSpent)
@@ -107,7 +108,7 @@ export const useChildProgressStats = () => {
       averagePointsPerTask,
       rewardProgress,
     }
-  }, [session, isChildSession, childUserId, tasksQuery.data, ordersQuery.data])
+  }, [session, isChildSession, normalizedChildUserId, tasksQuery.data, ordersQuery.data])
 
   return {
     stats: stats ?? DEFAULT_STATS,

@@ -48,6 +48,7 @@ const resolveAvatarSymbol = (avatar: string | null | undefined, name: string) =>
 export default function Leaderboard() {
   const { t } = useTranslation()
   const session = useAppSelector(selectAuthSession)
+  const isChildSession = session?.profile.role === "child"
   const { stats } = useChildProgressStats()
   const { data: familyMembers = [] } = useFamilyMembers({ enabled: Boolean(session) })
   const { data: analyticsData } = useQuery({
@@ -61,6 +62,26 @@ export default function Leaderboard() {
   const currentUserId = normalizeUserId(session?.user.id)
 
   const entries = useMemo<LeaderboardEntry[]>(() => {
+    if (!session) {
+      return []
+    }
+
+    const fallbackPoints = Math.max(stats?.totalPointsEarned ?? stats?.points ?? 0, 0)
+
+    if (isChildSession) {
+      return [
+        {
+          userId: session.user.id,
+          name: session.user.name?.trim() || t("leaderboard.unknown"),
+          avatar: session.profile.avatar,
+          points: fallbackPoints,
+          level: Math.max(1, stats?.level ?? 1),
+          tasksCompleted: Math.max(stats?.tasksCompleted ?? 0, 0),
+          isCurrentUser: true,
+        },
+      ]
+    }
+
     const familyById = new Map(
       familyMembers.map((member) => [normalizeUserId(member.id), member] as const),
     )
@@ -89,11 +110,6 @@ export default function Leaderboard() {
         .slice(0, 5)
     }
 
-    if (!session) {
-      return []
-    }
-
-    const fallbackPoints = Math.max(stats?.totalPointsEarned ?? stats?.points ?? 0, 0)
     return [
       {
         userId: session.user.id,
@@ -105,7 +121,18 @@ export default function Leaderboard() {
         isCurrentUser: true,
       },
     ]
-  }, [analyticsData?.childrenStats, currentUserId, familyMembers, session, stats?.level, stats?.points, stats?.tasksCompleted, stats?.totalPointsEarned, t])
+  }, [
+    analyticsData?.childrenStats,
+    currentUserId,
+    familyMembers,
+    isChildSession,
+    session,
+    stats?.level,
+    stats?.points,
+    stats?.tasksCompleted,
+    stats?.totalPointsEarned,
+    t,
+  ])
 
   return (
     <div className="space-y-5">
