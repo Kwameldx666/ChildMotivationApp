@@ -30,7 +30,14 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
-            ?? new[] { "https://161.35.169.189" }
+            ?? new[]
+            {
+                "https://161.35.169.189",
+                "http://161.35.169.189:4000",
+                "http://localhost:4000",
+                "http://frontend:4000",
+                "http://frontend:3000"
+            }
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

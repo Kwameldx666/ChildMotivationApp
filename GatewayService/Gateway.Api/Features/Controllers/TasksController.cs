@@ -13,6 +13,7 @@ namespace Gateway.Features.Controllers;
 [Route("api-gateway/[controller]")]
 public class TasksController(
     ITaskServiceClient taskClient,
+    IUserServiceClient userServiceClient,
     ILogger<TasksController> logger) : ControllerBase
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
@@ -34,35 +35,73 @@ public class TasksController(
 
         if (isChild)
         {
-            using var assignedTasksResponse = await taskClient.GetAllAsync(null, userId, cancellationToken);
-            if (!assignedTasksResponse.IsSuccessStatusCode)
-            {
-                return await assignedTasksResponse.ToActionResultAsync();
-            }
+            var childUserId = userId.Trim();
+            var mergedTasksById = new Dictionary<string, Dictionary<string, JsonElement>>(StringComparer.OrdinalIgnoreCase);
 
-            var mergedTasksById = (await ReadTasksAsync(assignedTasksResponse, cancellationToken))
-                .ToDictionary(GetTaskId, task => task);
-
-            using var ownTasksResponse = await taskClient.GetAllAsync(userId, null, cancellationToken);
-            if (ownTasksResponse.IsSuccessStatusCode)
+            using var assignedTasksResponse = await taskClient.GetAllAsync(null, childUserId, cancellationToken);
+            if (assignedTasksResponse.IsSuccessStatusCode)
             {
-                var ownTasks = await ReadTasksAsync(ownTasksResponse, cancellationToken);
-                foreach (var task in ownTasks.Where(task =>
-                             string.IsNullOrWhiteSpace(GetTaskAssignedTo(task))
-                             || string.Equals(GetTaskAssignedTo(task), userId, StringComparison.OrdinalIgnoreCase)))
+                foreach (var task in await ReadTasksAsync(assignedTasksResponse, cancellationToken))
                 {
-                    mergedTasksById.TryAdd(GetTaskId(task), task);
+                    mergedTasksById[GetTaskId(task)] = task;
                 }
             }
             else
             {
                 logger.LogWarning(
-                    "Failed to load self-created tasks for child {ChildId}. Status: {StatusCode}",
-                    userId,
-                    (int)ownTasksResponse.StatusCode);
+                    "Failed to load assigned tasks for child {ChildId}. Status: {StatusCode}",
+                    childUserId,
+                    (int)assignedTasksResponse.StatusCode);
+            }
+
+            using var familyMembersResponse = await userServiceClient.GetCurrentFamilyMembersAsync(cancellationToken);
+            if (familyMembersResponse.IsSuccessStatusCode)
+            {
+                var creatorIds = await ReadFamilyMemberIdsAsync(familyMembersResponse, cancellationToken);
+                if (creatorIds.Count == 0)
+                {
+                    creatorIds.Add(childUserId);
+                }
+
+                foreach (var creatorId in creatorIds)
+                {
+                    using var creatorTasksResponse = await taskClient.GetAllAsync(creatorId, null, cancellationToken);
+                    if (!creatorTasksResponse.IsSuccessStatusCode)
+                    {
+                        logger.LogWarning(
+                            "Failed to load tasks created by family member {CreatorId} for child {ChildId}. Status: {StatusCode}",
+                            creatorId,
+                            childUserId,
+                            (int)creatorTasksResponse.StatusCode);
+                        continue;
+                    }
+
+                    var creatorTasks = await ReadTasksAsync(creatorTasksResponse, cancellationToken);
+                    foreach (var task in creatorTasks)
+                    {
+                        mergedTasksById[GetTaskId(task)] = task;
+                    }
+                }
+            }
+            else
+            {
+                logger.LogWarning(
+                    "Failed to load family members for child {ChildId}. Status: {StatusCode}",
+                    childUserId,
+                    (int)familyMembersResponse.StatusCode);
+
+                using var ownTasksResponse = await taskClient.GetAllAsync(childUserId, null, cancellationToken);
+                if (ownTasksResponse.IsSuccessStatusCode)
+                {
+                    foreach (var task in await ReadTasksAsync(ownTasksResponse, cancellationToken))
+                    {
+                        mergedTasksById[GetTaskId(task)] = task;
+                    }
+                }
             }
 
             var tasks = mergedTasksById.Values
+                .Where(task => IsTaskVisibleForChild(task, childUserId))
                 .OrderBy(GetTaskCompleted)
                 .ThenByDescending(task => GetTaskUpdatedAt(task) ?? GetTaskCreatedAt(task))
                 .ToList();
@@ -89,6 +128,20 @@ public class TasksController(
                ?? [];
     }
 
+    private async Task<List<string>> ReadFamilyMemberIdsAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        var members = await JsonSerializer.DeserializeAsync<List<Dictionary<string, JsonElement>>>(stream, SerializerOptions, cancellationToken)
+                      ?? [];
+
+        return members
+            .Select(GetFamilyMemberId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Select(id => id!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     private static string GetTaskId(Dictionary<string, JsonElement> task)
     {
         if (TryGetProperty(task, "id", out var idNode) && idNode.ValueKind == JsonValueKind.String)
@@ -104,6 +157,30 @@ public class TasksController(
     {
         return TryGetProperty(task, "completed", out var completedNode)
                && completedNode.ValueKind == JsonValueKind.True;
+    }
+
+    private static bool IsTaskVisibleForChild(Dictionary<string, JsonElement> task, string childId)
+    {
+        if (!GetTaskCompleted(task))
+        {
+            return true;
+        }
+
+        var normalizedChildId = NormalizeIdentifier(childId);
+        if (string.IsNullOrWhiteSpace(normalizedChildId))
+        {
+            return false;
+        }
+
+        var assignedTo = NormalizeIdentifier(GetTaskAssignedTo(task));
+        if (!string.IsNullOrWhiteSpace(assignedTo))
+        {
+            return string.Equals(assignedTo, normalizedChildId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        var createdBy = NormalizeIdentifier(GetTaskCreatedBy(task));
+        return !string.IsNullOrWhiteSpace(createdBy)
+               && string.Equals(createdBy, normalizedChildId, StringComparison.OrdinalIgnoreCase);
     }
 
     private static DateTimeOffset? GetTaskUpdatedAt(Dictionary<string, JsonElement> task)
@@ -124,6 +201,37 @@ public class TasksController(
         }
 
         return assignedNode.GetString();
+    }
+
+    private static string? GetTaskCreatedBy(Dictionary<string, JsonElement> task)
+    {
+        if (!TryGetProperty(task, "createdByUserId", out var createdByNode) || createdByNode.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        return createdByNode.GetString();
+    }
+
+    private static string? GetFamilyMemberId(Dictionary<string, JsonElement> member)
+    {
+        if (!TryGetProperty(member, "id", out var idNode) || idNode.ValueKind != JsonValueKind.String)
+        {
+            return null;
+        }
+
+        var id = idNode.GetString();
+        return string.IsNullOrWhiteSpace(id) ? null : id.Trim();
+    }
+
+    private static string? NormalizeIdentifier(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return value.Trim().ToLowerInvariant();
     }
 
     private static DateTimeOffset? TryReadDateTimeOffset(Dictionary<string, JsonElement> task, string name)

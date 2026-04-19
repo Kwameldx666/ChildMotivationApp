@@ -21,6 +21,10 @@ export function useTasks() {
       if (isChild && childId) {
         const normalizedChildId = childId.trim().toLowerCase()
         const scopedChildTasks = normalizedTasks.filter((task) => {
+          if (!task.completed) {
+            return true
+          }
+
           const assignedTo = task.assignedToUserId?.trim().toLowerCase()
           const createdBy = task.createdByUserId?.trim().toLowerCase()
           return assignedTo === normalizedChildId || (!assignedTo && createdBy === normalizedChildId)
