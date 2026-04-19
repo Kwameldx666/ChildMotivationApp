@@ -410,27 +410,38 @@ export default function AnalyticsDashboard() {
         </CardHeader>
 
         <CardContent className="pt-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge className="bg-white/15 text-white border-white/30">{t("analyticsDashboard.wholeFamily")}</Badge>
-            <Button
-              size="sm"
-              variant={selectedChild === "all" ? "secondary" : "ghost"}
-              className={selectedChild === "all" ? "text-slate-900" : "text-white hover:bg-white/20 hover:text-white"}
-              onClick={() => setSelectedChild("all")}
-            >
-              {t("analyticsDashboard.wholeFamily")}
-            </Button>
-            {analytics.childrenStats.map((child) => (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-widest font-bold text-white/60">{t("analyticsDashboard.filterTitle", "Фильтр данных")}</p>
+            <div className="flex flex-wrap items-center gap-2">
               <Button
-                key={child.childId}
                 size="sm"
-                variant={selectedChild === child.childId ? "secondary" : "ghost"}
-                className={selectedChild === child.childId ? "text-slate-900" : "text-white hover:bg-white/20 hover:text-white"}
-                onClick={() => setSelectedChild(child.childId)}
+                variant={selectedChild === "all" ? "secondary" : "outline"}
+                className={selectedChild === "all" 
+                  ? "bg-white text-teal-900 hover:bg-white/90 font-bold border-transparent" 
+                  : "bg-white/5 text-white border-white/20 hover:bg-white/20 hover:text-white backdrop-blur-md"
+                }
+                onClick={() => setSelectedChild("all")}
               >
-                {child.childName}
+                <Users className="w-4 h-4 mr-2" />
+                {t("analyticsDashboard.wholeFamily")}
               </Button>
-            ))}
+              <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block"></div>
+              {analytics.childrenStats.map((child) => (
+                <Button
+                  key={child.childId}
+                  size="sm"
+                  variant={selectedChild === child.childId ? "secondary" : "outline"}
+                  className={selectedChild === child.childId 
+                    ? "bg-cyan-400 text-cyan-950 hover:bg-cyan-300 font-bold border-transparent" 
+                    : "bg-white/5 text-white border-white/20 hover:bg-white/20 hover:text-white backdrop-blur-md"
+                  }
+                  onClick={() => setSelectedChild(child.childId)}
+                >
+                  <Target className="w-4 h-4 mr-2 opacity-70" />
+                  {child.childName}
+                </Button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -560,34 +571,36 @@ export default function AnalyticsDashboard() {
           {statusSeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <div className="relative">
-              <ResponsiveContainer width="100%" height={335}>
-                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                  <defs>
-                    <filter id="pie-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="0" dy="6" stdDeviation="6" floodOpacity="0.25" />
-                    </filter>
-                  </defs>
-                  <Pie 
-                    data={statusSeries} 
-                    dataKey="value" 
-                    nameKey="name" 
-                    innerRadius={85} 
-                    outerRadius={125} 
-                    paddingAngle={6}
-                    stroke="rgba(255,255,255,0.1)"
-                    strokeWidth={2}
-                  >
-                    {statusSeries.map((slice, index) => (
-                      <Cell key={`${slice.name}-${index}`} fill={slice.color} filter="url(#pie-shadow)" style={{ outline: 'none' }} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<AnalyticsTooltip />} cursor={false} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center -translate-y-[15px]">
-                <span className="text-5xl font-black tracking-tighter text-slate-800 dark:text-white drop-shadow-sm">{completedShare}%</span>
-                <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-1">{t("analytics.chartLabels.completed")}</span>
+            <div>
+              <div className="relative h-[335px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <filter id="pie-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="6" stdDeviation="6" floodOpacity="0.25" />
+                      </filter>
+                    </defs>
+                    <Pie 
+                      data={statusSeries} 
+                      dataKey="value" 
+                      nameKey="name" 
+                      innerRadius={85} 
+                      outerRadius={125} 
+                      paddingAngle={6}
+                      stroke="rgba(255,255,255,0.1)"
+                      strokeWidth={2}
+                    >
+                      {statusSeries.map((slice, index) => (
+                        <Cell key={`${slice.name}-${index}`} fill={slice.color} filter="url(#pie-shadow)" style={{ outline: 'none' }} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<AnalyticsTooltip />} cursor={false} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-5xl font-black tracking-tighter text-slate-800 dark:text-white drop-shadow-sm">{completedShare}%</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-1">{t("analytics.chartLabels.completed")}</span>
+                </div>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors p-3 text-center shadow-[0_4px_12px_rgba(16,185,129,0.05)]">
