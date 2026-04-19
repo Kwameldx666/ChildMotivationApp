@@ -90,17 +90,25 @@ function ChartShell({
   children: React.ReactNode
 }) {
   return (
-    <Card className={`border-0 shadow-lg bg-gradient-to-b from-white to-slate-50/70 dark:from-slate-900/70 dark:to-slate-950/30 ${className ?? ""}`}>
-      <CardHeader className="pb-2">
+    <Card className={`group relative overflow-hidden border border-slate-200/50 dark:border-white/10 shadow-2xl bg-white/40 dark:bg-slate-950/40 backdrop-blur-2xl transition-all duration-500 hover:shadow-[0_8px_30px_rgba(14,165,233,0.15)] ${className ?? ""}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/0 dark:from-white/5 dark:to-white/0 pointer-events-none" />
+      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-400/10 blur-[80px] group-hover:bg-cyan-400/20 transition-all duration-700" />
+      <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-emerald-400/10 blur-[80px] group-hover:bg-emerald-400/20 transition-all duration-700" />
+      
+      <CardHeader className="relative pb-2 z-10">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardTitle className="text-base font-bold tracking-tight">{title}</CardTitle>
-            <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+            <CardTitle className="text-lg font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">{title}</CardTitle>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-[85%]">{description}</p>
           </div>
-          {badge ? <Badge variant="secondary">{badge}</Badge> : null}
+          {badge ? (
+            <Badge variant="outline" className="border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-bold tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.15)] backdrop-blur-md px-2.5 py-1 uppercase text-[10px]">
+              {badge}
+            </Badge>
+          ) : null}
         </div>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="relative z-10 pb-6">{children}</CardContent>
     </Card>
   )
 }
@@ -119,19 +127,20 @@ function MetricCard({
   icon: React.ReactNode
 }) {
   return (
-    <Card className={`relative overflow-hidden border-0 shadow-lg ${accent}`}>
-      <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/30 blur-2xl" />
-      <CardHeader className="pb-1">
+    <Card className={`group relative overflow-hidden border-0 shadow-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.25)] ${accent}`}>
+      <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/20 blur-3xl group-hover:bg-white/30 transition-all duration-700" />
+      <div className="absolute right-0 bottom-0 h-16 w-16 rounded-full bg-black/10 blur-xl" />
+      <CardHeader className="relative z-10 pb-1">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm text-white/90">{title}</CardTitle>
-          <div className="h-8 w-8 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+          <CardTitle className="text-xs font-bold uppercase tracking-widest text-white/80">{title}</CardTitle>
+          <div className="h-9 w-9 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.1)] group-hover:scale-110 transition-transform duration-500">
             {icon}
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-black text-white tracking-tight">{value}</p>
-        <p className="text-xs text-white/85 mt-1">{subtitle}</p>
+      <CardContent className="relative z-10 pt-2">
+        <p className="text-4xl font-black text-white tracking-tighter drop-shadow-md">{value}</p>
+        <p className="text-xs font-bold max-w-[90%] text-white/80 mt-1 uppercase tracking-wider">{subtitle}</p>
       </CardContent>
     </Card>
   )
@@ -140,14 +149,20 @@ function MetricCard({
 function AnalyticsTooltip({ active, payload, label }: any) {
   if (!active || !payload || payload.length === 0) return null
   return (
-    <div className="rounded-xl border border-slate-200/80 bg-white/95 dark:bg-slate-900/95 dark:border-slate-700/70 shadow-xl px-3 py-2 text-xs min-w-[180px]">
-      <p className="font-semibold mb-1.5 text-slate-800 dark:text-slate-100">{label}</p>
-      <div className="space-y-1">
+    <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-slate-900/80 dark:bg-black/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] p-4 text-sm min-w-[220px] text-white my-2 z-50">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+      <p className="relative font-bold mb-3 text-white/90 uppercase tracking-widest text-xs opacity-80">{label}</p>
+      <div className="relative space-y-3">
         {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color || entry.fill }} />
-            <span className="text-slate-600 dark:text-slate-300">{entry.name}</span>
-            <span className="ml-auto font-semibold text-slate-900 dark:text-slate-100">
+          <div key={index} className="flex items-center gap-3">
+            <div 
+              className="relative h-3 w-3 rounded-full flex-shrink-0 shadow-[0_0_10px_currentColor]" 
+              style={{ backgroundColor: entry.color || entry.fill, color: entry.color || entry.fill }}
+            >
+              <div className="absolute inset-0 rounded-full animate-ping opacity-40" style={{ backgroundColor: entry.color || entry.fill }} />
+            </div>
+            <span className="text-white/90 font-medium tracking-wide">{entry.name}</span>
+            <span className="ml-auto font-black tabular-nums tracking-tighter text-white drop-shadow-md text-base">
               {typeof entry.value === "number" ? entry.value.toLocaleString() : entry.value}
             </span>
           </div>
@@ -463,17 +478,32 @@ export default function AnalyticsDashboard() {
           {activitySeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <ResponsiveContainer width="100%" height={350}>
-              <ComposedChart data={activitySeries} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 4" vertical={false} stroke="rgba(148,163,184,0.35)" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="tasks" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
-                <YAxis yAxisId="points" orientation="right" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
-                <Tooltip content={<AnalyticsTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-                <Bar yAxisId="points" dataKey="pointsEarned" name={t("analytics.chartLabels.points")} fill="#0ea5e9" radius={[6, 6, 0, 0]} />
-                <Line yAxisId="tasks" type="monotone" dataKey="tasksCompleted" name={t("analytics.chartLabels.tasks")} stroke="#f97316" strokeWidth={2.8} dot={{ r: 3 }} />
-                <Line yAxisId="tasks" type="monotone" dataKey="trend" name={t("analytics.chartLabels.trend")} stroke="#16a34a" strokeDasharray="6 4" strokeWidth={2.2} dot={false} />
+            <ResponsiveContainer width="100%" height={380}>
+              <ComposedChart data={activitySeries} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="bar-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0.1} />
+                  </linearGradient>
+                  <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur1" />
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur2" />
+                    <feMerge>
+                      <feMergeNode in="blur1" />
+                      <feMergeNode in="blur2" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" strokeOpacity={0.08} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dy={12} />
+                <YAxis yAxisId="tasks" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dx={-10} width={36} />
+                <YAxis yAxisId="points" orientation="right" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dx={10} width={36} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.05 }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 16, opacity: 0.8 }} />
+                <Bar yAxisId="points" dataKey="pointsEarned" name={t("analytics.chartLabels.points")} fill="url(#bar-gradient)" radius={[8, 8, 8, 8]} barSize={26} />
+                <Line yAxisId="tasks" type="monotone" dataKey="tasksCompleted" name={t("analytics.chartLabels.tasks")} stroke="#f97316" strokeWidth={4} dot={{ r: 5, strokeWidth: 3, fill: "white" }} activeDot={{ r: 8, strokeWidth: 4, stroke: "#f97316" }} filter="url(#neon-glow)" />
+                <Line yAxisId="tasks" type="monotone" dataKey="trend" name={t("analytics.chartLabels.trend")} stroke="#10b981" strokeDasharray="8 6" strokeWidth={3} dot={false} filter="url(#neon-glow)" />
               </ComposedChart>
             </ResponsiveContainer>
           )}
@@ -487,26 +517,35 @@ export default function AnalyticsDashboard() {
           {progressSeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <ResponsiveContainer width="100%" height={315}>
-              <AreaChart data={progressSeries} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={335}>
+              <AreaChart data={progressSeries} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="completion-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0.04} />
+                  <linearGradient id="completion-gradient-new" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.6} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
                   </linearGradient>
+                  <filter id="glow-area-line" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                 </defs>
-                <CartesianGrid strokeDasharray="3 4" vertical={false} stroke="rgba(148,163,184,0.35)" />
-                <XAxis dataKey="period" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip content={<AnalyticsTooltip />} />
-                <ReferenceLine y={80} stroke="#f59e0b" strokeDasharray="6 4" />
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" strokeOpacity={0.08} />
+                <XAxis dataKey="period" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dy={12} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dx={-10} width={34} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={{ stroke: "currentColor", strokeWidth: 1, strokeOpacity: 0.1, strokeDasharray: "4 4" }} />
+                <ReferenceLine y={80} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={2} label={{ position: 'insideTopLeft', value: 'Goal 80%', fill: '#f59e0b', fontSize: 11, fontWeight: 'bold' }} />
                 <Area
                   type="monotone"
                   dataKey="completionPercent"
                   name={t("analytics.chartLabels.completionPercent")}
-                  stroke="#16a34a"
-                  strokeWidth={2.8}
-                  fill="url(#completion-gradient)"
+                  stroke="#10b981"
+                  strokeWidth={4}
+                  fill="url(#completion-gradient-new)"
+                  filter="url(#glow-area-line)"
+                  activeDot={{ r: 8, strokeWidth: 3, stroke: "#10b981", fill: "white" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -522,35 +561,49 @@ export default function AnalyticsDashboard() {
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
             <div className="relative">
-              <ResponsiveContainer width="100%" height={315}>
-                <PieChart>
-                  <Pie data={statusSeries} dataKey="value" nameKey="name" innerRadius={78} outerRadius={115} paddingAngle={4}>
+              <ResponsiveContainer width="100%" height={335}>
+                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <defs>
+                    <filter id="pie-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="6" stdDeviation="6" floodOpacity="0.25" />
+                    </filter>
+                  </defs>
+                  <Pie 
+                    data={statusSeries} 
+                    dataKey="value" 
+                    nameKey="name" 
+                    innerRadius={85} 
+                    outerRadius={125} 
+                    paddingAngle={6}
+                    stroke="rgba(255,255,255,0.1)"
+                    strokeWidth={2}
+                  >
                     {statusSeries.map((slice, index) => (
-                      <Cell key={`${slice.name}-${index}`} fill={slice.color} />
+                      <Cell key={`${slice.name}-${index}`} fill={slice.color} filter="url(#pie-shadow)" style={{ outline: 'none' }} />
                     ))}
                   </Pie>
-                  <Tooltip content={<AnalyticsTooltip />} />
+                  <Tooltip content={<AnalyticsTooltip />} cursor={false} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-black text-slate-800 dark:text-slate-100">{completedShare}%</span>
-                <span className="text-xs text-muted-foreground">{t("analytics.chartLabels.completed")}</span>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center -translate-y-[15px]">
+                <span className="text-5xl font-black tracking-tighter text-slate-800 dark:text-white drop-shadow-sm">{completedShare}%</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-1">{t("analytics.chartLabels.completed")}</span>
               </div>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/20 p-2 text-center">
-                  <CheckCircle2 className="mx-auto h-4 w-4 text-emerald-600" />
-                  <p className="text-xs text-muted-foreground mt-1">{t("analytics.chartLabels.completed")}</p>
-                  <p className="text-sm font-bold">{view.taskStatus.completed}</p>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors p-3 text-center shadow-[0_4px_12px_rgba(16,185,129,0.05)]">
+                  <CheckCircle2 className="mx-auto h-5 w-5 text-emerald-500 mb-1.5" />
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-1">{t("analytics.chartLabels.completed")}</p>
+                  <p className="text-lg font-black text-slate-800 dark:text-white">{view.taskStatus.completed}</p>
                 </div>
-                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 p-2 text-center">
-                  <Clock3 className="mx-auto h-4 w-4 text-amber-600" />
-                  <p className="text-xs text-muted-foreground mt-1">{t("analytics.chartLabels.inProgress")}</p>
-                  <p className="text-sm font-bold">{view.taskStatus.inProgress}</p>
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-colors p-3 text-center shadow-[0_4px_12px_rgba(245,158,11,0.05)]">
+                  <Clock3 className="mx-auto h-5 w-5 text-amber-500 mb-1.5" />
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-1">{t("analytics.chartLabels.inProgress")}</p>
+                  <p className="text-lg font-black text-slate-800 dark:text-white">{view.taskStatus.inProgress}</p>
                 </div>
-                <div className="rounded-lg bg-rose-50 dark:bg-rose-950/20 p-2 text-center">
-                  <AlertTriangle className="mx-auto h-4 w-4 text-rose-600" />
-                  <p className="text-xs text-muted-foreground mt-1">{t("analytics.chartLabels.overdue")}</p>
-                  <p className="text-sm font-bold">{view.taskStatus.overdue}</p>
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 transition-colors p-3 text-center shadow-[0_4px_12px_rgba(244,63,94,0.05)]">
+                  <AlertTriangle className="mx-auto h-5 w-5 text-rose-500 mb-1.5" />
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-1">{t("analytics.chartLabels.overdue")}</p>
+                  <p className="text-lg font-black text-slate-800 dark:text-white">{view.taskStatus.overdue}</p>
                 </div>
               </div>
             </div>
@@ -566,22 +619,33 @@ export default function AnalyticsDashboard() {
           {pointsSeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <ResponsiveContainer width="100%" height={340}>
-              <ComposedChart data={pointsSeries} margin={{ top: 12, right: 10, left: 0, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={380}>
+              <ComposedChart data={pointsSeries} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="points-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.05} />
+                  <linearGradient id="points-gradient-new" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.7} />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.0} />
+                  </linearGradient>
+                  <filter id="points-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                  <linearGradient id="bar-points" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 4" vertical={false} stroke="rgba(148,163,184,0.35)" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="total" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
-                <YAxis yAxisId="gain" orientation="right" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={34} />
-                <Tooltip content={<AnalyticsTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-                <Bar yAxisId="gain" dataKey="gain" name={t("analytics.chartLabels.points")} fill="#f97316" radius={[5, 5, 0, 0]} />
-                <Area yAxisId="total" type="monotone" dataKey="points" name={t("analytics.chartLabels.trend")} stroke="#0891b2" strokeWidth={2.8} fill="url(#points-gradient)" />
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" strokeOpacity={0.1} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dy={12} />
+                <YAxis yAxisId="total" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dx={-10} width={36} />
+                <YAxis yAxisId="gain" orientation="right" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dx={10} width={36} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.05 }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 16, opacity: 0.8 }} />
+                <Bar yAxisId="gain" dataKey="gain" name={t("analytics.chartLabels.points")} fill="url(#bar-points)" radius={[8, 8, 8, 8]} barSize={26} />
+                <Area yAxisId="total" type="monotone" dataKey="points" name={t("analytics.chartLabels.trend")} stroke="#06b6d4" strokeWidth={4} fill="url(#points-gradient-new)" filter="url(#points-glow)" activeDot={{ r: 8, strokeWidth: 3, stroke: "#06b6d4", fill: "white" }} />
               </ComposedChart>
             </ResponsiveContainer>
           )}
@@ -595,15 +659,29 @@ export default function AnalyticsDashboard() {
           {difficultySeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <ResponsiveContainer width="100%" height={315}>
-              <PieChart>
-                <Pie data={difficultySeries} dataKey="value" nameKey="name" innerRadius={62} outerRadius={112} paddingAngle={3}>
+            <ResponsiveContainer width="100%" height={335}>
+              <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                  <filter id="diff-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="8" floodOpacity="0.3" />
+                  </filter>
+                </defs>
+                <Pie 
+                  data={difficultySeries} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  innerRadius={70} 
+                  outerRadius={120} 
+                  paddingAngle={5}
+                  stroke="rgba(255,255,255,0.15)"
+                  strokeWidth={2}
+                >
                   {difficultySeries.map((entry, index) => (
-                    <Cell key={`${entry.name}-${index}`} fill={entry.color} />
+                    <Cell key={`${entry.name}-${index}`} fill={entry.color} filter="url(#diff-shadow)" style={{ outline: 'none' }} />
                   ))}
                 </Pie>
-                <Tooltip content={<AnalyticsTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={false} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 12, opacity: 0.8 }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -617,15 +695,28 @@ export default function AnalyticsDashboard() {
           {leaderboardSeries.length === 0 ? (
             <p className="py-14 text-center text-sm text-muted-foreground">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <ResponsiveContainer width="100%" height={315}>
-              <BarChart data={leaderboardSeries} layout="vertical" margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 4" horizontal={false} stroke="rgba(148,163,184,0.35)" />
-                <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis dataKey="childName" type="category" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={86} />
-                <Tooltip content={<AnalyticsTooltip />} />
-                <Bar dataKey="totalPoints" name={t("analytics.chartLabels.points")} radius={[0, 8, 8, 0]}>
+            <ResponsiveContainer width="100%" height={335}>
+              <BarChart data={leaderboardSeries} layout="vertical" margin={{ top: 12, right: 24, left: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="leaderboard-gradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="currentColor" stopOpacity={0.6} />
+                    <stop offset="100%" stopColor="currentColor" stopOpacity={1} />
+                  </linearGradient>
+                  <filter id="bar-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="2" dy="4" stdDeviation="4" floodOpacity="0.2" />
+                  </filter>
+                </defs>
+                <CartesianGrid strokeDasharray="4 4" horizontal={false} stroke="currentColor" strokeOpacity={0.08} />
+                <XAxis type="number" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}  axisLine={false} tickLine={false} dy={10} />
+                <YAxis dataKey="childName" type="category" tick={{ fontSize: 12, fontWeight: 700, fill: "currentColor" }}  axisLine={false} tickLine={false} width={90} dx={-10} />
+                <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.05 }} />
+                <Bar dataKey="totalPoints" name={t("analytics.chartLabels.points")} radius={[0, 12, 12, 0]} barSize={32} filter="url(#bar-glow)">
                   {leaderboardSeries.map((entry, index) => (
-                    <Cell key={`${entry.id}-${index}`} fill={entry.isFocused ? "#0ea5e9" : CHILD_COLORS[index % CHILD_COLORS.length]} />
+                    <Cell 
+                      key={`${entry.id}-${index}`} 
+                      fill={entry.isFocused ? "#0ea5e9" : CHILD_COLORS[index % CHILD_COLORS.length]} 
+                      style={{ transition: "all 0.3s ease" }}
+                    />
                   ))}
                 </Bar>
               </BarChart>
