@@ -86,6 +86,7 @@ export default function MediaUpload({
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 	const [validationError, setValidationError] = useState<string | null>(null)
 	const [isRecording, setIsRecording] = useState(false)
+	const [canRecordVideo, setCanRecordVideo] = useState(false)
 	const [recordingTime, setRecordingTime] = useState(0)
 	const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 	const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -94,13 +95,31 @@ export default function MediaUpload({
 	const streamRef = useRef<MediaStream | null>(null)
 	const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+	const checkVideoRecordingSupport = useCallback((): boolean => {
+		if (typeof window === "undefined" || typeof navigator === "undefined") {
+			return false
+		}
+
+		const hasCameraApi = Boolean(navigator.mediaDevices?.getUserMedia)
+		const hasMediaRecorder = typeof window.MediaRecorder !== "undefined"
+		const isLocalHost =
+			window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+		const isSecureContext = window.isSecureContext || window.location.protocol === "https:" || isLocalHost
+
+		return hasCameraApi && hasMediaRecorder && isSecureContext
+	}, [])
+
+	useEffect(() => {
+		setCanRecordVideo(checkVideoRecordingSupport())
+	}, [checkVideoRecordingSupport])
+
 	// Определяем доступные источники загрузки в зависимости от типа доказательства
 	const availableSources: UploadSource[] = (() => {
 		switch (evidenceType) {
 			case "photo":
 				return ["camera", "gallery"]
 			case "video":
-				return ["record-video", "video", "gallery"]
+				return canRecordVideo ? ["record-video", "video"] : ["video"]
 			case "document":
 				return ["file"]
 			default:
@@ -195,6 +214,11 @@ export default function MediaUpload({
 
 	const startVideoRecording = async () => {
 		try {
+			if (!checkVideoRecordingSupport()) {
+				alert(t("mediaUpload.recordingUnavailable"))
+				return
+			}
+
 			// Проверяем поддержку MediaRecorder
 			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 				alert(t('mediaUpload.browserNoCamera'))
@@ -525,6 +549,13 @@ export default function MediaUpload({
 				<div className="rounded-lg bg-purple-50 border border-purple-200 p-3">
 					<p className="text-xs text-purple-800">
 						💡 <strong>{t("mediaUpload.tip")}</strong> {t("mediaUpload.videoTip")}
+					</p>
+				</div>
+			)}
+			{evidenceType === "video" && !canRecordVideo && (
+				<div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+					<p className="text-xs text-amber-800">
+						{t("mediaUpload.recordingUnavailableHint")}
 					</p>
 				</div>
 			)}
