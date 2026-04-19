@@ -206,9 +206,11 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: ${NOTIFICATION_DB_CONNECTION:-Host=postgres;Port=5432;Database=db_net;Username=app_owner_net;Password=postgres}
-      Cors__AllowedOrigins__0: https://161.35.169.189
+      Cors__AllowedOrigins__0: http://161.35.169.189:4000
       Cors__AllowedOrigins__1: https://161.35.169.189
-      Cors__AllowedOrigins__2: http://frontend:3000
+      Cors__AllowedOrigins__2: http://localhost:4000
+      Cors__AllowedOrigins__3: http://frontend:4000
+      Cors__AllowedOrigins__4: http://frontend:3000
     ports:
       - "8090:8080"
     healthcheck:

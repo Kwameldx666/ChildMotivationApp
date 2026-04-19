@@ -103,8 +103,7 @@ export class HttpClient {
     }
 
     if (normalizedMethod === 'GET' && (
-      pathname === '/api-gateway/tasks'
-      || pathname === '/api-gateway/missions'
+      pathname === '/api-gateway/missions'
       || pathname === '/api-gateway/achievements'
       || pathname === '/api-gateway/shop/products'
       || pathname === '/api-gateway/shop/orders'

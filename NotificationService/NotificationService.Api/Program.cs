@@ -142,9 +142,8 @@ if (!isRunningInContainer)
     app.UseHttpsRedirection();
 }
 
-app.UseCors("SignalRPolicy");
-
 app.UseRouting();
+app.UseCors("SignalRPolicy");
 app.UseAuthorization();
 
 app.MapControllers();
