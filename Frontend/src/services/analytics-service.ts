@@ -12,6 +12,8 @@ export interface ChildStats {
   totalPoints: number
   completedTasks: number
   pendingTasks: number
+  inProgressTasks?: number
+  overdueTasks?: number
   color: string
 }
 

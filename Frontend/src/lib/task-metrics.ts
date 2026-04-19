@@ -31,20 +31,28 @@ const formatDateKey = (value: Date) => {
 // При 2-3 задачах в день средней сложности = ~70-90 очков в неделю базовых
 // + бонусы за серию = достижение цели
 export const DIFFICULTY_POINTS: Record<number, number> = {
-  1: 5,   // Очень легкая (заправить кровать) - 5 очков
-  2: 10,  // Легкая (убрать игрушки) - 10 очков
-  3: 15,  // Средняя (помыть посуду) - 15 очков
-  4: 25,  // Сложная (убрать комнату) - 25 очков  
-  5: 40,  // Очень сложная (большой проект) - 40 очков
+  // Must match TaskService.Domain.Entities.TaskItem.DIFFICULTY_POINTS
+  1: 2,
+  2: 5,
+  3: 10,
+  4: 20,
+  5: 50,
 }
 
 // XP за уровни (не влияет на награды, только на прогресс)
 export const DIFFICULTY_XP: Record<number, number> = {
-  1: 20,
-  2: 40,
-  3: 60,
-  4: 100,
-  5: 150,
+  // Must match TaskService.Domain.Entities.TaskItem reward XP formula: 60 + 20 * difficulty
+  1: 80,
+  2: 100,
+  3: 120,
+  4: 140,
+  5: 160,
+}
+
+const readPositiveNumber = (value: unknown): number | null => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  if (value < 0) return null
+  return Math.round(value)
 }
 
 // Бонусы за серию выполнения (streak)
@@ -129,14 +137,29 @@ export const computeTaskDifficulty = (task: TaskDto) => {
 
 // Базовый XP за задачу
 export const computeTaskXp = (task: TaskDto) => {
+  const explicitXp = readPositiveNumber(task.reward)
+    ?? readPositiveNumber((task as TaskDto & { rewardXp?: number }).rewardXp)
+    ?? readPositiveNumber((task as TaskDto & { RewardXp?: number }).RewardXp)
+
+  if (explicitXp !== null) {
+    return explicitXp
+  }
+
   const difficulty = computeTaskDifficulty(task)
-  return DIFFICULTY_XP[difficulty] ?? 40
+  return DIFFICULTY_XP[difficulty] ?? 100
 }
 
 // Базовые очки за задачу
 export const computeTaskBasePoints = (task: TaskDto) => {
+  const explicitPoints = readPositiveNumber(task.rewardPoints)
+    ?? readPositiveNumber((task as TaskDto & { RewardPoints?: number }).RewardPoints)
+
+  if (explicitPoints !== null) {
+    return explicitPoints
+  }
+
   const difficulty = computeTaskDifficulty(task)
-  return DIFFICULTY_POINTS[difficulty] ?? 10
+  return DIFFICULTY_POINTS[difficulty] ?? 5
 }
 
 // Полный расчёт очков с бонусами

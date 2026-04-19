@@ -261,7 +261,9 @@ export default function AnalyticsDashboard() {
         : (() => {
             const child = chartData.childrenStats.find(c => c.childId === selectedChild)
             if (!child) return chartData.taskStatus
-            return { completed: child.completedTasks, inProgress: child.pendingTasks, overdue: 0 }
+            const overdue = child.overdueTasks ?? 0
+            const inProgress = child.inProgressTasks ?? Math.max(0, child.pendingTasks - overdue)
+            return { completed: child.completedTasks, inProgress, overdue }
           })()
 
     // Per-child data helpers

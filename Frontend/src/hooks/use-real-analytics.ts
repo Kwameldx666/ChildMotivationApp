@@ -50,9 +50,7 @@ const getTaskCompletionTimestamp = (task: TaskDto): number | null => {
   return parseTimestamp(task.completedAt) ?? parseTimestamp(task.updatedAt) ?? parseTimestamp(task.createdAt)
 }
 
-const getTaskActivityTimestamp = (task: TaskDto): number => {
-  return getTaskCompletionTimestamp(task) ?? parseTimestamp(task.updatedAt) ?? parseTimestamp(task.createdAt) ?? 0
-}
+const getTaskCreatedTimestamp = (task: TaskDto): number | null => parseTimestamp(task.createdAt)
 
 /* ── build helpers ── */
 
@@ -208,12 +206,12 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     if (!allTasks) return null
 
     const cutoff = Date.now() - windowDays * 86_400_000
-    const recentTasks = allTasks.filter(t => getTaskActivityTimestamp(t) >= cutoff)
-
-    const completedTasks = recentTasks.filter(t => {
-      const completedTs = getTaskCompletionTimestamp(t)
-      return completedTs !== null && completedTs >= cutoff
+    const recentTasks = allTasks.filter(t => {
+      const createdTs = getTaskCreatedTimestamp(t)
+      return createdTs !== null && createdTs >= cutoff
     })
+
+    const completedTasks = recentTasks.filter(t => t.completed)
     const totalPoints = completedTasks.reduce((s, t) => s + computeTaskPoints(t), 0)
     const completionRate = recentTasks.length > 0
       ? (completedTasks.length / recentTasks.length) * 100
@@ -248,19 +246,6 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
     }
 
     const childTasksById = new Map<string, TaskDto[]>()
-    const allChildTasksById = new Map<string, TaskDto[]>()
-
-    for (const task of allTasks) {
-      const childId = resolveTaskChildId(task)
-      if (!childId) continue
-
-      const existingAll = allChildTasksById.get(childId)
-      if (existingAll) {
-        existingAll.push(task)
-      } else {
-        allChildTasksById.set(childId, [task])
-      }
-    }
 
     for (const task of recentTasks) {
       const childId = resolveTaskChildId(task)
@@ -276,7 +261,7 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
 
     // Unique child IDs from tasks
     const childIdsFromTasks = [...new Set(
-      allTasks
+      recentTasks
         .map(resolveTaskChildId)
         .filter((id): id is string => !!id)
     )]
@@ -287,15 +272,29 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
       ...childIdsFromTasks,
     ])
     const activeChildIds = [...childIdSet]
+    const activeChildCount = childIdsFromTasks.length
+    const nowTs = Date.now()
+    const overdueThresholdMs = 7 * 86_400_000
 
     const childrenStats: ChildStats[] = activeChildIds.map((childId, idx) => {
       const member = childMembersById.get(childId)
       const childTasks = childTasksById.get(childId) ?? []
-      const completed = childTasks.filter(t => {
-        const completedTs = getTaskCompletionTimestamp(t)
-        return completedTs !== null && completedTs >= cutoff
-      })
-      const pending = childTasks.filter(t => !t.completed).length
+      const completed = childTasks.filter(t => t.completed)
+      let overdueTasks = 0
+      let inProgressTasks = 0
+
+      for (const task of childTasks) {
+        if (task.completed) continue
+
+        const createdTs = getTaskCreatedTimestamp(task)
+        if (createdTs !== null && nowTs - createdTs > overdueThresholdMs) {
+          overdueTasks += 1
+        } else {
+          inProgressTasks += 1
+        }
+      }
+
+      const pending = inProgressTasks + overdueTasks
 
       return {
         childId,
@@ -303,23 +302,26 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
         totalPoints: completed.reduce((s, t) => s + computeTaskPoints(t), 0),
         completedTasks: completed.length,
         pendingTasks: pending,
+        inProgressTasks,
+        overdueTasks,
         color: CHILD_COLORS[idx % CHILD_COLORS.length],
       }
     })
 
     // Task status
-    const overdue = recentTasks.filter(t => {
-      if (t.completed) return false
-      const created = new Date(t.createdAt).getTime()
-      return (Date.now() - created) > 10 * 86_400_000
-    }).length
+    let overdue = 0
+    let inProgress = 0
 
-    const inProgress = recentTasks.filter(t => {
-      if (t.completed) return false
-      const created = new Date(t.createdAt).getTime()
-      const days = (Date.now() - created) / 86_400_000
-      return days > 2 && days <= 10
-    }).length
+    for (const task of recentTasks) {
+      if (task.completed) continue
+
+      const createdTs = getTaskCreatedTimestamp(task)
+      if (createdTs !== null && nowTs - createdTs > overdueThresholdMs) {
+        overdue += 1
+      } else {
+        inProgress += 1
+      }
+    }
 
     const taskStatus = {
       completed: completedTasks.length,
@@ -345,21 +347,21 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
 
     const perChildPointsTrend: ChildBreakdown<PointsTrend>[] = activeChildIds.map(childId => ({
       childId,
-      data: buildPointsTrend(allChildTasksById.get(childId) ?? [], windowDays),
+      data: buildPointsTrend(childTasksById.get(childId) ?? [], windowDays),
     }))
 
     return {
       totalPoints,
       completedTasks: completedTasks.length,
       totalTasks: recentTasks.length,
-      activeChildren: activeChildIds.length,
+      activeChildren: activeChildCount,
       completionRate,
       weeklyActivity: buildWeeklyActivity(recentTasks, windowDays),
       childrenStats,
       difficultyDistribution: buildDifficultyDistribution(recentTasks),
       weeklyProgress: buildWeeklyProgress(recentTasks, windowDays),
       taskStatus,
-      pointsTrend: buildPointsTrend(allTasks, windowDays),
+      pointsTrend: buildPointsTrend(recentTasks, windowDays),
       perChildActivity,
       perChildDifficulty,
       perChildProgress,
