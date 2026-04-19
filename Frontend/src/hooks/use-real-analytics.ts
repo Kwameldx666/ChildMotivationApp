@@ -235,34 +235,45 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
       : normalizedFamilyMembers.filter(m => !parentMembers.some(parent => parent.normalizedId === m.normalizedId))
 
     const childMembersById = new Map(childMembers.map(member => [member.normalizedId, member]))
-    const resolveTaskChildId = (task: TaskDto): string | null => {
+    const resolveTaskChildIds = (task: TaskDto): string[] => {
+      // 1. Explicitly assigned
       const assignedTo = normalizeUserId(task.assignedToUserId)
-      if (assignedTo) return assignedTo
+      if (assignedTo && childMembersById.has(assignedTo)) return [assignedTo]
 
+      // 2. Based on who uploaded evidence
+      const uploaderId = normalizeUserId(task.evidence?.uploadedByUserId)
+      if (uploaderId && childMembersById.has(uploaderId)) return [uploaderId]
+
+      // 3. Based on who created the task (if child created their own task)
       const createdBy = normalizeUserId(task.createdByUserId)
-      if (!createdBy) return null
+      if (createdBy && childMembersById.has(createdBy)) return [createdBy]
 
-      return childMembersById.has(createdBy) ? createdBy : null
+      // 4. If task is unassigned and NOT completed, it is available to ALL active children in the family
+      if (!task.completed) {
+        return Array.from(childMembersById.keys())
+      }
+
+      return [] 
     }
 
     const childTasksById = new Map<string, TaskDto[]>()
 
     for (const task of recentTasks) {
-      const childId = resolveTaskChildId(task)
-      if (!childId) continue
-
-      const existing = childTasksById.get(childId)
-      if (existing) {
-        existing.push(task)
-      } else {
-        childTasksById.set(childId, [task])
+      const childIds = resolveTaskChildIds(task)
+      for (const childId of childIds) {
+        const existing = childTasksById.get(childId)
+        if (existing) {
+          existing.push(task)
+        } else {
+          childTasksById.set(childId, [task])
+        }
       }
     }
 
-    // Unique child IDs from tasks
+    // Unique child IDs from tasks (for legacy or tasks where we don't have family member data)
     const childIdsFromTasks = [...new Set(
       recentTasks
-        .map(resolveTaskChildId)
+        .flatMap(resolveTaskChildIds)
         .filter((id): id is string => !!id)
     )]
 
