@@ -138,50 +138,70 @@ export default function ParentDashboard({
     return nameInitial || "🙂"
   }, [avatarImageUrl, userProfile.avatar, userProfile.name])
 
+  const NAV_TABS = [
+    { value: "tasks",     icon: BarChart3,     emoji: "📋", from: "#8b5cf6", to: "#7c3aed", shadow: "rgba(139,92,246,0.4)",  tourId: "parent-tasks"     },
+    { value: "rewards",   icon: Gift,           emoji: "🎁", from: "#ec4899", to: "#f43f5e", shadow: "rgba(236,72,153,0.4)",  tourId: "parent-rewards"   },
+    { value: "children",  icon: Users,          emoji: "👨‍👩‍👧‍👦", from: "#10b981", to: "#14b8a6", shadow: "rgba(16,185,129,0.4)",  tourId: "parent-children"  },
+    { value: "analytics", icon: BarChart3,      emoji: "📊", from: "#0ea5e9", to: "#2563eb", shadow: "rgba(14,165,233,0.4)",  tourId: "parent-analytics" },
+    { value: "chat",      icon: MessageCircle,  emoji: "💬", from: "#06b6d4", to: "#6366f1", shadow: "rgba(99,102,241,0.4)",  tourId: "parent-chat"      },
+    { value: "settings",  icon: Settings,       emoji: "⚙️", from: "#64748b", to: "#475569", shadow: "rgba(100,116,139,0.4)", tourId: ""                 },
+  ] as const
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="text-3xl">{familyEmblem || "🏰"}</div>
-              <div>
-                <h1 className="text-2xl font-bold">{familyName || t("parentDashboard.familyNameFallback")}</h1>
-              </div>
+    <div className="min-h-screen" style={{ background: "linear-gradient(160deg,#f0f4ff 0%,#faf5ff 50%,#f0fdf4 100%)" }}>
+
+      {/* ── HEADER ─────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl border-b"
+        style={{ background: "linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(168,85,247,0.06) 50%,rgba(14,165,233,0.05) 100%)", borderColor: "rgba(99,102,241,0.15)" }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          {/* Family brand */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl shadow-md flex-shrink-0"
+              style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }}
+            >
+              {familyEmblem || "🏰"}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-purple-500">FamilyQuest</p>
+              <h1 className="text-lg sm:text-xl font-extrabold truncate"
+                style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+              >
+                {familyName || t("parentDashboard.familyNameFallback")}
+              </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
             <LanguageSwitcher variant="outline" size="sm" />
             <ThemeToggle />
             <span data-tour="parent-notifications"><NotificationsPopover /></span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2">
-                  <Avatar className="h-8 w-8">
+                <button className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 transition-all hover:shadow-md"
+                  style={{ borderColor: "rgba(99,102,241,0.3)", background: "rgba(255,255,255,0.7)" }}
+                >
+                  <Avatar className="h-7 w-7">
                     {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("parentDashboard.profileAvatarAlt")} />}
-                    <AvatarFallback>{avatarFallbackSymbol}</AvatarFallback>
+                    <AvatarFallback className="text-xs font-bold">{avatarFallbackSymbol}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden sm:inline">{userProfile.name}</span>
-                </Button>
+                  <span className="hidden sm:inline text-sm font-semibold text-gray-700">{userProfile.name}</span>
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl border-purple-100 shadow-xl p-1">
                 <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                  </div>
+                  <p className="text-sm font-semibold">{userProfile.name}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={event => {
-                    event.preventDefault()
-                    router.push("/profile")
-                  }}
+                <DropdownMenuItem className="rounded-xl"
+                  onSelect={e => { e.preventDefault(); router.push("/profile") }}
                 >
                   <User className="mr-2 h-4 w-4" />
                   <span>{t("parentDashboard.profile")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={onLogout} className="rounded-xl text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>{t("parentDashboard.logout")}</span>
                 </DropdownMenuItem>
@@ -191,90 +211,112 @@ export default function ParentDashboard({
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList data-tour="parent-tabs" className="grid w-full grid-cols-6 mb-6 h-auto p-1 bg-muted">
-            <TabsTrigger data-tour="parent-tasks" value="tasks" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.tasks")}</span>
-            </TabsTrigger>
-            <TabsTrigger data-tour="parent-rewards" value="rewards" className="flex items-center gap-2">
-              <Gift className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.rewards")}</span>
-            </TabsTrigger>
-            <TabsTrigger data-tour="parent-children" value="children" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.children")}</span>
-            </TabsTrigger>
-            <TabsTrigger data-tour="parent-analytics" value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.analytics")}</span>
-            </TabsTrigger>
-            <TabsTrigger data-tour="parent-chat" value="chat" className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.chat")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline text-xs">{t("parentDashboard.tabs.settings")}</span>
-            </TabsTrigger>
-          </TabsList>
 
+          {/* ── PREMIUM TAB NAV ─────────────────────────────────── */}
+          <div data-tour="parent-tabs" className="mb-6">
+            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl overflow-x-auto"
+              style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", border: "1px solid rgba(99,102,241,0.15)", boxShadow: "0 4px 20px -4px rgba(99,102,241,0.12)" }}
+            >
+              {NAV_TABS.map(tab => {
+                const active = activeTab === tab.value
+                const Icon = tab.icon
+                return (
+                  <button key={tab.value}
+                    data-tour={tab.tourId || undefined}
+                    onClick={() => setActiveTab(tab.value)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap min-w-[60px]"
+                    style={active ? {
+                      background: `linear-gradient(135deg,${tab.from},${tab.to})`,
+                      color: "#fff",
+                      boxShadow: `0 4px 12px -2px ${tab.shadow}`,
+                    } : { color: "#6b7280" }}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="hidden sm:inline">{t(`parentDashboard.tabs.${tab.value}`)}</span>
+                    <span className="sm:hidden">{tab.emoji}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* ── SECTION HEADERS ─────────────────────────────────── */}
           <TabsContent value="tasks" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl"
+              style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.08),rgba(168,85,247,0.06))", border: "1px solid rgba(139,92,246,0.15)" }}
+            >
               <div>
-                <h2 className="text-xl font-bold">{t("parentDashboard.sections.tasks.title")}</h2>
-                <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.tasks.subtitle")}</p>
+                <h2 className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  {t("parentDashboard.sections.tasks.title")}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-0.5">{t("parentDashboard.sections.tasks.subtitle")}</p>
               </div>
-              <Button
-                data-tour="parent-new-task"
-                className="gap-2"
+              <button data-tour="parent-new-task"
                 onClick={() => setIsTaskModalOpen(true)}
+                className="auth-btn-shine flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:scale-105 active:scale-95"
+                style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)", boxShadow: "0 4px 14px -2px rgba(99,102,241,0.5)" }}
               >
                 <Plus className="w-4 h-4" />
                 {t("parentDashboard.sections.tasks.newAction")}
-              </Button>
+              </button>
             </div>
             <TasksList userType="parent" />
           </TabsContent>
 
           <TabsContent value="rewards" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{t("parentDashboard.sections.rewards.title")}</h2>
-              <Button className="gap-2" onClick={() => setIsRewardModalOpen(true)}>
+            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl"
+              style={{ background: "linear-gradient(135deg,rgba(236,72,153,0.08),rgba(244,114,182,0.06))", border: "1px solid rgba(236,72,153,0.15)" }}
+            >
+              <h2 className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg,#ec4899,#f43f5e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {t("parentDashboard.sections.rewards.title")}
+              </h2>
+              <button onClick={() => setIsRewardModalOpen(true)}
+                className="auth-btn-shine flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:scale-105 active:scale-95"
+                style={{ background: "linear-gradient(135deg,#ec4899,#f43f5e)", boxShadow: "0 4px 14px -2px rgba(236,72,153,0.5)" }}
+              >
                 <Plus className="w-4 h-4" />
                 {t("parentDashboard.sections.rewards.newAction")}
-              </Button>
+              </button>
             </div>
             <RewardsShop userType="parent" />
           </TabsContent>
 
           <TabsContent value="children" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.children.title")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.children.subtitle")}</p>
+            <div className="mb-4 p-4 rounded-2xl"
+              style={{ background: "linear-gradient(135deg,rgba(16,185,129,0.08),rgba(20,184,166,0.06))", border: "1px solid rgba(16,185,129,0.15)" }}
+            >
+              <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#10b981,#14b8a6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {t("parentDashboard.sections.children.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.children.subtitle")}</p>
             </div>
             <ChildrenPageContent />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.analytics.title")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.analytics.subtitle")}</p>
-            </div>
-            <FeatureGate
-              feature="advancedAnalytics"
-              blurred
-              onUpgrade={() => setActiveTab("settings")}
+            <div className="mb-4 p-4 rounded-2xl"
+              style={{ background: "linear-gradient(135deg,rgba(14,165,233,0.08),rgba(37,99,235,0.06))", border: "1px solid rgba(14,165,233,0.15)" }}
             >
+              <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#0ea5e9,#2563eb)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {t("parentDashboard.sections.analytics.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.analytics.subtitle")}</p>
+            </div>
+            <FeatureGate feature="advancedAnalytics" blurred onUpgrade={() => setActiveTab("settings")}>
               <AnalyticsDashboard />
             </FeatureGate>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t("parentDashboard.sections.settings.title")}</h2>
-              <p className="text-sm text-muted-foreground mb-4">{t("parentDashboard.sections.settings.subtitle")}</p>
+            <div className="mb-4 p-4 rounded-2xl"
+              style={{ background: "linear-gradient(135deg,rgba(100,116,139,0.08),rgba(71,85,105,0.06))", border: "1px solid rgba(100,116,139,0.15)" }}
+            >
+              <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#64748b,#475569)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                {t("parentDashboard.sections.settings.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">{t("parentDashboard.sections.settings.subtitle")}</p>
             </div>
             <ParentSettings familyName={familyName} />
           </TabsContent>

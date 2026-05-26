@@ -58,12 +58,11 @@ interface ChildDashboardProps {
 /* ═══════════ Game Tabs ═══════════ */
 
 const TABS = [
-  { id: "tasks",        labelKey: "childDashboard.nav.tasks",        Icon: CheckCircle2, emoji: "⚡", grad: "from-emerald-400 to-teal-500",  ring: "ring-emerald-400/40", glow: "shadow-emerald-500/25", dot: "bg-emerald-400", bgLight: "bg-emerald-500/10", textColor: "text-emerald-600 dark:text-emerald-400" },
-  { id: "gallery",      labelKey: "childDashboard.nav.gallery",      Icon: Image,        emoji: "📸", grad: "from-pink-400 to-rose-500",     ring: "ring-pink-400/40",    glow: "shadow-pink-500/25",    dot: "bg-pink-400",    bgLight: "bg-pink-500/10",    textColor: "text-pink-600 dark:text-pink-400"    },
-  { id: "quests",       labelKey: "childDashboard.nav.quests",       Icon: Target,       emoji: "🎯", grad: "from-orange-400 to-red-500",    ring: "ring-orange-400/40",  glow: "shadow-orange-500/25",  dot: "bg-orange-400",  bgLight: "bg-orange-500/10",  textColor: "text-orange-600 dark:text-orange-400"  },
-  { id: "shop",         labelKey: "childDashboard.nav.shop",         Icon: Gift,         emoji: "🎁", grad: "from-violet-400 to-purple-600", ring: "ring-violet-400/40",  glow: "shadow-violet-500/25",  dot: "bg-violet-400",  bgLight: "bg-violet-500/10",  textColor: "text-violet-600 dark:text-violet-400"  },
-  { id: "chat",         labelKey: "childDashboard.nav.chat",         Icon: MessageCircle, emoji: "💬", grad: "from-cyan-400 to-blue-500",     ring: "ring-cyan-400/40",    glow: "shadow-cyan-500/25",    dot: "bg-cyan-400",    bgLight: "bg-cyan-500/10",    textColor: "text-cyan-600 dark:text-cyan-400"      },
-
+  { id: "tasks",   labelKey: "childDashboard.nav.tasks",   Icon: CheckCircle2,  emoji: "⚡", from: "#10b981", to: "#14b8a6", shadow: "rgba(16,185,129,0.45)"  },
+  { id: "gallery", labelKey: "childDashboard.nav.gallery", Icon: Image,         emoji: "📸", from: "#ec4899", to: "#f43f5e", shadow: "rgba(236,72,153,0.45)"  },
+  { id: "quests",  labelKey: "childDashboard.nav.quests",  Icon: Target,        emoji: "🎯", from: "#f97316", to: "#ef4444", shadow: "rgba(249,115,22,0.45)"  },
+  { id: "shop",    labelKey: "childDashboard.nav.shop",    Icon: Gift,          emoji: "🎁", from: "#8b5cf6", to: "#7c3aed", shadow: "rgba(139,92,246,0.45)"  },
+  { id: "chat",    labelKey: "childDashboard.nav.chat",    Icon: MessageCircle, emoji: "💬", from: "#06b6d4", to: "#6366f1", shadow: "rgba(6,182,212,0.45)"   },
 ] as const
 
 /* ═══════════ Helpers ═══════════ */
@@ -212,31 +211,39 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
       {/* ===============================================
            CLEAN MINIMAL NAVBAR
          =============================================== */}
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur border-b border-border">
+      <header className="sticky top-0 z-40 backdrop-blur-xl border-b"
+        style={{ background: "linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(99,102,241,0.06) 50%,rgba(168,85,247,0.05) 100%)", borderColor: "rgba(99,102,241,0.15)" }}
+      >
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 sm:h-16">
-          
+
           {/* Logo / Greeting */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-muted flex items-center justify-center">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-md"
+              style={{ background: "linear-gradient(135deg,#10b981,#14b8a6)" }}
+            >
+              ⚡
             </div>
             <div className="flex flex-col">
-              <p className="text-xs sm:text-sm font-bold text-muted-foreground leading-none mb-0.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest leading-none mb-0.5" style={{ color: "#10b981" }}>
                 {t(getGreetingKey())}
               </p>
-              <h2 className="text-sm sm:text-base font-black text-foreground leading-none">
+              <h2 className="text-sm sm:text-base font-black leading-none"
+                style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+              >
                 {userProfile.name}
               </h2>
             </div>
           </div>
 
-          {/* Right Actions - Extremely Simplified */}
+          {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            
-            {/* Store Points - Big & Clear */}
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-muted/40 transition-colors border border-border cursor-default">
-              <Star className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500 fill-amber-500" />
-              <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 tabular-nums leading-none">
+
+            {/* Store Points */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl cursor-default shadow-sm"
+              style={{ background: "linear-gradient(135deg,rgba(251,191,36,0.18),rgba(245,158,11,0.1))", border: "1px solid rgba(251,191,36,0.35)" }}
+            >
+              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+              <span className="text-sm font-black text-amber-600 tabular-nums leading-none">
                 {statsLoading ? "..." : points.toLocaleString()}
               </span>
             </div>
@@ -244,11 +251,13 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
             {/* Notifications */}
             <NotificationsPopover />
 
-            {/* Pure Settings Dropdown */}
+            {/* Settings Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors border border-border/40">
-                  <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
+                <button className="h-9 w-9 rounded-xl flex items-center justify-center transition-all border"
+                  style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(99,102,241,0.3)" }}
+                >
+                  <Settings className="h-4 w-4" style={{ color: "#6366f1" }} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-border/40 shadow-xl" sideOffset={8}>
