@@ -52,7 +52,7 @@ public class AuthController(IMediator mediator, UserManager<User> userManager, A
         var result = await mediator.Send(request, cancellationToken);
         return result.ToActionResult();
     }
-
+    
     [HttpPost("revoke")]
     public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RevokeRefreshTokenCommand request,
         CancellationToken cancellationToken)

@@ -331,6 +331,62 @@
   100% { transform: scale(1); }
 }
 
+/* ═══════════ Auth Screen Animations ═══════════ */
+@keyframes auth-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.08); }
+  66% { transform: translate(-20px, 15px) scale(0.95); }
+}
+@keyframes auth-particle-drift {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-120px) rotate(720deg); opacity: 0; }
+}
+@keyframes auth-slide-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes auth-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes auth-demo-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+}
+@keyframes auth-shine {
+  0% { left: -100%; }
+  100% { left: 150%; }
+}
+@keyframes auth-emoji-float {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+
+.animate-auth-orb { animation: auth-orb-float 8s ease-in-out infinite; }
+.animate-auth-slide-in { animation: auth-slide-in 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards; }
+.animate-auth-fade-in { animation: auth-fade-in 0.4s ease-out forwards; }
+.animate-auth-demo-pulse { animation: auth-demo-pulse 2s ease-in-out infinite; }
+
+.auth-btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.auth-btn-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-20deg);
+  transition: none;
+}
+.auth-btn-shine:hover::after {
+  animation: auth-shine 0.7s ease forwards;
+}
+
 .animate-kid-bounce { animation: kid-bounce 2s ease-in-out infinite; }
 .animate-kid-wiggle { animation: kid-wiggle 0.6s ease-in-out; }
 .animate-kid-pulse-glow { animation: kid-pulse-glow 2.5s ease-in-out infinite; }

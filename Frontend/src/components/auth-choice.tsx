@@ -1,8 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { UserPlus, LogIn, ChevronLeft } from "lucide-react"
+import { ChevronLeft, Rocket, Sparkles, Star, Users, Zap } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
@@ -16,94 +14,189 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
   const { t } = useTranslation()
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-400 via-purple-400 to-purple-500 relative overflow-hidden flex items-center justify-center p-4">
-      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4"
+      style={{ background: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 40%, #a855f7 70%, #ec4899 100%)" }}
+    >
+      {/* Language switcher */}
+      <div className="absolute top-4 right-4 z-30">
         <LanguageSwitcher variant="outline" size="sm" />
       </div>
-      {/* Decorative background */}
-      <div className="absolute inset-0 opacity-20">
-        <svg className="w-full h-full" viewBox="0 0 1440 800" preserveAspectRatio="none">
-          <path
-            d="M0,400 C240,450 480,350 720,400 C960,450 1200,350 1440,400 L1440,800 L0,800 Z"
-            fill="white"
-            opacity="0.3"
-          />
-        </svg>
+
+      {/* Back button */}
+      <button onClick={onBack}
+        className="absolute top-4 left-4 z-30 flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-medium"
+      >
+        <ChevronLeft className="w-5 h-5" />
+        {t("authChoice.back")}
+      </button>
+
+      {/* Ambient orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute w-96 h-96 rounded-full opacity-20 animate-auth-orb"
+          style={{ background: "radial-gradient(circle, #ffffff, transparent)", top: "-10%", left: "-5%", animationDuration: "9s" }} />
+        <div className="absolute w-80 h-80 rounded-full opacity-15 animate-auth-orb"
+          style={{ background: "radial-gradient(circle, #f0abfc, transparent)", bottom: "-5%", right: "-5%", animationDelay: "4s", animationDuration: "11s" }} />
+        <div className="absolute w-64 h-64 rounded-full opacity-20 animate-auth-orb"
+          style={{ background: "radial-gradient(circle, #bae6fd, transparent)", top: "30%", right: "8%", animationDelay: "2s", animationDuration: "7s" }} />
       </div>
 
-      <div className="relative z-10 w-full max-w-2xl">
-        {/* Back button */}
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-          {t("authChoice.back")}
-        </button>
+      {/* Floating decorations */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[
+          { emoji: "⭐", style: { top: "10%", left: "6%",  animationDuration: "7s",  animationDelay: "0s"   } },
+          { emoji: "🌟", style: { top: "8%",  right: "8%", animationDuration: "9s",  animationDelay: "1.5s" } },
+          { emoji: "🏆", style: { top: "55%", left: "4%",  animationDuration: "8s",  animationDelay: "3s"   } },
+          { emoji: "🎯", style: { top: "60%", right: "5%", animationDuration: "10s", animationDelay: "0.5s" } },
+          { emoji: "✨", style: { top: "80%", left: "15%", animationDuration: "6s",  animationDelay: "2.5s" } },
+          { emoji: "🚀", style: { top: "75%", right: "15%",animationDuration: "8.5s",animationDelay: "1s"   } },
+        ].map((p, i) => (
+          <div key={i} className="absolute text-2xl opacity-40 animate-float-gentle" style={p.style}>{p.emoji}</div>
+        ))}
+      </div>
 
-        {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4 text-balance drop-shadow-lg">
-          {t("authChoice.title")}
-        </h1>
-        <p className="text-xl text-white text-center mb-12 text-balance drop-shadow-md">
-          {t("authChoice.subtitle")}
-        </p>
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-3xl animate-auth-slide-in" style={{ animationFillMode: "both" }}>
 
-        {/* Choice cards */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* New user */}
-          <Card
-            onClick={onNewUser}
-            className="bg-white/95 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white border-2 border-white/50"
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4 shadow-2xl"
+            style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.4)" }}
           >
-            <CardContent className="pt-8">
-              <div className="w-20 h-20 bg-linear-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <UserPlus className="w-10 h-10 text-white" />
+            <span className="text-4xl">🏠</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg tracking-tight mb-3">
+            {t("authChoice.title")}
+          </h1>
+          <p className="text-lg text-white/80 font-medium">
+            {t("authChoice.subtitle")}
+          </p>
+        </div>
+
+        {/* Cards grid */}
+        <div className="grid md:grid-cols-2 gap-5">
+
+          {/* New User card */}
+          <button onClick={onNewUser}
+            className="group relative overflow-hidden rounded-3xl text-left transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.98] cursor-pointer"
+            style={{
+              background: "rgba(255,255,255,0.95)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 24px 48px -8px rgba(16,185,129,0.35), 0 0 0 1px rgba(255,255,255,0.6), inset 0 1px 0 rgba(255,255,255,1)",
+            }}
+          >
+            {/* Shine effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }}
+            />
+            {/* Top accent bar */}
+            <div className="h-1.5 w-full rounded-t-3xl" style={{ background: "linear-gradient(90deg, #10b981, #34d399)" }} />
+
+            <div className="p-7">
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 shadow-lg"
+                style={{ background: "linear-gradient(135deg, #10b981, #34d399)", boxShadow: "0 8px 20px -4px rgba(16,185,129,0.5)" }}
+              >
+                <Rocket className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-center mb-3 text-gray-900">
+
+              <h3 className="text-2xl font-extrabold text-gray-900 mb-2">
                 {t("authChoice.newUser.title")}
               </h3>
-              <p className="text-center text-gray-700 mb-6">
+              <p className="text-gray-500 text-sm mb-5">
                 {t("authChoice.newUser.description")}
               </p>
-              <div className="space-y-2 text-sm text-gray-700 mb-6">
-                <p>{t("authChoice.newUser.bullets.role")}</p>
-                <p>{t("authChoice.newUser.bullets.profile")}</p>
-                <p>{t("authChoice.newUser.bullets.family")}</p>
-              </div>
-              <Button className="w-full bg-linear-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white text-lg py-6 h-auto">
-                <UserPlus className="mr-2 w-5 h-5" />
-                {t("authChoice.newUser.action")}
-              </Button>
-            </CardContent>
-          </Card>
 
-          {/* Existing user */}
-          <Card
-            onClick={onExisting}
-            className="bg-white/95 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer hover:bg-white border-2 border-white/50"
-          >
-            <CardContent className="pt-8">
-              <div className="w-20 h-20 bg-linear-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <LogIn className="w-10 h-10 text-white" />
+              {/* Bullet points */}
+              <div className="space-y-2 mb-6">
+                {[
+                  t("authChoice.newUser.bullets.role"),
+                  t("authChoice.newUser.bullets.profile"),
+                  t("authChoice.newUser.bullets.family"),
+                ].map((b, i) => (
+                  <div key={i} className="flex items-center gap-2.5 text-sm text-gray-600">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg, #10b981, #34d399)" }}
+                    >
+                      <Star className="w-3 h-3 text-white" />
+                    </div>
+                    {b}
+                  </div>
+                ))}
               </div>
-              <h3 className="text-2xl font-bold text-center mb-3 text-gray-900">
+
+              {/* CTA */}
+              <div className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 font-bold text-white text-sm auth-btn-shine"
+                style={{ background: "linear-gradient(135deg, #10b981, #34d399)", boxShadow: "0 6px 16px -4px rgba(16,185,129,0.5)" }}
+              >
+                <Sparkles className="w-4 h-4" />
+                {t("authChoice.newUser.action")}
+              </div>
+            </div>
+          </button>
+
+          {/* Existing User card */}
+          <button onClick={onExisting}
+            className="group relative overflow-hidden rounded-3xl text-left transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.98] cursor-pointer"
+            style={{
+              background: "rgba(255,255,255,0.95)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 24px 48px -8px rgba(99,102,241,0.35), 0 0 0 1px rgba(255,255,255,0.6), inset 0 1px 0 rgba(255,255,255,1)",
+            }}
+          >
+            {/* Shine effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%)" }}
+            />
+            {/* Top accent bar */}
+            <div className="h-1.5 w-full rounded-t-3xl" style={{ background: "linear-gradient(90deg, #6366f1, #a855f7)" }} />
+
+            <div className="p-7">
+              {/* Icon */}
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 shadow-lg"
+                style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", boxShadow: "0 8px 20px -4px rgba(99,102,241,0.5)" }}
+              >
+                <Users className="w-8 h-8 text-white" />
+              </div>
+
+              <h3 className="text-2xl font-extrabold text-gray-900 mb-2">
                 {t("authChoice.existingUser.title")}
               </h3>
-              <p className="text-center text-gray-700 mb-6">
+              <p className="text-gray-500 text-sm mb-5">
                 {t("authChoice.existingUser.description")}
               </p>
-              <div className="space-y-2 text-sm text-gray-700 mb-6">
-                <p>{t("authChoice.existingUser.bullets.credentials")}</p>
-                <p>{t("authChoice.existingUser.bullets.profile")}</p>
-                <p>{t("authChoice.existingUser.bullets.continue")}</p>
+
+              {/* Bullet points */}
+              <div className="space-y-2 mb-6">
+                {[
+                  t("authChoice.existingUser.bullets.credentials"),
+                  t("authChoice.existingUser.bullets.profile"),
+                  t("authChoice.existingUser.bullets.continue"),
+                ].map((b, i) => (
+                  <div key={i} className="flex items-center gap-2.5 text-sm text-gray-600">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)" }}
+                    >
+                      <Zap className="w-3 h-3 text-white" />
+                    </div>
+                    {b}
+                  </div>
+                ))}
               </div>
-              <Button className="w-full bg-linear-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-lg py-6 h-auto">
-                <LogIn className="mr-2 w-5 h-5" />
+
+              {/* Demo hint */}
+              <div className="mb-4 px-3 py-2 rounded-xl text-xs font-medium" style={{ background: "linear-gradient(135deg, #ede9fe, #fdf4ff)", color: "#7c3aed" }}>
+                🔑 Демо: <span className="font-mono font-bold">demo@familyquest.app</span> / <span className="font-mono font-bold">Demo1234!</span>
+              </div>
+
+              {/* CTA */}
+              <div className="w-full h-12 rounded-2xl flex items-center justify-center gap-2 font-bold text-white text-sm auth-btn-shine"
+                style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", boxShadow: "0 6px 16px -4px rgba(99,102,241,0.5)" }}
+              >
+                <Zap className="w-4 h-4" />
                 {t("authChoice.existingUser.action")}
-              </Button>
-            </CardContent>
-          </Card>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
     </div>
