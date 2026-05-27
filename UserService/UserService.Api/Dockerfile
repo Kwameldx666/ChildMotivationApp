@@ -12,8 +12,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY UserService/ ./UserService/
 COPY AuthService/AuthService.Domain/ ./AuthService/AuthService.Domain/
-RUN dotnet nuget locals all --clear \
-	&& dotnet restore UserService/UserService.Api/UserService.Api.csproj
+RUN dotnet restore UserService/UserService.Api/UserService.Api.csproj
 RUN dotnet publish UserService/UserService.Api/UserService.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

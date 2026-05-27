@@ -12,8 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libkrb5-3 libgs
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY AuthService/ ./AuthService/
-RUN dotnet nuget locals all --clear \
-    && dotnet restore AuthService/AuthService.Api/AuthService.Api.csproj
+RUN dotnet restore AuthService/AuthService.Api/AuthService.Api.csproj
 RUN dotnet publish AuthService/AuthService.Api/AuthService.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
