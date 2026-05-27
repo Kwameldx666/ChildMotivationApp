@@ -83,7 +83,7 @@ using (var scope = app.Services.CreateScope())
     // ── Seed demo subscription + family messages for screenshots ──
     try
     {
-        var parentId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        var parentId = Guid.Parse("a1000000-0000-0000-0000-000000000001");
         var seedLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DemoSeed");
         var userExists = await dbContext.Users.AnyAsync(u => u.Id == parentId);
         if (!userExists)
@@ -101,7 +101,7 @@ using (var scope = app.Services.CreateScope())
                         has_ai_assistant, has_advanced_analytics, has_custom_rewards,
                         has_priority_support, has_family_sharing, has_offline_mode, created_at, updated_at)
                     VALUES
-                    ('a1000000-0000-0000-0000-000000000001', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                    ('a1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001',
                      'Basic', 'Active', NOW()-INTERVAL '30 days', NOW()+INTERVAL '335 days',
                      true, 4.99, 5, 20,
                      false, true, true, false, true, false, NOW()-INTERVAL '30 days', NOW())
@@ -115,46 +115,46 @@ using (var scope = app.Services.CreateScope())
                 await dbContext.Database.ExecuteSqlRawAsync("""
                 INSERT INTO family_messages ("Id","FamilyId","SenderId","Content","CreatedAt","IsRead","MentionedTaskId","ReplyToMessageId")
                 VALUES
-                ('a2000000-0000-0000-0000-000000000001','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000001','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Привет, ребята! Сегодня добавил новые задания. Посмотрите! 📋',
                  NOW()-INTERVAL '4 hours', true, NULL, NULL),
-                ('a2000000-0000-0000-0000-000000000002','DEMO2025','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                ('a2000000-0000-0000-0000-000000000002','DEMO2025','a1000000-0000-0000-0000-000000000002',
                  'Пап, я уже убрала комнату! Даже пропылесосила! 🎉',
                  NOW()-INTERVAL '3 hours 30 minutes', true, 'd1000000-0000-0000-0000-000000000001', NULL),
-                ('a2000000-0000-0000-0000-000000000003','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000003','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Молодец, Маша! Отличная работа 👏',
                  NOW()-INTERVAL '3 hours', true, NULL, 'a2000000-0000-0000-0000-000000000002'),
-                ('a2000000-0000-0000-0000-000000000004','DEMO2025','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                ('a2000000-0000-0000-0000-000000000004','DEMO2025','a1000000-0000-0000-0000-000000000003',
                  'А я выгулял Бобика! Он был очень рад 🐕',
                  NOW()-INTERVAL '2 hours', true, 'd1000000-0000-0000-0000-000000000007', NULL),
-                ('a2000000-0000-0000-0000-000000000005','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000005','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Отлично, ребята! Вы оба большие молодцы! Продолжайте в том же духе 🌟',
                  NOW()-INTERVAL '1 hour 30 minutes', true, NULL, NULL),
-                ('a2000000-0000-0000-0000-000000000006','DEMO2025','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                ('a2000000-0000-0000-0000-000000000006','DEMO2025','a1000000-0000-0000-0000-000000000002',
                  'Я хочу заработать на настольную игру! Сколько ещё баллов нужно?',
                  NOW()-INTERVAL '45 minutes', false, NULL, NULL),
-                ('a2000000-0000-0000-0000-000000000007','DEMO2025','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                ('a2000000-0000-0000-0000-000000000007','DEMO2025','a1000000-0000-0000-0000-000000000003',
                  'А мне на сладкий бонус хватило! 🍬',
                  NOW()-INTERVAL '30 minutes', false, NULL, NULL),
-                ('a2000000-0000-0000-0000-000000000008','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000008','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Добавил семейные задания без назначения — можете выбрать любое и взять в работу 👨‍👧‍👦',
                  NOW()-INTERVAL '25 minutes', false, 'd1000000-0000-0000-0000-000000000011', NULL),
-                ('a2000000-0000-0000-0000-000000000009','DEMO2025','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                ('a2000000-0000-0000-0000-000000000009','DEMO2025','a1000000-0000-0000-0000-000000000002',
                  'Я беру задание про семейный вечер! Подготовлю настолку 🎲',
                  NOW()-INTERVAL '20 minutes', false, 'd1000000-0000-0000-0000-000000000011', NULL),
-                ('a2000000-0000-0000-0000-000000000010','DEMO2025','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                ('a2000000-0000-0000-0000-000000000010','DEMO2025','a1000000-0000-0000-0000-000000000003',
                  'А я соберу идеи для выходных! Уже придумал две 🚴',
                  NOW()-INTERVAL '18 minutes', false, 'd1000000-0000-0000-0000-000000000012', NULL),
-                ('a2000000-0000-0000-0000-000000000011','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000011','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Супер, команда! Вечером обсудим ваши идеи и выберем лучший план 📝',
                  NOW()-INTERVAL '15 minutes', false, NULL, NULL),
-                ('a2000000-0000-0000-0000-000000000012','DEMO2025','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                ('a2000000-0000-0000-0000-000000000012','DEMO2025','a1000000-0000-0000-0000-000000000002',
                  'Я ещё сделала английские карточки. Можно потом проверить? 📚',
                  NOW()-INTERVAL '10 minutes', false, 'd1000000-0000-0000-0000-000000000013', NULL),
-                ('a2000000-0000-0000-0000-000000000013','DEMO2025','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                ('a2000000-0000-0000-0000-000000000013','DEMO2025','a1000000-0000-0000-0000-000000000001',
                  'Конечно! После ужина устроим мини-квиз по словам ✅',
                  NOW()-INTERVAL '8 minutes', false, NULL, 'a2000000-0000-0000-0000-000000000012'),
-                ('a2000000-0000-0000-0000-000000000014','DEMO2025','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                ('a2000000-0000-0000-0000-000000000014','DEMO2025','a1000000-0000-0000-0000-000000000003',
                  'Я тоже готов! И можно потом выбрать мультик как награду? 😄',
                  NOW()-INTERVAL '5 minutes', false, NULL, NULL)
                 ON CONFLICT ("Id") DO NOTHING;

@@ -73,7 +73,7 @@ using (var scope = app.Services.CreateScope())
             "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"StartedByChild\" boolean NOT NULL DEFAULT false");
 
         // ── Seed demo tasks for screenshots (old aaaaaaaa family) ──
-        var parentId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        var parentId = "a1000000-0000-0000-0000-000000000001";
         var demoTaskCount = await db.Tasks.CountAsync(t => t.CreatedByUserId == parentId);
         if (demoTaskCount < 18)
         {
@@ -87,81 +87,81 @@ using (var scope = app.Services.CreateScope())
                 -- Completed tasks for Маша
                 ('d1000000-0000-0000-0000-000000000001','Убрать комнату','Разложить игрушки, заправить кровать и пропылесосить',
                  true, NOW()-INTERVAL '3 days', NOW()-INTERVAL '3 days', NOW()-INTERVAL '3 days',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 2, 100, 5),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 2, 100, 5),
 
                 ('d1000000-0000-0000-0000-000000000002','Сделать домашнее задание по математике','Решить примеры на странице 45-46',
                  true, NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 3, 120, 10),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 3, 120, 10),
 
                 ('d1000000-0000-0000-0000-000000000003','Решить 10 задач по русскому языку','Упражнения из рабочей тетради',
                  true, NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 4, 140, 20),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 4, 140, 20),
 
                 -- Pending tasks for Маша
                 ('d1000000-0000-0000-0000-000000000004','Почитать книгу 30 минут','Продолжить читать «Гарри Поттер»',
                  false, NOW()-INTERVAL '1 day', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 1, 80, 2),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 1, 80, 2),
 
                 ('d1000000-0000-0000-0000-000000000005','Нарисовать рисунок','Нарисовать рисунок на тему «Моя семья» и сфотографировать',
                  false, NOW(), NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1, 1, 80, 2),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 1, 1, 80, 2),
 
                 ('d1000000-0000-0000-0000-000000000006','Полить цветы','Полить все комнатные растения',
                  false, NOW(), NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 1, 80, 2),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 1, 80, 2),
 
                 -- Completed tasks for Дима
                 ('d1000000-0000-0000-0000-000000000007','Выгулять собаку','Прогулка 20 минут во дворе',
                  true, NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 2, 100, 5),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 2, 100, 5),
 
                 ('d1000000-0000-0000-0000-000000000008','Собрать рюкзак на завтра','Проверить расписание и сложить учебники',
                  true, NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 1, 80, 2),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 1, 80, 2),
 
                 -- Pending tasks for Дима
                 ('d1000000-0000-0000-0000-000000000009','Помочь с ужином','Помочь маме порезать овощи для салата',
                  false, NOW(), NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 2, 100, 5),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 2, 100, 5),
 
                 ('d1000000-0000-0000-0000-000000000010','Протереть пыль в гостиной','Протереть полки и подоконники',
                  false, NOW(), NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 3, 120, 10),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 3, 120, 10),
 
                 -- Family-wide tasks (shown to children as common tasks)
                 ('d1000000-0000-0000-0000-000000000011','Подготовить семейный вечер','Выбрать игру и подготовить настольный стол',
                  false, NOW()-INTERVAL '6 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',NULL, 0, 2, 100, 8),
+                 'a1000000-0000-0000-0000-000000000001',NULL, 0, 2, 100, 8),
 
                 ('d1000000-0000-0000-0000-000000000012','Собрать идеи для выходных','Каждый предлагает 2 идеи для прогулки',
                  false, NOW()-INTERVAL '5 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',NULL, 0, 2, 90, 6),
+                 'a1000000-0000-0000-0000-000000000001',NULL, 0, 2, 90, 6),
 
                 -- Extra tasks for Маша
                 ('d1000000-0000-0000-0000-000000000013','Повторить английские слова','Выучить 12 слов из карточек и прочитать вслух',
                  false, NOW()-INTERVAL '8 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 3, 130, 12),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 3, 130, 12),
 
                 ('d1000000-0000-0000-0000-000000000014','Собрать портфель заранее','Проверить дневник и подготовить учебники на завтра',
                  true, NOW()-INTERVAL '12 hours', NOW()-INTERVAL '11 hours', NOW()-INTERVAL '11 hours',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 0, 1, 70, 3),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 0, 1, 70, 3),
 
                 ('d1000000-0000-0000-0000-000000000015','Сделать фото поделки','Собрать поделку и отправить фото для подтверждения',
                  false, NOW()-INTERVAL '4 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1, 2, 100, 8),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002', 1, 2, 100, 8),
 
                 -- Extra tasks for Дима
                 ('d1000000-0000-0000-0000-000000000016','Потренировать чтение','Прочитать 4 страницы и пересказать',
                  false, NOW()-INTERVAL '7 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 2, 100, 8),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 2, 100, 8),
 
                 ('d1000000-0000-0000-0000-000000000017','Собрать конструктор по схеме','Собрать модель и показать родителю',
                  true, NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days', NOW()-INTERVAL '2 days',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 3, 140, 14),
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 3, 140, 14),
 
                 ('d1000000-0000-0000-0000-000000000018','Подготовить одежду на завтра','Аккуратно сложить форму и носки',
                  false, NOW()-INTERVAL '3 hours', NULL, NULL,
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','cccccccc-cccc-cccc-cccc-cccccccccccc', 0, 1, 70, 3)
+                 'a1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000003', 0, 1, 70, 3)
 
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
@@ -171,13 +171,13 @@ using (var scope = app.Services.CreateScope())
                 INSERT INTO task_comments ("Id","TaskId","UserId","UserName","UserRole","Content","CreatedAt")
                 VALUES
                 ('e1000000-0000-0000-0000-000000000001','d1000000-0000-0000-0000-000000000001',
-                 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','Маша','Child','Всё убрала! Даже под кроватью! 😊',
+                 'a1000000-0000-0000-0000-000000000002','Маша','Child','Всё убрала! Даже под кроватью! 😊',
                  NOW()-INTERVAL '3 days'),
                 ('e1000000-0000-0000-0000-000000000002','d1000000-0000-0000-0000-000000000001',
-                 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','Алексей','Parent','Молодец! Комната блестит ✨',
+                 'a1000000-0000-0000-0000-000000000001','Алексей','Parent','Молодец! Комната блестит ✨',
                  NOW()-INTERVAL '3 days' + INTERVAL '30 minutes'),
                 ('e1000000-0000-0000-0000-000000000003','d1000000-0000-0000-0000-000000000007',
-                 'cccccccc-cccc-cccc-cccc-cccccccccccc','Дима','Child','Бобик был очень рад прогулке! 🐕',
+                 'a1000000-0000-0000-0000-000000000003','Дима','Child','Бобик был очень рад прогулке! 🐕',
                  NOW()-INTERVAL '1 day')
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
@@ -187,11 +187,11 @@ using (var scope = app.Services.CreateScope())
                 INSERT INTO achievement_progress ("Id","AchievementId","UserId","ProgressValue","UpdatedAt","UnlockedAt")
                 VALUES
                 ('f1000000-0000-0000-0000-000000000001','7b4c0a8c-d745-4bd5-9f78-aa142f7de669',
-                 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 3, NOW(), NULL),
+                 'a1000000-0000-0000-0000-000000000002', 3, NOW(), NULL),
                 ('f1000000-0000-0000-0000-000000000002','f6a4f768-3a43-41cf-9d0e-bbc868710f19',
-                 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 3, NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day'),
+                 'a1000000-0000-0000-0000-000000000002', 3, NOW()-INTERVAL '1 day', NOW()-INTERVAL '1 day'),
                 ('f1000000-0000-0000-0000-000000000003','7b4c0a8c-d745-4bd5-9f78-aa142f7de669',
-                 'cccccccc-cccc-cccc-cccc-cccccccccccc', 2, NOW(), NULL)
+                 'a1000000-0000-0000-0000-000000000003', 2, NOW(), NULL)
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
 
@@ -199,11 +199,11 @@ using (var scope = app.Services.CreateScope())
                 INSERT INTO mission_progress ("Id","MissionId","UserId","ProgressValue","AnchorDate","UpdatedAt","CompletedAt")
                 VALUES
                 ('f2000000-0000-0000-0000-000000000001','3f68d135-3a90-4f50-9b8e-5d0af9f3e5a1',
-                 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 2, CURRENT_DATE, NOW(), NULL),
+                 'a1000000-0000-0000-0000-000000000002', 2, CURRENT_DATE, NOW(), NULL),
                 ('f2000000-0000-0000-0000-000000000002','cde995cd-88ee-44bb-9e1a-0ebbf35fb2a7',
-                 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 15, CURRENT_DATE, NOW(), NULL),
+                 'a1000000-0000-0000-0000-000000000002', 15, CURRENT_DATE, NOW(), NULL),
                 ('f2000000-0000-0000-0000-000000000003','3f68d135-3a90-4f50-9b8e-5d0af9f3e5a1',
-                 'cccccccc-cccc-cccc-cccc-cccccccccccc', 1, CURRENT_DATE, NOW(), NULL)
+                 'a1000000-0000-0000-0000-000000000003', 1, CURRENT_DATE, NOW(), NULL)
                 ON CONFLICT ("Id") DO NOTHING;
                 """);
 

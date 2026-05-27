@@ -77,8 +77,8 @@ using (var scope = app.Services.CreateScope())
 
         // ── Seed demo orders for screenshots ──
         var demoOrdersCount = await db.Orders.CountAsync(o =>
-            o.UserId == "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" ||
-            o.UserId == "cccccccc-cccc-cccc-cccc-cccccccccccc");
+            o.UserId == "a1000000-0000-0000-0000-000000000002" ||
+            o.UserId == "a1000000-0000-0000-0000-000000000003");
         if (demoOrdersCount < 8)
         {
             var logger2 = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DemoSeed");
@@ -88,59 +88,60 @@ using (var scope = app.Services.CreateScope())
                 INSERT INTO orders ("Id","UserId","CreatedAt","Status","TotalAmount",
                     "DeliveredAt","DeliveredByUserId","ConfirmedAt","ConfirmedByUserId","DeliveryNotes")
                 VALUES
-                ('b1000000-0000-0000-0000-000000000001','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                ('b1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002',
                  NOW()-INTERVAL '5 days', 5, 20,
-                 NOW()-INTERVAL '5 days', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                 NOW()-INTERVAL '5 days', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Выбрала наклейку с единорогом!'),
-                ('b1000000-0000-0000-0000-000000000002','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                 NOW()-INTERVAL '5 days', 'a1000000-0000-0000-0000-000000000001',
+                 NOW()-INTERVAL '5 days', 'a1000000-0000-0000-0000-000000000002', 'Выбрала наклейку с единорогом!'),
+                ('b1000000-0000-0000-0000-000000000002','a1000000-0000-0000-0000-000000000002',
                  NOW()-INTERVAL '1 day', 3, 30,
-                 NOW()-INTERVAL '1 day', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+                 NOW()-INTERVAL '1 day', 'a1000000-0000-0000-0000-000000000001',
                  NULL, NULL, NULL),
-                ('b1000000-0000-0000-0000-000000000003','cccccccc-cccc-cccc-cccc-cccccccccccc',
+                ('b1000000-0000-0000-0000-000000000003','a1000000-0000-0000-0000-000000000003',
                  NOW()-INTERVAL '3 days', 5, 20,
-                 NOW()-INTERVAL '3 days', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                 NOW()-INTERVAL '3 days', 'cccccccc-cccc-cccc-cccc-cccccccccccc', NULL),
-                ('b1000000-0000-0000-0000-000000000004','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                 NOW()-INTERVAL '3 days', 'a1000000-0000-0000-0000-000000000001',
+                 NOW()-INTERVAL '3 days', 'a1000000-0000-0000-0000-000000000003', NULL),
+                ('b1000000-0000-0000-0000-000000000004','a1000000-0000-0000-0000-000000000002',
                  NOW(), 1, 100,
                  NULL, NULL, NULL, NULL, NULL),
-                ('b1000000-0000-0000-0000-000000000005','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+                    ('b1000000-0000-0000-0000-000000000005','a1000000-0000-0000-0000-000000000002',
                  NOW()-INTERVAL '12 days', 5, 25,
-                 NOW()-INTERVAL '11 days 22 hours', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                 NOW()-INTERVAL '11 days 21 hours', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Музыка в машине на поездку к бабушке'),
-                ('b1000000-0000-0000-0000-000000000006','cccccccc-cccc-cccc-cccc-cccccccccccc',
-                 NOW()-INTERVAL '9 days', 5, 30,
-                 NOW()-INTERVAL '8 days 20 hours', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                 NOW()-INTERVAL '8 days 18 hours', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'Дополнительное экранное время использовано после уроков'),
-                ('b1000000-0000-0000-0000-000000000007','cccccccc-cccc-cccc-cccc-cccccccccccc',
-                 NOW()-INTERVAL '2 days', 3, 120,
-                 NOW()-INTERVAL '2 days', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                 NULL, NULL, 'Ожидает подтверждения ребёнком'),
-                ('b1000000-0000-0000-0000-000000000008','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-                 NOW()-INTERVAL '6 hours', 2, 20,
-                 NULL, NULL, NULL, NULL, NULL)
-                ON CONFLICT ("Id") DO NOTHING;
-                """);
-
-            await db.Database.ExecuteSqlRawAsync("""
-                INSERT INTO order_items ("Id","OrderId","ProductId","ProductName","UnitPrice","Quantity","LineTotal")
-                VALUES
-                ('c1000000-0000-0000-0000-000000000001','b1000000-0000-0000-0000-000000000001',
-                 'a1b2c3d4-1111-4000-8000-000000000001','Наклейка на выбор', 20, 1, 20),
-                ('c1000000-0000-0000-0000-000000000002','b1000000-0000-0000-0000-000000000002',
-                 'a1b2c3d4-1111-4000-8000-000000000003','Дополнительные 15 минут игры', 30, 1, 30),
-                ('c1000000-0000-0000-0000-000000000003','b1000000-0000-0000-0000-000000000003',
-                 'a1b2c3d4-1111-4000-8000-000000000004','Сладкий бонус', 20, 1, 20),
-                ('c1000000-0000-0000-0000-000000000004','b1000000-0000-0000-0000-000000000004',
-                 'a1b2c3d4-2222-4000-8000-000000000001','Настольная игра с родителем', 100, 1, 100),
-                ('c1000000-0000-0000-0000-000000000005','b1000000-0000-0000-0000-000000000005',
-                 'a1b2c3d4-1111-4000-8000-000000000002','Выбор музыки в машине', 25, 1, 25),
-                ('c1000000-0000-0000-0000-000000000006','b1000000-0000-0000-0000-000000000006',
-                 'a1b2c3d4-1111-4000-8000-000000000003','Дополнительные 15 минут игры', 30, 1, 30),
-                ('c1000000-0000-0000-0000-000000000007','b1000000-0000-0000-0000-000000000007',
-                 'a1b2c3d4-2222-4000-8000-000000000002','Пикник в гостиной', 120, 1, 120),
-                ('c1000000-0000-0000-0000-000000000008','b1000000-0000-0000-0000-000000000008',
-                 'a1b2c3d4-1111-4000-8000-000000000001','Наклейка на выбор', 20, 1, 20)
-                ON CONFLICT ("Id") DO NOTHING;
+                 NOW()-INTERVAL '11 days 22 hours', 'a1000000-0000-0000-0000-000000000001',
+                            await db.Database.ExecuteSqlRawAsync("""
+                                INSERT INTO orders ("Id","UserId","CreatedAt","Status","TotalAmount",
+                                    "DeliveredAt","DeliveredByUserId","ConfirmedAt","ConfirmedByUserId","DeliveryNotes")
+                                VALUES
+                                ('b1000000-0000-0000-0000-000000000001','a1000000-0000-0000-0000-000000000002',
+                                 NOW()-INTERVAL '5 days', 5, 20,
+                                 NOW()-INTERVAL '5 days', 'a1000000-0000-0000-0000-000000000001',
+                                 NOW()-INTERVAL '5 days', 'a1000000-0000-0000-0000-000000000002', 'Выбрала наклейку с единорогом!'),
+                                ('b1000000-0000-0000-0000-000000000002','a1000000-0000-0000-0000-000000000002',
+                                 NOW()-INTERVAL '1 day', 3, 30,
+                                 NOW()-INTERVAL '1 day', 'a1000000-0000-0000-0000-000000000001',
+                                 NULL, NULL, NULL),
+                                ('b1000000-0000-0000-0000-000000000003','a1000000-0000-0000-0000-000000000003',
+                                 NOW()-INTERVAL '3 days', 5, 20,
+                                 NOW()-INTERVAL '3 days', 'a1000000-0000-0000-0000-000000000001',
+                                 NOW()-INTERVAL '3 days', 'a1000000-0000-0000-0000-000000000003', NULL),
+                                ('b1000000-0000-0000-0000-000000000004','a1000000-0000-0000-0000-000000000002',
+                                 NOW(), 1, 100,
+                                 NULL, NULL, NULL, NULL, NULL),
+                                ('b1000000-0000-0000-0000-000000000005','a1000000-0000-0000-0000-000000000002',
+                                 NOW()-INTERVAL '12 days', 5, 25,
+                                 NOW()-INTERVAL '11 days 22 hours', 'a1000000-0000-0000-0000-000000000001',
+                                 NOW()-INTERVAL '11 days 21 hours', 'a1000000-0000-0000-0000-000000000002', 'Музыка в машине на поездку к бабушке'),
+                                ('b1000000-0000-0000-0000-000000000006','a1000000-0000-0000-0000-000000000003',
+                                 NOW()-INTERVAL '9 days', 5, 30,
+                                 NOW()-INTERVAL '8 days 20 hours', 'a1000000-0000-0000-0000-000000000001',
+                                 NOW()-INTERVAL '8 days 18 hours', 'a1000000-0000-0000-0000-000000000003', 'Дополнительное экранное время использовано после уроков'),
+                                ('b1000000-0000-0000-0000-000000000007','a1000000-0000-0000-0000-000000000003',
+                                 NOW()-INTERVAL '2 days', 3, 120,
+                                 NOW()-INTERVAL '2 days', 'a1000000-0000-0000-0000-000000000001',
+                                 NULL, NULL, 'Ожидает подтверждения ребёнком'),
+                                ('b1000000-0000-0000-0000-000000000008','a1000000-0000-0000-0000-000000000002',
+                                 NOW()-INTERVAL '6 hours', 2, 20,
+                                 NULL, NULL, NULL, NULL, NULL)
+                                ON CONFLICT ("Id") DO NOTHING;
+                                """);
                 """);
 
             logger2.LogInformation("Demo orders seeded successfully.");

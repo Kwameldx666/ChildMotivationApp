@@ -164,7 +164,7 @@ using (var scope = app.Services.CreateScope())
 
                 await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
                 {
-                    Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    Id = Guid.Parse("a1000000-0000-0000-0000-000000000001"),
                     UserName = "demo.parent@example.com",
                     Email = "demo.parent@example.com",
                     EmailConfirmed = true,
@@ -180,7 +180,7 @@ using (var scope = app.Services.CreateScope())
 
                 await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
                 {
-                    Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    Id = Guid.Parse("a1000000-0000-0000-0000-000000000002"),
                     UserName = "masha.ivanova@example.com",
                     Email = "masha.ivanova@example.com",
                     EmailConfirmed = true,
@@ -197,7 +197,7 @@ using (var scope = app.Services.CreateScope())
 
                 await EnsureDemoUserAsync(new AuthService.Domain.Entities.User
                 {
-                    Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                    Id = Guid.Parse("a1000000-0000-0000-0000-000000000003"),
                     UserName = "dima.ivanov@example.com",
                     Email = "dima.ivanov@example.com",
                     EmailConfirmed = true,
