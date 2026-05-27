@@ -209,7 +209,7 @@ using (var scope = app.Services.CreateScope())
 
             logger2.LogInformation("Demo tasks seeded successfully.");
         }
-    }
+
         // ── Seed Family 1: Ивановы (a1000000-...) ──
         const string p1 = "a1000000-0000-0000-0000-000000000001";
         const string c1 = "a1000000-0000-0000-0000-000000000002"; // Никита
