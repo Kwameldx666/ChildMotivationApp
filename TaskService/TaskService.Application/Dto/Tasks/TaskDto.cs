@@ -16,6 +16,7 @@ public record TaskDto(
     DateTime? UpdatedAt,
     DateTime? CompletedAt,
     string CreatedByUserId,
+    string? AssignedToUserId,
     int Difficulty,
     int RewardXp,
     int RewardPoints,

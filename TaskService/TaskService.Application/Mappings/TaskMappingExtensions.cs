@@ -18,6 +18,7 @@ public static class TaskMappingExtensions
             task.UpdatedAt,
             task.CompletedAt,
             task.CreatedByUserId,
+            task.AssignedToUserId,
             task.Difficulty,
             task.RewardXp,
             task.RewardPoints,
