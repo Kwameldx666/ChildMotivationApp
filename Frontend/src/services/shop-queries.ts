@@ -17,7 +17,7 @@ export function useShopProducts() {
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    // refetchOnMount: true (default) — ensures data loads when the shop tab opens
   })
 }
 
@@ -29,7 +29,7 @@ export function useShopOrders(userId?: string, enabled: boolean = true) {
     gcTime: 1000 * 60 * 10, // 10 minutes
     enabled,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    // refetchOnMount: true (default)
   })
 }
 

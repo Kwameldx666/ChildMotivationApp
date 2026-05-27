@@ -235,16 +235,36 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
       : normalizedFamilyMembers.filter(m => !parentMembers.some(parent => parent.normalizedId === m.normalizedId))
 
     const childMembersById = new Map(childMembers.map(member => [member.normalizedId, member]))
-    const resolveTaskChildIds = (task: TaskDto): string[] => {
-      // 1. Explicitly assigned
-      const assignedTo = normalizeUserId(task.assignedToUserId)
-      if (assignedTo && childMembersById.has(assignedTo)) return [assignedTo]
+    const parentMemberIds = new Set(parentMembers.map(m => m.normalizedId))
+    const hasFamilyData = childMembersById.size > 0
 
-      // 2. Based on who uploaded evidence
+    const resolveTaskChildIds = (task: TaskDto): string[] => {
+      // 1. Explicitly assigned — trust assignedToUserId regardless of family member cache.
+      //    When family-members API fails, childMembersById is empty but the task still
+      //    belongs to whoever it was assigned to (must not be a known parent).
+      const assignedTo = normalizeUserId(task.assignedToUserId)
+      if (assignedTo) {
+        if (hasFamilyData) {
+          if (childMembersById.has(assignedTo)) return [assignedTo]
+        } else if (!parentMemberIds.has(assignedTo)) {
+          // Family data unavailable — include any assignee that isn't a known parent
+          return [assignedTo]
+        }
+      }
+
+      // 2. Based on who uploaded evidence (child uploads their own evidence)
       const uploaderId = normalizeUserId(task.evidence?.uploadedByUserId)
-      if (uploaderId && childMembersById.has(uploaderId)) return [uploaderId]
+      if (uploaderId) {
+        if (hasFamilyData) {
+          if (childMembersById.has(uploaderId)) return [uploaderId]
+        } else if (!parentMemberIds.has(uploaderId)) {
+          return [uploaderId]
+        }
+      }
 
       // 3. Based on who created the task (if child created their own task)
+      //    Only use this when we have confirmed family data, to avoid attributing
+      //    parent-created tasks to children.
       const createdBy = normalizeUserId(task.createdByUserId)
       if (createdBy && childMembersById.has(createdBy)) return [createdBy]
 
@@ -253,7 +273,7 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
         return Array.from(childMembersById.keys())
       }
 
-      return [] 
+      return []
     }
 
     const childTasksById = new Map<string, TaskDto[]>()
@@ -283,7 +303,8 @@ export function useRealAnalytics(windowDays: number = 30): UseRealAnalyticsResul
       ...childIdsFromTasks,
     ])
     const activeChildIds = [...childIdSet]
-    const activeChildCount = childIdsFromTasks.length
+    // Count children who actually have at least one task attributed to them
+    const activeChildCount = activeChildIds.filter(id => (childTasksById.get(id)?.length ?? 0) > 0).length || activeChildIds.length
     const nowTs = Date.now()
     const overdueThresholdMs = 7 * 86_400_000
 
