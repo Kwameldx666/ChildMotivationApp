@@ -13,19 +13,12 @@ namespace TaskService.Persistence.TaskService.TaskService.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "PendingApproval",
-                table: "tasks",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "StartedByChild",
-                table: "tasks",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            // Use raw SQL with IF NOT EXISTS so the migration is idempotent —
+            // these columns may already exist from the startup ALTER TABLE patch.
+            migrationBuilder.Sql(
+                "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"PendingApproval\" boolean NOT NULL DEFAULT false");
+            migrationBuilder.Sql(
+                "ALTER TABLE tasks ADD COLUMN IF NOT EXISTS \"StartedByChild\" boolean NOT NULL DEFAULT false");
 
             migrationBuilder.InsertData(
                 table: "achievements",
