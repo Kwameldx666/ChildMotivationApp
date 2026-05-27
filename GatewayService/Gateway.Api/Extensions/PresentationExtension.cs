@@ -22,6 +22,7 @@ internal static class PresentationExtension
             {
                 // Serialize enums as strings instead of numbers
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
             });
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
