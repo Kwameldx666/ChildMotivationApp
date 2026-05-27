@@ -14,8 +14,9 @@ import { useTranslation } from "@/i18n/provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
 // ── Demo credentials ──────────────────────────────────────────────────────────
-const DEMO_EMAIL    = "demo@familyquest.app"
-const DEMO_PASSWORD = "Demo1234!"
+const DEMO_PARENT_EMAIL = "demo@familyquest.app"
+const DEMO_CHILD_LOGIN  = "nikita_demo"
+const DEMO_PASSWORD     = "Demo1234!"
 
 // ── Assets ───────────────────────────────────────────────────────────────────
 const AVATARS        = ["🙂", "😎", "🤖", "🦊", "🐻", "🐼", "🐯", "🦁", "🐸", "🐵"] as const
@@ -124,7 +125,20 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
     return false
   }, [mode, isLoading, email, password, name, lastName, familyName])
 
-  const fillDemo = () => { setEmail(DEMO_EMAIL); setPassword(DEMO_PASSWORD); setError(null) }
+  const handleDemoLogin = async (type: "parent" | "child") => {
+    setError(null); setIsLoading(true)
+    try {
+      const creds = type === "parent"
+        ? { email: DEMO_PARENT_EMAIL, password: DEMO_PASSWORD }
+        : { email: DEMO_CHILD_LOGIN,  password: DEMO_PASSWORD }
+      const session = await authApi.login(creds)
+      onAuth(session)
+    } catch (err: any) {
+      setError(mapApiError(err, "Ошибка демо-входа"))
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const resolveOAuthProvider = (p: OAuthProvider) => {
     if (p === "google" || p === "github" || p === "discord") return p
@@ -286,25 +300,35 @@ export default function AuthScreen({ onAuth, onBack, initialMode = "login" }: Au
                   ))}
                 </div>
 
-                {/* Demo credentials banner (only in login mode) */}
+                {/* Demo quick-login panel (only in login mode) */}
                 {mode === "login" && (
-                  <button type="button" onClick={fillDemo}
-                    className="w-full mb-5 flex items-center gap-3 px-4 py-3 rounded-2xl border-2 border-dashed transition-all hover:scale-[1.01] active:scale-[0.99] animate-auth-demo-pulse group"
+                  <div className="mb-5 rounded-2xl border-2 border-dashed p-3 animate-auth-demo-pulse"
                     style={{ borderColor: "#a855f7", background: "linear-gradient(135deg, #faf5ff, #fdf4ff)" }}
                   >
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)" }}
-                    >
-                      <Zap className="w-5 h-5 text-white" />
+                    <p className="text-xs font-bold text-purple-700 uppercase tracking-wide text-center mb-2.5 flex items-center justify-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5" />
+                      Быстрый демо-вход
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => handleDemoLogin("parent")} disabled={isLoading}
+                        className="flex flex-col items-center gap-0.5 px-3 py-2.5 rounded-xl transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50"
+                        style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", boxShadow: "0 4px 12px -2px rgba(99,102,241,0.45)" }}
+                      >
+                        <span className="text-xl">😊</span>
+                        <span className="text-xs font-bold text-white leading-tight">Алексей</span>
+                        <span className="text-[10px] text-white/70 leading-tight">Родитель</span>
+                      </button>
+                      <button type="button" onClick={() => handleDemoLogin("child")} disabled={isLoading}
+                        className="flex flex-col items-center gap-0.5 px-3 py-2.5 rounded-xl transition-all hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50"
+                        style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 4px 12px -2px rgba(16,185,129,0.45)" }}
+                      >
+                        <span className="text-xl">🤖</span>
+                        <span className="text-xs font-bold text-white leading-tight">Никита</span>
+                        <span className="text-[10px] text-white/70 leading-tight">Ребёнок · 10 лет</span>
+                      </button>
                     </div>
-                    <div className="text-left flex-1 min-w-0">
-                      <p className="text-xs font-bold text-purple-700 uppercase tracking-wide">Демо-вход</p>
-                      <p className="text-xs text-purple-500 truncate font-mono">{DEMO_EMAIL}</p>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-purple-400 group-hover:text-purple-600 transition-colors" />
-                    </div>
-                  </button>
+                  </div>
                 )}
 
                 <form className="space-y-4" onSubmit={mode === "login" ? submitLogin : submitRegister}>

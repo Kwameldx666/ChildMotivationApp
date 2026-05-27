@@ -24,7 +24,6 @@ import {
   Area,
   AreaChart,
   Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   ComposedChart,
@@ -32,8 +31,6 @@ import {
   Line,
   Pie,
   PieChart,
-  RadialBar,
-  RadialBarChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -61,12 +58,76 @@ const STATUS_COLORS = {
   overdue:    "#ef4444",
 }
 
+// ── SVG donut for task status ─────────────────────────────────────────────────
+function StatusDonut({
+  completed, inProgress, overdue,
+}: {
+  completed: number; inProgress: number; overdue: number
+}) {
+  const total = completed + inProgress + overdue
+  if (!total) return null
+
+  const cx = 72; const cy = 72; const r = 52; const size = 144
+  const strokeW = 18
+
+  const segments = [
+    { value: completed,  color: STATUS_COLORS.completed  },
+    { value: inProgress, color: STATUS_COLORS.inProgress },
+    { value: overdue,    color: STATUS_COLORS.overdue    },
+  ].filter(s => s.value > 0)
+
+  const GAP_DEG = segments.length > 1 ? 4 : 0
+  const totalAngle = 360 - GAP_DEG * segments.length
+
+  const toRad = (deg: number) => ((deg - 90) * Math.PI) / 180
+
+  const arc = (startDeg: number, endDeg: number) => {
+    const s = { x: cx + r * Math.cos(toRad(startDeg)), y: cy + r * Math.sin(toRad(startDeg)) }
+    const e = { x: cx + r * Math.cos(toRad(endDeg)),   y: cy + r * Math.sin(toRad(endDeg))   }
+    const large = endDeg - startDeg > 180 ? 1 : 0
+    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`
+  }
+
+  let cursor = -90
+  const paths = segments.map(seg => {
+    const sweep = (seg.value / total) * totalAngle
+    const start = cursor
+    const end   = cursor + sweep
+    cursor = end + GAP_DEG
+    return { ...seg, start, end }
+  })
+
+  const pct = Math.round((completed / total) * 100)
+
+  return (
+    <div className="relative mx-auto" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} overflow="visible">
+        {/* background track */}
+        <circle cx={cx} cy={cy} r={r} fill="none"
+          stroke="currentColor" strokeOpacity={0.07} strokeWidth={strokeW} />
+        {paths.map((p, i) => (
+          <path key={i} d={arc(p.start, p.end)}
+            fill="none" stroke={p.color} strokeWidth={strokeW}
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 0 6px ${p.color}55)` }}
+          />
+        ))}
+      </svg>
+      {/* centre label */}
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+        <span className="text-3xl font-black tabular-nums text-slate-900 dark:text-white leading-none">{pct}%</span>
+        <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">готово</span>
+      </div>
+    </div>
+  )
+}
+
 // ── Glassmorphism card shell ──────────────────────────────────────────────────
 function ChartShell({
   title, description, badge, className, accent = "cyan", children,
 }: {
   title: string; description: string; badge?: string
-  className?: string; accent?: "cyan" | "purple" | "amber" | "emerald"
+  className?: string; accent?: "cyan" | "purple" | "amber" | "emerald" | "rose"
   children: React.ReactNode
 }) {
   const glowMap = {
@@ -74,22 +135,22 @@ function ChartShell({
     purple:  "group-hover:shadow-[0_8px_40px_rgba(139,92,246,0.18)] dark:group-hover:shadow-[0_8px_40px_rgba(139,92,246,0.22)]",
     amber:   "group-hover:shadow-[0_8px_40px_rgba(245,158,11,0.18)] dark:group-hover:shadow-[0_8px_40px_rgba(245,158,11,0.22)]",
     emerald: "group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.18)] dark:group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.22)]",
+    rose:    "group-hover:shadow-[0_8px_40px_rgba(244,63,94,0.18)]  dark:group-hover:shadow-[0_8px_40px_rgba(244,63,94,0.22)]",
   }
   const blobMap = {
     cyan:    "bg-cyan-400/8 dark:bg-cyan-400/12",
     purple:  "bg-purple-400/8 dark:bg-purple-400/12",
     amber:   "bg-amber-400/8 dark:bg-amber-400/12",
     emerald: "bg-emerald-400/8 dark:bg-emerald-400/12",
+    rose:    "bg-rose-400/8 dark:bg-rose-400/12",
   }
   return (
     <Card className={`group relative overflow-hidden transition-all duration-500 shadow-lg
       bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl
       border border-slate-200/80 dark:border-slate-700/60
       ${glowMap[accent]} ${className ?? ""}`}>
-      {/* ambient blob */}
       <div className={`absolute -right-16 -top-16 h-56 w-56 rounded-full blur-[80px] transition-all duration-700 ${blobMap[accent]}`} />
       <div className={`absolute -left-16 -bottom-16 h-40 w-40 rounded-full blur-[60px] transition-all duration-700 ${blobMap[accent]}`} />
-
       <CardHeader className="relative z-10 pb-2">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
@@ -206,13 +267,47 @@ function LeaderboardRow({
           </span>
         </div>
         <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
-          {completedTasks} tasks done
+          {completedTasks} задач выполнено
         </p>
       </div>
     </div>
   )
 }
 
+// ── Status stat row ───────────────────────────────────────────────────────────
+function StatusRow({
+  icon, label, value, total, color, bgColor,
+}: {
+  icon: React.ReactNode; label: string; value: number
+  total: number; color: string; bgColor: string
+}) {
+  const pct = total > 0 ? Math.round((value / total) * 100) : 0
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${bgColor}`}
+        style={{ color }}>
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{label}</span>
+          <span className="text-sm font-black tabular-nums ml-2 text-slate-900 dark:text-white">{value}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${pct}%`, backgroundColor: color,
+                boxShadow: `0 0 8px ${color}66` }} />
+          </div>
+          <span className="text-[10px] font-bold w-7 text-right shrink-0"
+            style={{ color }}>{pct}%</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 type DashboardView = {
   totalPoints: number; completedTasks: number; totalTasks: number
   completionRate: number; activeChildren: number
@@ -275,7 +370,6 @@ export default function AnalyticsDashboard() {
     }
   }, [analytics, selectedChild])
 
-  // ── derived series ──────────────────────────────────────────────────────────
   const activitySeries = useMemo(() => {
     if (!view) return []
     return view.weeklyActivity.map((p, i, arr) => {
@@ -305,15 +399,6 @@ export default function AnalyticsDashboard() {
 
   const difficultySeries = useMemo(() => view?.difficultyDistribution.filter(x => x.value > 0) ?? [], [view])
 
-  const statusSeries = useMemo(() => {
-    if (!view) return []
-    return [
-      { name: t("analytics.chartLabels.completed"), value: view.taskStatus.completed, color: STATUS_COLORS.completed },
-      { name: t("analytics.chartLabels.inProgress"), value: view.taskStatus.inProgress, color: STATUS_COLORS.inProgress },
-      { name: t("analytics.chartLabels.overdue"),    value: view.taskStatus.overdue,    color: STATUS_COLORS.overdue },
-    ].filter(x => x.value > 0)
-  }, [view, t])
-
   const leaderboardSeries = useMemo(() => {
     if (!analytics) return []
     return [...analytics.childrenStats]
@@ -333,18 +418,6 @@ export default function AnalyticsDashboard() {
       .sort((a, b) => b.totalPoints - a.totalPoints)
   }, [analytics, selectedChild])
 
-  // Radial chart data for status
-  const radialData = useMemo(() => {
-    if (!view) return []
-    const total = view.taskStatus.completed + view.taskStatus.inProgress + view.taskStatus.overdue
-    if (!total) return []
-    return [
-      { name: t("analytics.chartLabels.completed"), value: Math.round((view.taskStatus.completed / total) * 100), fill: STATUS_COLORS.completed },
-      { name: t("analytics.chartLabels.inProgress"), value: Math.round((view.taskStatus.inProgress / total) * 100), fill: STATUS_COLORS.inProgress },
-      { name: t("analytics.chartLabels.overdue"), value: Math.round((view.taskStatus.overdue / total) * 100), fill: STATUS_COLORS.overdue },
-    ]
-  }, [view, t])
-
   const pointsDelta = useMemo(() => {
     if (pointsSeries.length < 2) return 0
     return pointsSeries[pointsSeries.length - 1].points - pointsSeries[0].points
@@ -357,7 +430,6 @@ export default function AnalyticsDashboard() {
 
   const activeDays = useMemo(() => activitySeries.filter(d => d.tasksCompleted > 0).length, [activitySeries])
 
-  // ── States ──────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 gap-3">
@@ -388,16 +460,15 @@ export default function AnalyticsDashboard() {
   }
 
   const statusTotal = view.taskStatus.completed + view.taskStatus.inProgress + view.taskStatus.overdue
-  const completedShare = statusTotal > 0 ? Math.round((view.taskStatus.completed / statusTotal) * 100) : 0
 
   return (
     <div className="space-y-6">
+
       {/* ── Hero header ─────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-3xl
         bg-gradient-to-br from-slate-900 via-indigo-950 to-cyan-950
         dark:from-slate-950 dark:via-indigo-950/80 dark:to-cyan-950/80
         shadow-2xl border border-white/5">
-        {/* decorative blobs */}
         <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-cyan-500/10 blur-[100px]" />
         <div className="absolute -left-20 -bottom-20 h-60 w-60 rounded-full bg-indigo-500/15 blur-[80px]" />
         <div className="absolute right-1/3 top-0 h-40 w-40 rounded-full bg-violet-500/10 blur-[60px]" />
@@ -412,9 +483,7 @@ export default function AnalyticsDashboard() {
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-tight">
-                {selectedChild === "all"
-                  ? t("analyticsDashboard.wholeFamily")
-                  : view.focusChildName}
+                {selectedChild === "all" ? t("analyticsDashboard.wholeFamily") : view.focusChildName}
               </h2>
               <p className="mt-1 text-sm text-white/50 max-w-lg">
                 {t("analytics.chartDescriptions.completionMomentum")}
@@ -424,15 +493,11 @@ export default function AnalyticsDashboard() {
             {/* Period selector */}
             <div className="flex items-center gap-1.5 bg-white/8 border border-white/10 rounded-2xl p-1.5 self-start">
               {PERIOD_OPTIONS.map(days => (
-                <button
-                  key={days}
-                  onClick={() => setWindowDays(days)}
+                <button key={days} onClick={() => setWindowDays(days)}
                   className={`px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all duration-200
                     ${windowDays === days
                       ? "bg-white text-slate-900 shadow-lg"
-                      : "text-white/60 hover:text-white hover:bg-white/10"
-                    }`}
-                >
+                      : "text-white/60 hover:text-white hover:bg-white/10"}`}>
                   {t(`analytics.periodSelection.${days}days`)}
                 </button>
               ))}
@@ -441,15 +506,12 @@ export default function AnalyticsDashboard() {
 
           {/* Child filter pills */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSelectedChild("all")}
+            <button onClick={() => setSelectedChild("all")}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-bold
                 transition-all duration-200 border
                 ${selectedChild === "all"
                   ? "bg-white text-slate-900 border-transparent shadow"
-                  : "bg-white/8 text-white/70 border-white/15 hover:bg-white/15 hover:text-white"
-                }`}
-            >
+                  : "bg-white/8 text-white/70 border-white/15 hover:bg-white/15 hover:text-white"}`}>
               <Users className="h-3.5 w-3.5" />
               {t("analyticsDashboard.wholeFamily")}
             </button>
@@ -457,17 +519,13 @@ export default function AnalyticsDashboard() {
               const color = CHILD_COLORS[idx % CHILD_COLORS.length]
               const active = selectedChild === child.childId
               return (
-                <button
-                  key={child.childId}
-                  onClick={() => setSelectedChild(child.childId)}
+                <button key={child.childId} onClick={() => setSelectedChild(child.childId)}
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-bold
                     transition-all duration-200 border
                     ${active
                       ? "bg-white/15 text-white border-white/30 shadow"
-                      : "bg-white/5 text-white/60 border-white/10 hover:bg-white/12 hover:text-white"
-                    }`}
-                  style={active ? { borderColor: `${color}60`, backgroundColor: `${color}20`, color: "white" } : {}}
-                >
+                      : "bg-white/5 text-white/60 border-white/10 hover:bg-white/12 hover:text-white"}`}
+                  style={active ? { borderColor: `${color}60`, backgroundColor: `${color}20`, color: "white" } : {}}>
                   <div className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
                   {child.childName}
                 </button>
@@ -512,7 +570,7 @@ export default function AnalyticsDashboard() {
       {/* ── AI insights ─────────────────────────────────────────────────────── */}
       <AiAnalyticsInsights analytics={analytics as AnalyticsData} windowDays={windowDays} />
 
-      {/* ── Activity pulse — full width ─────────────────────────────────────── */}
+      {/* ── Activity pulse — full width ──────────────────────────────────────── */}
       <ChartShell
         title={t("analytics.charts.activityPulse")}
         description={t("analytics.chartDescriptions.activityPulse")}
@@ -522,7 +580,7 @@ export default function AnalyticsDashboard() {
         {activitySeries.length === 0 ? (
           <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
         ) : (
-          <ResponsiveContainer width="100%" height={340}>
+          <ResponsiveContainer width="100%" height={320}>
             <ComposedChart data={activitySeries} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="ag-bar" x1="0" y1="0" x2="0" y2="1">
@@ -534,191 +592,86 @@ export default function AnalyticsDashboard() {
                   <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false}
-                stroke="currentColor" strokeOpacity={0.07} />
-              <XAxis dataKey="day"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.07} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
                 axisLine={false} tickLine={false} dy={10} />
-              <YAxis yAxisId="p"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+              <YAxis yAxisId="p" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
                 axisLine={false} tickLine={false} dx={-6} width={32} />
-              <YAxis yAxisId="t" orientation="right"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+              <YAxis yAxisId="t" orientation="right" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
                 axisLine={false} tickLine={false} dx={6} width={28} />
               <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.04 }} />
-              <Legend iconType="circle"
-                wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 14, color: "currentColor", opacity: 0.75 }} />
-              <Bar yAxisId="p" dataKey="pointsEarned"
-                name={t("analytics.chartLabels.points")}
+              <Legend iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 14, color: "currentColor", opacity: 0.75 }} />
+              <Bar yAxisId="p" dataKey="pointsEarned" name={t("analytics.chartLabels.points")}
                 fill="url(#ag-bar)" radius={[6, 6, 0, 0]} barSize={22} />
-              <Line yAxisId="t" type="monotone" dataKey="tasksCompleted"
-                name={t("analytics.chartLabels.tasks")}
+              <Line yAxisId="t" type="monotone" dataKey="tasksCompleted" name={t("analytics.chartLabels.tasks")}
                 stroke="#f97316" strokeWidth={3}
                 dot={{ r: 4, strokeWidth: 2, fill: "white", stroke: "#f97316" }}
                 activeDot={{ r: 7, strokeWidth: 3 }} filter="url(#ag-glow)" />
-              <Line yAxisId="t" type="monotone" dataKey="trend"
-                name={t("analytics.chartLabels.trend")}
-                stroke="#10b981" strokeDasharray="6 5" strokeWidth={2.5}
-                dot={false} filter="url(#ag-glow)" />
+              <Line yAxisId="t" type="monotone" dataKey="trend" name={t("analytics.chartLabels.trend")}
+                stroke="#10b981" strokeDasharray="6 5" strokeWidth={2.5} dot={false} filter="url(#ag-glow)" />
             </ComposedChart>
           </ResponsiveContainer>
         )}
       </ChartShell>
 
-      {/* ── Middle row: Completion + Status ─────────────────────────────────── */}
+      {/* ── Middle row: Status + Leaderboard ────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* Completion momentum */}
-        <ChartShell
-          title={t("analytics.charts.completionMomentum")}
-          description={t("analytics.chartDescriptions.completionMomentum")}
-          badge={`${view.completionRate.toFixed(0)}%`}
-          accent="emerald"
-        >
-          {progressSeries.length === 0 ? (
-            <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={progressSeries} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="ag-comp" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%"   stopColor="#10b981" stopOpacity={0.55} />
-                    <stop offset="85%"  stopColor="#10b981" stopOpacity={0.04} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false}
-                  stroke="currentColor" strokeOpacity={0.07} />
-                <XAxis dataKey="period"
-                  tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
-                  axisLine={false} tickLine={false} dy={10} />
-                <YAxis domain={[0, 100]}
-                  tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
-                  axisLine={false} tickLine={false} dx={-6} width={30} />
-                <Tooltip content={<AnalyticsTooltip />}
-                  cursor={{ stroke: "currentColor", strokeWidth: 1, strokeOpacity: 0.12, strokeDasharray: "4 4" }} />
-                <ReferenceLine y={80} stroke="#f59e0b" strokeDasharray="5 4" strokeWidth={1.5}
-                  label={{ position: "insideTopLeft", value: "Цель 80%", fill: "#f59e0b", fontSize: 11, fontWeight: "bold" }} />
-                <Area type="monotone" dataKey="completionPercent"
-                  name={t("analytics.chartLabels.completionPercent")}
-                  stroke="#10b981" strokeWidth={3}
-                  fill="url(#ag-comp)"
-                  activeDot={{ r: 7, strokeWidth: 3, stroke: "#10b981", fill: "white" }} />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </ChartShell>
 
-        {/* Task status with radial bars */}
+        {/* ── Task Status — custom SVG donut + stat rows ── */}
         <ChartShell
           title={t("analytics.charts.taskStatusDonut")}
           description={t("analytics.chartDescriptions.taskStatusDonut")}
-          badge={`${completedShare}% ✓`}
+          badge={statusTotal > 0 ? `${statusTotal} задач` : undefined}
           accent="purple"
         >
-          {statusSeries.length === 0 ? (
+          {statusTotal === 0 ? (
             <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
           ) : (
-            <div className="space-y-4">
-              <div className="relative h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadialBarChart
-                    cx="50%" cy="50%"
-                    innerRadius="30%" outerRadius="90%"
-                    barSize={18}
-                    data={radialData}
-                    startAngle={90} endAngle={-270}
-                  >
-                    <RadialBar dataKey="value" cornerRadius={8} background={{ fill: "currentColor", opacity: 0.06 }}>
-                      {radialData.map((entry, i) => (
-                        <Cell key={i} fill={entry.fill} />
-                      ))}
-                    </RadialBar>
-                    <Tooltip content={<AnalyticsTooltip />} cursor={false} />
-                  </RadialBarChart>
-                </ResponsiveContainer>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-black text-slate-900 dark:text-white">{completedShare}%</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    {t("analytics.chartLabels.completed")}
-                  </span>
-                </div>
-              </div>
+            <div className="flex flex-col items-center gap-5 pt-2">
+              {/* SVG donut */}
+              <StatusDonut
+                completed={view.taskStatus.completed}
+                inProgress={view.taskStatus.inProgress}
+                overdue={view.taskStatus.overdue}
+              />
 
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { icon: <CheckCircle2 className="h-4 w-4" />, label: t("analytics.chartLabels.completed"),  value: view.taskStatus.completed,  color: "text-emerald-500", bg: "bg-emerald-500/8 dark:bg-emerald-500/12 border-emerald-500/20" },
-                  { icon: <Clock3 className="h-4 w-4" />,       label: t("analytics.chartLabels.inProgress"), value: view.taskStatus.inProgress, color: "text-amber-500",   bg: "bg-amber-500/8 dark:bg-amber-500/12 border-amber-500/20" },
-                  { icon: <AlertTriangle className="h-4 w-4" />, label: t("analytics.chartLabels.overdue"),    value: view.taskStatus.overdue,    color: "text-rose-500",    bg: "bg-rose-500/8 dark:bg-rose-500/12 border-rose-500/20" },
-                ].map((s, i) => (
-                  <div key={i} className={`rounded-xl border p-2.5 text-center ${s.bg}`}>
-                    <div className={`flex justify-center mb-1 ${s.color}`}>{s.icon}</div>
-                    <p className="text-lg font-black text-slate-900 dark:text-white">{s.value}</p>
-                    <p className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 mt-0.5">{s.label}</p>
-                  </div>
-                ))}
+              {/* Stat rows */}
+              <div className="w-full space-y-3">
+                <StatusRow
+                  icon={<CheckCircle2 className="h-4 w-4" />}
+                  label={t("analytics.chartLabels.completed")}
+                  value={view.taskStatus.completed}
+                  total={statusTotal}
+                  color={STATUS_COLORS.completed}
+                  bgColor="bg-emerald-500/10 dark:bg-emerald-500/15"
+                />
+                <StatusRow
+                  icon={<Clock3 className="h-4 w-4" />}
+                  label={t("analytics.chartLabels.inProgress")}
+                  value={view.taskStatus.inProgress}
+                  total={statusTotal}
+                  color={STATUS_COLORS.inProgress}
+                  bgColor="bg-amber-500/10 dark:bg-amber-500/15"
+                />
+                <StatusRow
+                  icon={<AlertTriangle className="h-4 w-4" />}
+                  label={t("analytics.chartLabels.overdue")}
+                  value={view.taskStatus.overdue}
+                  total={statusTotal}
+                  color={STATUS_COLORS.overdue}
+                  bgColor="bg-rose-500/10 dark:bg-rose-500/15"
+                />
               </div>
             </div>
           )}
         </ChartShell>
-      </div>
 
-      {/* ── Points growth — full width ───────────────────────────────────────── */}
-      <ChartShell
-        title={t("analytics.charts.pointsGrowth")}
-        description={t("analytics.chartDescriptions.pointsGrowth")}
-        badge={`${metricDir(pointsDelta)}${pointsDelta}`}
-        accent="amber"
-      >
-        {pointsSeries.length === 0 ? (
-          <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={320}>
-            <ComposedChart data={pointsSeries} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="ag-pts" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#06b6d4" stopOpacity={0.65} />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.02} />
-                </linearGradient>
-                <linearGradient id="ag-gain" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#f59e0b" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.15} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false}
-                stroke="currentColor" strokeOpacity={0.07} />
-              <XAxis dataKey="date"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
-                axisLine={false} tickLine={false} dy={10} />
-              <YAxis yAxisId="total"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
-                axisLine={false} tickLine={false} dx={-6} width={32} />
-              <YAxis yAxisId="gain" orientation="right"
-                tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
-                axisLine={false} tickLine={false} dx={6} width={28} />
-              <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.04 }} />
-              <Legend iconType="circle"
-                wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 14, color: "currentColor", opacity: 0.75 }} />
-              <Bar yAxisId="gain" dataKey="gain"
-                name={t("analytics.chartLabels.points")}
-                fill="url(#ag-gain)" radius={[6, 6, 0, 0]} barSize={20} />
-              <Area yAxisId="total" type="monotone" dataKey="points"
-                name={t("analytics.chartLabels.trend")}
-                stroke="#06b6d4" strokeWidth={3}
-                fill="url(#ag-pts)"
-                activeDot={{ r: 7, strokeWidth: 3, stroke: "#06b6d4", fill: "white" }} />
-            </ComposedChart>
-          </ResponsiveContainer>
-        )}
-      </ChartShell>
-
-      {/* ── Bottom row: Leaderboard + Difficulty ────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
-        {/* Children leaderboard — custom rows */}
+        {/* ── Children leaderboard ── */}
         <ChartShell
           title={t("analytics.charts.childrenLeaderboard")}
           description={t("analytics.chartDescriptions.childrenLeaderboard")}
           badge={leaderboardSeries.length > 0 ? `${leaderboardSeries.length} детей` : undefined}
-          accent="purple"
+          accent="cyan"
         >
           {leaderboardSeries.length === 0 ? (
             <div className="py-10 text-center">
@@ -742,6 +695,46 @@ export default function AnalyticsDashboard() {
             </div>
           )}
         </ChartShell>
+      </div>
+
+      {/* ── Bottom row: Progress + Difficulty ───────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+        {/* Completion momentum */}
+        <ChartShell
+          title={t("analytics.charts.completionMomentum")}
+          description={t("analytics.chartDescriptions.completionMomentum")}
+          badge={`${view.completionRate.toFixed(0)}%`}
+          accent="emerald"
+        >
+          {progressSeries.length === 0 ? (
+            <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={progressSeries} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ag-comp" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"  stopColor="#10b981" stopOpacity={0.55} />
+                    <stop offset="85%" stopColor="#10b981" stopOpacity={0.04} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.07} />
+                <XAxis dataKey="period" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+                  axisLine={false} tickLine={false} dy={10} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+                  axisLine={false} tickLine={false} dx={-6} width={30} />
+                <Tooltip content={<AnalyticsTooltip />}
+                  cursor={{ stroke: "currentColor", strokeWidth: 1, strokeOpacity: 0.12, strokeDasharray: "4 4" }} />
+                <ReferenceLine y={80} stroke="#f59e0b" strokeDasharray="5 4" strokeWidth={1.5}
+                  label={{ position: "insideTopLeft", value: "Цель 80%", fill: "#f59e0b", fontSize: 11, fontWeight: "bold" }} />
+                <Area type="monotone" dataKey="completionPercent"
+                  name={t("analytics.chartLabels.completionPercent")}
+                  stroke="#10b981" strokeWidth={3} fill="url(#ag-comp)"
+                  activeDot={{ r: 7, strokeWidth: 3, stroke: "#10b981", fill: "white" }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </ChartShell>
 
         {/* Difficulty donut */}
         <ChartShell
@@ -754,20 +747,16 @@ export default function AnalyticsDashboard() {
             <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
           ) : (
             <div>
-              <ResponsiveContainer width="100%" height={240}>
+              <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <defs>
                     <filter id="ag-diff-shadow">
                       <feDropShadow dx="0" dy="4" stdDeviation="5" floodOpacity={0.25} />
                     </filter>
                   </defs>
-                  <Pie
-                    data={difficultySeries}
-                    dataKey="value" nameKey="name"
-                    innerRadius={60} outerRadius={100}
-                    paddingAngle={4}
-                    stroke="rgba(255,255,255,0.08)" strokeWidth={2}
-                  >
+                  <Pie data={difficultySeries} dataKey="value" nameKey="name"
+                    innerRadius={60} outerRadius={96} paddingAngle={4}
+                    stroke="rgba(255,255,255,0.08)" strokeWidth={2}>
                     {difficultySeries.map((e, i) => (
                       <Cell key={i} fill={e.color} filter="url(#ag-diff-shadow)" style={{ outline: "none" }} />
                     ))}
@@ -775,8 +764,6 @@ export default function AnalyticsDashboard() {
                   <Tooltip content={<AnalyticsTooltip />} cursor={false} />
                 </PieChart>
               </ResponsiveContainer>
-
-              {/* Legend as pills */}
               <div className="flex flex-wrap gap-2 justify-center mt-1">
                 {difficultySeries.map((e, i) => (
                   <div key={i} className="flex items-center gap-1.5 rounded-full px-2.5 py-1
@@ -792,13 +779,54 @@ export default function AnalyticsDashboard() {
         </ChartShell>
       </div>
 
+      {/* ── Points growth — full width ───────────────────────────────────────── */}
+      <ChartShell
+        title={t("analytics.charts.pointsGrowth")}
+        description={t("analytics.chartDescriptions.pointsGrowth")}
+        badge={`${metricDir(pointsDelta)}${pointsDelta}`}
+        accent="amber"
+      >
+        {pointsSeries.length === 0 ? (
+          <p className="py-14 text-center text-sm text-slate-400">{t("analyticsDashboard.noData")}</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={pointsSeries} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="ag-pts" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#06b6d4" stopOpacity={0.65} />
+                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.02} />
+                </linearGradient>
+                <linearGradient id="ag-gain" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor="#f59e0b" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.15} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.07} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+                axisLine={false} tickLine={false} dy={10} />
+              <YAxis yAxisId="total" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+                axisLine={false} tickLine={false} dx={-6} width={32} />
+              <YAxis yAxisId="gain" orientation="right" tick={{ fontSize: 11, fontWeight: 600, fill: "currentColor" }}
+                axisLine={false} tickLine={false} dx={6} width={28} />
+              <Tooltip content={<AnalyticsTooltip />} cursor={{ fill: "currentColor", opacity: 0.04 }} />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: 12, fontWeight: 700, paddingTop: 14, color: "currentColor", opacity: 0.75 }} />
+              <Bar yAxisId="gain" dataKey="gain" name={t("analytics.chartLabels.points")}
+                fill="url(#ag-gain)" radius={[6, 6, 0, 0]} barSize={20} />
+              <Area yAxisId="total" type="monotone" dataKey="points" name={t("analytics.chartLabels.trend")}
+                stroke="#06b6d4" strokeWidth={3} fill="url(#ag-pts)"
+                activeDot={{ r: 7, strokeWidth: 3, stroke: "#06b6d4", fill: "white" }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
+      </ChartShell>
+
       {/* ── Summary strip ───────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
           { label: t("analytics.cards.completedTasks"), value: `${view.completedTasks}/${view.totalTasks}`, icon: <CheckCircle2 className="h-4 w-4 text-emerald-500" /> },
-          { label: t("analytics.cards.completionRate"),  value: `${view.completionRate.toFixed(1)}%`, icon: <TrendingUp className="h-4 w-4 text-cyan-500" /> },
-          { label: t("analytics.chartLabels.activeDays"), value: `${activeDays}д`, icon: <Activity className="h-4 w-4 text-violet-500" /> },
-          { label: t("analytics.chartLabels.overdue"),    value: `${view.taskStatus.overdue}`, icon: <AlertTriangle className="h-4 w-4 text-rose-500" /> },
+          { label: t("analytics.cards.completionRate"),  value: `${view.completionRate.toFixed(1)}%`,        icon: <TrendingUp className="h-4 w-4 text-cyan-500" /> },
+          { label: t("analytics.chartLabels.activeDays"), value: `${activeDays}д`,                           icon: <Activity className="h-4 w-4 text-violet-500" /> },
+          { label: t("analytics.chartLabels.overdue"),    value: `${view.taskStatus.overdue}`,               icon: <AlertTriangle className="h-4 w-4 text-rose-500" /> },
         ].map((s, i) => (
           <div key={i} className="flex items-center gap-3 rounded-2xl border
             bg-white/60 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-700/60
