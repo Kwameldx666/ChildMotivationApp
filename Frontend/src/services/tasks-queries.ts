@@ -21,13 +21,19 @@ export function useTasks() {
       if (isChild && childId) {
         const normalizedChildId = childId.trim().toLowerCase()
         const scopedChildTasks = normalizedTasks.filter((task) => {
-          if (!task.completed) {
-            return true
-          }
-
           const assignedTo = task.assignedToUserId?.trim().toLowerCase()
           const createdBy = task.createdByUserId?.trim().toLowerCase()
-          return assignedTo === normalizedChildId || (!assignedTo && createdBy === normalizedChildId)
+
+          // Always show tasks explicitly assigned to this child
+          if (assignedTo && assignedTo === normalizedChildId) return true
+
+          // Show unassigned tasks (family-wide tasks visible to everyone)
+          if (!assignedTo) return true
+
+          // For completed tasks with no explicit assignment, check if child created it
+          if (task.completed && !assignedTo && createdBy === normalizedChildId) return true
+
+          return false
         })
         return scopedChildTasks
       }

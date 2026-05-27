@@ -198,11 +198,15 @@ function mapStatus(task: TaskDto, startedLocally = false): TaskStatus {
 	if (task.completed) return "completed"
 	if (task.pendingApproval) return "pending_approval"
 	if (task.startedByChild || startedLocally) return "in_progress"
-	if (!task.createdAt) return "pending"
-	const created = new Date(task.createdAt)
-	if (Number.isNaN(created.getTime())) return "pending"
-	const days = (Date.now() - created.getTime()) / 86_400_000
-	if (days > 10) return "overdue"
+	// Only mark as overdue if there's an explicit dueDate that has passed,
+	// or if the task was created >30 days ago and never started
+	if (task.createdAt) {
+		const created = new Date(task.createdAt)
+		if (!Number.isNaN(created.getTime())) {
+			const days = (Date.now() - created.getTime()) / 86_400_000
+			if (days > 30) return "overdue"
+		}
+	}
 	return "pending"
 }
 

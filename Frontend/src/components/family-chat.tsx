@@ -386,7 +386,7 @@ export default function FamilyChat({
           <div key={groupIdx} className="space-y-4">
             {/* Date Separator */}
             <div className="flex items-center justify-center sticky top-2 z-10">
-              <Badge variant="secondary" className="rounded-full px-4 py-1 text-[11px] font-medium shadow-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50">
+              <Badge variant="secondary" className="rounded-full px-4 py-1 text-[11px] font-medium shadow-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 text-slate-600 dark:text-slate-300">
                 {formatDate(group.date)}
               </Badge>
             </div>
