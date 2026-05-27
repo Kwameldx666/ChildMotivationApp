@@ -21,6 +21,16 @@ public class AuthDatabaseInitializer(
     public static readonly Guid DemoChild1Id   = Guid.Parse("a1000000-0000-0000-0000-000000000002");
     public static readonly Guid DemoChild2Id   = Guid.Parse("a1000000-0000-0000-0000-000000000003");
 
+    // Family 2 — Петровы
+    public static readonly Guid DemoParent2Id  = Guid.Parse("a2000000-0000-0000-0000-000000000001");
+    public static readonly Guid DemoChild3Id   = Guid.Parse("a2000000-0000-0000-0000-000000000002");
+    public static readonly Guid DemoChild4Id   = Guid.Parse("a2000000-0000-0000-0000-000000000003");
+
+    // Family 3 — Сидоровы
+    public static readonly Guid DemoParent3Id  = Guid.Parse("a3000000-0000-0000-0000-000000000001");
+    public static readonly Guid DemoChild5Id   = Guid.Parse("a3000000-0000-0000-0000-000000000002");
+    public static readonly Guid DemoChild6Id   = Guid.Parse("a3000000-0000-0000-0000-000000000003");
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -156,6 +166,178 @@ public class AuthDatabaseInitializer(
                 await userManager.AddToRoleAsync(child2, UserRoles.Child);
             else
                 logger.LogWarning("Demo child2 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        // ── Demo Family 2: Петровы ───────────────────────────────
+        const string parent2Email  = "demo2@familyquest.app";
+        const string familyCode2   = "DEMO02";
+        const string familyName2   = "Семья Петровых";
+        const string familyEmblem2 = "🌟";
+        const string child3Login   = "maxim_demo";
+        const string child4Login   = "sonya_demo";
+
+        if (await userManager.FindByEmailAsync(parent2Email) is null)
+        {
+            var parent2 = new User
+            {
+                Id             = DemoParent2Id,
+                Email          = parent2Email,
+                UserName       = parent2Email,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode2,
+                FamilyName     = familyName2,
+                FamilyEmblem   = familyEmblem2,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "👩",
+                UserType       = UserType.Parent,
+                Name           = "Ольга",
+                LastName       = "Петрова",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(parent2, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(parent2, UserRoles.Parent);
+            else
+                logger.LogWarning("Demo parent2 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        if (await userManager.FindByNameAsync(child3Login) is null)
+        {
+            var child3 = new User
+            {
+                Id             = DemoChild3Id,
+                UserName       = child3Login,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode2,
+                FamilyName     = familyName2,
+                FamilyEmblem   = familyEmblem2,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "🚀",
+                Age            = 11,
+                UserType       = UserType.Child,
+                Name           = "Максим",
+                LastName       = "Петров",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(child3, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(child3, UserRoles.Child);
+            else
+                logger.LogWarning("Demo child3 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        if (await userManager.FindByNameAsync(child4Login) is null)
+        {
+            var child4 = new User
+            {
+                Id             = DemoChild4Id,
+                UserName       = child4Login,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode2,
+                FamilyName     = familyName2,
+                FamilyEmblem   = familyEmblem2,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "🦋",
+                Age            = 9,
+                UserType       = UserType.Child,
+                Name           = "Соня",
+                LastName       = "Петрова",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(child4, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(child4, UserRoles.Child);
+            else
+                logger.LogWarning("Demo child4 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        // ── Demo Family 3: Сидоровы ──────────────────────────────
+        const string parent3Email  = "demo3@familyquest.app";
+        const string familyCode3   = "DEMO03";
+        const string familyName3   = "Семья Сидоровых";
+        const string familyEmblem3 = "🦁";
+        const string child5Login   = "artem_demo";
+        const string child6Login   = "liza_demo";
+
+        if (await userManager.FindByEmailAsync(parent3Email) is null)
+        {
+            var parent3 = new User
+            {
+                Id             = DemoParent3Id,
+                Email          = parent3Email,
+                UserName       = parent3Email,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode3,
+                FamilyName     = familyName3,
+                FamilyEmblem   = familyEmblem3,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "👨‍💼",
+                UserType       = UserType.Parent,
+                Name           = "Дмитрий",
+                LastName       = "Сидоров",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(parent3, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(parent3, UserRoles.Parent);
+            else
+                logger.LogWarning("Demo parent3 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        if (await userManager.FindByNameAsync(child5Login) is null)
+        {
+            var child5 = new User
+            {
+                Id             = DemoChild5Id,
+                UserName       = child5Login,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode3,
+                FamilyName     = familyName3,
+                FamilyEmblem   = familyEmblem3,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "⚡",
+                Age            = 12,
+                UserType       = UserType.Child,
+                Name           = "Артём",
+                LastName       = "Сидоров",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(child5, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(child5, UserRoles.Child);
+            else
+                logger.LogWarning("Demo child5 creation failed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+
+        if (await userManager.FindByNameAsync(child6Login) is null)
+        {
+            var child6 = new User
+            {
+                Id             = DemoChild6Id,
+                UserName       = child6Login,
+                EmailConfirmed = true,
+                FamilyCode     = familyCode3,
+                FamilyName     = familyName3,
+                FamilyEmblem   = familyEmblem3,
+                UserStatus     = UserStatuses.Active,
+                Avatar         = "🌺",
+                Age            = 7,
+                UserType       = UserType.Child,
+                Name           = "Лиза",
+                LastName       = "Сидорова",
+                MustChangePassword = false,
+            };
+            var result = await userManager.CreateAsync(child6, demoPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(child6, UserRoles.Child);
+            else
+                logger.LogWarning("Demo child6 creation failed: {Errors}",
                     string.Join("; ", result.Errors.Select(e => e.Description)));
         }
     }
