@@ -11,16 +11,16 @@ ENV INTERNAL_API_URL=$INTERNAL_API_URL
 WORKDIR /app
 
 FROM base AS deps
-RUN corepack enable
-COPY Frontend/package.json Frontend/pnpm-lock.yaml ./
-# pnpm 11 requires explicit approval for packages that run build scripts.
-# onlyBuiltDependencies in package.json handles this, but we also set the env
-# var as a fallback so the build never blocks waiting for interactive input.
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+COPY Frontend/package.json Frontend/pnpm-lock.yaml Frontend/pnpm-workspace.yaml ./
+# pnpm 9.x reads onlyBuiltDependencies from package.json["pnpm"] field.
+# pnpm-workspace.yaml is also copied so both pnpm 9 and 11 are covered.
+# PNPM_NO_FROZEN_LOCKFILE ensures the install never blocks on lockfile drift.
 ENV PNPM_NO_FROZEN_LOCKFILE=true
 RUN pnpm install --no-frozen-lockfile
 
 FROM base AS build
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY Frontend/ .
 RUN pnpm build
@@ -37,7 +37,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next

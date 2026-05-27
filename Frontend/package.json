@@ -75,7 +75,14 @@
     "zod": "3.25.76"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["core-js", "sharp", "unrs-resolver", "@tailwindcss/oxide", "lightningcss", "esbuild"]
+    "onlyBuiltDependencies": [
+      "core-js",
+      "sharp",
+      "unrs-resolver",
+      "@tailwindcss/oxide",
+      "lightningcss",
+      "esbuild"
+    ]
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
