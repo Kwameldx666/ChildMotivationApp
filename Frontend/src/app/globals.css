@@ -681,3 +681,117 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.45 0.005 260);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SURFACE UTILITY CLASSES — light/dark adaptive themed surfaces
+   Use these instead of hardcoded inline style backgrounds so
+   the UI automatically looks great in both themes.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Page-level backgrounds ── */
+.surface-page-parent {
+  background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+}
+.dark .surface-page-parent {
+  background: linear-gradient(160deg, #090c1c 0%, #0b0e22 50%, #08101a 100%);
+}
+
+/* ── App headers (navbar) ── */
+.surface-app-header {
+  background: linear-gradient(135deg,
+    rgba(99,102,241,0.07) 0%,
+    rgba(168,85,247,0.05) 50%,
+    rgba(14,165,233,0.04) 100%);
+  border-color: rgba(99,102,241,0.13);
+}
+.dark .surface-app-header {
+  background: linear-gradient(135deg,
+    rgba(99,102,241,0.22) 0%,
+    rgba(168,85,247,0.16) 50%,
+    rgba(14,165,233,0.12) 100%);
+  border-color: rgba(99,102,241,0.3);
+}
+
+.surface-app-header-green {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.07) 0%,
+    rgba(99,102,241,0.05) 50%,
+    rgba(168,85,247,0.04) 100%);
+  border-color: rgba(99,102,241,0.13);
+}
+.dark .surface-app-header-green {
+  background: linear-gradient(135deg,
+    rgba(16,185,129,0.2) 0%,
+    rgba(99,102,241,0.16) 50%,
+    rgba(168,85,247,0.12) 100%);
+  border-color: rgba(99,102,241,0.3);
+}
+
+/* ── Tab / nav pill bars ── */
+.surface-tab-bar {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99,102,241,0.15);
+  box-shadow: 0 4px 20px -4px rgba(99,102,241,0.12);
+}
+.dark .surface-tab-bar {
+  background: rgba(16,18,42,0.85);
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: 0 4px 24px -4px rgba(0,0,0,0.5);
+}
+
+/* ── Small action buttons (profile, settings icon btn) ── */
+.surface-action-btn {
+  border: 2px solid rgba(99,102,241,0.28);
+  background: rgba(255,255,255,0.72);
+}
+.dark .surface-action-btn {
+  border-color: rgba(99,102,241,0.38);
+  background: rgba(16,18,42,0.78);
+}
+
+/* ── Section banner headers inside tab content ── */
+.surface-section-purple {
+  background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(168,85,247,0.06));
+  border: 1px solid rgba(139,92,246,0.15);
+}
+.dark .surface-section-purple {
+  background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(168,85,247,0.14));
+  border-color: rgba(139,92,246,0.3);
+}
+
+.surface-section-pink {
+  background: linear-gradient(135deg, rgba(236,72,153,0.08), rgba(244,114,182,0.06));
+  border: 1px solid rgba(236,72,153,0.15);
+}
+.dark .surface-section-pink {
+  background: linear-gradient(135deg, rgba(236,72,153,0.2), rgba(244,114,182,0.14));
+  border-color: rgba(236,72,153,0.3);
+}
+
+.surface-section-green {
+  background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(20,184,166,0.06));
+  border: 1px solid rgba(16,185,129,0.15);
+}
+.dark .surface-section-green {
+  background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(20,184,166,0.14));
+  border-color: rgba(16,185,129,0.3);
+}
+
+.surface-section-blue {
+  background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(37,99,235,0.06));
+  border: 1px solid rgba(14,165,233,0.15);
+}
+.dark .surface-section-blue {
+  background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(37,99,235,0.14));
+  border-color: rgba(14,165,233,0.3);
+}
+
+.surface-section-slate {
+  background: linear-gradient(135deg, rgba(100,116,139,0.08), rgba(71,85,105,0.06));
+  border: 1px solid rgba(100,116,139,0.15);
+}
+.dark .surface-section-slate {
+  background: linear-gradient(135deg, rgba(100,116,139,0.2), rgba(71,85,105,0.14));
+  border-color: rgba(100,116,139,0.3);
+}

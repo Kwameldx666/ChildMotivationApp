@@ -148,12 +148,10 @@ export default function ParentDashboard({
   ] as const
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(160deg,#f0f4ff 0%,#faf5ff 50%,#f0fdf4 100%)" }}>
+    <div className="min-h-screen surface-page-parent">
 
       {/* ── HEADER ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl border-b"
-        style={{ background: "linear-gradient(135deg,rgba(99,102,241,0.08) 0%,rgba(168,85,247,0.06) 50%,rgba(14,165,233,0.05) 100%)", borderColor: "rgba(99,102,241,0.15)" }}
-      >
+      <header className="sticky top-0 z-40 backdrop-blur-xl border-b surface-app-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           {/* Family brand */}
           <div className="flex items-center gap-3 min-w-0">
@@ -179,9 +177,7 @@ export default function ParentDashboard({
             <span data-tour="parent-notifications"><NotificationsPopover /></span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-3 py-2 rounded-2xl border-2 transition-all hover:shadow-md"
-                  style={{ borderColor: "rgba(99,102,241,0.3)", background: "rgba(255,255,255,0.7)" }}
-                >
+                <button className="flex items-center gap-2 px-3 py-2 rounded-2xl transition-all hover:shadow-md surface-action-btn">
                   <Avatar className="h-7 w-7">
                     {avatarImageUrl && <AvatarImage src={avatarImageUrl} alt={t("parentDashboard.profileAvatarAlt")} />}
                     <AvatarFallback className="text-xs font-bold">{avatarFallbackSymbol}</AvatarFallback>
@@ -216,9 +212,7 @@ export default function ParentDashboard({
 
           {/* ── PREMIUM TAB NAV ─────────────────────────────────── */}
           <div data-tour="parent-tabs" className="mb-6">
-            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl overflow-x-auto"
-              style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", border: "1px solid rgba(99,102,241,0.15)", boxShadow: "0 4px 20px -4px rgba(99,102,241,0.12)" }}
-            >
+            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl overflow-x-auto surface-tab-bar">
               {NAV_TABS.map(tab => {
                 const active = activeTab === tab.value
                 const Icon = tab.icon
@@ -226,12 +220,12 @@ export default function ParentDashboard({
                   <button key={tab.value}
                     data-tour={tab.tourId || undefined}
                     onClick={() => setActiveTab(tab.value)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap min-w-[60px]"
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap min-w-[60px] ${active ? "" : "text-muted-foreground"}`}
                     style={active ? {
                       background: `linear-gradient(135deg,${tab.from},${tab.to})`,
                       color: "#fff",
                       boxShadow: `0 4px 12px -2px ${tab.shadow}`,
-                    } : { color: "#6b7280" }}
+                    } : {}}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden sm:inline">{t(`parentDashboard.tabs.${tab.value}`)}</span>
@@ -244,9 +238,7 @@ export default function ParentDashboard({
 
           {/* ── SECTION HEADERS ─────────────────────────────────── */}
           <TabsContent value="tasks" className="space-y-4">
-            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl"
-              style={{ background: "linear-gradient(135deg,rgba(139,92,246,0.08),rgba(168,85,247,0.06))", border: "1px solid rgba(139,92,246,0.15)" }}
-            >
+            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl surface-section-purple">
               <div>
                 <h2 className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                   {t("parentDashboard.sections.tasks.title")}
@@ -266,9 +258,7 @@ export default function ParentDashboard({
           </TabsContent>
 
           <TabsContent value="rewards" className="space-y-4">
-            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl"
-              style={{ background: "linear-gradient(135deg,rgba(236,72,153,0.08),rgba(244,114,182,0.06))", border: "1px solid rgba(236,72,153,0.15)" }}
-            >
+            <div className="flex items-center justify-between mb-4 p-4 rounded-2xl surface-section-pink">
               <h2 className="text-xl font-extrabold" style={{ background: "linear-gradient(135deg,#ec4899,#f43f5e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {t("parentDashboard.sections.rewards.title")}
               </h2>
@@ -284,9 +274,7 @@ export default function ParentDashboard({
           </TabsContent>
 
           <TabsContent value="children" className="space-y-4">
-            <div className="mb-4 p-4 rounded-2xl"
-              style={{ background: "linear-gradient(135deg,rgba(16,185,129,0.08),rgba(20,184,166,0.06))", border: "1px solid rgba(16,185,129,0.15)" }}
-            >
+            <div className="mb-4 p-4 rounded-2xl surface-section-green">
               <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#10b981,#14b8a6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {t("parentDashboard.sections.children.title")}
               </h2>
@@ -296,9 +284,7 @@ export default function ParentDashboard({
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <div className="mb-4 p-4 rounded-2xl"
-              style={{ background: "linear-gradient(135deg,rgba(14,165,233,0.08),rgba(37,99,235,0.06))", border: "1px solid rgba(14,165,233,0.15)" }}
-            >
+            <div className="mb-4 p-4 rounded-2xl surface-section-blue">
               <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#0ea5e9,#2563eb)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {t("parentDashboard.sections.analytics.title")}
               </h2>
@@ -310,9 +296,7 @@ export default function ParentDashboard({
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <div className="mb-4 p-4 rounded-2xl"
-              style={{ background: "linear-gradient(135deg,rgba(100,116,139,0.08),rgba(71,85,105,0.06))", border: "1px solid rgba(100,116,139,0.15)" }}
-            >
+            <div className="mb-4 p-4 rounded-2xl surface-section-slate">
               <h2 className="text-xl font-extrabold mb-0.5" style={{ background: "linear-gradient(135deg,#64748b,#475569)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {t("parentDashboard.sections.settings.title")}
               </h2>

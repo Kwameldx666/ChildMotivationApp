@@ -211,9 +211,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
       {/* ===============================================
            CLEAN MINIMAL NAVBAR
          =============================================== */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl border-b"
-        style={{ background: "linear-gradient(135deg,rgba(16,185,129,0.08) 0%,rgba(99,102,241,0.06) 50%,rgba(168,85,247,0.05) 100%)", borderColor: "rgba(99,102,241,0.15)" }}
-      >
+      <header className="sticky top-0 z-40 backdrop-blur-xl border-b surface-app-header-green">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 sm:h-16">
 
           {/* Logo / Greeting */}
@@ -254,9 +252,7 @@ export default function ChildDashboard({ userId, userProfile, onLogout }: ChildD
             {/* Settings Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-9 w-9 rounded-xl flex items-center justify-center transition-all border"
-                  style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(99,102,241,0.3)" }}
-                >
+                <button className="h-9 w-9 rounded-xl flex items-center justify-center transition-all surface-action-btn">
                   <Settings className="h-4 w-4" style={{ color: "#6366f1" }} />
                 </button>
               </DropdownMenuTrigger>
