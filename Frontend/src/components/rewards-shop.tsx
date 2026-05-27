@@ -17,6 +17,7 @@ import {
   useUpdateProduct,
   useMarkOrderAsDelivered,
   useConfirmOrderReceived,
+  useAllShopOrders,
 } from "@/services/shop-queries"
 import { ProductDto } from "@/services/shop-service"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -88,6 +89,15 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
     isActive: true,
   })
   const [pendingDeletionId, setPendingDeletionId] = useState<string | null>(null)
+  const [processingOrderId, setProcessingOrderId] = useState<string | null>(null)
+
+  // ── Family-wide orders (parent only): see all children's requests ──────────
+  const familyOrdersQuery = useAllShopOrders(isParent)
+  const pendingFamilyOrders = useMemo(() => {
+    if (!isParent || !familyOrdersQuery.data) return []
+    const needsAction = new Set(['Pending', 'Paid', 'AwaitingDelivery', '0', '1', '2'])
+    return familyOrdersQuery.data.filter(o => needsAction.has(String(o.status)))
+  }, [isParent, familyOrdersQuery.data])
 
   const intlLocale = useMemo(() => resolveIntlLocale(locale), [locale])
   const numberFormatter = useMemo(() => new Intl.NumberFormat(intlLocale), [intlLocale])
@@ -204,6 +214,28 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
     }
   }
 
+  const handleApproveOrder = async (orderId: string) => {
+    setProcessingOrderId(orderId)
+    try {
+      await markAsDelivered.mutateAsync({
+        id: orderId,
+        payload: { deliveredByUserId: currentUserId, notes: "Награда выдана родителем" },
+      })
+      toast({
+        title: "✅ Готово!",
+        description: "Вы подтвердили выдачу награды ребёнку",
+      })
+    } catch {
+      toast({
+        title: t("common.error"),
+        description: t("rewardsShop.toasts.deliveryFailed"),
+        variant: "destructive",
+      })
+    } finally {
+      setProcessingOrderId(null)
+    }
+  }
+
   const handleSaveProduct = async () => {
     if (!selectedProduct) return
     const payload = {
@@ -232,8 +264,115 @@ export default function RewardsShop({ userType, locale = "ru", childBalance }: R
 
   /* ---- Render ---- */
 
+  const ITEM_EMOJIS = ["🎮", "🧸", "🎨", "📚", "🍭", "🎠", "🎪", "🎭", "🎵", "🌈"]
+
   return (
-    <div className="space-y-10 animate-slide-up">
+    <div className="space-y-8 animate-slide-up">
+
+      {/* ═══════════ Pending child orders (parent only) ═══════════ */}
+      {isParent && pendingFamilyOrders.length > 0 && (
+        <div className="space-y-3">
+          {/* Section header */}
+          <div
+            className="relative overflow-hidden rounded-3xl border-2 p-5"
+            style={{ background: "linear-gradient(135deg,#fffbeb 0%,#fef3c7 60%,#fde68a 100%)", borderColor: "#f59e0b" }}
+          >
+            <div className="absolute -top-4 -right-4 text-6xl opacity-[0.1] select-none pointer-events-none animate-hero-float">🎁</div>
+            <div className="flex items-center gap-4">
+              <div
+                className="w-13 h-13 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-lg"
+                style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)", width: 52, height: 52 }}
+              >
+                🎁
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-black text-amber-900">Запросы детей</h2>
+                <p className="text-sm text-amber-700">
+                  {pendingFamilyOrders.length === 1
+                    ? "1 запрос ожидает вашего подтверждения"
+                    : `${pendingFamilyOrders.length} запроса(ов) ожидают подтверждения`}
+                </p>
+              </div>
+              <span
+                className="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-black flex-shrink-0 animate-pulse"
+                style={{ background: "linear-gradient(135deg,#ef4444,#dc2626)", boxShadow: "0 4px 12px rgba(239,68,68,0.5)" }}
+              >
+                {pendingFamilyOrders.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Individual order cards */}
+          {pendingFamilyOrders.map((order, idx) => (
+            <div
+              key={order.id}
+              className="rounded-3xl border-2 overflow-hidden bg-card animate-card-appear shadow-sm hover:shadow-md transition-shadow"
+              style={{ borderColor: "#fde68a", animationDelay: `${idx * 80}ms` }}
+            >
+              {/* Order header bar */}
+              <div className="flex items-center gap-3 px-5 py-3 border-b"
+                style={{ background: "linear-gradient(135deg,#fef9c3 0%,#fefce8 100%)", borderColor: "#fde68a" }}
+              >
+                <span className="text-base">🛍️</span>
+                <span className="text-xs text-amber-700 flex-1 font-medium">
+                  Заказ от {dateTimeFormatter.format(new Date(order.createdAt))}
+                </span>
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2.5 py-1"
+                  style={{ background: "#fef3c7", color: "#d97706" }}
+                >
+                  <Clock className="h-3 w-3" />
+                  Ожидает выдачи
+                </span>
+              </div>
+
+              {/* Items */}
+              <div className="px-5 py-4 space-y-3">
+                {order.items.map((item, itemIdx) => (
+                  <div key={item.id} className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0 shadow-sm"
+                      style={{ background: "linear-gradient(135deg,#fef3c7,#fed7aa)" }}
+                    >
+                      {ITEM_EMOJIS[(idx + itemIdx) % ITEM_EMOJIS.length]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm leading-snug">{item.productName}</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-400" />
+                        <span className="text-xs font-semibold text-amber-700">
+                          {numberFormatter.format(item.lineTotal)} звёзд
+                        </span>
+                        {item.quantity > 1 && (
+                          <span className="text-xs text-muted-foreground">× {item.quantity}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Approve button */}
+              <div className="px-5 pb-5">
+                <button
+                  onClick={() => handleApproveOrder(order.id)}
+                  disabled={processingOrderId === order.id}
+                  className="w-full h-12 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: "linear-gradient(135deg,#10b981,#059669)", boxShadow: "0 6px 16px -3px rgba(16,185,129,0.55)" }}
+                >
+                  {processingOrderId === order.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-5 w-5" />
+                  )}
+                  {processingOrderId === order.id ? "Подтверждаю..." : "✅ Выдать награду"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ═══════════ Products grid ═══════════ */}
       {productsQuery.isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

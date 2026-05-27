@@ -116,3 +116,19 @@ export function useConfirmOrderReceived() {
     },
   })
 }
+
+/**
+ * Fetch ALL orders (no userId filter) — for parent to see children's pending requests.
+ * Polls every 30 s so the parent sees new orders without refreshing.
+ */
+export function useAllShopOrders(enabled: boolean = true) {
+  return useQuery<OrderDto[]>({
+    queryKey: ['shop', 'orders', 'all-family'],
+    queryFn: () => shopService.listOrders(),
+    staleTime: 1000 * 20,
+    gcTime: 1000 * 60 * 5,
+    enabled,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30_000,
+  })
+}

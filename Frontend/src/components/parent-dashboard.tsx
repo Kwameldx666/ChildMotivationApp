@@ -18,7 +18,7 @@ import { CreateTaskDialog } from "@/components/create-task-dialog"
 import FamilyChat from "@/components/family-chat"
 import ParentChatSelector from "@/components/parent-chat-selector"
 import ChildrenPageContent from "@/components/children-page-content"
-import { useCreateProduct } from "@/services/shop-queries"
+import { useCreateProduct, useAllShopOrders } from "@/services/shop-queries"
 import { useToast } from "@/hooks/use-toast"
 import { mapApiError } from "@/features/auth/utils/mapApiError"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -63,6 +63,14 @@ export default function ParentDashboard({
   const createProduct = useCreateProduct()
   const { toast } = useToast()
   const { showTour, completeTour, resetTour } = useFirstVisitTour("parent-tour-seen")
+
+  // ── Pending child orders ───────────────────────────────────────────────────
+  const allOrdersQuery = useAllShopOrders()
+  const pendingOrdersCount = useMemo(() => {
+    if (!allOrdersQuery.data) return 0
+    const needsAction = new Set(['Pending', 'Paid', 'AwaitingDelivery', '0', '1', '2'])
+    return allOrdersQuery.data.filter(o => needsAction.has(String(o.status))).length
+  }, [allOrdersQuery.data])
 
   const tourSteps: TourStep[] = useMemo(() => [
     { target: null, titleKey: "tour.parent.welcome.title", descriptionKey: "tour.parent.welcome.desc", icon: "👋" },
@@ -208,6 +216,47 @@ export default function ParentDashboard({
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        {/* ── PENDING ORDERS ALERT BANNER ────────────────────────── */}
+        {pendingOrdersCount > 0 && (
+          <div
+            className="mb-4 flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 cursor-pointer group transition-all hover:shadow-lg hover:scale-[1.01] active:scale-[0.99]"
+            style={{ background: "linear-gradient(135deg,#fffbeb 0%,#fef3c7 50%,#fde68a 100%)", borderColor: "#f59e0b" }}
+            onClick={() => setActiveTab("rewards")}
+          >
+            {/* Pulsing icon */}
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 shadow-md animate-pulse"
+              style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)" }}
+            >
+              🎁
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-extrabold text-amber-900 leading-tight">
+                {pendingOrdersCount === 1
+                  ? "1 запрос от ребёнка ожидает выдачи"
+                  : `${pendingOrdersCount} запроса(ов) от детей ожидают выдачи`}
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Нажмите, чтобы просмотреть и подтвердить получение
+              </p>
+            </div>
+
+            {/* Count badge + arrow */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span
+                className="w-8 h-8 rounded-full text-white text-sm font-black flex items-center justify-center shadow-md"
+                style={{ background: "linear-gradient(135deg,#ef4444,#dc2626)", boxShadow: "0 4px 10px rgba(239,68,68,0.4)" }}
+              >
+                {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
+              </span>
+              <span className="text-lg font-bold text-amber-600 group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
           {/* ── PREMIUM TAB NAV ─────────────────────────────────── */}
@@ -220,7 +269,7 @@ export default function ParentDashboard({
                   <button key={tab.value}
                     data-tour={tab.tourId || undefined}
                     onClick={() => setActiveTab(tab.value)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap min-w-[60px] ${active ? "" : "text-muted-foreground"}`}
+                    className={`relative flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap min-w-[60px] ${active ? "" : "text-muted-foreground"}`}
                     style={active ? {
                       background: `linear-gradient(135deg,${tab.from},${tab.to})`,
                       color: "#fff",
@@ -230,6 +279,11 @@ export default function ParentDashboard({
                     <Icon className="w-4 h-4 flex-shrink-0" />
                     <span className="hidden sm:inline">{t(`parentDashboard.tabs.${tab.value}`)}</span>
                     <span className="sm:hidden">{tab.emoji}</span>
+                    {tab.value === "rewards" && pendingOrdersCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center leading-none border-2 border-white dark:border-gray-900 animate-pulse">
+                        {pendingOrdersCount > 9 ? "9+" : pendingOrdersCount}
+                      </span>
+                    )}
                   </button>
                 )
               })}
