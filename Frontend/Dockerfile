@@ -13,6 +13,10 @@ WORKDIR /app
 FROM base AS deps
 RUN corepack enable
 COPY Frontend/package.json Frontend/pnpm-lock.yaml ./
+# pnpm 11 requires explicit approval for packages that run build scripts.
+# onlyBuiltDependencies in package.json handles this, but we also set the env
+# var as a fallback so the build never blocks waiting for interactive input.
+ENV PNPM_NO_FROZEN_LOCKFILE=true
 RUN pnpm install --no-frozen-lockfile
 
 FROM base AS build
