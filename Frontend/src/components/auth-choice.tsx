@@ -1,17 +1,45 @@
 "use client"
 
+import { useState } from "react"
 import { ChevronLeft, Rocket, Sparkles, Star, Users, Zap } from "lucide-react"
 import { useTranslation } from "@/i18n/provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { authApi } from "@/features/auth/api/authApi"
+import type { AuthSession } from "@/features/auth/types"
+
+// Demo credentials (Family 1 – Ивановы)
+const DEMO_PARENT_EMAIL    = "demo@familyquest.app"
+const DEMO_CHILD_LOGIN     = "nikita_demo"   // UserName, no email for children
+const DEMO_PASSWORD        = "Demo1234!"
 
 interface AuthChoiceProps {
   onNewUser: () => void
   onExisting: () => void
   onBack: () => void
+  onDemoAuth?: (session: AuthSession) => void
 }
 
-export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoiceProps) {
+export default function AuthChoice({ onNewUser, onExisting, onBack, onDemoAuth }: AuthChoiceProps) {
   const { t } = useTranslation()
+  const [demoLoading, setDemoLoading] = useState<"parent" | "child" | null>(null)
+  const [demoError, setDemoError] = useState<string | null>(null)
+
+  const handleDemoLogin = async (type: "parent" | "child") => {
+    if (!onDemoAuth || demoLoading) return
+    setDemoLoading(type)
+    setDemoError(null)
+    try {
+      const session = await authApi.login({
+        email: type === "parent" ? DEMO_PARENT_EMAIL : DEMO_CHILD_LOGIN,
+        password: DEMO_PASSWORD,
+      })
+      onDemoAuth(session)
+    } catch {
+      setDemoError("Не удалось войти. Попробуйте ещё раз.")
+    } finally {
+      setDemoLoading(null)
+    }
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4"
@@ -71,6 +99,89 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
             {t("authChoice.subtitle")}
           </p>
         </div>
+
+        {/* ── Quick Demo Login ─────────────────────────────────── */}
+        {onDemoAuth && (
+          <div className="mb-6 relative overflow-hidden rounded-3xl"
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(16px)",
+              border: "1px solid rgba(255,255,255,0.3)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            }}
+          >
+            <div className="px-6 pt-5 pb-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)" }}>
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <p className="font-extrabold text-white text-base tracking-tight">Быстрый демо-вход</p>
+                <span className="ml-auto text-xs text-white/60 font-medium">без ввода данных</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Demo Parent */}
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("parent")}
+                  disabled={demoLoading !== null}
+                  className="group relative flex flex-col items-center gap-2 py-4 px-3 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    boxShadow: "0 8px 24px -4px rgba(99,102,241,0.3)",
+                  }}
+                >
+                  {demoLoading === "parent" ? (
+                    <div className="w-10 h-10 rounded-full border-2 border-indigo-300 border-t-indigo-600 animate-spin" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-2xl shadow-sm"
+                      style={{ background: "linear-gradient(135deg, #ede9fe, #fdf4ff)" }}>
+                      😊
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="text-xs font-extrabold text-gray-800 leading-none">Алексей</p>
+                    <p className="text-[10px] text-indigo-600 font-semibold mt-0.5">Родитель</p>
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06))" }} />
+                </button>
+
+                {/* Demo Child */}
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("child")}
+                  disabled={demoLoading !== null}
+                  className="group relative flex flex-col items-center gap-2 py-4 px-3 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    boxShadow: "0 8px 24px -4px rgba(236,72,153,0.3)",
+                  }}
+                >
+                  {demoLoading === "child" ? (
+                    <div className="w-10 h-10 rounded-full border-2 border-rose-300 border-t-rose-600 animate-spin" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-2xl shadow-sm"
+                      style={{ background: "linear-gradient(135deg, #fce7f3, #fdf4ff)" }}>
+                      🤖
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="text-xs font-extrabold text-gray-800 leading-none">Никита</p>
+                    <p className="text-[10px] text-rose-500 font-semibold mt-0.5">Ребёнок · 10 лет</p>
+                  </div>
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "linear-gradient(135deg, rgba(236,72,153,0.06), rgba(168,85,247,0.06))" }} />
+                </button>
+              </div>
+
+              {demoError && (
+                <p className="mt-3 text-xs text-center text-red-200 font-medium">{demoError}</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Cards grid */}
         <div className="grid md:grid-cols-2 gap-5">
@@ -181,11 +292,6 @@ export default function AuthChoice({ onNewUser, onExisting, onBack }: AuthChoice
                     {b}
                   </div>
                 ))}
-              </div>
-
-              {/* Demo hint */}
-              <div className="mb-4 px-3 py-2 rounded-xl text-xs font-medium" style={{ background: "linear-gradient(135deg, #ede9fe, #fdf4ff)", color: "#7c3aed" }}>
-                🔑 Демо: <span className="font-mono font-bold">demo@familyquest.app</span> / <span className="font-mono font-bold">Demo1234!</span>
               </div>
 
               {/* CTA */}

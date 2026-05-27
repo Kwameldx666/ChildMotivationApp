@@ -286,7 +286,22 @@ export const familyChatService = {
     }
 
     try {
-      return await httpClient.get<FamilyMessageDto[]>(url)
+      const result = await httpClient.get<FamilyMessageDto[]>(url)
+
+      // When the API returns an empty conversation for a known demo family,
+      // fall back to seed messages so the UI never looks empty on a first demo.
+      if (Array.isArray(result) && result.length === 0) {
+        const seed = getInitialMockMessages(familyId)
+        if (seed.length > 0) {
+          let messages = seed
+          if (before) {
+            messages = messages.filter(m => new Date(m.createdAt) < before)
+          }
+          return messages.slice(-limit)
+        }
+      }
+
+      return result
     } catch {
       let messages = getMockMessages(familyId)
       if (before) {

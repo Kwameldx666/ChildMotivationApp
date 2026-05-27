@@ -62,7 +62,12 @@ export default function Home() {
 
   if (screen === "auth-choice") {
     return (
-      <AuthChoice onNewUser={handleNewUserFlow} onExisting={handleExistingUserFlow} onBack={handleBackToWelcome} />
+      <AuthChoice
+        onNewUser={handleNewUserFlow}
+        onExisting={handleExistingUserFlow}
+        onBack={handleBackToWelcome}
+        onDemoAuth={handleAuthSuccess}
+      />
     )
   }
 
